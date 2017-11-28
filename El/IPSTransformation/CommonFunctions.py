@@ -46,7 +46,6 @@ class IPSCommonFunctions():
         Date :       27 Nov 2017
         Purpose :    Retrieves user password for database (Oracle)
                      Data currently retrieved from .txt file.  Process to be determined.
-        Params :     
         """
         
         # IPSCredentials file location
@@ -72,7 +71,6 @@ class IPSCommonFunctions():
         Author :    mahont1 & thorne1
         Date :      27 Nov 2017
         Purpose :   Connect to Oracle database and return cursor object
-        Params : 
         REQUIREMENTS:   pip install cx_Oracle 
                         32-bit Oracle Client required
         """
