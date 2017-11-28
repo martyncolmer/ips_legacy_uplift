@@ -127,7 +127,7 @@ class IPSCommonFunctions():
         Date : 27 Nov 2017
         Purpose : Opens a CSV and returns a dataset   
         Params : file_name    =    directory path to CSV
-        Returns : True/False
+        Returns : Dataframe (object) or False
         https://chrisalbon.com/python/pandas_dataframe_importing_csv.html
         """
         try:
