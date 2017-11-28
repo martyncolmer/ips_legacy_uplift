@@ -162,9 +162,14 @@ class IPSCommonFunctions():
         try:
             # Create and return sas7bdat dataframe:
             with SAS7BDAT(file_name) as file_object:
-                return file_object.to_data_frame()
+                return file_object
         except TypeError as err:
             # File not found, return False to indicate failure
             raise
             print "%s is not a SAS file" %(file_name)
             return False
+        
+functions = IPSCommonFunctions()
+
+cur = functions.get_oracle_connection()
+print(cur)
