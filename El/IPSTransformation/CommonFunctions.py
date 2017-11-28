@@ -51,10 +51,13 @@ class IPSCommonFunctions():
                         32-bit Oracle Client required
         """
         
+        # Retrieve credentials dictionary 
+        creds = self.get_credentials()
+        
         # Connect
-        conn = cx_Oracle.connect(self.credentials_dict['User']
-                                 , self.credentials_dict['Password']
-                                 , self.credentials_dict['Database'])
+        conn = cx_Oracle.connect(creds['User']
+                                 , creds['Password']
+                                 , creds['Database'])
         
         # Create and return cursor object
         cur = conn.cursor()
