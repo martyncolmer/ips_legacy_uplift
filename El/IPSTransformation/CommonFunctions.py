@@ -131,7 +131,6 @@ class IPSCommonFunctions():
             zip_file.close()        
         
     
-    
     def import_CSV(self, file_name):
         """
         Author : thorne1
@@ -168,3 +167,18 @@ class IPSCommonFunctions():
             raise
             print "%s is not a SAS file" %(file_name)
             return False
+    
+    
+    def oralib_access(self):
+        """
+        Author :     thorne1
+        Date :       28 Nov 2017
+        Purpose :    Uses SAS Access to Oracle to assign an Oracle schema, 
+                     using the supplied schema (password is retrieved by self.get_password().)
+        Params :    
+        """
+        
+        pwd = self.get_password()
+        
+        
+    
