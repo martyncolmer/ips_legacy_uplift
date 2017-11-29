@@ -8,6 +8,8 @@ import os
 import zipfile
 import cx_Oracle    # pip install this
 import re 
+import logging
+import logging.handlers
 
 import pandas as pandas     # pip install this
 
@@ -46,7 +48,9 @@ class IPSCommonFunctions():
         Author :    mahont1 & thorne1
         Date :      27 Nov 2017
         Purpose :   Connect to Oracle database and return cursor object
-        Returns :    Cursor (Object)
+        Returns :    CONNECTION (Object) 
+                    (cannot return cursor object as DDL statements are implicitly committed
+                    whereas DML statements are not)
         REQUIREMENTS:   pip install cx_Oracle 
                         32-bit Oracle Client required
         """
@@ -55,14 +59,9 @@ class IPSCommonFunctions():
         creds = self.get_credentials()
         
         # Connect
-        conn = cx_Oracle.connect(creds['User']
+        return cx_Oracle.connect(creds['User']
                                  , creds['Password']
                                  , creds['Database'])
-        
-        # Create and return cursor object
-        cur = conn.cursor()
-        
-        return cur
     
     
     def get_password(self):
@@ -162,3 +161,4 @@ class IPSCommonFunctions():
             raise
             print "%s is not a SAS file" % (file_name)
             return False
+    
