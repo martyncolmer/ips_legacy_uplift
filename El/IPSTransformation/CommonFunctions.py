@@ -7,11 +7,10 @@ Created on 24 Nov 2017
 import os
 import zipfile
 import cx_Oracle    # pip install this
-import re 
-import logging
-import logging.handlers
-
 import pandas as pandas     # pip install this
+import logging
+import datetime
+import traceback
 
 from sas7bdat import SAS7BDAT   # pip install this
 
@@ -25,73 +24,84 @@ class IPSCommonFunctions():
         """
         
         # IPSCredentials file location
-        credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials.txt"
+        credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\PretendIPSCredentials.txt"
+        # credentials_file = r"PAH!"
         
-        # Open and read file, and assign to string variable 
-        file_object = open(credentials_file, "r")
-        credentials_string = file_object.read()        
+        try:
+            # Open and read file, and assign to string variable 
+            file_object = open(credentials_file, "r")
+            credentials_string = file_object.read()
+        except IOError as err:
+            self.commit_ips_response(0, err)
+            return False
         
-        # Create dictionary
-        credentials_dict = {}
-        
-        # Parse string to dictionary
-        for line in credentials_string.split('\n'):
-            if not line: break
-            pair = line.split(":")
-            credentials_dict[pair[0].strip()] = pair[1].strip()
-    
-        return credentials_dict
-    
-    
+        try:
+            # Create dictionary
+            credentials_dict = {}
+            # Parse string to dictionary
+            for line in credentials_string.split('\n'):
+                pair = line.split(":")
+                credentials_dict[pair[0].strip()] = pair[1].strip()
+        except IndexError as err:
+            self.commit_ips_response(0, err)
+        else:
+            return credentials_dict
+
+
     def get_oracle_connection(self):
         """
         Author :    mahont1 & thorne1
         Date :      27 Nov 2017
         Purpose :   Connect to Oracle database and return cursor object
         Returns :    CONNECTION (Object) 
-                    (cannot return cursor object as DDL statements are implicitly committed
-                    whereas DML statements are not)
+                (cannot return cursor object as DDL statements are implicitly committed
+                whereas DML statements are not)
         REQUIREMENTS:   pip install cx_Oracle 
-                        32-bit Oracle Client required
+                    32-bit Oracle Client required
         """
         
         # Retrieve credentials dictionary 
         creds = self.get_credentials()
         
         # Connect
-        return cx_Oracle.connect(creds['User']
-                                 , creds['Password']
-                                 , creds['Database'])
-    
-    
+        try:
+            return cx_Oracle.connect(creds['User']
+                                     , creds['Password']
+                                     , creds['Database'])
+        except TypeError as err:
+            self.commit_ips_response(0, err)
+            
+            
+
+
     def get_password(self):
         """
         Author :     thorne1
         Date :       27 Nov 2017
         Purpose :    Retrieves user password for database (Oracle)
-                     Data currently retrieved from .txt file.  Process to be determined.
+                 Data currently retrieved from .txt file.  Process to be determined.
         Returns :    Password (String)
         """
         
         pwd = self.get_credentials()
         return pwd['Password']
-    
-    
+
+
     def extract_zip(self, dir_name, file_extension=""):
         """
         Author     : thorne1
         Date       : 24 Nov 2017
         Purpose    : Extracts either a specific file from zip, or entire file
         Params     : dir_name        =    directory containing .zip file
-                     file_extension     =    Specify a file type to extract one file 
-                                             (assuming there is only one file type in zip)
-                                             or leave empty to extract all
+                 file_extension     =    Specify a file type to extract one file 
+                                         (assuming there is only one file type in zip)
+                                         or leave empty to extract all
         Returns    : True/False
         """
         
         # Change directory from working directory to directory with files
         os.chdir(dir_name)
-                                
+                            
         try:
             # Find and create zipfile object
             for item in os.listdir(dir_name):
@@ -118,11 +128,11 @@ class IPSCommonFunctions():
                         print "File successfully exported to: %s" % (dir_name)
                         # Return True to indicate success
                         return True
-            # Clean up
-            os.chdir(os.path.dirname(os.path.realpath(__file__)))
-            zip_file.close()        
-        
-    
+        # Clean up
+        os.chdir(os.path.dirname(os.path.realpath(__file__)))
+        zip_file.close()        
+
+
     def import_CSV(self, file_name):
         """
         Author : thorne1
@@ -156,9 +166,35 @@ class IPSCommonFunctions():
             # Create and return sas7bdat dataframe:
             with SAS7BDAT(file_name) as file_object:
                 return file_object
-        except TypeError as err:
+        except TypeError:
             # File not found, return False to indicate failure
             raise
             print "%s is not a SAS file" % (file_name)
-            return False
+        return False
     
+
+    def commit_ips_response(self, level, err):
+        """
+        Author : thorne1
+        Date : 29 Nov 2017
+        Purpose : Writes response code and warnings to response table   
+        """
+        
+        # Database variables
+        # Level will need to be plugged in from error_check()...?
+        time_now = datetime.datetime.now().strftime("%d-%m-%Y %H:%M")
+        level_dict = {50: "CRITICAL"
+              , 40: "ERROR"
+              , 30: "WARNING"
+              , 20: "INFO"
+              , 10: "DEBUG"
+              , 0: "NOTSET"}             
+        
+        response_message = "%s   |   %s: %s" %(time_now
+                                                   , level_dict[level]
+                                                   , err)        
+        print response_message
+        
+
+x = IPSCommonFunctions()
+x.get_oracle_connection()
