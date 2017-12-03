@@ -1,5 +1,6 @@
 library(RJDBC)
 library(sas7bdat)
+library(reshape2)
 
 saszipinput <- "\\\\nsdata3\\Social_Surveys_team\\CASPA\\IPS\\Testing\\testdata.zip" # path of sas zip test data
 #saszipinput <- "\\\\nsdata3\\Social_Surveys_team\\CASPA\\IPS\\Testing\\quarter12017.zip" # path of sas zip real data
@@ -44,6 +45,10 @@ unlink(saszipoutput, recursive = TRUE) # delete local unzipped data
 
 tran <- melt(sasdata, id = c("Serial"))
 
+colnames(tran) <- c("serial", "variable", "value")
+
+tran$variable <- as.character(tran$variable)
+
 # proc contents
 
 sasattr <- attr(sasdata, "column.info")
@@ -56,7 +61,24 @@ sasattrdf <- cbind(sasattrdf, "row" = 1:nrow(sasattrdf))
 
 colnames(sasattrdf) <- c("variable", "length", "type", "row")
 
-valattr <- merge(sasattrdf, tran, by = "variable")
+sasattrdf <- as.data.frame(lapply(sasattrdf, function(X) unname(unlist(X))))
+
+# merge
+
+valattr <- merge(sasattrdf, tran)
+
+surcol <- data.frame("8888", valattr$row, valattr$variable, valattr$type, valattr$length)
+
+surcol <- surcol[order(surcol$valattr.row),]
+
+surcol <- unique(surcol)
+
+surval <- data.frame("8888", valattr$serial, valattr$row, valattr$value)
+
+surval <- surval[order(surval$valattr.serial, surval$valattr.row),]
+
+
+
 
 
 
@@ -71,8 +93,8 @@ valattr <- merge(sasattrdf, tran, by = "variable")
 #print(testQuery) # print test query
 
 # write data to oracle test
-#jdbcDriver <- JDBC(driverClass="oracle.jdbc.OracleDriver", classPath="d:/r/lib/ojdbc6.jar")
-#jdbcConnection <- dbConnect(jdbcDriver, "jdbc:oracle:thin:@//exa01-scan.ons.statistics.gov.uk:1521/DEVCON", "IPS_1_POWELD2_DATA", "IPS_1_POWELD2")
+jdbcDriver <- JDBC(driverClass="oracle.jdbc.OracleDriver", classPath="d:/r/lib/ojdbc6.jar")
+jdbcConnection <- dbConnect(jdbcDriver, "jdbc:oracle:thin:@//exa01-scan.ons.statistics.gov.uk:1521/DEVCON", "IPS_1_POWELD2_DATA", "IPS_1_POWELD2")
 #surcoltestdf <- data.frame(VERSION_ID = 1, COLUMN_NO = c(1,2,3), COLUMN_DESC = c("Shiftno","Questno","Serial"), COLUMN_TYPE = c("number", "number", "number"), COLUMN_LENGTH = c(4,4,6))
-#dbWriteTable(jdbcConnection, "SURVEY_COLUMN", surcoltestdf, append=TRUE, overwrite=FALSE)
-#dbDisconnect(jdbcConnection)
+dbWriteTable(jdbcConnection, "SURVEY_COLUMN", surcol, append=TRUE, overwrite=FALSE)
+dbDisconnect(jdbcConnection)
