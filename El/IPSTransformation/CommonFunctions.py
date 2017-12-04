@@ -93,12 +93,12 @@ class IPSCommonFunctions():
             # Find and create zipfile object
             for item in os.listdir(dir_name):
                 if item.endswith(".zip"):
-                    file_name = os.path.abspath(item)
-                    zip_file = zipfile.ZipFile(file_name)
+                    filename = os.path.abspath(item)
+                    zip_file = zipfile.ZipFile(filename)
         except IOError:
             # Failed to find zip and return False to indicate failure
             raise
-            print "IOError: %s does not exist." % (file_name)            
+            print "IOError: %s does not exist." % (filename)            
             return False
         else:
             # If file_extension not specified, extract everything
@@ -120,58 +120,56 @@ class IPSCommonFunctions():
         zip_file.close()        
 
 
-    def import_CSV(self, file_name, table_name):
+    def import_traffic_data(self, filename):
         """
         Author : thorne1
         Date : 27 Nov 2017
         Purpose : Opens a CSV and inserts to Oracle   
-        Params : file_name    =    directory path to CSV
+        Params : filename    =    directory path to CSV
         Returns : Dataframe (object) or False
         https://chrisalbon.com/python/pandas_dataframe_importing_csv.html
         """
         try:
-            dataframe = pandas.read_csv(file_name)
+            # Attempt to open CSV and convert to dataframe
+            dataframe = pandas.read_csv(filename)
         except IOError:
             # File not found, return False to indicate failure
             raise            
-            print "IOError: %s does not exist." % (file_name)
+            print "IOError: %s does not exist." % (filename)
             return False 
-        else:   
-            pass        
-#            print dataframe[:1]
-            #print "Here is a list of the column names:\n%s\n" %(list(dataframe.columns))
-#            print "Here is an example of how the dataframe works as a dictionary:\n%s\n" %dataframe["TRAFFICTOTAL"]
             
-        # Oracle connection
+        # Oracle connection variables
         conn = self.get_oracle_connection()
         cur = conn.cursor()
+        table_name = "TRAFFIC_DATA"
        
-        # Hard-coded variables for now
-        run_id = "9999"
-        vehicle = 8
+        # Hard-coded variables
+        run_id = "IPSSeedRunFR02"
+        # These are from DATA_SOURCE table
         data_source_id = {"Sea": 1
                           , "Air": 2
                           , "Tunnel": 3
                           , "Shift": 4
                           , "Non Response": 5
                           , "Unsampled": 6}
+        # These are made up
+        vehicle = {"Sea": 7
+                          , "Air": 8
+                          , "Tunnel": 9
+                          , "Shift": 10
+                          , "Non Response": 11
+                          , "Unsampled": 12}
         
-        # Ascertain data_source_id value from filename
-        # i.e "C:\foo\bar\Sea Traffic Q1 2017.csv" will return "Sea",
-        #     "C:\foo\bar\Tunnel Traffic Q1 2017.csv" will return "Tunnel"
-        # WILL NOT RETURN "Non Response" from "C:\foo\bar\Non Response Q1 2017.csv" 
-        string = file_name
-        full_path = string.split("\\")
-        full_filename = full_path[-1].split(" ")
-        survey_type = full_filename[0]  
+        survey_type = self.get_survey_type(filename)
         
-        # Create collection of rows (,insert hard-coded variables and 
-        # replace data source (i.e "Sea" or "Tunnel") with it's enumerated ID)
+        # Create collection of rows
         rows = [list(x) for x in dataframe.values]
         for row in rows:
+            # Insert row_id value as first column
             row.insert(0,run_id)
-            row.append(vehicle)
-            # Replace DATASOURCE value with enumerated value
+            # Insert vehicle value as last column
+            row.append(vehicle[survey_type])
+            # Using survey_type, replace DATASOURCE values with data_source_id
             row[row.index(survey_type)] = data_source_id[survey_type]           
             
         # SQL statement to insert collection to table
@@ -185,14 +183,40 @@ class IPSCommonFunctions():
                VALUES(:0, :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11)""")
         
         # Execute and commit SQL statement
-        cur.executemany(sql, rows)
-        conn.commit()
+        try:
+            cur.executemany(sql, rows)
+        except:
+            # Return False to indicate failure
+            return False
+        else:
+            conn.commit()
+            # Return True for success
+            return True
         
-        # Return 1 for success
-        return 1
-
+        
+    def get_survey_type(self, filename):
+        """
+        Author : thorne1
+        Date : 4 Dec 2017
+        Purpose : Returns the correct value for data_source_id from the filename
+               : i.e     "C:\foo\bar\Sea Traffic Q1 2017.csv"     =    "Sea"
+               :         "C:\foo\bar\Tunnel Traffic Q1 2017.csv"  =    "Tunnel"
+               :          WILL NOT RETURN "Non Response" from "C:\foo\bar\Non Response Q1 2017.csv"
+        Params : filename
+        Returns : string  
+        """
     
-    def import_SAS(self, file_name):
+        full_path = filename.split("\\")
+        full_filename = full_path[-1].split(" ")
+        if full_filename[0] == "Non" and full_filename[1] == "Response":
+            survey_type = full_filename[0] + " " + full_filename[1]
+        else:
+            survey_type = full_filename[0]
+        
+        return survey_type
+
+
+    def import_SAS(self, filename):
         """
         Author     : thorne1
         Date       : 23 Nov 2017
@@ -203,12 +227,12 @@ class IPSCommonFunctions():
         
         try:
             # Create and return sas7bdat dataframe:
-            with SAS7BDAT(file_name) as file_object:
+            with SAS7BDAT(filename) as file_object:
                 return file_object
         except TypeError:
             # File not found, return False to indicate failure
             raise
-            print "%s is not a SAS file" % (file_name)
+            print "%s is not a SAS file" % (filename)
         return False
     
 
@@ -250,11 +274,10 @@ class IPSCommonFunctions():
         return True    
     
     
-    def check_table(self):
+    def check_table(self, table_name):
         conn = self.get_oracle_connection()
         cur = conn.cursor()   
-        
-        table_name = 'response' 
+         
         sql_query = "SELECT COUNT(*) FROM " + table_name    
                 
         try:
@@ -267,13 +290,16 @@ class IPSCommonFunctions():
             print "Table exists"
     
     
-    def create_table(self, table_name):
+    def create_TRAFFIC_DATA_table(self):
         conn = self.get_oracle_connection()
-        cur = conn.cursor()        
+        cur = conn.cursor() 
+        
+        table_name = "TRAFFIC_DATA_2"       
  
         sql = "CREATE TABLE " + table_name + " (RUN_ID varchar2(40), YEAR number(4), MONTH number(2), DATA_SOURCE_ID varchar2(10), PORTROUTE number(4), ARRIVEDEPART number(1), TRAFFICTOTAL number(12,3), PERIODSTART varchar2(10), PERIODEND varchar2(10), AM_PM_NIGHT number(1), HAUL varchar2(2), VEHICLE varchar2(10))"
         
         cur.execute(sql)
+        conn.commit()
         
         print "Table should have been created"
     
@@ -287,7 +313,7 @@ class IPSCommonFunctions():
         print "Table should have been deleted"
         
         
-    def insert_table(self, level, err):
+    def insert_RESPONSE_table(self, level, err):
         conn = self.get_oracle_connection()
         cur = conn.cursor()     
         table_name = "response"  
@@ -302,10 +328,19 @@ class IPSCommonFunctions():
         conn.commit()
         
         print "Table should have been created"
+        
+    
+    def delete_from_table(self, table_name):
+        conn = self.get_oracle_connection()
+        cur = conn.cursor() 
+        
+        sql = "DELETE FROM " + table_name    
+        
+        cur.execute(sql)
+        conn.commit()
                 
             
 x = IPSCommonFunctions()
-
+#x.drop_table("TRAFFIC_DATA_2")
 CSV = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Sea Traffic Q1 2017.csv"
-print x.import_CSV(CSV, "TRAFFIC_DATA_2")
-#
+print x.import_CSV(CSV)
