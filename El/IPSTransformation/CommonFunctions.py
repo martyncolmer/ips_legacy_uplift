@@ -8,9 +8,7 @@ import os
 import zipfile
 import cx_Oracle    # pip install this
 import pandas as pandas     # pip install this
-import logging
 import datetime
-import traceback
 
 from sas7bdat import SAS7BDAT   # pip install this
 
@@ -24,28 +22,22 @@ class IPSCommonFunctions():
         """
         
         # IPSCredentials file location
-        credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\PretendIPSCredentials.txt"
-        # credentials_file = r"PAH!"
+        credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials.txt"
         
-        try:
-            # Open and read file, and assign to string variable 
-            file_object = open(credentials_file, "r")
-            credentials_string = file_object.read()
-        except IOError as err:
-            self.commit_ips_response(0, err)
-            return False
+        # Open and read file, and assign to string variable 
+        file_object = open(credentials_file, "r")
+        credentials_string = file_object.read()        
         
-        try:
-            # Create dictionary
-            credentials_dict = {}
-            # Parse string to dictionary
-            for line in credentials_string.split('\n'):
-                pair = line.split(":")
-                credentials_dict[pair[0].strip()] = pair[1].strip()
-        except IndexError as err:
-            self.commit_ips_response(0, err)
-        else:
-            return credentials_dict
+        # Create dictionary
+        credentials_dict = {}
+        
+        # Parse string to dictionary
+        for line in credentials_string.split('\n'):
+            if not line: break
+            pair = line.split(":")
+            credentials_dict[pair[0].strip()] = pair[1].strip()
+    
+        return credentials_dict
 
 
     def get_oracle_connection(self):
@@ -64,15 +56,10 @@ class IPSCommonFunctions():
         creds = self.get_credentials()
         
         # Connect
-        try:
-            return cx_Oracle.connect(creds['User']
-                                     , creds['Password']
-                                     , creds['Database'])
-        except TypeError as err:
-            self.commit_ips_response(0, err)
+        return cx_Oracle.connect(creds['User']
+                                 , creds['Password']
+                                 , creds['Database'])
             
-            
-
 
     def get_password(self):
         """
@@ -133,11 +120,11 @@ class IPSCommonFunctions():
         zip_file.close()        
 
 
-    def import_CSV(self, file_name):
+    def import_CSV(self, file_name, table_name):
         """
         Author : thorne1
         Date : 27 Nov 2017
-        Purpose : Opens a CSV and returns a dataset   
+        Purpose : Opens a CSV and inserts to Oracle   
         Params : file_name    =    directory path to CSV
         Returns : Dataframe (object) or False
         https://chrisalbon.com/python/pandas_dataframe_importing_csv.html
@@ -149,9 +136,61 @@ class IPSCommonFunctions():
             raise            
             print "IOError: %s does not exist." % (file_name)
             return False 
-        else:           
-            return dataframe
-    
+        else:   
+            pass        
+#            print dataframe[:1]
+            #print "Here is a list of the column names:\n%s\n" %(list(dataframe.columns))
+#            print "Here is an example of how the dataframe works as a dictionary:\n%s\n" %dataframe["TRAFFICTOTAL"]
+            
+        # Oracle connection
+        conn = self.get_oracle_connection()
+        cur = conn.cursor()
+       
+        # Hard-coded variables for now
+        run_id = "9999"
+        vehicle = 8
+        data_source_id = {"Sea": 1
+                          , "Air": 2
+                          , "Tunnel": 3
+                          , "Shift": 4
+                          , "Non Response": 5
+                          , "Unsampled": 6}
+        
+        # Ascertain data_source_id value from filename
+        # i.e "C:\foo\bar\Sea Traffic Q1 2017.csv" will return "Sea",
+        #     "C:\foo\bar\Tunnel Traffic Q1 2017.csv" will return "Tunnel"
+        # WILL NOT RETURN "Non Response" from "C:\foo\bar\Non Response Q1 2017.csv" 
+        string = file_name
+        full_path = string.split("\\")
+        full_filename = full_path[-1].split(" ")
+        survey_type = full_filename[0]  
+        
+        # Create collection of rows (,insert hard-coded variables and 
+        # replace data source (i.e "Sea" or "Tunnel") with it's enumerated ID)
+        rows = [list(x) for x in dataframe.values]
+        for row in rows:
+            row.insert(0,run_id)
+            row.append(vehicle)
+            # Replace DATASOURCE value with enumerated value
+            row[row.index(survey_type)] = data_source_id[survey_type]           
+            
+        # SQL statement to insert collection to table
+        sql = ("INSERT INTO " 
+               + table_name 
+               + """(RUN_ID
+               , YEAR, MONTH, DATA_SOURCE_ID
+               , PORTROUTE, ARRIVEDEPART, TRAFFICTOTAL
+               , PERIODSTART, PERIODEND, AM_PM_NIGHT
+               , HAUL, VEHICLE) 
+               VALUES(:0, :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11)""")
+        
+        # Execute and commit SQL statement
+        cur.executemany(sql, rows)
+        conn.commit()
+        
+        # Return 1 for success
+        return 1
+
     
     def import_SAS(self, file_name):
         """
@@ -180,21 +219,93 @@ class IPSCommonFunctions():
         Purpose : Writes response code and warnings to response table   
         """
         
-        # Database variables
-        # Level will need to be plugged in from error_check()...?
-        time_now = datetime.datetime.now().strftime("%d-%m-%Y %H:%M")
-        level_dict = {50: "CRITICAL"
-              , 40: "ERROR"
-              , 30: "WARNING"
-              , 20: "INFO"
-              , 10: "DEBUG"
-              , 0: "NOTSET"}             
+        # Connection variables 
+        conn = self.get_oracle_connection()
+        cur = conn.cursor()          
+        table_name = 'response'             
+                
+        # Check if table exists
+        try:
+            sql_query = "SELECT COUNT(*) FROM " + table_name
+            cur.execute(sql_query)
+            result = cur.fetchone()
+        except cx_Oracle.DatabaseError:
+            # If not, create table
+            print "Table did not exist. Now creating"
+            sql = "CREATE TABLE " + table_name + " (date_and_time character(30), message_result character(100))"
+            cur.execute(sql)
+        else:
+            # Insert into table
+            level_dict = {40: "ERROR", 30: "WARNING", 5:  "SUCCESS", 0: "NOTSET"}  
+            py_now = datetime.datetime.now()        
+            now = cx_Oracle.Timestamp(py_now.year, py_now.month, py_now.day, int(py_now.hour), int(py_now.minute), int(py_now.second))
+            response_message = ("%s: %s" %(level_dict[level], err))
+            
+            sql = "INSERT INTO " + table_name + " (date_and_time, message_result) VALUES(" + now + ", " + response_message
+            cur.execute(sql)
+            conn.commit()
+            
+             
+        cur.close()                    
+        return True    
+    
+    
+    def check_table(self):
+        conn = self.get_oracle_connection()
+        cur = conn.cursor()   
         
-        response_message = "%s   |   %s: %s" %(time_now
-                                                   , level_dict[level]
-                                                   , err)        
-        print response_message
+        table_name = 'response' 
+        sql_query = "SELECT COUNT(*) FROM " + table_name    
+                
+        try:
+            cur.execute(sql_query)
+            result = cur.fetchone()
+        except cx_Oracle.DatabaseError:
+            print "Table does not exist, creating a new table"
+            self.create_table()
+        else:
+            print "Table exists"
+    
+    
+    def create_table(self, table_name):
+        conn = self.get_oracle_connection()
+        cur = conn.cursor()        
+ 
+        sql = "CREATE TABLE " + table_name + " (RUN_ID varchar2(40), YEAR number(4), MONTH number(2), DATA_SOURCE_ID varchar2(10), PORTROUTE number(4), ARRIVEDEPART number(1), TRAFFICTOTAL number(12,3), PERIODSTART varchar2(10), PERIODEND varchar2(10), AM_PM_NIGHT number(1), HAUL varchar2(2), VEHICLE varchar2(10))"
         
-
+        cur.execute(sql)
+        
+        print "Table should have been created"
+    
+    
+    def drop_table(self, table_name):
+        conn = self.get_oracle_connection()
+        cur = conn.cursor()       
+        sql = "DROP TABLE " + table_name
+        cur.execute(sql)
+        
+        print "Table should have been deleted"
+        
+        
+    def insert_table(self, level, err):
+        conn = self.get_oracle_connection()
+        cur = conn.cursor()     
+        table_name = "response"  
+        py_now = datetime.datetime.now()
+        now = cx_Oracle.Timestamp(py_now.year, py_now.month, py_now.day, int(py_now.hour), int(py_now.minute), int(py_now.second))
+        level_dict = {40: "ERROR", 30: "WARNING", 5:  "SUCCESS", 0: "NOTSET"}
+        response_message = ("%s: %s" %(level_dict[level], err)) 
+        
+        # table_name = 'response' 
+        sql = "INSERT INTO " + table_name + "(date_and_time, message_result) VALUES(" + now + ", " + response_message + ")"
+        cur.execute(sql)
+        conn.commit()
+        
+        print "Table should have been created"
+                
+            
 x = IPSCommonFunctions()
-x.get_oracle_connection()
+
+CSV = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Sea Traffic Q1 2017.csv"
+print x.import_CSV(CSV, "TRAFFIC_DATA_2")
+#
