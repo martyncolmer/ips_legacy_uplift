@@ -87,14 +87,14 @@ surval <- surval[order(surval$valattr.serial, surval$valattr.row),]
 
 # connect to oracle using jdbc test - roracle package is probably better but it needs to be compiled
 #jdbcDriver <- JDBC(driverClass="oracle.jdbc.OracleDriver", classPath="d:/r/lib/ojdbc6.jar")
-#jdbcConnection <- dbConnect(jdbcDriver, "jdbc:oracle:thin:@//exa01-scan.ons.statistics.gov.uk:1521/DEVCON", "CASPA_1_POWELD2_DATA", "CASPA_1_POWELD2")
+#jdbcConnection <- dbConnect(jdbcDriver, "server", "user", "pass")
 #testQuery <- dbGetQuery(jdbcConnection, "SELECT * from CASPA_1_POWELD2_DATA.SAS_PARAMETERS") # test query
 #dbDisconnect(jdbcConnection)
 #print(testQuery) # print test query
 
 # write data to oracle test
 jdbcDriver <- JDBC(driverClass="oracle.jdbc.OracleDriver", classPath="d:/r/lib/ojdbc6.jar")
-jdbcConnection <- dbConnect(jdbcDriver, "jdbc:oracle:thin:@//exa01-scan.ons.statistics.gov.uk:1521/DEVCON", "IPS_1_POWELD2_DATA", "IPS_1_POWELD2")
+jdbcConnection <- dbConnect(jdbcDriver, "server", "user", "pass")
 #surcoltestdf <- data.frame(VERSION_ID = 1, COLUMN_NO = c(1,2,3), COLUMN_DESC = c("Shiftno","Questno","Serial"), COLUMN_TYPE = c("number", "number", "number"), COLUMN_LENGTH = c(4,4,6))
 dbWriteTable(jdbcConnection, "SURVEY_COLUMN", surcol, append=TRUE, overwrite=FALSE)
 dbDisconnect(jdbcConnection)
