@@ -15,25 +15,35 @@ from sas7bdat import SAS7BDAT   # pip install this
 class IPSCommonFunctions():    
     def get_credentials(self):
         """
-        Author :     thorne1
-        Date :       27 Nov 2017
-        Purpose :    Retrieves credentials from local text file
-        Returns :    Dictionary        
+        Author     : thorne1
+        Date       : 27 Nov 2017
+        Purpose    : Retrieves credentials from local text file
+        Returns    : Dictionary        
         """
         
         # IPSCredentials file location
         credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials.txt"
         
-        # Open and read file, and assign to string variable 
-        file_object = open(credentials_file, "r")
-        credentials_string = file_object.read()        
+        # Validate file
+        if os.path.getsize(credentials_file) == 0:
+            print "File is empty."
+            return False
         
+        # Open and read file, and assign to string variable 
+        try:
+            file_object = open(credentials_file, "r")
+        except IOError as err:
+            print err
+            return False
+        else:
+            credentials_string = file_object.read()   
+            
         # Create dictionary
         credentials_dict = {}
         
         # Parse string to dictionary
         for line in credentials_string.split('\n'):
-            if not line: break
+            # if not line: break
             pair = line.split(":")
             credentials_dict[pair[0].strip()] = pair[1].strip()
     
@@ -42,32 +52,40 @@ class IPSCommonFunctions():
 
     def get_oracle_connection(self):
         """
-        Author :    mahont1 & thorne1
-        Date :      27 Nov 2017
-        Purpose :   Connect to Oracle database and return cursor object
-        Returns :    CONNECTION (Object) 
-                (cannot return cursor object as DDL statements are implicitly committed
-                whereas DML statements are not)
-        REQUIREMENTS:   pip install cx_Oracle 
-                    32-bit Oracle Client required
+        Author     : mahont1 & thorne1
+        Date       : 27 Nov 2017
+        Purpose    : Connect to Oracle database and return cursor object
+        Returns    : Connection (Object) 
+                     (cannot return cursor object as DDL statements are implicitly committed
+                     whereas DML statements are not)
+        REQS       : pip install cx_Oracle 
+                     32-bit Oracle Client required
+        DEPS       : get_credentials()
         """
         
         # Retrieve credentials dictionary 
         creds = self.get_credentials()
         
-        # Connect
-        return cx_Oracle.connect(creds['User']
-                                 , creds['Password']
-                                 , creds['Database'])
+        try:
+            # Connect
+            conn = cx_Oracle.connect(creds['User']
+                                     , creds['Password']
+                                     , creds['Database'])
+        except cx_Oracle.DatabaseError as err:
+            print err
+            return False
+        else:
+            return conn 
             
-
+            
     def get_password(self):
         """
-        Author :     thorne1
-        Date :       27 Nov 2017
-        Purpose :    Retrieves user password for database (Oracle)
-                 Data currently retrieved from .txt file.  Process to be determined.
-        Returns :    Password (String)
+        Author     : thorne1
+        Date       : 27 Nov 2017
+        Purpose    : Retrieves user password for database (Oracle)
+                     Data currently retrieved from .txt file.  Process to be determined.
+        Returns    : Password (String)
+        DEPS       : get_credentials()
         """
         
         pwd = self.get_credentials()
@@ -80,9 +98,9 @@ class IPSCommonFunctions():
         Date       : 24 Nov 2017
         Purpose    : Extracts either a specific file from zip, or entire file
         Params     : dir_name        =    directory containing .zip file
-                 file_extension     =    Specify a file type to extract one file 
-                                         (assuming there is only one file type in zip)
-                                         or leave empty to extract all
+                     file_extension  =    Specify a file type to extract one file 
+                                          (assuming there is only one file type in zip)
+                                          or leave empty to extract all
         Returns    : True/False
         """
         
@@ -122,20 +140,24 @@ class IPSCommonFunctions():
 
     def import_traffic_data(self, filename):
         """
-        Author : thorne1
-        Date : 27 Nov 2017
-        Purpose : Opens a CSV and inserts to Oracle   
-        Params : filename    =    directory path to CSV
-        Returns : Dataframe (object) or False
-        https://chrisalbon.com/python/pandas_dataframe_importing_csv.html
+        Author    : thorne1
+        Date      : 27 Nov 2017
+        Purpose   : Opens a Traffic Data CSV and inserts to Oracle   
+        Params    : filename - directory path to CSV
+        Returns   : True or False
+        REQS      : pip install pandas
+        DEPS      : get_oracle_connection()
+                    get_survey_type()
         """
         try:
             # Attempt to open CSV and convert to dataframe
             dataframe = pandas.read_csv(filename)
         except IOError:
             # File not found, return False to indicate failure
-            raise            
-            print "IOError: %s does not exist." % (filename)
+            if filename == "":
+                print "IOError: Filename not provided."
+            else:
+                print "IOError: %s does not exist." % (filename)
             return False 
             
         # Oracle connection variables
@@ -144,33 +166,28 @@ class IPSCommonFunctions():
         table_name = "TRAFFIC_DATA"
        
         # Hard-coded variables
-        run_id = "IPSSeedRunFR02"
-        # These are from DATA_SOURCE table
+        run_id = "IPSSeedRunFR02"       # Primary-key constraint on TRAFFIC_DATA. See RUN table
         data_source_id = {"Sea": 1
                           , "Air": 2
                           , "Tunnel": 3
                           , "Shift": 4
                           , "Non Response": 5
-                          , "Unsampled": 6}
-        # These are made up
+                          , "Unsampled": 6}     # These have been copied from DATA_SOURCE table
         vehicle = {"Sea": 7
                           , "Air": 8
                           , "Tunnel": 9
                           , "Shift": 10
                           , "Non Response": 11
-                          , "Unsampled": 12}
+                          , "Unsampled": 12}    # These are made up
         
-        survey_type = self.get_survey_type(filename)
+        survey_type = self.get_survey_type(filename)    #i.e, "Sea", "Air", "Tunnel", etc
         
         # Create collection of rows
         rows = [list(x) for x in dataframe.values]
         for row in rows:
-            # Insert row_id value as first column
-            row.insert(0,run_id)
-            # Insert vehicle value as last column
-            row.append(vehicle[survey_type])
-            # Using survey_type, replace DATASOURCE values with data_source_id
-            row[row.index(survey_type)] = data_source_id[survey_type]           
+            row.insert(0,run_id)        # Insert row_id value as first column
+            row.append(vehicle[survey_type])    # Insert vehicle value as last column
+            row[row.index(survey_type)] = data_source_id[survey_type]   # Using survey_type, replace DATASOURCE values with data_source_id           
             
         # SQL statement to insert collection to table
         sql = ("INSERT INTO " 
@@ -182,28 +199,27 @@ class IPSCommonFunctions():
                , HAUL, VEHICLE) 
                VALUES(:0, :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11)""")
         
-        # Execute and commit SQL statement
         try:
-            cur.executemany(sql, rows)
-        except:
-            # Return False to indicate failure
+            # Execute SQL statement
+            cur.executemany(sql, rows)            
+        except cx_Oracle.DatabaseError as err:
+            # Return False to indicate error
+            print err
             return False
         else:
             conn.commit()
-            # Return True for success
             return True
         
         
     def get_survey_type(self, filename):
         """
-        Author : thorne1
-        Date : 4 Dec 2017
-        Purpose : Returns the correct value for data_source_id from the filename
-               : i.e     "C:\foo\bar\Sea Traffic Q1 2017.csv"     =    "Sea"
-               :         "C:\foo\bar\Tunnel Traffic Q1 2017.csv"  =    "Tunnel"
-               :          WILL NOT RETURN "Non Response" from "C:\foo\bar\Non Response Q1 2017.csv"
-        Params : filename
-        Returns : string  
+        Author    : thorne1
+        Date      : 4 Dec 2017
+        Purpose   : Returns the correct value for data_source_id from the filename
+                    i.e     "C:\foo\bar\Sea Traffic Q1 2017.csv"     =    "Sea"
+                            "C:\foo\bar\Tunnel Traffic Q1 2017.csv"  =    "Tunnel", etc
+        Params    : filename - directory path to CSV 
+        Returns   : Survey type (string)  
         """
     
         full_path = filename.split("\\")
@@ -219,8 +235,9 @@ class IPSCommonFunctions():
     def import_SAS(self, filename):
         """
         Author     : thorne1
-        Date       : 23 Nov 2017
+        Date       : 23 Nov 2017        
         Purpose    : Opens and reads a SAS dataset
+        Params     : filename - directory path to SAS file
         Returns    : SAS File (object) or False   
         https://pypi.python.org/pypi/sas7bdat    
         """
@@ -238,9 +255,12 @@ class IPSCommonFunctions():
 
     def commit_ips_response(self, level, err):
         """
-        Author : thorne1
-        Date : 29 Nov 2017
-        Purpose : Writes response code and warnings to response table   
+        Author    : thorne1
+        Date      : 29 Nov 2017
+        Purpose   : Writes response code and warnings to response table
+        Params    : level - "WARNING", "ERROR" or "SUCCESS"
+                    err - Error message
+        Returns   : True or False
         """
         
         # Connection variables 
@@ -338,9 +358,3 @@ class IPSCommonFunctions():
         
         cur.execute(sql)
         conn.commit()
-                
-            
-x = IPSCommonFunctions()
-#x.drop_table("TRAFFIC_DATA_2")
-CSV = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Sea Traffic Q1 2017.csv"
-print x.import_CSV(CSV)
