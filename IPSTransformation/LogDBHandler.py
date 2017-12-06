@@ -14,8 +14,7 @@ class IPS_Log_Handler(logging.Handler):
         """
 
         # Setup DB connection
-        x = CommonFunctions.IPSCommonFunctions()
-        self.conn = x.get_oracle_connection()
+        conn = CommonFunctions.get_oracle_connection()
  
         # Set starting instance params
         self.params = {}

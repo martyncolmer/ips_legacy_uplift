@@ -29,7 +29,7 @@ def sample_commit_ips_response():
     logger = logging.getLogger(__name__)
     
 #    # Normal Logger examples
-#    logger.critical('test ceel 2')
+    logger.critical('test ceel 2')
 #    logger.error("test ceel 2")
 #    logger.warn('yo 2')
 #    logger.info('yo 2')

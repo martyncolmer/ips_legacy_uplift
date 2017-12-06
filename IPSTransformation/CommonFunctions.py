@@ -26,23 +26,23 @@ def get_credentials():
     # IPSCredentials file location
     credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials.txt"
     
+    # Create dictionary
+    credentials_dict = {}
+    
     # Validate file
     if os.path.getsize(credentials_file) == 0:
-        print "File is empty."
+        # File is empty, return False to indicate failure 
         return False
     
     # Open and read file, and assign to string variable 
     try:
         file_object = open(credentials_file, "r")
-    except IOError as err:
-        raise err
+    except IOError:
+        raise
         return False            
     else:
-        credentials_string = file_object.read()   
-        
-    # Create dictionary
-    credentials_dict = {}
-    
+        credentials_string = file_object.read()  
+            
     # Parse string to dictionary
     for line in credentials_string.split('\n'):
         # if not line: break
@@ -65,16 +65,19 @@ def get_oracle_connection():
     DEPS       : get_credentials()
     """
     
-    # Retrieve credentials dictionary 
-    creds = get_credentials()
+    if get_credentials() != False:
+        # Retrieve credentials dictionary
+        creds = get_credentials()
+    else:
+        return False       
     
     try:
         # Connect
         conn = cx_Oracle.connect(creds['User']
                                  , creds['Password']
                                  , creds['Database'])
-    except cx_Oracle.DatabaseError as err:
-        print err
+    except cx_Oracle.DatabaseError:
+        raise
         return False
     else:
         return conn 
@@ -109,9 +112,8 @@ def extract_zip(dir_name, file_extension=""):
     # Change directory from working directory to directory with files
     try:
         os.chdir(dir_name)
-    except WindowsError as err:
+    except WindowsError:
         raise
-        print err
         return False
                  
     # Find and create zipfile object
@@ -154,8 +156,12 @@ def import_traffic_data(filename):
     try:
         # Attempt to open CSV and convert to dataframe
         dataframe = pandas.read_csv(filename)
+    except KeyError:
+        raise
+        return False
     except IOError:
         # File not found, return False to indicate failure
+        raise
         if filename == "":
             print "IOError: Filename not provided."
         else:
@@ -204,9 +210,9 @@ def import_traffic_data(filename):
     try:
         # Execute SQL statement
         cur.executemany(sql, rows)            
-    except cx_Oracle.DatabaseError as err:
+    except cx_Oracle.DatabaseError:
         # Return False to indicate error
-        print err
+        raise
         return False
     else:
         conn.commit()
@@ -229,8 +235,8 @@ def get_survey_type(filename):
     if full_filename[0] == "Non" and full_filename[1] == "Response":
         survey_type = full_filename[0] + " " + full_filename[1]
     else:
-        survey_type = full_filename[0]
-    
+        survey_type = full_filename[0] 
+        
     return survey_type
 
 
@@ -240,7 +246,7 @@ def import_SAS(filename):
     Date       : 23 Nov 2017        
     Purpose    : Opens and reads a SAS dataset
     Params     : filename - directory path to SAS file
-    Returns    : SAS File (object) or False   
+    Returns    : SAS File (object) or False (Dataframe does not include column metadata, i.e Label, Type, Format, etc)   
     https://pypi.python.org/pypi/sas7bdat    
     """
     
@@ -249,13 +255,13 @@ def import_SAS(filename):
         with SAS7BDAT(filename) as file_object:
             return file_object
     except TypeError:
+        # Incorrect file type, return False to indicate failure
+        raise
+        return False
+    except IOError:
         # File not found, return False to indicate failure
         raise
-        print "%s is not a SAS file" % (filename)
-    return False
-
-
-
+        return False
 
 
 def check_table(table_name):
@@ -272,7 +278,7 @@ def check_table(table_name):
         print "Table exists"
 
 
-def create_TRAFFIC_DATA_table():
+def create_traffic_data_table():
     conn = get_oracle_connection()
     cur = conn.cursor() 
     
@@ -295,7 +301,7 @@ def drop_table(table_name):
     print "Table should have been deleted"
     
     
-def insert_RESPONSE_table(level, err):
+def insert_resposne_table(level, err):
     conn = get_oracle_connection()
     cur = conn.cursor()     
     table_name = "response"  
