@@ -11,9 +11,38 @@ import pandas as pandas     # pip install this
 import datetime
 
 from sas7bdat import SAS7BDAT   # pip install this
-# from LogDBHandler import IPS_Log_Handler
 
-#import LogDBHandler
+
+def get_oracle_connection():
+    """
+    Author     : mahont1 & thorne1
+    Date       : 27 Nov 2017
+    Purpose    : Generic function to connect to Oracle database and return connection object
+    Returns    : Connection (Object) 
+                 (cannot return cursor object as DDL statements are implicitly committed
+                 whereas DML statements are not)
+    REQS       : pip install cx_Oracle 
+                 32-bit Oracle Client required
+    DEPS       : get_credentials()
+    """
+    
+    if get_credentials() != False:
+        # Retrieve credentials dictionary
+        creds = get_credentials()
+    else:
+        return False       
+    
+    try:
+        # Connect
+        conn = cx_Oracle.connect(creds['User']
+                                 , creds['Password']
+                                 , creds['Database'])
+    except cx_Oracle.DatabaseError:
+        raise
+        return False
+    else:
+        return conn
+
 
 def get_credentials():
     """
@@ -52,37 +81,6 @@ def get_credentials():
     return credentials_dict
 
 
-def get_oracle_connection():
-    """
-    Author     : mahont1 & thorne1
-    Date       : 27 Nov 2017
-    Purpose    : Connect to Oracle database and return cursor object
-    Returns    : Connection (Object) 
-                 (cannot return cursor object as DDL statements are implicitly committed
-                 whereas DML statements are not)
-    REQS       : pip install cx_Oracle 
-                 32-bit Oracle Client required
-    DEPS       : get_credentials()
-    """
-    
-    if get_credentials() != False:
-        # Retrieve credentials dictionary
-        creds = get_credentials()
-    else:
-        return False       
-    
-    try:
-        # Connect
-        conn = cx_Oracle.connect(creds['User']
-                                 , creds['Password']
-                                 , creds['Database'])
-    except cx_Oracle.DatabaseError:
-        raise
-        return False
-    else:
-        return conn 
-        
-        
 def get_password():
     """
     Author     : thorne1
@@ -101,7 +99,7 @@ def extract_zip(dir_name, file_extension=""):
     """
     Author     : thorne1
     Date       : 24 Nov 2017
-    Purpose    : Extracts either a specific file from zip, or entire file
+    Purpose    : Generic function to extract either a specific file from zip, or entire file
     Params     : dir_name - directory containing .zip file (is this unclear?)
                  file_extension - Specify a file type to extract one file 
                                   (assuming there is only one file type in zip)
@@ -139,14 +137,116 @@ def extract_zip(dir_name, file_extension=""):
     
     # Clean up
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
-    zip_file.close()        
+    zip_file.close()  
+
+
+def import_csv(filename):
+    """
+    Author     : thorne1
+    Date       : 27 Nov 2017
+    Purpose    : Generic function to open a CSV   
+    Params     : filename - full CSV path 
+    Returns    : Dataset (Object)   
+    """
+    try:
+        dataframe = pandas.read_csv(filename)
+    except IOError:
+        # Raise (unit testing purposes) and return False to indicate failure 
+        raise
+        return False
+    else:
+        return dataframe      
+
+
+def import_SAS(filename):
+    """
+    Author     : thorne1
+    Date       : 23 Nov 2017        
+    Purpose    : Generic function to open and read a SAS dataset
+    Params     : filename - full path to SAS file
+    Returns    : SAS File (object) 
+                (Does not return dataframe - dataframes do not include column metadata, i.e Label, Type, Format, etc)   
+    https://pypi.python.org/pypi/sas7bdat    
+    """
+    
+    try:
+        # Create and return sas7bdat dataframe:
+        with SAS7BDAT(filename) as file_object:
+            return file_object
+    except TypeError:
+        # Incorrect file type, return False to indicate failure
+        raise
+        return False
+    except IOError:
+        # File not found, return False to indicate failure
+        raise
+        return False
+
+
+def check_table(table_name):
+    """
+    Author     : thorne1
+    Date       : 7 Dec 2017
+    Purpose    : Generic SQL query to check if table exists   
+    Params     : table_name 
+    Returns    : True/False (bool)   
+    """
+    conn = get_oracle_connection()
+    cur = conn.cursor()   
+     
+    sql_query = "SELECT COUNT(*) FROM " + table_name    
+            
+    try:
+        cur.execute(sql_query).fetchone()
+    except cx_Oracle.DatabaseError:
+        # Raise (unit testing purposes) and return False to indicate table does not exist
+        raise
+        return False
+    else:
+        # return True to indicate table does exist
+        return True
+
+
+def drop_table(table_name):
+    """
+    Author     : thorne1
+    Date       : 7 Dec 2017
+    Purpose    : Generic SQL query to delete table   
+    Params     : table_name 
+    Returns    : True/False (bool)   
+    """
+    conn = get_oracle_connection()
+    cur = conn.cursor()       
+    sql = "DROP TABLE " + table_name
+    cur.execute(sql)
+    
+    return True
+    
+    
+def delete_from_table(table_name):
+    """
+    Author     : thorne1
+    Date       : 7 Dec 2017
+    Purpose    : Generic SQL query to drop contents of table   
+    Params     : table_name 
+    Returns    : True/False (bool)   
+    """
+    conn = get_oracle_connection()
+    cur = conn.cursor() 
+    
+    sql = "DELETE FROM " + table_name    
+    
+    cur.execute(sql)
+    conn.commit()
+    
+    return True
 
 
 def import_traffic_data(filename):
     """
     Author    : thorne1
     Date      : 27 Nov 2017
-    Purpose   : Opens a Traffic Data CSV and inserts to Oracle   
+    Purpose   : Specific function to open a Traffic Data CSV and inserts to Oracle   
     Params    : filename - directory path to CSV
     Returns   : True or False
     REQS      : pip install pandas
@@ -217,68 +317,70 @@ def import_traffic_data(filename):
     else:
         conn.commit()
         return True
+
+
+def get_data_source_values():
+    """
+    Author     : thorne1
+    Date       : 7 Dec 2017
+    Purpose    : Specific function to return data_source_names from data_source table  
+    Params     : 
+    Returns    : data_source_names (Tuple)    
+    """
+    # Connection variables
+    conn = get_oracle_connection()
+    cur = conn.cursor()
     
+    # Execute SQL
+    cur.execute("SELECT data_source_name FROM data_source")
+    rows = cur.fetchall()
     
+    # Create tuple of data source names
+    values = []
+    for row in rows:
+        values.append(row)
+    
+    return values
+
+
 def get_survey_type(filename):
     """
     Author    : thorne1
     Date      : 4 Dec 2017
-    Purpose   : Returns the correct value for data_source_id from the filename
+    Purpose   : Specific function to return the correct value for data_source_id from the filename
                 i.e     "C:\foo\bar\Sea Traffic Q1 2017.csv"     =    "Sea"
-                        "C:\foo\bar\Tunnel Traffic Q1 2017.csv"  =    "Tunnel", etc
-    Params    : filename - directory path to CSV 
+                        "C:\foo\bar\Tunnel Traffic Q1 2017.csv"  =    "Tunnel"
+                        "C:\foo\bar\Non Response Q1 2017.csv"     =    "Non Response", etc
+    Params    : filename - full path to CSV 
     Returns   : Survey type (string)  
     """
 
+    # 1st - Retrieve data source names
+    values = get_data_source_values()
+    
+    # 2nd - Get survey type from filename
     full_path = filename.split("\\")
     full_filename = full_path[-1].split(" ")
     if full_filename[0] == "Non" and full_filename[1] == "Response":
         survey_type = full_filename[0] + " " + full_filename[1]
     else:
-        survey_type = full_filename[0] 
-        
-    return survey_type
-
-
-def import_SAS(filename):
-    """
-    Author     : thorne1
-    Date       : 23 Nov 2017        
-    Purpose    : Opens and reads a SAS dataset
-    Params     : filename - directory path to SAS file
-    Returns    : SAS File (object) or False (Dataframe does not include column metadata, i.e Label, Type, Format, etc)   
-    https://pypi.python.org/pypi/sas7bdat    
-    """
+        survey_type = full_filename[0]
     
-    try:
-        # Create and return sas7bdat dataframe:
-        with SAS7BDAT(filename) as file_object:
-            return file_object
-    except TypeError:
-        # Incorrect file type, return False to indicate failure
-        raise
-        return False
-    except IOError:
-        # File not found, return False to indicate failure
-        raise
-        return False
-
-
-def check_table(table_name):
-    conn = get_oracle_connection()
-    cur = conn.cursor()   
-     
-    sql_query = "SELECT COUNT(*) FROM " + table_name    
-            
-    try:
-        cur.execute(sql_query).fetchone()
-    except cx_Oracle.DatabaseError:
-        print "Table does not exist"
+    # 3rd - Validate survey type from filename against tuple from table 
+    if any(survey_type in value for value in values):
+        return survey_type
     else:
-        print "Table exists"
-
+        return False
+    
 
 def create_traffic_data_table():
+    """
+    Author     : thorne1
+    Date       : 7 Dec 2017
+    Purpose    : Specific SQL query to create traffic_date table
+    Params     : 
+    Returns    :   
+    """
     conn = get_oracle_connection()
     cur = conn.cursor() 
     
@@ -292,16 +394,14 @@ def create_traffic_data_table():
     print "Table should have been created"
 
 
-def drop_table(table_name):
-    conn = get_oracle_connection()
-    cur = conn.cursor()       
-    sql = "DROP TABLE " + table_name
-    cur.execute(sql)
-    
-    print "Table should have been deleted"
-    
-    
 def insert_resposne_table(level, err):
+    """
+    Author     : thorne1
+    Date       : 7 Dec 2017
+    Purpose    : Specific SQL query to insert values into response table
+    Params     : 
+    Returns    :   
+    """
     conn = get_oracle_connection()
     cur = conn.cursor()     
     table_name = "response"  
@@ -316,13 +416,3 @@ def insert_resposne_table(level, err):
     conn.commit()
     
     print "Table should have been created"
-    
-
-def delete_from_table(table_name):
-    conn = get_oracle_connection()
-    cur = conn.cursor() 
-    
-    sql = "DELETE FROM " + table_name    
-    
-    cur.execute(sql)
-    conn.commit()
