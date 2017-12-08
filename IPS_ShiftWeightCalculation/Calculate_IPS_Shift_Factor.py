@@ -84,6 +84,8 @@ totalSampledShifts = pd.read_csv(tssData)
 
 
 mergedDF = pd.merge(surveyDataSorted,possibleShifts,on = ['SHIFT_PORT_GRP_PV','ARRIVEDEPART','WEEKDAY_END_PV','AM_PM_NIGHT_PV'])
+mergedDF = pd.merge(mergedDF,totalSampledShifts,on = ['SHIFT_PORT_GRP_PV','ARRIVEDEPART','WEEKDAY_END_PV','AM_PM_NIGHT_PV'])
+mergedDF['Shift_Factor'] = mergedDF.NUMERATOR / mergedDF.DENOMINATOR
 print("---------------------------------------------------------------------------")
 print("---------------------------------------------------------------------------")
 print("---------------------------------------------------------------------------")
@@ -95,10 +97,9 @@ print(totalSampledShifts.head(10))
 print("---------------------------------------------------------------------------")
 print("---------------------------------------------------------------------------")
 print("---------------------------------------------------------------------------")
-#mergedDF['Shift_Factor'] = mergedDF.NUMERATOR / mergedDF.DENOMINATOR
 
-
-print (mergedDF.head(10))
-
-
-
+mergedDF2 = pd.merge(surveyDataDF,mergedDF,'outer')
+mergedDF2 = mergedDF2.drop(['NUMERATOR','DENOMINATOR'],axis = 1)
+mergedDF2 = mergedDF2.sort_values(by=['SERIAL'])
+mergedDF2.to_csv('surveydata_merge.csv',index=False)
+ 
