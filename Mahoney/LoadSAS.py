@@ -148,9 +148,11 @@ def process_value_dataframe(conn,df):
     
     # Filter blanks
     print("Value count pre-filter - " + str(len(surValDF)))
-    surValDF['COLUMN_VALUE'].replace([None,"","."],np.nan,inplace=True)
+    #surValDF.to_csv("PreFilter.csv")
+    surValDF['COLUMN_VALUE'].replace(['None',"",".",'nan'],np.nan,inplace=True)
     surValDF.dropna(subset=['COLUMN_VALUE'], inplace=True)
     
+    surValDF.to_csv("PostFilter.csv")
     print("Value count post-filter - " + str(len(surValDF)))
     
     # Write the transposed data to the oracle database
@@ -205,16 +207,14 @@ df = file.to_data_frame()
 print("Connecting to Oracle")
 connection = cf.get_oracle_connection()
 
-
-
 ## Delete the data from the table
 print("DELETING")
 delete_from_table(connection, "SURVEY_VALUE", "VERSION_ID", "9999")
-delete_from_table(connection, "SURVEY_COLUMN", "VERSION_ID", "9999")
+#delete_from_table(connection, "SURVEY_COLUMN", "VERSION_ID", "9999")
 
 #process_value_dataframes_split_version(connection,df)
 process_value_dataframe(connection,df)
-process_column_dataframe(connection,df)
+#process_column_dataframe(connection,df)
 
 fin = time.time()
 
