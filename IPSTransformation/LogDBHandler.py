@@ -3,7 +3,7 @@ import cx_Oracle
 import datetime
 import traceback
 
-import CommonFunctions
+import CommonFunctions as cf
 
 class IPS_Log_Handler(logging.Handler):
     def __init__(self, **kwargs):
@@ -14,7 +14,7 @@ class IPS_Log_Handler(logging.Handler):
         """
 
         # Setup DB connection
-        conn = CommonFunctions.get_oracle_connection()
+        self.conn = cf.get_oracle_connection()
  
         # Set starting instance params
         self.params = {}
@@ -29,7 +29,7 @@ class IPS_Log_Handler(logging.Handler):
         # Call to super method
         logging.Handler.__init__(self, level = kwargs.get("level", logging.NOTSET))
         
-                    
+        
     def emit(self, record):
         """
         Author     : Martyn Colmer & thorne1
@@ -68,19 +68,7 @@ class IPS_Log_Handler(logging.Handler):
             self.params["response_code"] = 30
         
         self.commit_response(record)
-        
-#        # Check whether in failover mode
-#        if self.params["failover"] == True:
-#            self.write_to_failover(record)
-#        else:
-#            try:
-#                # Call method to commit response to the Oracle database
-#                self.commit_response(record)
-#            except:
-#                # If Oracle fails, write to failover
-#                self.write_to_failover(record)
-#                self.params["failover"] = True
-#    
+   
     
     def commit_response(self, record):
         """
@@ -90,6 +78,9 @@ class IPS_Log_Handler(logging.Handler):
         Params     : record - This is populated by the logger automatically
         Returns    : True/False  
         """
+        
+        # DB variables
+        cur = self.conn.cursor()
         
         # Setup the parameters from the instance params object
         params = (self.params['process_id']

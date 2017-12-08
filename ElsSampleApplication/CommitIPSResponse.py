@@ -16,29 +16,15 @@ def sample_commit_ips_response():
     Returns   : True or False
     """
     
-#        try:
-#            survey_support.setup_logging('IPS_logging_config_debug.json') 
-#            print "success"           
-#        except:
-#            #This cane be altered to a different logger if required.
-#            logging.basicConfig(level = logging.DEBUG)
-
-    survey_support.setup_logging('IPS_logging_config_debug.json')            
-    #This cane be altered to a different logger if required.
+    survey_support.setup_logging('IPS_logging_config_debug.json')   # Calls json configuration file                   
+    logger = logging.getLogger(__name__)                            # Creates logger object
+    # Normal Logger examples
+    logger.critical('Example 1, like a print statement but will log to db') 
     
-    logger = logging.getLogger(__name__)
-    
-#    # Normal Logger examples
-    logger.critical('test ceel 2')
-#    logger.error("test ceel 2")
-#    logger.warn('yo 2')
-#    logger.info('yo 2')
-#    logger.debug('yo Debug')
-    
-    # Logger example with exception
     try:
         10/0
     except:
-        logger.critical('This is the users message', exc_info = True)
+        logger.critical('Example 2, using try block', exc_info = True) 
     
+
 sample_commit_ips_response()

@@ -12,132 +12,104 @@ import datetime
 
 from sas7bdat import SAS7BDAT   # pip install this
 
-
-def get_oracle_connection():
+def validate_file(xfile):
     """
-    Author     : mahont1 & thorne1
-    Date       : 27 Nov 2017
-    Purpose    : Generic function to connect to Oracle database and return connection object
-    Returns    : Connection (Object) 
-                 (cannot return cursor object as DDL statements are implicitly committed
-                 whereas DML statements are not)
-    REQS       : pip install cx_Oracle 
-                 32-bit Oracle Client required
-    DEPS       : get_credentials()
+    Author     : thorne1
+    Date       : 7 Dec 2017
+    Purpose    : Generic function to validate file to check existence and size     
+    Params     : xfile (file is reserved keyword) - file to validate
+    Returns    : True/False (boolean)
     """
-    
-    if get_credentials() != False:
-        # Retrieve credentials dictionary
-        creds = get_credentials()
-    else:
-        return False       
-    
-    try:
-        # Connect
-        conn = cx_Oracle.connect(creds['User']
-                                 , creds['Password']
-                                 , creds['Database'])
-    except cx_Oracle.DatabaseError:
-        raise
+   
+    # If file does not exist OR file is empty return False
+    if not os.path.exists(xfile):
+#        print ("%s does not exist. Please check file location." %xfile)
+        return False
+    if os.path.getsize(xfile) == 0:
+#        print ("%s is empty. Please check file." %xfile) 
         return False
     else:
-        return conn
+        return True         
 
 
-def get_credentials():
+def get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials.txt"):
+        """
+        Author     : mahont1 & thorne1
+        Date       : 27 Nov 2017
+        Purpose    : Generic function to connect to Oracle database and return connection object
+        Returns    : Connection (Object) 
+                     (cannot return cursor object as DDL statements are implicitly committed
+                     whereas DML statements are not)
+        Params     : credentials_file is set to default location unless user needs to point elsewhere
+        REQS       : pip install cx_Oracle 
+                     32-bit Oracle Client required
+        DEPS       : get_credentials()
+        """
+        
+        creds = get_credentials(credentials_file)
+    
+        try:
+            # Connect
+            conn = cx_Oracle.connect(creds['User']
+                                     , creds['Password']
+                                     , creds['Database'])
+        except TypeError:
+            raise
+            return False        
+        except cx_Oracle.DatabaseError:
+            raise
+            return False
+        else:
+            return conn
+        
+    
+def get_credentials(credentials_file):
     """
     Author     : thorne1
     Date       : 27 Nov 2017
     Purpose    : Retrieves credentials from local text file
     Returns    : Dictionary        
     """
-
-    # IPSCredentials file location
-    credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials.txt"
     
-    # Create dictionary
-    credentials_dict = {}
-    
-    # Validate file
-    if os.path.getsize(credentials_file) == 0:
-        # File is empty, return False to indicate failure 
-        return False
-    
-    # Open and read file, and assign to string variable 
-    try:
-        file_object = open(credentials_file, "r")
-    except IOError:
-        raise
-        return False            
-    else:
-        credentials_string = file_object.read()  
+    # Validate existence and size of file 
+    if validate_file(credentials_file):
+        credentials_dict = {}
             
-    # Parse string to dictionary
-    for line in credentials_string.split('\n'):
-        # if not line: break
-        pair = line.split(":")
-        credentials_dict[pair[0].strip()] = pair[1].strip()
-
-    return credentials_dict
-
-
-def get_password():
-    """
-    Author     : thorne1
-    Date       : 27 Nov 2017
-    Purpose    : Retrieves user password for database (Oracle)
-                 Data currently retrieved from .txt file.  Process to be determined.
-    Returns    : Password (String)
-    DEPS       : get_credentials()
-    """
+        # Open and read file, and assign to string variable
+        try:
+            file_object = open(credentials_file, "r")
+        except IOError:
+            raise
+            return False
+        else:
+            credentials_string = file_object.read()  
+                
+        # Parse string to dictionary
+        for line in credentials_string.split('\n'):
+            # if not line: break
+            pair = line.split(":")
+            credentials_dict[pair[0].strip()] = pair[1].strip()
     
-    pwd = get_credentials()
-    return pwd['Password']
-
-
-def extract_zip(dir_name, file_extension=""):
-    """
-    Author     : thorne1
-    Date       : 24 Nov 2017
-    Purpose    : Generic function to extract either a specific file from zip, or entire file
-    Params     : dir_name - directory containing .zip file (is this unclear?)
-                 file_extension - Specify a file type to extract one file 
-                                  (assuming there is only one file type in zip)
-                                  or leave empty to extract all
-    Returns    : True/False
-    """
+        return credentials_dict
     
-    # Change directory from working directory to directory with files
-    try:
+
+def extract_zip(dir_name, zip_file):    
+
+    if validate_file(dir_name):
         os.chdir(dir_name)
-    except WindowsError:
-        raise
-        return False
-                 
-    # Find and create zipfile object
-    for item in os.listdir(dir_name):
-        if item.endswith(".zip"):
-            filename = os.path.abspath(item)
-            zip_file = zipfile.ZipFile(filename)
-    # If file_extension not specified, extract everything
-    if file_extension == "":
-        zip_file.extractall(dir_name)
-        # Return True to indicate success
-        return True
-    else:
-        # Find and extract a specified file
-        file_found = False
-        for each_file in zip_file.namelist():
-            
-            if each_file.endswith(file_extension):
-                zip_file.extract(each_file, dir_name)
-                file_found = True
-                # Return True to indicate success
-        return file_found
     
-    # Clean up
-    os.chdir(os.path.dirname(os.path.realpath(__file__)))
-    zip_file.close()  
+        file_found = False
+        for item in os.listdir(dir_name):
+            if item == zip_file:
+                file_name = os.path.abspath(item)
+                zip_ref = zipfile.ZipFile(file_name)
+                zip_ref.extractall(dir_name)
+                zip_ref.close()
+                file_found = True
+        
+        return file_found
+                
+        os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 
 def import_csv(filename):
@@ -148,14 +120,16 @@ def import_csv(filename):
     Params     : filename - full CSV path 
     Returns    : Dataset (Object)   
     """
-    try:
-        dataframe = pandas.read_csv(filename)
-    except IOError:
-        # Raise (unit testing purposes) and return False to indicate failure 
-        raise
-        return False
-    else:
-        return dataframe      
+    
+    if validate_file(filename):
+        try:
+            dataframe = pandas.read_csv(filename)
+        except IOError:
+            # Raise (unit testing purposes) and return False to indicate failure 
+            raise
+            return False
+        else:
+            return dataframe      
 
 
 def import_SAS(filename):
@@ -169,18 +143,20 @@ def import_SAS(filename):
     https://pypi.python.org/pypi/sas7bdat    
     """
     
-    try:
-        # Create and return sas7bdat dataframe:
-        with SAS7BDAT(filename) as file_object:
-            return file_object
-    except TypeError:
-        # Incorrect file type, return False to indicate failure
-        raise
-        return False
-    except IOError:
-        # File not found, return False to indicate failure
-        raise
-        return False
+    
+    if validate_file(filename):
+        try:
+            # Create and return sas7bdat dataframe:
+            with SAS7BDAT(filename) as file_object:
+                return file_object
+        except TypeError:
+            # Incorrect file type, return False to indicate failure
+            raise
+            return False
+        except IOError:
+            # File not found, return False to indicate failure
+            raise
+            return False
 
 
 def check_table(table_name):
