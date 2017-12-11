@@ -71,32 +71,27 @@ shiftsDataSorted.groupby(shiftsDataColumns)['TOTAL'].agg({'NUMERATOR':'sum'}).to
 
 
 
-#-------------------------------- Survey Data - Sort --------------------------------#
+#-------------------------------- Merge --------------------------------#
 
+# Sort (Filtered) SurveyData
 computeColumns = ['SHIFT_PORT_GRP_PV','ARRIVEDEPART','WEEKDAY_END_PV','AM_PM_NIGHT_PV']
 surveyDataSorted = sampledShifts.sort_values(computeColumns)
 
-
+# Files to be merged
 psData = 'possibleShifts.csv'
 tssData = 'totalSampledShifts.csv'
+
+# Read CSV's into Pandas data frame
 possibleShifts = pd.read_csv(psData)
 totalSampledShifts = pd.read_csv(tssData)
 
-
+# Merge loaded data
 mergedDF = pd.merge(surveyDataSorted,possibleShifts,on = ['SHIFT_PORT_GRP_PV','ARRIVEDEPART','WEEKDAY_END_PV','AM_PM_NIGHT_PV'])
 mergedDF = pd.merge(mergedDF,totalSampledShifts,on = ['SHIFT_PORT_GRP_PV','ARRIVEDEPART','WEEKDAY_END_PV','AM_PM_NIGHT_PV'])
+
 mergedDF['Shift_Factor'] = mergedDF.NUMERATOR / mergedDF.DENOMINATOR
-print("---------------------------------------------------------------------------")
-print("---------------------------------------------------------------------------")
-print("---------------------------------------------------------------------------")
-print(possibleShifts.head(10))
-print("---------------------------------------------------------------------------")
-print("---------------------------------------------------------------------------")
-print("---------------------------------------------------------------------------")
-print(totalSampledShifts.head(10))
-print("---------------------------------------------------------------------------")
-print("---------------------------------------------------------------------------")
-print("---------------------------------------------------------------------------")
+
+
 
 mergedDF2 = pd.merge(surveyDataDF,mergedDF,'outer')
 mergedDF2 = mergedDF2.drop(['NUMERATOR','DENOMINATOR'],axis = 1)
