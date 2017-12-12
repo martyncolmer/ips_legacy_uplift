@@ -9,6 +9,8 @@ import zipfile
 import cx_Oracle    # pip install this
 import pandas as pandas     # pip install this
 import datetime
+import numpy as np
+import sys
 
 from sas7bdat import SAS7BDAT   # pip install this
 
@@ -232,6 +234,41 @@ def import_traffic_data(filename):
     try:
         # Attempt to open CSV and convert to dataframe
         dataframe = pandas.read_csv(filename)
+        
+        
+        # Change current dataframe columns to be uppercase (to match the Oracle DB's column names
+        colsUpper = []
+        for col in dataframe.columns:
+            colsUpper.append(col.upper())
+        dataframe.columns = colsUpper   
+            
+        print(dataframe)
+        
+        
+        
+        dataframe['PERIODSTART'].fillna('', inplace=True)
+        dataframe['PERIODSTART'] = dataframe['PERIODSTART'].astype(str)
+        
+        
+        
+        
+        dataframe['PERIODEND'].fillna('', inplace=True)
+        dataframe['PERIODEND'] = dataframe['PERIODEND'].astype(str)
+        
+        dataframe['HAUL'].fillna('', inplace=True)
+        dataframe['HAUL'] = dataframe['HAUL'].astype(str)
+        
+        
+        
+        dataframe['AM_PM_NIGHT'].fillna(np.nan, inplace=True)
+        
+        #dataframe.fillna('', inplace=True)
+
+        
+        print(dataframe)
+        
+        print("----------")
+        
     except KeyError:
         raise
         return False
@@ -248,7 +285,7 @@ def import_traffic_data(filename):
     conn = get_oracle_connection()
     cur = conn.cursor()
     table_name = "TRAFFIC_DATA"
-   
+
     # Hard-coded variables
     run_id = "IPSSeedRunFR02"       # Primary-key constraint on TRAFFIC_DATA. See RUN table
     data_source_id = {"Sea": 1
@@ -264,14 +301,21 @@ def import_traffic_data(filename):
                       , "Non Response": 11
                       , "Unsampled": 12}    # These are made up
     
-    survey_type = get_survey_type(filename)    #i.e, "Sea", "Air", "Tunnel", etc
     
+    print("FILE NAME - : " + str(filename))
+    filename = filename.rpartition('/')[2]
+    print("FILE NAME - : " + str(filename))
+    
+    survey_type = get_survey_type(filename)    #i.e, "Sea", "Air", "Tunnel", etc
+    print("SURVEY TYPE - : " + str(survey_type))
     # Create collection of rows
     rows = [list(x) for x in dataframe.values]
     for row in rows:
         row.insert(0,run_id)        # Insert row_id value as first column
         row.append(vehicle[survey_type])    # Insert vehicle value as last column
-        row[row.index(survey_type)] = data_source_id[survey_type]   # Using survey_type, replace DATASOURCE values with data_source_id           
+        row[row.index(survey_type)] = data_source_id[survey_type]   # Using survey_type, replace DATASOURCE values with data_source_id   
+        
+                
         
     # SQL statement to insert collection to table
     sql = ("INSERT INTO " 
@@ -283,6 +327,9 @@ def import_traffic_data(filename):
            , HAUL, VEHICLE) 
            VALUES(:0, :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11)""")
     
+    
+    print (sql)
+    print (rows)
     try:
         # Execute SQL statement
         cur.executemany(sql, rows)            
@@ -339,6 +386,8 @@ def get_survey_type(filename):
     full_filename = full_path[-1].split(" ")
     if full_filename[0] == "Non" and full_filename[1] == "Response":
         survey_type = full_filename[0] + " " + full_filename[1]
+    elif full_filename[0] == 'CAA':
+        survey_type = 'Air'
     else:
         survey_type = full_filename[0]
     
@@ -370,7 +419,7 @@ def create_traffic_data_table():
     print "Table should have been created"
 
 
-def insert_resposne_table(level, err):
+def insert_response_table(level, err):
     """
     Author     : thorne1
     Date       : 7 Dec 2017

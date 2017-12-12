@@ -1,5 +1,5 @@
 from sas7bdat import SAS7BDAT
-from CommonFunctions import IPSCommonFunctions
+from IPSTransformation import CommonFunctions as cf
 import pandas as pd
 import pandas.util.testing as tm; tm.N = 3
 import numpy as np   
@@ -24,7 +24,6 @@ def unpivot(frame):
 
 
 def create_survey_column(frame):
-    N, K = frame.shape
     data = {
             'VERSION_ID'    : np.asarray(versionid).repeat(1),
             'COLUMN_NO'     : np.asarray(numbers).repeat(1),
@@ -77,8 +76,8 @@ def get_sas_column_properties(sasFile):
         labels.append(x[5])
     
     numbers.pop(0)
-    id = 9999
-    versionid = [float(id)]* len(numbers)
+    vid = 9999
+    versionid = [float(vid)]* len(numbers)
     types.pop(0)
     lengths.pop(0)
     formats.pop(0)
@@ -148,11 +147,11 @@ def process_value_dataframe(conn,df):
     
     # Filter blanks
     print("Value count pre-filter - " + str(len(surValDF)))
-    #surValDF.to_csv("PreFilter.csv")
+
     surValDF['COLUMN_VALUE'].replace(['None',"",".",'nan'],np.nan,inplace=True)
     surValDF.dropna(subset=['COLUMN_VALUE'], inplace=True)
     
-    surValDF.to_csv("PostFilter.csv")
+    #surValDF.to_csv("PostFilter.csv")
     print("Value count post-filter - " + str(len(surValDF)))
     
     # Write the transposed data to the oracle database
@@ -187,26 +186,25 @@ def process_value_dataframes_split_version(conn, dataFrame):
 """"""    
 #----------------------------------------------------------------#   
 #Instance of the common functions module 
-cf = IPSCommonFunctions()
+#cf = IPSCommonFunctions()
 #Load in the sas file
-sasFile = 'testdata.sas7bdat'
-file = SAS7BDAT(sasFile)
+fileName = 'InputFiles/testdata.sas7bdat'
+sasFile = SAS7BDAT(fileName)
 
 
 #Extract the column properties
 numbers, versionid, types, lengths,formats, labels = ([] for i in range(6))
-get_sas_column_properties(file)
+get_sas_column_properties(sasFile)
 
 start = time.time()
 
 #Load the SAS file into a dataframe
 print("Getting sas data")
-df = file.to_data_frame()
+df = sasFile.to_data_frame()
 
 #Connect to oracle
 print("Connecting to Oracle")
 connection = cf.get_oracle_connection()
-
 ## Delete the data from the table
 print("DELETING")
 delete_from_table(connection, "SURVEY_VALUE", "VERSION_ID", "9999")

@@ -6,7 +6,7 @@ Created on 1 Dec 2017
 
 import sys
 
-from CommonFunctions import IPSCommonFunctions
+from IPSTransformation import CommonFunctions as cf
 
 
 def get_column_and_version_data(cur, version):
@@ -126,9 +126,7 @@ def populate_survey_subsample(conn, p_run_id):
     conn.commit()
     
 
-
-
-cf = IPSCommonFunctions()
 connection = cf.get_oracle_connection()
+
 
 populate_survey_subsample(connection, 'IPSSeedRun')

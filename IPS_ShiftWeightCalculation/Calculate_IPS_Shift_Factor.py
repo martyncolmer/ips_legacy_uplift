@@ -12,7 +12,7 @@ from sas7bdat import SAS7BDAT
 
 #------------------------------ Sampled Shifts - Import ------------------------------#
 
-surveyData = 'surveydata.sas7bdat'
+surveyData = 'InputFiles/surveydata.sas7bdat'
 
 surveyDataDF = pd.read_sas(surveyData)
 cols = 'SHIFT_FLAG_PV'
@@ -32,7 +32,7 @@ sampledShiftsSorted = sampledShiftsSmall.sort_values(columns)
 print(sampledShiftsSorted)
 
 print(sampledShiftsSorted.groupby(columns2)['SHIFTNO'].agg({'DENOMINATOR':'count'}))
-sampledShiftsSorted.groupby(columns2)['SHIFTNO'].agg({'DENOMINATOR':'count'}).to_csv('totalSampledShifts.csv')
+sampledShiftsSorted.groupby(columns2)['SHIFTNO'].agg({'DENOMINATOR':'count'}).to_csv('MidProcessFiles/totalSampledShifts.csv')
 
 
 #Output - totalSampledShifts.csv
@@ -45,7 +45,7 @@ sampledShiftsSorted.groupby(columns2)['SHIFTNO'].agg({'DENOMINATOR':'count'}).to
 
 #-------------------------------- Shifts Data - Import --------------------------------#
 
-shiftsData = 'shiftsdata.sas7bdat'
+shiftsData = 'InputFiles/shiftsdata.sas7bdat'
 
 shiftsDataDF = pd.read_sas(shiftsData)
 print(shiftsDataDF)
@@ -58,7 +58,7 @@ shiftsDataSorted = shiftsDataDF.sort_values(shiftsDataColumns)
 #-------------------------------- Shifts Data - Summary --------------------------------#
 
 print(shiftsDataSorted.groupby(shiftsDataColumns)['TOTAL'].agg({'NUMERATOR':'sum'}))
-shiftsDataSorted.groupby(shiftsDataColumns)['TOTAL'].agg({'NUMERATOR':'sum'}).to_csv('possibleShifts.csv')
+shiftsDataSorted.groupby(shiftsDataColumns)['TOTAL'].agg({'NUMERATOR':'sum'}).to_csv('MidProcessFiles/possibleShifts.csv')
 
 
 #Output - possibleShifts.csv
@@ -78,8 +78,8 @@ computeColumns = ['SHIFT_PORT_GRP_PV','ARRIVEDEPART','WEEKDAY_END_PV','AM_PM_NIG
 surveyDataSorted = sampledShifts.sort_values(computeColumns)
 
 # Files to be merged
-psData = 'possibleShifts.csv'
-tssData = 'totalSampledShifts.csv'
+psData = 'MidProcessFiles/possibleShifts.csv'
+tssData = 'MidProcessFiles/totalSampledShifts.csv'
 
 # Read CSV's into Pandas data frame
 possibleShifts = pd.read_csv(psData)
@@ -96,5 +96,5 @@ mergedDF['Shift_Factor'] = mergedDF.NUMERATOR / mergedDF.DENOMINATOR
 mergedDF2 = pd.merge(surveyDataDF,mergedDF,'outer')
 mergedDF2 = mergedDF2.drop(['NUMERATOR','DENOMINATOR'],axis = 1)
 mergedDF2 = mergedDF2.sort_values(by=['SERIAL'])
-mergedDF2.to_csv('surveydata_merge.csv',index=False)
+mergedDF2.to_csv('OutputFiles/surveydata_merge.csv',index=False)
  
