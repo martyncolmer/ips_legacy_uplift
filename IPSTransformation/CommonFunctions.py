@@ -34,7 +34,7 @@ def validate_file(xfile):
         return True         
 
 
-def get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials.txt"):
+def get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials.json"):
         """
         Author     : mahont1 & thorne1
         Date       : 27 Nov 2017
