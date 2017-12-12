@@ -73,26 +73,22 @@ def get_credentials(credentials_file):
     Returns    : Dictionary        
     """
     
-    # Validate existence and size of file 
-    if validate_file(credentials_file):
-        credentials_dict = {}
-            
-        # Open and read file, and assign to string variable
-        try:
-            file_object = open(credentials_file, "r")
-        except IOError:
-            raise
-            return False
-        else:
-            credentials_string = file_object.read()  
-                
-        # Parse string to dictionary
-        for line in credentials_string.split('\n'):
-            # if not line: break
-            pair = line.split(":")
-            credentials_dict[pair[0].strip()] = pair[1].strip()
+    # Create dictionary
+    credentials_dict = {}
     
-        return credentials_dict
+    # Validate file
+    if os.path.getsize(credentials_file) == 0:
+        # File is empty, return False to indicate failure 
+        return False
+    
+    # Open and read file, and assign to string variable 
+    try:
+        with open(credentials_file) as json_file:
+            credentials_dict = json.load(json_file)
+    except IOError:
+        raise
+            
+    return credentials_dict
     
 
 def extract_zip(dir_name, zip_file):    
