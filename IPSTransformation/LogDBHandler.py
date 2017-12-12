@@ -14,7 +14,7 @@ class IPS_Log_Handler(logging.Handler):
         """
 
         # Setup DB connection
-        self.conn = cf.get_oracle_connection()
+        self.conn = CommonFunctions.get_oracle_connection()
  
         # Set starting instance params
         self.params = {}
@@ -70,7 +70,7 @@ class IPS_Log_Handler(logging.Handler):
         self.commit_response(record)
    
     
-    def commit_response(self, record):
+ def commit_response(self, record):
         """
         Author     : Martyn Colmer & thorne1
         Date       : 5 Dec 2017
@@ -78,9 +78,6 @@ class IPS_Log_Handler(logging.Handler):
         Params     : record - This is populated by the logger automatically
         Returns    : True/False  
         """
-        
-        # DB variables
-        cur = self.conn.cursor()
         
         # Setup the parameters from the instance params object
         params = (self.params['process_id']
@@ -92,21 +89,17 @@ class IPS_Log_Handler(logging.Handler):
         # need to do something with self.params['record_date']
         
         # Prepare SQL statement
-        table_name = "RESPONSE"
+        table_name = "SAS_RESPONSE "
         sql = ("INSERT INTO " 
                + table_name 
-               + """(PROCESS_ID
+               + """(SAS_PROCESS_ID
                , RESPONSE_CODE
                , ERROR_MSG
                , STACK_TRACE
                , WARNINGS) 
                VALUES(:a, :b, :c, :d, :e)""")
         
-        print sql
-        for x in params:
-            print x
-        
-#        # Execute SQL
-#        cur = self.conn
-#        cur.execute(sql, params)
-#        self.conn.commit()
+        # Execute SQL
+        cur = self.conn.cursor()
+        cur.execute(sql, params)
+        self.conn.commit()
