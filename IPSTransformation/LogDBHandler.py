@@ -70,7 +70,7 @@ class IPS_Log_Handler(logging.Handler):
         self.commit_response(record)
    
     
- def commit_response(self, record):
+def commit_response(self, record):
         """
         Author     : Martyn Colmer & thorne1
         Date       : 5 Dec 2017

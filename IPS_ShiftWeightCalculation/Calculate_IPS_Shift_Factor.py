@@ -5,16 +5,25 @@ Created on 6 Dec 2017
 '''
 import pandas as pd
 from sas7bdat import SAS7BDAT
+import sys
 
+
+print("In calculate shift factor")
 #****************************************************#
 #* Calculate the number of sampled shifts by strata *#
 #****************************************************#
 
 #------------------------------ Sampled Shifts - Import ------------------------------#
 
-surveyData = 'InputFiles/surveydata.sas7bdat'
+"""This works for survey data but not merged (index errors). But is much faster than SAS7BDAT().to_data_frame()"""
+#surveyData = 'InputFiles/surveydata.sas7bdat'
+#surveyDataDF = pd.read_sas(surveyData)
 
-surveyDataDF = pd.read_sas(surveyData)
+filename = 'InputFiles/surveydata.sas7bdat'
+surveyDataDF = SAS7BDAT(filename).to_data_frame()
+
+
+sys.exit()
 cols = 'SHIFT_FLAG_PV'
 sampledShifts = surveyDataDF[surveyDataDF[cols] == 1]
 sampledShifts.dropna()
@@ -90,7 +99,6 @@ mergedDF = pd.merge(surveyDataSorted,possibleShifts,on = ['SHIFT_PORT_GRP_PV','A
 mergedDF = pd.merge(mergedDF,totalSampledShifts,on = ['SHIFT_PORT_GRP_PV','ARRIVEDEPART','WEEKDAY_END_PV','AM_PM_NIGHT_PV'])
 
 mergedDF['Shift_Factor'] = mergedDF.NUMERATOR / mergedDF.DENOMINATOR
-
 
 
 mergedDF2 = pd.merge(surveyDataDF,mergedDF,'outer')

@@ -11,6 +11,7 @@ import pandas as pandas     # pip install this
 import datetime
 import numpy as np
 import sys
+import json
 
 from sas7bdat import SAS7BDAT   # pip install this
 
@@ -241,15 +242,13 @@ def import_traffic_data(filename):
         print(dataframe)
         
         
-        
         dataframe['PERIODSTART'].fillna('', inplace=True)
         dataframe['PERIODSTART'] = dataframe['PERIODSTART'].astype(str)
         
         
-        
-        
         dataframe['PERIODEND'].fillna('', inplace=True)
         dataframe['PERIODEND'] = dataframe['PERIODEND'].astype(str)
+        
         
         dataframe['HAUL'].fillna('', inplace=True)
         dataframe['HAUL'] = dataframe['HAUL'].astype(str)
@@ -281,7 +280,12 @@ def import_traffic_data(filename):
     conn = get_oracle_connection()
     cur = conn.cursor()
     table_name = "TRAFFIC_DATA"
-
+    ##################################################################################THIS CAN GO
+    cur.execute("select * from DATA_SOURCE")
+    print(cur.fetchall())
+    
+    sys.exit()
+    ######################################################################################################JAmES LOOK HERE
     # Hard-coded variables
     run_id = "IPSSeedRunFR02"       # Primary-key constraint on TRAFFIC_DATA. See RUN table
     data_source_id = {"Sea": 1
@@ -311,7 +315,6 @@ def import_traffic_data(filename):
         row.append(vehicle[survey_type])    # Insert vehicle value as last column
         row[row.index(survey_type)] = data_source_id[survey_type]   # Using survey_type, replace DATASOURCE values with data_source_id   
         
-                
         
     # SQL statement to insert collection to table
     sql = ("INSERT INTO " 
@@ -437,3 +440,11 @@ def insert_response_table(level, err):
     conn.commit()
     
     print "Table should have been created"
+
+def ips_error_check():
+    pass    
+    
+
+def commit_ips_response():
+    pass
+    
