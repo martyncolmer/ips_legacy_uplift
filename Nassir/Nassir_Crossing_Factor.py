@@ -30,6 +30,7 @@ def load_sas(sasfile, encoding="utf8", encoding_errors="replace"):
 df_survey_data = load_sas(path_to_survey_data)
 df_shifts_data = load_sas(path_to_shifts_data)
 
+
 # -----------------------------------------------------
 # assign all the variable values and make upper case
 # as all table column names are upper case
