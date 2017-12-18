@@ -12,11 +12,13 @@ sas_file_possshifts = r"d:\\#\\possibleshifts.sas7bdat"
 sas_file_totsampcrossings = r"d:\\#\\totalsampledcrossings.sas7bdat"
 sas_file_totsampshifts = r"d:\\#\\totalsampledshifts.sas7bdat"
 
-# columns we are working with
+# column sets we are working with
 cols1 = ['SHIFT_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'AM_PM_NIGHT_PV', 'MIGSI']
 cols2 = ['SHIFT_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'AM_PM_NIGHT_PV']
 cols3 = ['SHIFT_PORT_GRP_PV', 'ARRIVEDEPART']
 cols4 = ['WEEKDAY_END_PV', 'AM_PM_NIGHT_PV', 'MIGSI', 'POSS_SHIFT_CROSS']
+cols5 = ['SHIFT_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'AM_PM_NIGHT_PV', 'MIGSI', 'POSS_SHIFT_CROSS', 'SAMP_SHIFT_CROSS', 'MIN_SH_WT', 'MEAN_SH_WT', 'MAX_SH_WT', 'COUNT_RESPS',  'SUM_SH_WT']
+cols6 = ['SERIAL', 'SHIFT_WT']
 
 # sas import function via pandas
 def import_sas_pandas(sas_file):
@@ -47,7 +49,7 @@ data_surveydata.loc[data_surveydata.CROSSINGS_FACTOR.isna() & (data_surveydata.C
 # calculate shift weight
 data_surveydata['SHIFT_WT'] = data_surveydata.SHIFT_FACTOR * data_surveydata.CROSSINGS_FACTOR * data_surveydata.MIGSI
 
-# sort data
+# sort survey data
 data_surveydata = data_surveydata.sort_values(cols1)
 
 # groupby and aggregate summary
@@ -61,21 +63,28 @@ data_summary = data_surveydata.groupby(cols1)['SHIFT_WT'].agg({'COUNT_RESPS' : '
 data_summary = data_summary.reset_index()
 
 # merge possshifts to summary
-data_summary = pd.merge(data_summary, data_possshifts, on = cols2)
+data_summary = pd.merge(data_summary, data_possshifts, on = cols2, how='outer')
 data_summary = data_summary.drop({'_TYPE_', '_FREQ_'}, 1)
 data_summary = data_summary.rename(columns = {'NUMERATOR' : 'POSS_SHIFT_CROSS'})
 
 # merge totsampcrossings to summary
-data_summary = pd.merge(data_summary, data_totsampcrossings, on = cols2)
+data_summary = pd.merge(data_summary, data_totsampcrossings, on = cols2, how='outer')
 data_summary = data_summary.drop({'_TYPE_', '_FREQ_'}, 1)
 data_summary = data_summary.rename(columns = {'DENOMINATOR' : 'SAMP_SHIFT_CROSS'})
 
-# merge totsampshifts to summary - CREATES TWO COLUMNS WITH THE SAME NAME !? SAS ONLY HAS THE ONE COLUMN !?
-data_summary = pd.merge(data_summary, data_totsampshifts, on = cols2)
+# merge totsampshifts to summary
+data_summary = pd.merge(data_summary, data_totsampshifts, on = cols2, how='outer')
 data_summary = data_summary.drop({'_TYPE_', '_FREQ_'}, 1)
-data_summary = data_summary.rename(columns = {'DENOMINATOR' : 'SAMP_SHIFT_CROSS'})
+data_summary = data_summary.rename(columns = {'DENOMINATOR' : 'SAMP_SHIFT_CROSS_TOTSAMPSHIFTS'})
 
-# sort data
+# merge the samp shift cross columns into single column
+data_summary['SAMP_SHIFT_CROSS'] = data_summary.SAMP_SHIFT_CROSS.fillna(0) + data_summary.SAMP_SHIFT_CROSS_TOTSAMPSHIFTS.fillna(0)
+data_summary = data_summary.drop(['SAMP_SHIFT_CROSS_TOTSAMPSHIFTS'], 1)
+
+# sort summary
+data_summary = data_summary.sort_values(cols2)
+
+# sort survey data
 data_surveydata = data_surveydata.sort_values(cols3)
 
 # groupby and aggregate summary high
@@ -91,7 +100,7 @@ data_summary_high = data_summary_high.reset_index()
 # append tot samp crossings to tot samp shifts
 data_totsampshifts.append(data_totsampcrossings)
 
-# sort data
+# sort totsampshifts data
 data_totsampshifts = data_totsampshifts.sort_values(cols3)
 
 # groupby and aggregate
@@ -103,7 +112,17 @@ data_summary_high_sampled = data_summary_high_sampled.reset_index()
 # left merge summary high with summary high sampled
 data_summary_high = pd.merge(data_summary_high, data_summary_high_sampled, on = cols3, how='left')
 
-# RETAIN SET BY !?
+# append summary and high summary
+data_summary = data_summary.append(data_summary_high)
 
-# drop columns - SET !? WHERE DOES SERIAL COME FROM !?
-data_summary = data_summary['SHIFT_WT']
+# set summary columns
+data_summary = data_summary[cols5]
+
+# sort summary
+data_summary = data_summary.sort_values(cols5)
+
+# set survey data columns
+data_surveydata = data_surveydata[cols6]
+
+# sort survey data
+data_summary = data_summary.sort_values(cols6)
