@@ -274,7 +274,6 @@ def do_ips_shift_weight_calculation():
     print("Process - Report any weights not in bounds")
     
 
-
 """Files"""
 workingDir = (r"//nsdata3/Social_Surveys_team/CASPA/IPS/Testing/shiftfactor")
 
@@ -282,8 +281,18 @@ workingDir = (r"//nsdata3/Social_Surveys_team/CASPA/IPS/Testing/shiftfactor")
 #Connect to Oracle                    #/
 conn = cf.get_oracle_connection()
 
+parameters = cf.unload_parameters()
+
+print(parameters)
+
+sys.exit()
 #ipsErrorCheck                        #/
 cf.ips_error_check()
+
+#outputData = 
+#surveydata = 
+#shiftsdata = 
+
 
 #get data from oracle (shift data)    #X
                                   

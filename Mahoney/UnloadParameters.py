@@ -6,6 +6,15 @@ Created on 13 Dec 2017
 from IPSTransformation import CommonFunctions as cf
 
 def unload_parameters(id = False):
+    
+    """
+    Author     : Thomas Mahoney
+    Date       : 19 Dec 2017
+    Purpose    : Extracts a list of parameters from oracle to be used in the parent process.      
+    Params     : id - the identifier used to extract specific parameter sets.
+    Returns    : A dictionary of parameters
+    """
+   
     conn = cf.get_oracle_connection()
     cur = conn.cursor()
     
@@ -19,15 +28,14 @@ def unload_parameters(id = False):
     results = cur.fetchall()
     tempDict = {}
     for set in results:
-        tempDict[set[0]] = set[1]
+        tempDict[set[0].upper()] = set[1]
     
     return tempDict
 
 
-
-
-parameters = unload_parameters()
+parameters = unload_parameters(32)
 
 print (parameters)
 
-print(parameters['PROCESS_NAME'])
+print(parameters['SUMMARYDATA'])
+print(parameters['SHIFTSDATA'])
