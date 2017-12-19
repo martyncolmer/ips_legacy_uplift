@@ -105,6 +105,7 @@ def extract_zip(dir_name, zip_file):
                 zip_ref.extractall(dir_name)
                 zip_ref.close()
                 file_found = True
+                break
         
         return file_found
                 
@@ -441,6 +442,7 @@ def insert_response_table(level, err):
     
     print "Table should have been created"
 
+
 def ips_error_check():
     pass    
     
@@ -448,3 +450,30 @@ def ips_error_check():
 def commit_ips_response():
     pass
     
+    
+def unload_parameters(id = False):
+    
+    """
+    Author     : Thomas Mahoney
+    Date       : 19 Dec 2017
+    Purpose    : Extracts a list of parameters from oracle to be used in the parent process.      
+    Params     : id - the identifier used to extract specific parameter sets.
+    Returns    : A dictionary of parameters
+    """
+   
+    conn = get_oracle_connection()
+    cur = conn.cursor()
+    
+    if id == False:
+        cur.execute("select max(PARAMETER_SET_ID) from SAS_PARAMETERS")
+        id = cur.fetchone()[0]
+        
+    print(id)
+    
+    cur.execute("select PARAMETER_NAME, PARAMETER_VALUE from SAS_PARAMETERS where PARAMETER_SET_ID = " + str(id))
+    results = cur.fetchall()
+    tempDict = {}
+    for set in results:
+        tempDict[set[0].upper()] = set[1]
+    
+    return tempDict
