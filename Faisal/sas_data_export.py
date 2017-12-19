@@ -53,19 +53,22 @@ def sas_data_import(file_id):
     
     conn = CommonFunctions.get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredens.json")
     db = conn.cursor()
-    sqlStr = "SELECT SDE_DATA FROM SAS_DATA_EXPORT WHERE SAS_PROCESS_ID =" + str(file_id)
+    sqlStr = "SELECT SDE_LABEL, SDE_DATA FROM SAS_DATA_EXPORT WHERE SAS_PROCESS_ID =" + str(file_id)
     result  = db.execute (sqlStr)
-    content = result.fetchall()[0][0]
+    content = result.fetchall()
+    file_name = content[0][0]
     
-    with open ('importedFile.sas7bdat', 'wb') as file:
-        file.write(str(content))
+    ext = file_name.split('.')[-1]
         
+    with open (file_name, 'wb') as file:
+            file.write(str(content[0][1]))
+            
     db.close()
     
     
     #for comparison to check if file retrieved was of correct
     file1 =  r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\export_data\export_data_out.sas7bdat"
-    file2 = 'importedFile.sas7bdat'
+
     
 #     with open (file1,'rb') as file:
 #         content1 = file.read()
@@ -75,10 +78,10 @@ def sas_data_import(file_id):
     
     #Compares two files and returns true if same file
         
-    print(filecmp.cmp(file1, file2, shallow = False) )
+    print(filecmp.cmp(file1, file_name, shallow = False) )
         
 #test run
-sas_data_export(1111)    
+#sas_data_export(1111)    
 sas_data_import(999)    
     
         
