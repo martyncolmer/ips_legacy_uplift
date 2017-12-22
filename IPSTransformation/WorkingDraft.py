@@ -1,6 +1,8 @@
 '''
 Created on 24 Nov 2017
 
+El's CommonFunctions working draft - no need to use
+
 @author: thorne1
 '''
 
@@ -8,12 +10,14 @@ import os
 import zipfile
 import cx_Oracle    # pip install this
 import pandas as pandas     # pip install this
-import datetime
-import numpy as np
-import sys
 import json
+import logging
+
+import survey_support
 
 from sas7bdat import SAS7BDAT   # pip install this
+
+#set up null logger.  logger.debug()
 
 def validate_file(xfile):
     """
@@ -25,13 +29,13 @@ def validate_file(xfile):
     """
    
     if xfile == "":
-        # If file name not given
+#        print "IOError: Filename not provided."# If file does not exist OR file is empty return False
         return False
     if not os.path.exists(xfile):
-        # If file does not exist
+#        print ("%s does not exist. Please check file location." %xfile)
         return False
     if os.path.getsize(xfile) == 0:
-        # If file is empty 
+#        print ("%s is empty. Please check file." %xfile) 
         return False
     else:
         return True         
@@ -66,8 +70,8 @@ def get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CAS
             return False
         else:
             return conn
-        
-    
+
+
 def get_credentials(credentials_file):
     """
     Author     : thorne1
@@ -92,12 +96,37 @@ def get_credentials(credentials_file):
                 credentials_dict[pair[0].strip()] = pair[1].strip()
             
             return credentials_dict
+        
+    
+def get_json_credentials(credentials_file):
+    """
+    Author     : thorne1
+    Date       : 27 Nov 2017
+    Purpose    : Retrieves credentials from local text file
+    Returns    : Dictionary        
+    """
+    
+    # Create dictionary
+    credentials_dict = {}
+    
+    # Validate file
+    if os.path.getsize(credentials_file) == 0:
+        # File is empty, return False to indicate failure 
+        return False
+    
+    # Open and read file, and assign to string variable 
+    try:
+        with open(credentials_file) as json_file:
+            credentials_dict = json.load(json_file)
+    except IOError:
+        raise
+            
+    return credentials_dict
     
 
 def extract_zip(dir_name, zip_file):    
 
-    # Validate existence of file
-	if validate_file(dir_name):
+    if validate_file(dir_name):
         os.chdir(dir_name)
     
         file_found = False
@@ -108,7 +137,6 @@ def extract_zip(dir_name, zip_file):
                 zip_ref.extractall(dir_name)
                 zip_ref.close()
                 file_found = True
-                break
         
         return file_found
                 
@@ -162,13 +190,19 @@ def import_SAS(filename):
             return False
 
 
+def validate_nan_values(filename):
+    df = import_csv(filename)
+    
+    return df.isnull().values.any()
+        
+        
 def create_table(table_name, column_list):
     """
     Author     : thorne1
     Date       : 20 Dec 2017
-    Purpose    : Uses SQL query to create a table
-    Params     : table_name - name of table to create
-               : column_list - List of as many column details as required in the following format:
+    Purpose    : Generic SQL query to create a table
+    Params     : table_name = Name of table to create
+               : column_list = List of as many column details as required in the following format:
                       FORMAT EXAMPLE:    "COLUMN_NAME type(size)"
                       CODE EXAMPLE:       create_table("TABLE_DATA", ("RUN_ID varchar2(40)", "YEAR number(4)", "MONTH number(2)"))
                                           OR
@@ -176,24 +210,20 @@ def create_table(table_name, column_list):
                                           create_table("TABLE_DATA", cols)                      
     Returns    : True/False  
     """
-    # Oracle connection variables
     conn = get_oracle_connection()
     cur = conn.cursor()
     
-    # Re-format column_list as string
     columns = str(column_list).replace("'","") 
     
-    # Create and execute SQL query 
     sql = "CREATE TABLE " + table_name + " " + columns    
     cur.execute(sql)
     conn.commit()
 
-    # Confirm table was created
     if check_table(table_name) == True:
         return True
     else:
-        return False 			
-			
+        return False 
+
 
 def check_table(table_name):
     """
@@ -203,12 +233,9 @@ def check_table(table_name):
     Params     : table_name 
     Returns    : True/False (bool)   
     """
-    
-	# Oracle connection variables
-	conn = get_oracle_connection()
+    conn = get_oracle_connection()
     cur = conn.cursor()   
-     
-    # Create and execute SQL query
+         
     sql = "SELECT * from USER_TABLES where table_name = '" + table_name + "'"
     
     try:
@@ -233,11 +260,8 @@ def drop_table(table_name):
     Params     : table_name 
     Returns    : True/False (bool)   
     """
-    # Oracle connection variables
     conn = get_oracle_connection()
-    cur = conn.cursor()    
-    
-    # Create and execute SQL query
+    cur = conn.cursor()       
     sql = "DROP TABLE " + table_name
     
     try:
@@ -258,15 +282,13 @@ def delete_from_table(table_name):
     """
     Author     : thorne1
     Date       : 7 Dec 2017
-    Purpose    : Generic SQL query to drop contents of table   
+    Purpose    : Generic SQL query to drop entire contents of table   
     Params     : table_name 
     Returns    : True/False (bool)   
     """
-    # Oracle connection variables
     conn = get_oracle_connection()
     cur = conn.cursor() 
     
-    # Create and execute SQL query
     sql = "DELETE FROM " + table_name    
     
     cur.execute(sql)
@@ -274,6 +296,91 @@ def delete_from_table(table_name):
     
     return True
 
+
+def get_values(table_name):
+    """
+    Author      : thorne1
+    Date        : 14 Dec 2017
+    Purpose     : Retrieves values from Oracle table   
+    Params      : table_name 
+    Returns     : list   
+    """
+    
+    # Oracle connection variables
+    conn = get_oracle_connection()
+    cur = conn.cursor()
+    
+    sql = "SELECT * from " + table_name
+    cur.execute(sql)          
+    result = cur.fetchall()
+    
+    return result   
+
+
+def insert_into_table(table_name, column_list, value_list):
+    """
+    Author     : thorne1
+    Date       : 20 Dec 2017
+    Purpose    : Uses SQL query to insert into table
+    Params     : table_name = Name of table to insert
+               : column_list = List the names of as many columns as required
+               : value_list = List the values required to insert
+                      CODE EXAMPLE:       insert_into_table("TABLE_DATA", ("date_and_time", "message_result"), ("20/12/2017", "Hello World!"))
+                                          OR
+                                          column_list = ("date_and_time", "message_result")
+                                          values = ("20/12/2017", "Hello World!")
+                                          insert_into_table(table_name, column_list, values)                      
+    Returns    : True/False  
+    """
+    
+    # Oracle connection variables
+    conn = get_oracle_connection()
+    cur = conn.cursor()     
+    
+    # Re-format column_list and value_lists as strings
+    columns = str(column_list).replace("'","")
+    values = str(value_list).replace("'","")
+    
+    # table_name = 'response' 
+    sql = "INSERT INTO " + table_name + columns + " VALUES" + values
+    cur.execute(sql)
+    conn.commit()
+    
+    # VALIDATE IT DID IT
+
+#if __name__ == '__main__':
+##    datasource = "Unsampled"
+##    print get_datasource_id(datasource)
+#    caa_filename = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\CAA Q1 2017.csv"
+#    tun_filename = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Tunnel Traffic Q1 2017.csv"    
+#    nr_filename = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Non Response Q1 2017.csv"
+#    ps_filename = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Possible Shifts Q1 2017.csv"
+#    sea_filename = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Sea Traffic Q1 2017.csv"    
+#    uns_filename = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Unsampled Traffic Q1 2017.csv"    
+#
+##    Traffic_Data
+##    print delete_from_table("TRAFFIC_DATA")    
+#    import_traffic_data(sea_filename)
+#    #print import_traffic_data(caa_filename)
+##    print import_traffic_data(tun_filename)
+##
+###    Shift_Data
+##    print delete_from_table("SHIFT_DATA")
+#    import_traffic_data(ps_filename)
+##
+###    Non_Response_Data
+##    print delete_from_table("NON_RESPONSE_DATA")
+#    import_traffic_data(nr_filename)
+#
+##    Unsampled_OOH_Data
+##    print delete_from_table("UNSAMPLED_OOH_DATA")
+#    import_traffic_data(uns_filename)
+#
+##    print drop_table("Els_Test_Table2")
+    #print drop_table("Els_Test_Table")
+    #print create_table("Els_Test_Table","RUN_ID varchar2(40)", "YEAR number(4)", "MONTH number(2)")
+    #print check_table("Els_Test_Table")
+    
 
 def select_data(column_name, table_name, condition1, condition2):
     """
@@ -304,39 +411,13 @@ def select_data(column_name, table_name, condition1, condition2):
         result = str(val).strip("(,)")
         
         return result
-
-
-def ips_error_check():
-    pass    
     
 
-def commit_ips_response():
-    pass
-    
-    
-def unload_parameters(id = False):
-    
-    """
-    Author     : Thomas Mahoney
-    Date       : 19 Dec 2017
-    Purpose    : Extracts a list of parameters from oracle to be used in the parent process.      
-    Params     : id - the identifier used to extract specific parameter sets.
-    Returns    : A dictionary of parameters
-    """
-   
+def get_row_count(table_name):
+    # Connection variables
     conn = get_oracle_connection()
     cur = conn.cursor()
     
-    if id == False:
-        cur.execute("select max(PARAMETER_SET_ID) from SAS_PARAMETERS")
-        id = cur.fetchone()[0]
-        
-    print(id)
-    
-    cur.execute("select PARAMETER_NAME, PARAMETER_VALUE from SAS_PARAMETERS where PARAMETER_SET_ID = " + str(id))
-    results = cur.fetchall()
-    tempDict = {}
-    for set in results:
-        tempDict[set[0].upper()] = set[1]
-    
-    return tempDict
+    sql = "SELECT * FROM " + table_name
+    cur.execute(sql).fetchall()
+    print cur.rowcount
