@@ -97,7 +97,7 @@ def get_credentials(credentials_file):
 def extract_zip(dir_name, zip_file):    
 
     # Validate existence of file
-	if validate_file(dir_name):
+    if validate_file(dir_name):
         os.chdir(dir_name)
     
         file_found = False
@@ -205,7 +205,7 @@ def check_table(table_name):
     """
     
 	# Oracle connection variables
-	conn = get_oracle_connection()
+    conn = get_oracle_connection()
     cur = conn.cursor()   
      
     # Create and execute SQL query
