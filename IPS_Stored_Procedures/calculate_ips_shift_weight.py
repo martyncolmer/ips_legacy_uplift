@@ -9,15 +9,18 @@ from collections import OrderedDict
 import survey_support
 import logging
 
-# sas import via pandas function
-def import_sas_pandas(sas_file):
-    return pd.read_sas(sas_file)
-
-# sas import via sas7bdat function
-def import_sas_sas7bdat(sas_file):
-    return SAS7BDAT(sas_file).to_data_frame()
-
-
+#function for calculating the crossings factor through mapping columns
+def check_crossings_flag(row):
+    if(row['CROSSINGS_FLAG_PV'] != 0 and row['DENOMINATOR'] != 0):        
+        return row['NUMERATOR']/row['DENOMINATOR']       
+    else:       
+        return None
+    
+def check_shift_flag(row):
+    if(row['SHIFT_FLAG_PV'] != 0 and row['DENOMINATOR'] != 0):        
+        return row['NUMERATOR']/row['DENOMINATOR']       
+    else:       
+        return None
 def calculate_ips_shift_factor():
     
     print("START - calculate_ips_shift_factor")
@@ -83,8 +86,9 @@ def calculate_ips_shift_factor():
     
     #-------- Calculate shift factor from numerator and denominator --------------------------
     
-    mergedDF['Shift_Factor'] = mergedDF.NUMERATOR / mergedDF.DENOMINATOR
+    #mergedDF['Shift_Factor'] = mergedDF.NUMERATOR / mergedDF.DENOMINATOR
     
+    mergedDF['Shift_Factor'] = mergedDF.apply(check_shift_flag, axis=1)
     
     #-------- Merge shift factor into data frame and clean unneeded columns ------------------
 
@@ -163,7 +167,7 @@ def calculate_ips_crossing_factor(df_surveydata_sf):
     
     # note - we require reset_index() here to compose the correctly laid out dataframe
     df_totalSampledCrossings = df_sorted_sampled_crossings.groupby(StratumDef)[crossingNumber]\
-                                                     .agg(OrderedDict([('_FREQ_', 'count'),('denominator', 'count')]))\
+                                                     .agg(OrderedDict([('_FREQ_', 'count'),('DENOMINATOR', 'count')]))\
                                                      .reset_index() # shape = (36, 6)
     
     # note - not required but put incase required in future for similar
@@ -181,7 +185,7 @@ def calculate_ips_crossing_factor(df_surveydata_sf):
     
     # note - we require reset_index() here to compose the correctly laid out dataframe
     df_totalCrossings = df_sorted_crossingsData.groupby(StratumDef)[totals]\
-                                                     .agg(OrderedDict([('_FREQ_', 'count'),('numerator', 'sum')]))\
+                                                     .agg(OrderedDict([('_FREQ_', 'count'),('NUMERATOR', 'sum')]))\
                                                      .reset_index() # shape = (36, 6)        
     
     df_totalCrossings.index = range(df_totalCrossings.shape[0])
@@ -196,27 +200,17 @@ def calculate_ips_crossing_factor(df_surveydata_sf):
     df_sorted_outputData = df_outputData.sort_values(StratumDef)
     
     df_sorted_outputData #keep all
-    df_totalCrossings  = df_totalCrossings[StratumDef + ['numerator']] # keep &StratumDef numerator
-    df_totalSampledCrossings = df_totalSampledCrossings[StratumDef + ['denominator']] # (keep = &StratumDef denominator);
+    df_totalCrossings  = df_totalCrossings[StratumDef + ['NUMERATOR']] # keep &StratumDef numerator
+    df_totalSampledCrossings = df_totalSampledCrossings[StratumDef + ['DENOMINATOR']] # (keep = &StratumDef denominator);
     
     left_join_1 = df_sorted_outputData.merge(df_totalCrossings, on=StratumDef, how='left')\
                                       .merge(df_totalSampledCrossings, on=StratumDef, how='left')
-    
-    # if crossingFlag column not equal 1:
-    #    if denominator not equal 0:
-    #        crossing_factor_column = numerator/denominator
-    #function for calculating the crossings factor through mapping columns
-    def g(row):
-        if(row[crossingFlag] != 0 and row['denominator'] != 0):        
-            return row['numerator']/row['denominator']       
-        else:       
-            return None
-    
+        
     # calculate crossings factor    
-    left_join_1[crossingsFactor] = left_join_1.apply(g, axis=1)
+    left_join_1[crossingsFactor] = left_join_1.apply(check_crossings_flag, axis=1)
     
     # drop numerator and denominator columns
-    df_surveydata_merge = left_join_1.drop(['numerator', 'denominator'], 1)
+    df_surveydata_merge = left_join_1.drop(['NUMERATOR', 'DENOMINATOR'], 1)
     
     print("DONE - calculate_ips_crossing_factor")
 
@@ -457,15 +451,7 @@ logger = logging.getLogger(__name__)                            # Creates logger
 conn = cf.get_oracle_connection()
 
 parameters = cf.unload_parameters()
-print("___")
-print("GET THE PARAMETERS WORKING AND YOU'RE DONE!")
-print("___")
-print(parameters)
-print("___")
-for param in parameters:
-    print(param + " - " + str(parameters[param]))
 
-print("___")
 cf.ips_error_check()
 
 
@@ -476,8 +462,13 @@ cf.ips_error_check()
 path_to_survey_data = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_IPS_Shift_Weight\surveydata.sas7bdat"
 path_to_shifts_data = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_IPS_Shift_Weight\shiftsdata.sas7bdat"
 
-df_surveydata = SAS7BDAT(path_to_survey_data).to_data_frame()
-df_shiftsdata = SAS7BDAT(path_to_shifts_data).to_data_frame()
+# This method works for all data sets but is slow
+#df_surveydata = SAS7BDAT(path_to_survey_data).to_data_frame()
+#df_shiftsdata = SAS7BDAT(path_to_shifts_data).to_data_frame()
+
+# This method is untested with other data sets but is very fast
+df_surveydata = pd.read_sas(path_to_survey_data)
+df_shiftsdata = pd.read_sas(path_to_shifts_data)
 
 
 cf.ips_error_check()
