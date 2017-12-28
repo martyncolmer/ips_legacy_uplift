@@ -24,7 +24,17 @@ def check_shift_flag(row):
 
 
 def calculate_ips_shift_factor():
-    
+    """
+    Author     : Thomas Mahoney
+    Date       : 28 Dec 2017
+    Purpose    : Uses the imported surveydata and shiftsdata to calculate the data sets records' shift factors.
+                 This calculated value is then appended to the original survey data set and used further in the process.
+    Returns    : Three data frames that used to calculate the overall shift weight and build the final output data set.
+                     - df_totalsampledshifts,
+                     - df_possibleshifts, 
+                     - df_surveydata_sf
+    """
+
     print("START - calculate_ips_shift_factor")
     
     # -----------------------------------------------------
