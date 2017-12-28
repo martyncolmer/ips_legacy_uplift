@@ -14,7 +14,7 @@ class IPS_Log_Handler(logging.Handler):
         """
 
         # Setup DB connection
-        self.conn = CommonFunctions.get_oracle_connection()
+        self.conn = cf.get_oracle_connection()
  
         # Set starting instance params
         self.params = {}
@@ -80,36 +80,36 @@ class IPS_Log_Handler(logging.Handler):
         self.commit_response(record)
    
     
-	def commit_response(self, record):
-			"""
-			Author     : Martyn Colmer & thorne1
-			Date       : 5 Dec 2017
-			Purpose    : Writes response code and warnings to response table  
-			Params     : record - This is populated by the logger automatically
-			Returns    : True/False  
-			"""
-			
-			# Setup the parameters from the instance params object
-			params = (self.params['process_id']
-					  , self.params['response_code']
-					  , self.params['error_msg']    
-					  , self.params['stack_trace']
-					  , self.params['warnings'])
-					  
-			# need to do something with self.params['record_date']
-			
-			# Prepare SQL statement
-			table_name = "SAS_RESPONSE "
-			sql = ("INSERT INTO " 
-				   + table_name 
-				   + """(SAS_PROCESS_ID
-				   , RESPONSE_CODE
-				   , ERROR_MSG
-				   , STACK_TRACE
-				   , WARNINGS) 
-				   VALUES(:a, :b, :c, :d, :e)""")
-			
-			# Execute SQL
-			cur = self.conn.cursor()
-			cur.execute(sql, params)
-			self.conn.commit()
+    def commit_response(self, record):
+        """
+        Author     : Martyn Colmer & thorne1
+        Date       : 5 Dec 2017
+        Purpose    : Writes response code and warnings to response table  
+        Params     : record - This is populated by the logger automatically
+        Returns    : True/False  
+        """
+        
+        # Setup the parameters from the instance params object
+        params = (self.params['process_id']
+        		  , self.params['response_code']
+        		  , self.params['error_msg']    
+        		  , self.params['stack_trace']
+        		  , self.params['warnings'])
+        		  
+        # need to do something with self.params['record_date']
+        
+        # Prepare SQL statement
+        table_name = "SAS_RESPONSE "
+        sql = ("INSERT INTO " 
+        	   + table_name 
+        	   + """(SAS_PROCESS_ID
+        	   , RESPONSE_CODE
+        	   , ERROR_MSG
+        	   , STACK_TRACE
+        	   , WARNINGS) 
+        	   VALUES(:a, :b, :c, :d, :e)""")
+        
+        # Execute SQL
+        cur = self.conn.cursor()
+        cur.execute(sql, params)
+        self.conn.commit()

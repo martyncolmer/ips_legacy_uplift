@@ -97,7 +97,7 @@ def get_credentials(credentials_file):
 def extract_zip(dir_name, zip_file):    
 
     # Validate existence of file
-	if validate_file(dir_name):
+    if validate_file(dir_name):
         os.chdir(dir_name)
     
         file_found = False
@@ -176,6 +176,11 @@ def create_table(table_name, column_list):
                                           create_table("TABLE_DATA", cols)                      
     Returns    : True/False  
     """
+    
+    # Confirm table does not exist
+    if check_table(table_name) == True:
+        return False
+    
     # Oracle connection variables
     conn = get_oracle_connection()
     cur = conn.cursor()
@@ -184,16 +189,23 @@ def create_table(table_name, column_list):
     columns = str(column_list).replace("'","") 
     
     # Create and execute SQL query 
-    sql = "CREATE TABLE " + table_name + " " + columns    
-    cur.execute(sql)
-    conn.commit()
+    sql = "CREATE TABLE " + table_name + " " + columns 
+    
+    try:
+        cur.execute(sql)
+    except cx_Oracle.DatabaseError:
+        # Raise (unit testing purposes) and return False to indicate table does not exist
+        raise
+        return False
+    else:
+        conn.commit()
 
     # Confirm table was created
     if check_table(table_name) == True:
         return True
     else:
-        return False 			
-			
+        return False
+
 
 def check_table(table_name):
     """
@@ -201,18 +213,19 @@ def check_table(table_name):
     Date       : 7 Dec 2017
     Purpose    : Generic SQL query to check if table exists   
     Params     : table_name 
-    Returns    : True/False (bool)   
+    Returns    : True - Table exists / False - Table does not exist (bool)   
     """
     
-	# Oracle connection variables
-	conn = get_oracle_connection()
+    # Oracle connection variables
+    conn = get_oracle_connection()
     cur = conn.cursor()   
      
     # Create and execute SQL query
     sql = "SELECT * from USER_TABLES where table_name = '" + table_name + "'"
     
     try:
-        result = cur.execute(sql)
+        cur.execute(sql)
+        result = cur.fetchone()
     except cx_Oracle.DatabaseError:
         # Raise (unit testing purposes) and return False to indicate table does not exist
         raise
@@ -233,25 +246,32 @@ def drop_table(table_name):
     Params     : table_name 
     Returns    : True/False (bool)   
     """
+    
+    # Confirm table exists
+    if check_table(table_name) == False:
+        return False
+    
     # Oracle connection variables
     conn = get_oracle_connection()
-    cur = conn.cursor()    
+    cur = conn.cursor()
     
     # Create and execute SQL query
     sql = "DROP TABLE " + table_name
     
     try:
-        result = cur.execute(sql)
+        cur.execute(sql)
+        # print result
     except cx_Oracle.DatabaseError:
         # Raise (unit testing purposes) and return False to indicate table does not exist
         raise
         return False
     else:
-        if result == None:
-            # return True to indicate table exists
-            return True
-        else:
+        if check_table(table_name) == True:
+            # return False to indicate table still exists
             return False
+        else:
+            conn.commit()
+            return True
     
     
 def delete_from_table(table_name):
@@ -262,6 +282,10 @@ def delete_from_table(table_name):
     Params     : table_name 
     Returns    : True/False (bool)   
     """
+    # Confirm table exists
+    if check_table(table_name) == False:
+        return False    
+    
     # Oracle connection variables
     conn = get_oracle_connection()
     cur = conn.cursor() 
@@ -269,10 +293,22 @@ def delete_from_table(table_name):
     # Create and execute SQL query
     sql = "DELETE FROM " + table_name    
     
-    cur.execute(sql)
-    conn.commit()
+    try:
+        cur.execute(sql)
+    except cx_Oracle.DatabaseError:
+        # Raise (unit testing purposes) and return False to indicate table does not exist
+        raise
+        return False
+    else:   
+        conn.commit()
+        
+    sql = "SELECT * FROM " + table_name
+    result = cur.execute(sql).fetchall()
     
-    return True
+    if result != []:
+        return False
+    else:
+        return True
 
 
 def select_data(column_name, table_name, condition1, condition2):
@@ -285,12 +321,27 @@ def select_data(column_name, table_name, condition1, condition2):
     Returns    : Result (String)
     """
     
+    # Validation
+    dataframe = get_table_to_dataframe(table_name)
+    
+    if column_name not in dataframe.columns.values:
+        return False    
+    
+    if check_table(table_name) == False:
+        return False
+    
+    if condition1 not in dataframe.values:
+        return False
+    
     # Connection variables
     conn = get_oracle_connection()
     cur = conn.cursor()
     
     # Create SQL statement
-    sql = "SELECT " + column_name + " FROM " + table_name + " WHERE " + condition1 + " = '" + condition2 + "'"
+    sql = ("SELECT " + column_name 
+           + " FROM " + table_name 
+           + " WHERE " + condition1 
+           + " = '" + condition2 + "'")
 
     # Execute
     try:
@@ -303,6 +354,10 @@ def select_data(column_name, table_name, condition1, condition2):
         val = cur.fetchone()
         result = str(val).strip("(,)")
         
+    if result == 'None':
+        print "Query failed to return result. Please review and try again."
+        return False
+    else:
         return result
 
 
@@ -340,3 +395,61 @@ def unload_parameters(id = False):
         tempDict[set[0].upper()] = set[1]
     
     return tempDict
+
+
+def get_column_names(table_name):
+    """
+    Author     : thorne1
+    Date       : 27 Dec 2017
+    Purpose    : Retrieve column names from Oracle table    
+    Params     : table_name - Name of table 
+    Returns    : list of column names  
+    """
+    # Connection variables
+    conn = get_oracle_connection()
+    cur = conn.cursor()
+    
+    # Create and execute SQL query
+    sql = "SELECT * FROM " + table_name
+    cur.execute(sql)
+    column_descriptions = cur.description
+    
+    # Create list of column names
+    column_names = []
+    for every_item in column_descriptions:
+        column_names.append(every_item[0]) 
+        
+    return column_names
+
+
+def get_table_to_dataframe(table_name):
+    # Connection variables
+    conn = get_oracle_connection()
+    cur = conn.cursor()
+    
+    # Create and execute SQL query to dataframe
+    sql = "SELECT * FROM " + table_name
+    cur.execute(sql)
+    dataframe = pandas.read_sql(sql, conn)
+    
+    return dataframe
+
+
+
+if __name__ == "__main__":
+    pass
+#    table_name = "TRAFFIC_DATA"
+#    print drop_table(table_name)
+#    column_list = ("RUN_ID varchar2(40) NOT NULL"
+#                   ,"YEAR number(4) NOT NULL"
+#                   , "MONTH number(2) NOT NULL"
+#                   , "DATA_SOURCE_ID number(10) NOT NULL"
+#                   , "PORTROUTE number(4)"
+#                   , "ARRIVEDEPART number(1)"
+#                   , "TRAFFICTOTAL number(12,3) NOT NULL"
+#                   , "PERIODSTART varchar2(10)"
+#                   , "PERIODEND varchar2(10)"
+#                   , "AM_PM_NIGHT number(1)"
+#                   , "HAUL varchar2(2)"
+#                   , "VEHICLE number(1)")
+#    print create_table(table_name, column_list)

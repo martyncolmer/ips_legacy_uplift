@@ -1,5 +1,5 @@
 import cx_Oracle
-import CommonFunctions as cf
+from IPSTransformation import CommonFunctions as cf
 import pandas.io.common
 
 
@@ -119,4 +119,4 @@ def import_traffic_data(filename):
         return False
     
     
-print import_traffic_data(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\HAHAH")
+#print import_traffic_data(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Sea Traffic Q1 2017.csv")

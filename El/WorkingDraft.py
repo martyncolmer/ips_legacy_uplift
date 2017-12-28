@@ -317,6 +317,68 @@ def get_values(table_name):
     return result   
 
 
+def insert_into_table2(table_name, value_list):
+    """
+    Author     : thorne1
+    Date       : 20 Dec 2017
+    Purpose    : Uses SQL query to insert into table
+    Params     : table_name = Name of table to insert
+               : column_list = List the names of as many columns as required
+               : value_list = List the values required to insert
+                      CODE EXAMPLE:       insert_into_table("TABLE_DATA", ("date_and_time", "message_result"), ("20/12/2017", "Hello World!"))
+                                          OR
+                                          column_list = ("date_and_time", "message_result")
+                                          values = ("20/12/2017", "Hello World!")
+                                          insert_into_table(table_name, column_list, values)                      
+    Returns    : True/False  
+    """
+    
+    # Confirm table exists
+    if check_table(table_name) == False:
+        print "Table does not exist"
+        return False
+    
+    # Oracle connection variables
+    conn = get_oracle_connection()
+    cur = conn.cursor()
+    
+    # Re-format column_list and value_lists as strings
+#    columns = str(column_list).replace("'","")
+    vals = str(value_list).replace("'","")
+    
+    # Retrieve row count prior to inserting
+    sql = "SELECT * FROM " + table_name
+    original_row_count = cur.execute(sql).fetchall()
+    print "original_row_count: %s" %original_row_count
+    
+    # Create and execute SQL insert query
+    sql = "INSERT INTO " + table_name + " VALUES " + vals
+    print sql
+    
+    # sys.exit()
+
+    try:
+        cur.execute(sql)
+    except cx_Oracle.DatabaseError:
+        # Raise (unit testing purposes) and return False to indicate table does not exist
+        raise
+        return False
+    else:
+        conn.commit()
+    
+    # Validate rows were inserted
+    sql = "SELECT * FROM " + table_name
+    final_row_count = cur.execute(sql).fetchall()
+    print "final_row_count: %s" %final_row_count
+    if final_row_count > original_row_count:
+        print "Table inserted successfully"
+        return True
+    else:
+        print "Table not inserted"
+        return False
+
+
+
 def insert_into_table(table_name, column_list, value_list):
     """
     Author     : thorne1
@@ -421,3 +483,35 @@ def get_row_count(table_name):
     sql = "SELECT * FROM " + table_name
     cur.execute(sql).fetchall()
     print cur.rowcount
+    
+
+def get_column_names(table_name):
+    # Connection variables
+    conn = get_oracle_connection()
+    cur = conn.cursor()
+    
+    sql = "SELECT * FROM " + table_name
+    cur.execute(sql)
+    column_descriptions = cur.description
+    
+    column_names = []
+    for every_item in column_descriptions:
+        column_names.append(every_item[0]) 
+        
+    print type(column_names)
+
+
+def get_table_to_dataframe(table_name):
+    # Connection variables
+    conn = get_oracle_connection()
+    cur = conn.cursor()
+    
+    sql = "SELECT * FROM " + table_name
+    cur.execute(sql)
+    dataframe = pandas.read_sql(sql, conn)
+    
+    print dataframe
+    
+
+table_name = "DATA_SOURCE"
+get_table_to_dataframe(table_name)
