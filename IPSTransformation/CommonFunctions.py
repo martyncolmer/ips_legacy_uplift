@@ -340,3 +340,101 @@ def unload_parameters(id = False):
         tempDict[set[0].upper()] = set[1]
     
     return tempDict
+
+
+def insert_dataframe_into_table(table_name, dataframe):
+    column_list = list(dataframe.columns.values)
+    print(column_list)
+    
+    
+    for val in dataframe.values:
+        v_list = list(val)
+        print(v_list)
+        
+        insert_into_table(table_name,column_list,v_list)
+
+
+def insert_into_table(table_name, column_list, value_list):
+    """
+    Author     : mahont1
+    Date       : 20 Dec 2017
+    Purpose    : Uses SQL query to insert into table
+    Params     : table_name = Name of table to insert
+               : column_list = List the names of as many columns as required
+               : value_list = List the values required to insert
+                      CODE EXAMPLE:       insert_into_table("TABLE_DATA", ("date_and_time", "message_result"), ("20/12/2017", "Hello World!"))
+                                          OR
+                                          column_list = ("date_and_time", "message_result")
+                                          values = ("20/12/2017", "Hello World!")
+                                          insert_into_table(table_name, column_list, values)                      
+    Returns    : True/False  
+    """
+     
+    # Oracle connection variables
+    conn = get_oracle_connection()
+    cur = conn.cursor()     
+     
+    
+    # Re-format column_list and value_lists as strings    
+    columns_string = str(column_list)
+    columns_string = columns_string.replace(']', "").replace('[', "").replace("'","")#.replace(',', "")
+    
+    
+    value_string = str(value_list)
+    value_string = value_string.replace(']', "").replace('[', "")#.replace("'","").replace(',', "")
+     
+     
+    # table_name = 'response' 
+    sql = "INSERT INTO " + table_name + " (" + columns_string + ") VALUES (" + value_string + ")"
+    
+    print(sql)
+    
+    cur.execute(sql)
+    conn.commit()
+     
+    # VALIDATE IT DID IT
+
+
+def insert_into_table_many(table_name,dataframe):
+    
+    print(table_name)
+    rows = [tuple(x) for x in dataframe.values]
+    dataframe.columns = dataframe.columns.astype(str)#.str.split(',')
+    columns_list = dataframe.columns.tolist()
+
+    # Create column header string for SQL
+    columns_string = str(columns_list)
+    columns_string = columns_string.replace(']', "").replace('[', "").replace("'","")#.replace(',', "")
+    
+    parameter_holder = []
+    # Create parameter holder string for SQL
+    for x in range(0,len(dataframe.columns.tolist())):
+        parameter_holder.append(":p"+str(x))
+    
+    parameter_string = str(parameter_holder)
+    parameter_string = parameter_string.replace(']', "").replace('[', "").replace("'","")#.replace(',', "")
+    print(parameter_string)
+    
+    
+    connection = get_oracle_connection()
+    cur = connection.cursor()
+
+    sql = "INSERT into " + table_name + \
+    "(" \
+    + columns_string + \
+    ") VALUES (" \
+    + parameter_string +\
+    ")"
+    print(sql)
+    
+    cur.executemany("INSERT into " + table_name + 
+         "(" 
+         + columns_string + 
+         ") VALUES (" 
+         + parameter_string +
+         ")",
+         rows
+         )
+    
+    print("Records added to "+table_name+" table - " + str(len(rows)))     
+    connection.commit()

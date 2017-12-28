@@ -21,6 +21,8 @@ def check_shift_flag(row):
         return row['NUMERATOR']/row['DENOMINATOR']       
     else:       
         return None
+
+
 def calculate_ips_shift_factor():
     
     print("START - calculate_ips_shift_factor")
@@ -74,8 +76,8 @@ def calculate_ips_shift_factor():
 
     #-------- Sort the sampled shift data ------------------------------------------------------------
     
-    computeColumns = ['SHIFT_PORT_GRP_PV','ARRIVEDEPART','WEEKDAY_END_PV','AM_PM_NIGHT_PV']
-    df_sampledshifts_sorted = df_sampledshifts.sort_values(computeColumns)
+    compute_columns = ['SHIFT_PORT_GRP_PV','ARRIVEDEPART','WEEKDAY_END_PV','AM_PM_NIGHT_PV']
+    df_sampledshifts_sorted = df_sampledshifts.sort_values(compute_columns)
     
     
     #-------- Merge generated data frames ----------------------------------------------------
@@ -230,11 +232,11 @@ def do_ips_shift_weight_calculation():
     df_surveydata_sf = shift_factor_dfs[2]
    
    
-#     print("Tom - Start OUTPUT")
+#     print("SF - Start OUTPUT")
 #     df_totsampshifts.to_csv(r'//nsdata3/Social_Surveys_team/CASPA/IPS/Testing/shiftfactor/FileDrop/' + '1_totalsampledshifts.csv',index=False)
 #     df_possshifts.to_csv(r'//nsdata3/Social_Surveys_team/CASPA/IPS/Testing/shiftfactor/FileDrop/' + '1_possibleshifts.csv',index=False)
 #     df_surveydata_sf.to_csv(r'//nsdata3/Social_Surveys_team/CASPA/IPS/Testing/shiftfactor/FileDrop/' + '1_surveydata_mergesorted.csv',index=False)
-#     print("Tom - FILES OUTPUT")
+#     print("SF - Finished OUTPUT")
     
     # -----------------------------------------------------
     # Calculate Crossings Factor and extract the results
@@ -479,21 +481,26 @@ cf.ips_error_check()
 # -----------------------------------------------------
    
 weight_calculated_dataframes = do_ips_shift_weight_calculation()
-
+#extract the two data sets from the do_ips_shift_weight_calculation function
 surveydata_dataframe = weight_calculated_dataframes[0]   
 summary_dataframe = weight_calculated_dataframes[1]
 
-surveydata_dataframe.to_csv(r'//nsdata3/Social_Surveys_team/CASPA/IPS/Testing/shiftfactor/FileDrop/' + 'surveydata_dataframe.csv',index=False)
-summary_dataframe.to_csv(r'//nsdata3/Social_Surveys_team/CASPA/IPS/Testing/shiftfactor/FileDrop/' + 'summary_dataframe.csv',index=False)
+# Output final files
+#surveydata_dataframe.to_csv(r'//nsdata3/Social_Surveys_team/CASPA/IPS/Testing/shiftfactor/FileDrop/' + 'surveydata_dataframe.csv',index=False)
+#summary_dataframe.to_csv(r'//nsdata3/Social_Surveys_team/CASPA/IPS/Testing/shiftfactor/FileDrop/' + 'summary_dataframe.csv',index=False)
 
-print(surveydata_dataframe.head())
-print(summary_dataframe.head())  
-               
-               
-               
-#append data to output tables          #X
-                                                 
-#commit ips response                  #/               
+
+print("Appending to table")
+#append data to output tables          #/
+cf.insert_into_table_many('SAS_SHIFT_WT', surveydata_dataframe)
+cf.insert_into_table_many('SAS_PS_SHIFT_DATA', summary_dataframe)
+print("Finished table update")
+
+
+# Need to ask dave about this      
+for x in range(0,10):
+    print("ASK DAVE ABOUT commit_ips_response!!!")                         
+#commit ips response                  #X               
 #cf.commit_ips_response()
 
 print("done")
