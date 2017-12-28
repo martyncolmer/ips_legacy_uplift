@@ -132,7 +132,10 @@ def import_csv(filename):
             raise
             return False
         else:
-            return dataframe      
+            if dataframe.empty:
+                return False
+            else:
+                return dataframe      
 
 
 def import_SAS(filename):
@@ -176,6 +179,11 @@ def create_table(table_name, column_list):
                                           create_table("TABLE_DATA", cols)                      
     Returns    : True/False  
     """
+    
+    # Confirm table does not exist
+    if check_table(table_name) == True:
+        return False
+    
     # Oracle connection variables
     conn = get_oracle_connection()
     cur = conn.cursor()
@@ -184,16 +192,23 @@ def create_table(table_name, column_list):
     columns = str(column_list).replace("'","") 
     
     # Create and execute SQL query 
-    sql = "CREATE TABLE " + table_name + " " + columns    
-    cur.execute(sql)
-    conn.commit()
+    sql = "CREATE TABLE " + table_name + " " + columns 
+    
+    try:
+        cur.execute(sql)
+    except cx_Oracle.DatabaseError:
+        # Raise (unit testing purposes) and return False to indicate table does not exist
+        raise
+        return False
+    else:
+        conn.commit()
 
     # Confirm table was created
     if check_table(table_name) == True:
         return True
     else:
-        return False 			
-			
+        return False
+
 
 def check_table(table_name):
     """
@@ -201,10 +216,10 @@ def check_table(table_name):
     Date       : 7 Dec 2017
     Purpose    : Generic SQL query to check if table exists   
     Params     : table_name 
-    Returns    : True/False (bool)   
+    Returns    : True - Table exists / False - Table does not exist (bool)   
     """
     
-	# Oracle connection variables
+    # Oracle connection variables
     conn = get_oracle_connection()
     cur = conn.cursor()   
      
@@ -212,7 +227,8 @@ def check_table(table_name):
     sql = "SELECT * from USER_TABLES where table_name = '" + table_name + "'"
     
     try:
-        result = cur.execute(sql)
+        cur.execute(sql)
+        result = cur.fetchone()
     except cx_Oracle.DatabaseError:
         # Raise (unit testing purposes) and return False to indicate table does not exist
         raise
@@ -233,25 +249,32 @@ def drop_table(table_name):
     Params     : table_name 
     Returns    : True/False (bool)   
     """
+    
+    # Confirm table exists
+    if check_table(table_name) == False:
+        return False
+    
     # Oracle connection variables
     conn = get_oracle_connection()
-    cur = conn.cursor()    
+    cur = conn.cursor()
     
     # Create and execute SQL query
     sql = "DROP TABLE " + table_name
     
     try:
-        result = cur.execute(sql)
+        cur.execute(sql)
+        # print result
     except cx_Oracle.DatabaseError:
         # Raise (unit testing purposes) and return False to indicate table does not exist
         raise
         return False
     else:
-        if result == None:
-            # return True to indicate table exists
-            return True
-        else:
+        if check_table(table_name) == True:
+            # return False to indicate table still exists
             return False
+        else:
+            conn.commit()
+            return True
     
     
 def delete_from_table(table_name):
@@ -262,6 +285,10 @@ def delete_from_table(table_name):
     Params     : table_name 
     Returns    : True/False (bool)   
     """
+    # Confirm table exists
+    if check_table(table_name) == False:
+        return False    
+    
     # Oracle connection variables
     conn = get_oracle_connection()
     cur = conn.cursor() 
@@ -269,10 +296,22 @@ def delete_from_table(table_name):
     # Create and execute SQL query
     sql = "DELETE FROM " + table_name    
     
-    cur.execute(sql)
-    conn.commit()
+    try:
+        cur.execute(sql)
+    except cx_Oracle.DatabaseError:
+        # Raise (unit testing purposes) and return False to indicate table does not exist
+        raise
+        return False
+    else:   
+        conn.commit()
+        
+    sql = "SELECT * FROM " + table_name
+    result = cur.execute(sql).fetchall()
     
-    return True
+    if result != []:
+        return False
+    else:
+        return True
 
 
 def select_data(column_name, table_name, condition1, condition2):
@@ -290,7 +329,10 @@ def select_data(column_name, table_name, condition1, condition2):
     cur = conn.cursor()
     
     # Create SQL statement
-    sql = "SELECT " + column_name + " FROM " + table_name + " WHERE " + condition1 + " = '" + condition2 + "'"
+    sql = ("SELECT " + column_name 
+           + " FROM " + table_name 
+           + " WHERE " + condition1 
+           + " = '" + condition2 + "'")
 
     # Execute
     try:
@@ -303,6 +345,10 @@ def select_data(column_name, table_name, condition1, condition2):
         val = cur.fetchone()
         result = str(val).strip("(,)")
         
+    if result == 'None':
+        # Query failed to return result.  Return False to indicate failure
+        return False
+    else:
         return result
 
 
@@ -314,8 +360,7 @@ def commit_ips_response():
     pass
     
     
-def unload_parameters(id = False):
-    
+def unload_parameters(id = False):    
     """
     Author     : Thomas Mahoney
     Date       : 19 Dec 2017
@@ -324,19 +369,41 @@ def unload_parameters(id = False):
     Returns    : A dictionary of parameters
     """
    
+    # Connection variables
     conn = get_oracle_connection()
     cur = conn.cursor()
     
+    # If no ID provided, fetch latest ID from SAS_PARAMETERS 
     if id == False:
         cur.execute("select max(PARAMETER_SET_ID) from SAS_PARAMETERS")
         id = cur.fetchone()[0]
         
     print(id)
     
-    cur.execute("select PARAMETER_NAME, PARAMETER_VALUE from SAS_PARAMETERS where PARAMETER_SET_ID = " + str(id))
-    results = cur.fetchall()
+    # Create SQL query and execute
+    sql = "select PARAMETER_NAME, PARAMETER_VALUE from SAS_PARAMETERS where PARAMETER_SET_ID = " + str(id)
+    
+    try:
+        cur.execute(sql)
+    except cx_Oracle.DatabaseError:
+        # Return False to indicate error
+        raise
+        return False
+    else: 
+        # Execute SQL query and return parameters   
+        results = cur.fetchall()
+    
+    # If no results, return False to indicate failure
+    if results == []:
+        return False
+    
+    # Create dictionary of parameters and return
     tempDict = {}
     for set in results:
         tempDict[set[0].upper()] = set[1]
     
     return tempDict
+
+
+if __name__ == "__main__":
+    print delete_from_table("TRAFFIC_DATA")
