@@ -378,7 +378,6 @@ def insert_into_table2(table_name, value_list):
         return False
 
 
-
 def insert_into_table(table_name, column_list, value_list):
     """
     Author     : thorne1
@@ -485,33 +484,47 @@ def get_row_count(table_name):
     print cur.rowcount
     
 
-def get_column_names(table_name):
-    # Connection variables
-    conn = get_oracle_connection()
-    cur = conn.cursor()
-    
-    sql = "SELECT * FROM " + table_name
-    cur.execute(sql)
-    column_descriptions = cur.description
-    
-    column_names = []
-    for every_item in column_descriptions:
-        column_names.append(every_item[0]) 
-        
-    print type(column_names)
-
-
 def get_table_to_dataframe(table_name):
     # Connection variables
     conn = get_oracle_connection()
     cur = conn.cursor()
     
+    # Create and execute SQL query to dataframe
     sql = "SELECT * FROM " + table_name
     cur.execute(sql)
     dataframe = pandas.read_sql(sql, conn)
     
-    print dataframe
+    return dataframe
     
 
-table_name = "DATA_SOURCE"
-get_table_to_dataframe(table_name)
+def get_column_names(table_name):
+    """
+    Author     : thorne1
+    Date       : 27 Dec 2017
+    Purpose    : Retrieve column names from Oracle table    
+    Params     : table_name - Name of table 
+    Returns    : list of column names  
+    """
+    # Connection variables
+    conn = get_oracle_connection()
+    cur = conn.cursor()
+    
+    # Create and execute SQL query
+    sql = "SELECT * FROM " + table_name
+    cur.execute(sql)
+    column_descriptions = cur.description
+    
+    # Create list of column names
+    column_names = []
+    for every_item in column_descriptions:
+        column_names.append(every_item[0]) 
+        
+    return column_names
+
+
+def create_txt_file():
+    file_name = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\EmptyIPSCredentials.txt"
+    empty_creds_file = open(file_name, "w")
+    empty_creds_file.close()
+
+create_txt_file()

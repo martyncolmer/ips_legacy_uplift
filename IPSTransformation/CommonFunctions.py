@@ -132,7 +132,10 @@ def import_csv(filename):
             raise
             return False
         else:
-            return dataframe      
+            if dataframe.empty:
+                return False
+            else:
+                return dataframe      
 
 
 def import_SAS(filename):
@@ -321,18 +324,6 @@ def select_data(column_name, table_name, condition1, condition2):
     Returns    : Result (String)
     """
     
-    # Validation
-    dataframe = get_table_to_dataframe(table_name)
-    
-    if column_name not in dataframe.columns.values:
-        return False    
-    
-    if check_table(table_name) == False:
-        return False
-    
-    if condition1 not in dataframe.values:
-        return False
-    
     # Connection variables
     conn = get_oracle_connection()
     cur = conn.cursor()
@@ -355,7 +346,7 @@ def select_data(column_name, table_name, condition1, condition2):
         result = str(val).strip("(,)")
         
     if result == 'None':
-        print "Query failed to return result. Please review and try again."
+        # Query failed to return result.  Return False to indicate failure
         return False
     else:
         return result
@@ -369,8 +360,7 @@ def commit_ips_response():
     pass
     
     
-def unload_parameters(id = False):
-    
+def unload_parameters(id = False):    
     """
     Author     : Thomas Mahoney
     Date       : 19 Dec 2017
@@ -379,17 +369,35 @@ def unload_parameters(id = False):
     Returns    : A dictionary of parameters
     """
    
+    # Connection variables
     conn = get_oracle_connection()
     cur = conn.cursor()
     
+    # If no ID provided, fetch latest ID from SAS_PARAMETERS 
     if id == False:
         cur.execute("select max(PARAMETER_SET_ID) from SAS_PARAMETERS")
         id = cur.fetchone()[0]
         
     print(id)
     
-    cur.execute("select PARAMETER_NAME, PARAMETER_VALUE from SAS_PARAMETERS where PARAMETER_SET_ID = " + str(id))
-    results = cur.fetchall()
+    # Create SQL query and execute
+    sql = "select PARAMETER_NAME, PARAMETER_VALUE from SAS_PARAMETERS where PARAMETER_SET_ID = " + str(id)
+    
+    try:
+        cur.execute(sql)
+    except cx_Oracle.DatabaseError:
+        # Return False to indicate error
+        raise
+        return False
+    else: 
+        # Execute SQL query and return parameters   
+        results = cur.fetchall()
+    
+    # If no results, return False to indicate failure
+    if results == []:
+        return False
+    
+    # Create dictionary of parameters and return
     tempDict = {}
     for set in results:
         tempDict[set[0].upper()] = set[1]
@@ -397,59 +405,5 @@ def unload_parameters(id = False):
     return tempDict
 
 
-def get_column_names(table_name):
-    """
-    Author     : thorne1
-    Date       : 27 Dec 2017
-    Purpose    : Retrieve column names from Oracle table    
-    Params     : table_name - Name of table 
-    Returns    : list of column names  
-    """
-    # Connection variables
-    conn = get_oracle_connection()
-    cur = conn.cursor()
-    
-    # Create and execute SQL query
-    sql = "SELECT * FROM " + table_name
-    cur.execute(sql)
-    column_descriptions = cur.description
-    
-    # Create list of column names
-    column_names = []
-    for every_item in column_descriptions:
-        column_names.append(every_item[0]) 
-        
-    return column_names
-
-
-def get_table_to_dataframe(table_name):
-    # Connection variables
-    conn = get_oracle_connection()
-    cur = conn.cursor()
-    
-    # Create and execute SQL query to dataframe
-    sql = "SELECT * FROM " + table_name
-    cur.execute(sql)
-    dataframe = pandas.read_sql(sql, conn)
-    
-    return dataframe
-
-
-
 if __name__ == "__main__":
-    pass
-#    table_name = "TRAFFIC_DATA"
-#    print drop_table(table_name)
-#    column_list = ("RUN_ID varchar2(40) NOT NULL"
-#                   ,"YEAR number(4) NOT NULL"
-#                   , "MONTH number(2) NOT NULL"
-#                   , "DATA_SOURCE_ID number(10) NOT NULL"
-#                   , "PORTROUTE number(4)"
-#                   , "ARRIVEDEPART number(1)"
-#                   , "TRAFFICTOTAL number(12,3) NOT NULL"
-#                   , "PERIODSTART varchar2(10)"
-#                   , "PERIODEND varchar2(10)"
-#                   , "AM_PM_NIGHT number(1)"
-#                   , "HAUL varchar2(2)"
-#                   , "VEHICLE number(1)")
-#    print create_table(table_name, column_list)
+    print delete_from_table("TRAFFIC_DATA")
