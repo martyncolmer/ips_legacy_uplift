@@ -18,6 +18,7 @@ def sas_data_export(file_id):
     Returns    : Returns nothing        
     """
     
+    #Hard coded file path to write to database. 
     path_to_export_data = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\export_data\export_data_out.sas7bdat"
     
     filename, extension = os.path.splitext(path_to_export_data)
@@ -40,25 +41,27 @@ def sas_data_export(file_id):
     db_connection = conn.cursor()
     
     
-    sqlString = "SELECT  SAS_PROCESS_ID FROM SAS_DATA_EXPORT"
+    sqlString = "SELECT  SAS_PROCESS_ID FROM SAS_DATA_EXPORT WHERE sas_process_id = " + str(file_id)
     result  = db_connection.execute (sqlString)
     column_values = result.fetchall()
-    column_values = [x[0] for x in column_values]
-
+    
+    # if record exists with provided file id then it notifies to provide other id otherwise it adds record to the database
+    
     if column_values:
-        
-        if file_id in column_values:
+
             print('This id number already used. Please provide different file id')
     
-        else:
-            
-            file_to_copy = filename.split('\\')[-1] + extension
-            
-            sqlStr = "insert into  sas_data_export VALUES(:id, :filecopy, :blobData)"
-            db_connection.setinputsizes (blobData = cx_Oracle.BLOB)
-            db_connection.execute (sqlStr, id = file_id,blobData= content, filecopy = file_to_copy)
-            db_connection.execute ('commit')
-     
+    else:
+        
+        file_to_copy = filename.split('\\')[-1] + extension
+        
+        sqlStr = "insert into  sas_data_export VALUES(:id, :filecopy, :blobData)"
+        db_connection.setinputsizes (blobData = cx_Oracle.BLOB)
+        db_connection.execute (sqlStr, id = file_id,blobData= content, filecopy = file_to_copy)
+        db_connection.execute ('commit')
+        
+        print('Record entered successfully with file id ' + str(file_id))
+ 
     # # close the Oracle database connection
     db_connection.close()
     
@@ -82,28 +85,33 @@ def sas_data_import(file_id):
     if content:
         
         file_name = content[0][0]
-        try:    
-            with open (file_name, 'wb') as file:
+        try:
+            
+            # assign this variable to the desired location for saving the file otherwise file will be saved in current folder the functions executes from. 
+            file_path = ''    
+            with open (file_path+file_name, 'wb') as file:
                     file.write(str(content[0][1]))
             
         except IOError as io_err:
             
                 print(io_err)
        
-        #for comparison to check if file retrieved was of same as file exported to database. True if files are same and False otherwise
+        # For comparison to check if file retrieved was same as file stored into database. True if files have same contents and False otherwise. 
+        # If required, this needs to be done dynamically rather than with hard coded file paths
+        
         file1 =  r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\export_data\export_data_out.sas7bdat"
         print(filecmp.cmp(file1, file_name, shallow = False) )
     
     else:
         
-        print('No contents found for file id [ ' + str(file_id) + ' ]')   
+        print('No file found with file id [ ' + str(file_id) + ' ]')   
              
     db_connection.close()
  
 #comment out the line below for testing i.e if exporting then comment sas_data_import and vice versa...
 
-sas_data_export(1111)    
-#sas_data_import(6666666666666666)    
+#sas_data_export(1112)    
+sas_data_import(1111)    
     
         
     
