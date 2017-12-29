@@ -1,5 +1,5 @@
 import cx_Oracle
-import CommonFunctions as cf
+from IPSTransformation import CommonFunctions as cf
 import pandas.io.common
 
 
@@ -85,19 +85,19 @@ def import_traffic_data(filename):
             row.append(vehicle)                          # Insert vehicle value as last column
         sql = ("INSERT INTO " 
            + table_name 
-           + " VALUES(:0, :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11)""")
+           + " VALUES(:0, :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11)")
     if table_name == "SHIFT_DATA":
         sql = ("INSERT INTO " 
            + table_name 
-           + " VALUES(:0, :1, :2, :3, :4, :5, :6, :7, :8)""")
+           + " VALUES(:0, :1, :2, :3, :4, :5, :6, :7, :8)")
     if table_name == "NON_RESPONSE_DATA":        
         sql = ("INSERT INTO " 
            + table_name 
-           + " VALUES(:0, :1, :2, :3, :4, :5, :6, :7, :8, :9, :10)""")
+           + " VALUES(:0, :1, :2, :3, :4, :5, :6, :7, :8, :9, :10)")
     if table_name == "UNSAMPLED_OOH_DATA":  
         sql = ("INSERT INTO " 
            + table_name 
-           + " VALUES(:0, :1, :2, :3, :4, :5, :6, :7)""")   
+           + " VALUES(:0, :1, :2, :3, :4, :5, :6, :7)")   
     
     try:
         # Execute SQL statement
@@ -118,5 +118,6 @@ def import_traffic_data(filename):
     else:
         return False
     
-    
-print import_traffic_data(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\HAHAH")
+
+if __name__ == "__main__":
+    print import_traffic_data(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Sea Traffic Q1 2017.csv")
