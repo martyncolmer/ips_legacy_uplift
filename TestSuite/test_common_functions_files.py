@@ -5,7 +5,6 @@ Created on 5 Dec 2017
 '''
 import unittest
 import os
-import sys
 
 from IPSTransformation import CommonFunctions as cf
 
@@ -25,8 +24,6 @@ class TestCommonFunctions(unittest.TestCase):
         
 
     def test_import_csv(self):
-#        print "5: test_import_csv"
-        
         # File locations
         real_filename = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Sea Traffic Q1 2017.csv" # Real
         empty_csv_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\EmptyFile.csv"            # Empty

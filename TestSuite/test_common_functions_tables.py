@@ -5,9 +5,10 @@ Created on 5 Dec 2017
 '''
 import unittest
 import cx_Oracle
+import sys
 
+import import_traffic_data
 from IPSTransformation import CommonFunctions as cf
-
 
 class TestCommonFunctions(unittest.TestCase):
     def setUp(self):
@@ -18,37 +19,43 @@ class TestCommonFunctions(unittest.TestCase):
         
       
     def test_create_table(self):
-#        print "7: test_create_table"
         self.assertTrue(cf.create_table(self.create_table_name, ("test1 varchar2(40)", "test2 number(4)", "test3 number(2)")))
         self.assertFalse(cf.create_table(self.create_table_name, ("test1 varchar2(40)", "test2 number(4)", "test3 number(2)")))
     
 
     def test_check_table(self):
-#        print "8: test_check_table"
         self.assertTrue(cf.check_table(self.real_table_name))
         self.assertFalse(cf.check_table(self.fake_table_name))            
 
 
     def test_drop_table(self):
-#        print "9: test_drop_table"
         cf.create_table(self.create_table_name, ("test1 varchar2(40)", "test2 number(4)", "test3 number(2)"))        
         self.assertTrue(cf.drop_table(self.create_table_name))        
         self.assertFalse(cf.drop_table(self.fake_table_name))
     
     
     def test_delete_from_table(self):
-#        print "10: test_delete_from_table"        
+        print(import_traffic_data.import_data(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Sea Traffic Q1 2017.csv"))
+        
         cols = ("Test_Name_One varchar2(40)", "Test_Name_Two number(4)")
         cf.create_table(self.empty_table_name, cols)
         
-        self.assertTrue(cf.delete_from_table(self.real_table_name))
-        self.assertTrue(cf.delete_from_table(self.empty_table_name))
-        self.assertFalse(cf.delete_from_table(self.fake_table_name))
+        print(import_traffic_data.import_data(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Sea Traffic Q1 2017.csv"))
+        
+        self.assertTrue(cf.delete_from_table(self.real_table_name))     # Real
+        self.assertTrue(cf.delete_from_table(self.empty_table_name))    # Empty
+        self.assertFalse(cf.delete_from_table(self.fake_table_name))    # Fake
+        
+        # Additional parameters 
+        self.assertTrue(cf.delete_from_table(self.real_table_name, "PORTROUTE", "=", "651"))                  # Real '='
+        self.assertTrue(cf.delete_from_table(self.real_table_name, "TRAFFICTOTAL", "!=", "0"))                # Real '!='
+        self.assertTrue(cf.delete_from_table(self.real_table_name, "TRAFFICTOTAL", "BETWEEN", "631", "731"))  # Real 'BETWEEN'
+        
+        self.assertFalse(cf.delete_from_table(self.real_table_name, "TRAFFICTOTAL", "", "631", "731"))           # Empty
+        self.assertFalse(cf.delete_from_table(self.real_table_name, "FAKE_CONDITION", "BETWEEN", "631", "731"))  # Fake
             
     
     def test_select_data(self):
-#        print "11: test_select_data"
-        
         self.assertEqual(cf.select_data("DATA_SOURCE_ID"
                                         , "DATA_SOURCE"
                                         , "DATA_SOURCE_NAME"
@@ -79,7 +86,6 @@ class TestCommonFunctions(unittest.TestCase):
     
   
     def test_unload_parameters(self):
-        print "test_unload_parameters"
         expected_dict = {'SUBSTRATA': 'shift_port_grp_pv arrivedepart'
                             , 'SUMMARYDATA': 'sas_ps_shift_data'
                             , 'VAR_SHIFTWEIGHT': 'shift_wt'
@@ -129,8 +135,6 @@ class TestCommonFunctions(unittest.TestCase):
         if cf.check_table(self.empty_table_name) == True:
             cf.drop_table(self.empty_table_name)
             
-#        print "\n"
-        
 
 if __name__ == '__main__':
     unittest.main()
