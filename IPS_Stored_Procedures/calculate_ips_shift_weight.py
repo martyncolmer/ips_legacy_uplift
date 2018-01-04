@@ -1,106 +1,104 @@
-from IPSTransformation import CommonFunctions as cf
+import sys
+import os
+import logging
+import numpy as np
 import pandas as pd
 from sas7bdat import SAS7BDAT
-import sys
 from pandas.util.testing import assert_frame_equal
-import numpy as np
-import os
 from collections import OrderedDict
 import survey_support
-import logging
+from IPSTransformation import CommonFunctions as cf
 
-#function for calculating the crossings factor through mapping columns
-def check_crossings_flag(row):
-    if(row['CROSSINGS_FLAG_PV'] != 0 and row['DENOMINATOR'] != 0):        
-        return row['NUMERATOR']/row['DENOMINATOR']       
-    else:       
-        return None
+def calculate_factor(row,flag):
+    """
+    Author       : Thomas Mahoney
+    Date         : 02 Jan 2018
+    Purpose      : Calculates the factor of the given row's values.
+    Parameters   : row  - This parameter represents the row being manipulated
+                          from the dataframe calling the function.
+                   flag - Used to filter the rows being manipulated. If the
+                          flag is true for the given row, the calculation would
+                          be made to determine the factor.
+    Returns      : The calculated factor value, or a None value.
+    Requirements : NA
+    Dependencies : NA
+    """
     
-def check_shift_flag(row):
-    if(row['SHIFT_FLAG_PV'] != 0 and row['DENOMINATOR'] != 0):        
-        return row['NUMERATOR']/row['DENOMINATOR']       
-    else:       
+    if(row[flag] != 0):
+        try:
+            result = row['NUMERATOR']/row['DENOMINATOR']
+        except ZeroDivisionError:
+            return None
+        else:
+            return result
+        
+    else:
         return None
+
+
 def calculate_ips_shift_factor():
-    
-    print("START - calculate_ips_shift_factor")
-    
-    # -----------------------------------------------------
-    # Calculate the number of sampled shifts
-    # -----------------------------------------------------
-    
-    #-------- Sampled Shifts - Import --------------------------------------------------------
-    
-    col_shiftflag = 'SHIFT_FLAG_PV'
-    
-    df_sampledshifts = df_surveydata[df_surveydata[col_shiftflag] == 1]
+    """
+    Author       : Thomas Mahoney
+    Date         : 28 Dec 2017
+    Purpose      : Uses the imported surveydata and shiftsdata to calculate the 
+                   data sets records' shift factors. This calculated value is 
+                   then appended to the original survey data set and used further
+                   in the process.
+    Parameters   : NA
+    Returns      : Three data frames that used to calculate the overall shift 
+                   weight and build the final output data set.
+                       - df_totalsampledshifts,
+                       - df_possibleshifts, 
+                       - df_surveydata_sf
+    Requirements : NA
+    Dependencies : NA
+    """
+
+    # Get survey records that are shift based
+    df_sampledshifts = df_surveydata[df_surveydata[parameters['var_shiftFlag']] == 1]
     df_sampledshifts.dropna()
     
+    # Create a new data frame using the columns specified for the sampled shifts without duplicates
+    df_sample_noduplicates = df_sampledshifts[parameters['ShiftsStratumDef'] + ['SHIFTNO']].drop_duplicates()
     
-    #-------- Sampled Shifts - Sort ----------------------------------------------------------
+    # Sort the sample data by the 'ShiftsStratumDef' column list
+    df_sample_sorted = df_sample_noduplicates.sort_values(parameters['ShiftsStratumDef'])
     
-    columns_ss = ['SHIFT_PORT_GRP_PV','ARRIVEDEPART','WEEKDAY_END_PV','AM_PM_NIGHT_PV','SHIFTNO']
-    columns_ss_sort = ['SHIFT_PORT_GRP_PV','ARRIVEDEPART','WEEKDAY_END_PV','AM_PM_NIGHT_PV']
+    # Calculate the number of sampled shifts by strata
+    df_totalsampledshifts = df_sample_sorted.groupby(parameters['ShiftsStratumDef'])['SHIFTNO'].agg({'DENOMINATOR':'count'})
     
-    df_sampledshifts_small = df_sampledshifts[columns_ss].drop_duplicates()
-    df_totalsampledshifts_ungrouped = df_sampledshifts_small.sort_values(columns_ss_sort)
-    
-    
-    #-------- Sampled Shifts - Summary -------------------------------------------------------
-
-    df_totalsampledshifts = df_totalsampledshifts_ungrouped.groupby(columns_ss_sort)['SHIFTNO'].agg({'DENOMINATOR':'count'})
-    #df_totalsampledshifts.to_csv('//nsdata3/Social_Surveys_team/CASPA/IPS/Testing/shiftfactor/ExampleDir/' + 'totalSampledShifts.csv')
+    # Flattens the column structure after adding the new denominator column
     df_totalsampledshifts = df_totalsampledshifts.reset_index()
-
     
-    # -----------------------------------------------------
+    # Sort the shifts data by the 'ShiftsStratumDef' column list
+    df_possibleshifts_temp = df_shiftsdata.sort_values(parameters['ShiftsStratumDef'])
+
     # Calculate the number of possible shifts by strata
-    # -----------------------------------------------------
-
-    columns_shiftsdata = ['SHIFT_PORT_GRP_PV','ARRIVEDEPART','WEEKDAY_END_PV','AM_PM_NIGHT_PV']
-    df_possibleshifts_temp = df_shiftsdata.sort_values(columns_shiftsdata)
-
-
-    #-------- Possible Shifts - Summary ------------------------------------------------------
-     
-    df_possibleshifts = df_possibleshifts_temp.groupby(columns_shiftsdata)['TOTAL'].agg({'NUMERATOR':'sum'})
-    #df_possibleshifts.to_csv(r'//nsdata3/Social_Surveys_team/CASPA/IPS/Testing/shiftfactor/ExampleDir/' + 'df_possibleshifts.csv')
+    df_possibleshifts = df_possibleshifts_temp.groupby(parameters['ShiftsStratumDef'])['TOTAL'].agg({'NUMERATOR':'sum'})
+    
+    # Flattens the column structure after adding the new numerator column
     df_possibleshifts = df_possibleshifts.reset_index()
     
+    # Sort the sampled shift data by the 'ShiftsStratumDef' column list
+    df_sampledshifts_sorted = df_sampledshifts.sort_values(parameters['ShiftsStratumDef'])
     
-    # -----------------------------------------------------
-    # Merge data and calculate shift factor
-    # -----------------------------------------------------
-
-    #-------- Sort the sampled shift data ------------------------------------------------------------
+    # Merge the dataframes generated above into the sample, by the 'ShiftsStratumDef' column list
+    mergedDF = pd.merge(df_sampledshifts_sorted,df_possibleshifts,on = parameters['ShiftsStratumDef'])
+    mergedDF = pd.merge(mergedDF,df_totalsampledshifts,on = parameters['ShiftsStratumDef'])
     
-    computeColumns = ['SHIFT_PORT_GRP_PV','ARRIVEDEPART','WEEKDAY_END_PV','AM_PM_NIGHT_PV']
-    df_sampledshifts_sorted = df_sampledshifts.sort_values(computeColumns)
+    # Calculate the shift factor for each row of the merged dataframe    
+    mergedDF[parameters['var_shiftFactor']] = mergedDF.apply(calculate_factor, axis=1,args = (parameters['var_shiftFlag'],))
     
-    
-    #-------- Merge generated data frames ----------------------------------------------------
-    
-    mergedDF = pd.merge(df_sampledshifts_sorted,df_possibleshifts,on = ['SHIFT_PORT_GRP_PV','ARRIVEDEPART','WEEKDAY_END_PV','AM_PM_NIGHT_PV'])
-    mergedDF = pd.merge(mergedDF,df_totalsampledshifts,on = ['SHIFT_PORT_GRP_PV','ARRIVEDEPART','WEEKDAY_END_PV','AM_PM_NIGHT_PV'])
-    
-    
-    #-------- Calculate shift factor from numerator and denominator --------------------------
-    
-    #mergedDF['Shift_Factor'] = mergedDF.NUMERATOR / mergedDF.DENOMINATOR
-    
-    mergedDF['Shift_Factor'] = mergedDF.apply(check_shift_flag, axis=1)
-    
-    #-------- Merge shift factor into data frame and clean unneeded columns ------------------
-
+    # Merge the sampled dataframe into the full survey dataframe
     df_surveydata_sf = pd.merge(df_surveydata,mergedDF,'outer')
+    
+    # Drop the numerator and denominator columns as they're no longer needed
     df_surveydata_sf = df_surveydata_sf.drop(['NUMERATOR','DENOMINATOR'],axis = 1)
+    
+    # Sort the dataframe by the record's serial number
     df_surveydata_sf = df_surveydata_sf.sort_values(by=['SERIAL'])
-    #df_surveydata_sf.to_csv(r'//nsdata3/Social_Surveys_team/CASPA/IPS/Testing/shiftfactor/ExampleDir/' + 'surveydata_merge.csv',index=False)
     
-    
-    #-------- Return calculated data ---------------------------------------------------------
-    
-    print("DONE - calculate_ips_shift_factor")
+    # Return the three dataframes produced
     return (df_totalsampledshifts,df_possibleshifts, df_surveydata_sf)
 
 
@@ -207,8 +205,8 @@ def calculate_ips_crossing_factor(df_surveydata_sf):
                                       .merge(df_totalSampledCrossings, on=StratumDef, how='left')
         
     # calculate crossings factor    
-    left_join_1[crossingsFactor] = left_join_1.apply(check_crossings_flag, axis=1)
-    
+    left_join_1[crossingsFactor] = left_join_1.apply(calculate_factor, axis=1,args = ('CROSSINGS_FLAG_PV',))
+
     # drop numerator and denominator columns
     df_surveydata_merge = left_join_1.drop(['NUMERATOR', 'DENOMINATOR'], 1)
     
@@ -219,46 +217,31 @@ def calculate_ips_crossing_factor(df_surveydata_sf):
 
 def do_ips_shift_weight_calculation():
         
-    # -----------------------------------------------------
-    # Calculate Shift Factor and extract the results
-    # -----------------------------------------------------
-             
+    # Calculate the Shift Factor for the given data sets
     shift_factor_dfs = calculate_ips_shift_factor()
     
+    # Extract the data frames returned by calculate_ips_shift_factor()
     df_totsampshifts = shift_factor_dfs[0]
     df_possshifts = shift_factor_dfs[1]
     df_surveydata_sf = shift_factor_dfs[2]
-   
-   
-#     print("Tom - Start OUTPUT")
-#     df_totsampshifts.to_csv(r'//nsdata3/Social_Surveys_team/CASPA/IPS/Testing/shiftfactor/FileDrop/' + '1_totalsampledshifts.csv',index=False)
-#     df_possshifts.to_csv(r'//nsdata3/Social_Surveys_team/CASPA/IPS/Testing/shiftfactor/FileDrop/' + '1_possibleshifts.csv',index=False)
-#     df_surveydata_sf.to_csv(r'//nsdata3/Social_Surveys_team/CASPA/IPS/Testing/shiftfactor/FileDrop/' + '1_surveydata_mergesorted.csv',index=False)
-#     print("Tom - FILES OUTPUT")
     
-    # -----------------------------------------------------
-    # Calculate Crossings Factor and extract the results
-    # -----------------------------------------------------
-          
+    # Calculate the Crossings Factor for the given data sets  
     crossings_factor_dfs = calculate_ips_crossing_factor(df_surveydata_sf)
     
+    # Extract the data frames returned by calculate_ips_crossing_factor()
     df_totsampcrossings = crossings_factor_dfs[0]
     df_surveydata_merge = crossings_factor_dfs[1]
-    
-    # Test files output
-    #df_totsampcrossings.to_csv(r'//nsdata3/Social_Surveys_team/CASPA/IPS/Testing/shiftfactor/FileDrop/' + '2_totsampledcrossings.csv',index=False)
-    #df_surveydata_merge.to_csv(r'//nsdata3/Social_Surveys_team/CASPA/IPS/Testing/shiftfactor/FileDrop/' + '2_surveydata_mergeboth.csv',index=False)
-    
 
     # Column sets we are working with
-    cols1 = ['SHIFT_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'AM_PM_NIGHT_PV', 'MIGSI']
-    cols2 = ['SHIFT_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'AM_PM_NIGHT_PV']
+    cols1 = ['SHIFT_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV',
+             'AM_PM_NIGHT_PV', 'MIGSI']
+    cols2 = ['SHIFT_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 
+             'AM_PM_NIGHT_PV']
     cols3 = ['SHIFT_PORT_GRP_PV', 'ARRIVEDEPART']
     cols4 = ['WEEKDAY_END_PV', 'AM_PM_NIGHT_PV', 'MIGSI', 'POSS_SHIFT_CROSS']
-    
     cols5 = ['SHIFT_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV',
-        'AM_PM_NIGHT_PV', 'MIGSI', 'POSS_SHIFT_CROSS', 'SAMP_SHIFT_CROSS',
-        'MIN_SH_WT', 'MEAN_SH_WT', 'MAX_SH_WT', 'COUNT_RESPS', 'SUM_SH_WT']
+             'AM_PM_NIGHT_PV', 'MIGSI', 'POSS_SHIFT_CROSS', 'SAMP_SHIFT_CROSS',
+             'MIN_SH_WT', 'MEAN_SH_WT', 'MAX_SH_WT', 'COUNT_RESPS', 'SUM_SH_WT']
     cols6 = ['SERIAL', 'SHIFT_WT']
     
     # Make all column headers upper case
@@ -268,15 +251,13 @@ def do_ips_shift_weight_calculation():
     df_totsampshifts.columns = df_totsampshifts.columns.str.upper()
     
     
-    # Check for missing shift factor    
+    # Check for any missing shift factors 
     df_shift_flag = df_surveydata_merge[df_surveydata_merge['SHIFT_FLAG_PV'] == 1]
     
     if(len(df_shift_flag[df_shift_flag.SHIFT_FACTOR.isnull()])>0):
         logger.error('Error: Case(s) contain no shift factor(s)')
-        print("Error: Case(s) contain no shift factor(s)")
     else:
         df_surveydata_merge.loc[df_surveydata_merge.SHIFT_FACTOR.isnull() & (df_surveydata_merge.SHIFT_FLAG_PV != 1), 'SHIFT_FACTOR'] = 1
-        print("Success: Contains shift factor(s)")
         logger.info('Success: Contains shift factor(s)')
     
     
@@ -338,17 +319,14 @@ def do_ips_shift_weight_calculation():
     
     # Merge possible shifts to summary
     data_summary = pd.merge(data_summary, df_possshifts, on = cols2, how = 'outer')
-#    data_summary = data_summary.drop({'_TYPE_', '_FREQ_'}, 1)
     data_summary = data_summary.rename(columns = {'NUMERATOR': 'POSS_SHIFT_CROSS'})
     
     # Merge totsampcrossings to summary
     data_summary = pd.merge(data_summary, df_totsampcrossings, on = cols2, how = 'outer')
-#    data_summary = data_summary.drop({'_TYPE_', '_FREQ_'}, 1)
     data_summary = data_summary.rename(columns = {'DENOMINATOR': 'SAMP_SHIFT_CROSS'})
     
     # Merge totsampshifts to summary
     data_summary = pd.merge(data_summary, df_totsampshifts, on = cols2, how = 'outer')
-#    data_summary = data_summary.drop({'_TYPE_', '_FREQ_'}, 1)
     data_summary = data_summary.rename(columns = {'DENOMINATOR': 'SAMP_SHIFT_CROSS_TEMP'})
     
     # Merge total sample crossings and total sample shifts to single column via addition
@@ -436,31 +414,22 @@ def do_ips_shift_weight_calculation():
 
 
 """"""  
-# -----------------------------------------------------
-# Setup error logger
-# -----------------------------------------------------
-  
-survey_support.setup_logging('IPS_logging_config_debug.json')   # Calls json configuration file   
-logger = logging.getLogger(__name__)                            # Creates logger object
 
+# Calls json configuration file for error logger setup
+survey_support.setup_logging('IPS_logging_config_debug.json')  
+# Creates logger object   
+logger = logging.getLogger(__name__)                            
 
-# -----------------------------------------------------
 # Connect to oracle and unload parameter list
-# -----------------------------------------------------
-
 conn = cf.get_oracle_connection()
-
 parameters = cf.unload_parameters()
 
-cf.ips_error_check()
+root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_IPS_Shift_Weight"
 
+# Load sas files into dataframes (This will get data from oracle eventually)
+path_to_survey_data = root_data_path + r"\surveydata.sas7bdat"
+path_to_shifts_data = root_data_path + r"\shiftsdata.sas7bdat"
 
-# -----------------------------------------------------
-# Load sas files into dataframes (Get data from oracle)
-# -----------------------------------------------------
-
-path_to_survey_data = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_IPS_Shift_Weight\surveydata.sas7bdat"
-path_to_shifts_data = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_IPS_Shift_Weight\shiftsdata.sas7bdat"
 
 # This method works for all data sets but is slow
 #df_surveydata = SAS7BDAT(path_to_survey_data).to_data_frame()
@@ -474,26 +443,22 @@ df_shiftsdata = pd.read_sas(path_to_shifts_data)
 cf.ips_error_check()
 
 
-# -----------------------------------------------------
-# Start Shift Weight Calculation
-# -----------------------------------------------------
-   
 weight_calculated_dataframes = do_ips_shift_weight_calculation()
-
+ 
+# Extract the two data sets returned from do_ips_shift_weight_calculation
 surveydata_dataframe = weight_calculated_dataframes[0]   
 summary_dataframe = weight_calculated_dataframes[1]
 
-surveydata_dataframe.to_csv(r'//nsdata3/Social_Surveys_team/CASPA/IPS/Testing/shiftfactor/FileDrop/' + 'surveydata_dataframe.csv',index=False)
-summary_dataframe.to_csv(r'//nsdata3/Social_Surveys_team/CASPA/IPS/Testing/shiftfactor/FileDrop/' + 'summary_dataframe.csv',index=False)
 
-print(surveydata_dataframe.head())
-print(summary_dataframe.head())  
-               
-               
-               
-#append data to output tables          #X
-                                                 
-#commit ips response                  #/               
+# Append the generated data to output tables
+cf.insert_into_table_many('SAS_SHIFT_WT', surveydata_dataframe)
+cf.insert_into_table_many('SAS_PS_SHIFT_DATA', summary_dataframe)
+
+
+# Need to ask dave about this      
+for x in range(0,10):
+    print("ASK DAVE ABOUT commit_ips_response!!!")     
+             
 #cf.commit_ips_response()
 
 print("done")

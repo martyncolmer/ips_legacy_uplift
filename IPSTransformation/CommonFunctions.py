@@ -372,12 +372,12 @@ def commit_ips_response():
     pass
     
     
-def unload_parameters(id = False):    
+def unload_parameters(parameter_id = False):    
     """
     Author     : Thomas Mahoney
     Date       : 19 Dec 2017
     Purpose    : Extracts a list of parameters from oracle to be used in the parent process.      
-    Params     : id - the identifier used to extract specific parameter sets.
+    Params     : parameter_id - the identifier used to extract specific parameter sets.
     Returns    : A dictionary of parameters
     """
    
@@ -386,14 +386,14 @@ def unload_parameters(id = False):
     cur = conn.cursor()
     
     # If no ID provided, fetch latest ID from SAS_PARAMETERS 
-    if id == False:
+    if parameter_id == False:
         cur.execute("select max(PARAMETER_SET_ID) from SAS_PARAMETERS")
-        id = cur.fetchone()[0]
+        parameter_id = cur.fetchone()[0]
         
-    print(id)
+    print(parameter_id)
     
     # Create SQL query and execute
-    sql = "select PARAMETER_NAME, PARAMETER_VALUE from SAS_PARAMETERS where PARAMETER_SET_ID = " + str(id)
+    sql = "select PARAMETER_NAME, PARAMETER_VALUE from SAS_PARAMETERS where PARAMETER_SET_ID = " + str(parameter_id)
     
     try:
         cur.execute(sql)
@@ -405,16 +405,23 @@ def unload_parameters(id = False):
         # Execute SQL query and return parameters   
         results = cur.fetchall()
     
+    
     # If no results, return False to indicate failure
     if results == []:
         return False
     
     # Create dictionary of parameters and return
     tempDict = {}
-    for set in results:
-        tempDict[set[0].upper()] = set[1]
+    for result in results:
+        value = result[1].upper()
+        
+        if " " in value:
+            value = value.split(" ")
+            
+        tempDict[result[0]] = value
     
     return tempDict
+
 
 
 def insert_dataframe_into_table(table_name, dataframe):
@@ -466,11 +473,19 @@ def insert_into_table(table_name, column_list, value_list):
     
     cur.execute(sql)
     conn.commit()
-     
-    # VALIDATE IT DID IT
 
 
 def insert_into_table_many(table_name,dataframe):
+    """
+    Author       : Thomas Mahoney
+    Date         : 02 Jan 2018
+    Purpose      : Inserts a full dataframe into an SQL table 
+    Params       : table_name - the name of the target table in the sql database.
+                   dataframe - the dataframe to be added to the selected table.
+    Returns      : The number of rows added to the database.
+    Requirements : NA
+    Dependencies : NA
+    """
     
     print(table_name)
     rows = [tuple(x) for x in dataframe.values]
@@ -511,9 +526,9 @@ def insert_into_table_many(table_name,dataframe):
          rows
          )
     
+
     print("Records added to "+table_name+" table - " + str(len(rows)))     
     connection.commit()
     
-    
-if __name__ == "__main__":
-    print(delete_from_table("TRAFFIC_DATA"))
+    # Returns number of rows added to table for validation
+    return len(rows)
