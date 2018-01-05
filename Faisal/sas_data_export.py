@@ -11,7 +11,7 @@ import filecmp
 def sas_data_export(file_id):
     
     """
-    Author     : Faisal
+    Author     : Faisal/Nassir
     Date       : 18 Dec 2017
     Purpose    : Writes SAS or .CSV file to Oracle table
     Parameters : id number to be assigned to the file being loaded into database.  
@@ -69,7 +69,7 @@ def sas_data_export(file_id):
 def sas_data_import(file_id):
     
     """
-    Author     : Faisal
+    Author     : Faisal/Nassir
     Date       : 19 Dec 2017
     Purpose    : Reads .SAS or .CSV file from Oracle table and writes it to a file on local disk
     Parameters : id number of the file to be retrieved from database. In this case, value of the column SAS_PROCESS_ID from SAS_DATA_EXPORT table 
