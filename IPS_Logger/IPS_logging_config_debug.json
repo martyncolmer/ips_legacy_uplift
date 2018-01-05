@@ -27,7 +27,7 @@
       },
       "ips": {
         "level": "INFO",
-        "class": "log_db_handler.IPS_Log_Handler",
+        "class": "IPS_Logger.log_db_handler.IPS_Log_Handler",
         "formatter": "single-line"
       }
     },

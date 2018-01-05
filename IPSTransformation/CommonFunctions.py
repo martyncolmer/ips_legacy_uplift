@@ -7,12 +7,45 @@ import os
 import zipfile
 import cx_Oracle            # pip install this
 import pandas as pandas     # pip install this
-import datetime
-import numpy as np
-import sys
 import json
+import logging
+import inspect
 
 from sas7bdat import SAS7BDAT   # pip install this
+
+import survey_support as ss
+
+def database_logger():
+    """
+    Author        : thorne1
+    Date          : 5 Jan 2018
+    Purpose       : Sets up and returns database logger object   
+    Parameters    : None
+    Returns       : Database logger object  
+    Requirements  : None
+    Dependencies  : social_surveys.setup_logging
+    """
+    # Database logger setup
+    ss.setup_logging(os.path.dirname(os.getcwd()) 
+                     + "\\IPS_Logger\\IPS_logging_config_debug.json")   
+    return logging.getLogger(__name__)
+
+
+def standard_log_message(err_msg, func_name):
+    """
+    Author        : thorne1
+    Date          : 5 Jan 2018
+    Purpose       : 
+    Parameters    : 
+    Returns       :   
+    Requirements  : 
+    Dependencies  : 
+    """
+    # 0 = frame object, 1 = filename. 
+    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    filename = str(inspect.stack()[0][1])
+    return err_msg + ' - File "' + filename + '", in ' + func_name + '()'
+
 
 def validate_file(xfile):
     """
@@ -22,21 +55,31 @@ def validate_file(xfile):
     Params     : xfile (file is reserved keyword) - file to validate
     Returns    : True/False (boolean)
     """
+    
+    # 0 = frame object, 3 = function name. 
+    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    function_name = str(inspect.stack()[0][3])
    
     if xfile == "":
         # If file name not given
+        err_msg = "ERROR: File name not provided"
+        database_logger().error(standard_log_message(err_msg, function_name))
         return False
     if not os.path.exists(xfile):
         # If file does not exist
+        err_msg = "ERROR: File does not exist"
+        database_logger().error(standard_log_message(err_msg, function_name))
         return False
     if os.path.getsize(xfile) == 0:
         # If file is empty 
+        err_msg = "ERROR: File is empty"
+        database_logger().error(standard_log_message(err_msg, function_name))
         return False
     else:
         return True         
 
 
-def get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials.txt"):
+def get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials.json"):
         """
         Author     : mahont1 & thorne1
         Date       : 27 Nov 2017
@@ -50,19 +93,20 @@ def get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CAS
         DEPS       : get_credentials()
         """
         
-        creds = get_credentials(credentials_file)
+        if validate_file(credentials_file) == False:
+            return False
+        
+        # Get credentials and decrypt              
+        user = ss.get_keyvalue_from_json("User", credentials_file, True)
+        password = ss.get_keyvalue_from_json("Password", credentials_file, True)
+        database = ss.get_keyvalue_from_json('Database', credentials_file)
     
         try:
             # Connect
-            conn = cx_Oracle.connect(creds['User']
-                                     , creds['Password']
-                                     , creds['Database'])
-        except TypeError:
-            raise
+            conn = cx_Oracle.connect(user, password, database)
+        except Exception as err:
+            database_logger().error(err, exc_info = True)
             return False        
-        except cx_Oracle.DatabaseError:
-            raise
-            return False
         else:
             return conn
         
@@ -79,17 +123,12 @@ def get_credentials(credentials_file):
         credentials_dict = {}
         
         try:
-            file_object = open(credentials_file, "r")
-        except IOError:
-            raise 
+            with open(credentials_file) as json_file:
+                credentials_dict = json.load(json_file)
+        except Exception as err:
+            database_logger().error(err, exc_info = True)
             return False
-        else:
-            credentials_string = file_object.read()
-            
-            for line in credentials_string.split('\n'):
-                pair = line.split(":")
-                credentials_dict[pair[0].strip()] = pair[1].strip()
-            
+        else:            
             return credentials_dict
     
 
@@ -123,44 +162,45 @@ def import_csv(filename):
     Returns    : Dataset (Object)   
     """
     
+    # 0 = frame object, 3 = function name. 
+    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    function_name = str(inspect.stack()[0][3])
+    
     if validate_file(filename):
         try:
             dataframe = pandas.read_csv(filename)
-        except IOError:
-            # Raise (unit testing purposes) and return False to indicate failure 
-            raise
+        except Exception as err:
+            database_logger().error(err, exc_info = True)
             return False
         else:
             if dataframe.empty:
+                err_msg = "ERROR: Dataframe is empty"
+                database_logger().error(standard_log_message(err_msg
+                                                             , function_name))
                 return False
             else:
                 return dataframe      
 
 
-def import_SAS(filename):
+def import_sas(filename):
     """
     Author     : thorne1
     Date       : 23 Nov 2017        
     Purpose    : Generic function to open and read a SAS dataset
     Params     : filename - full path to SAS file
     Returns    : SAS File (object) 
-                (Does not return dataframe - dataframes do not include column metadata, i.e Label, Type, Format, etc)   
+                (Does not return dataframe - dataframes do not include column
+                metadata, i.e Label, Type, Format, etc)   
     https://pypi.python.org/pypi/sas7bdat    
     """
-    
     
     if validate_file(filename):
         try:
             # Create and return sas7bdat dataframe:
             with SAS7BDAT(filename) as file_object:
                 return file_object
-        except TypeError:
-            # Incorrect file type, return False to indicate failure
-            raise
-            return False
-        except IOError:
-            # File not found, return False to indicate failure
-            raise
+        except Exception as err:
+            database_logger().error(err, exc_info = True)
             return False
 
 
@@ -170,12 +210,13 @@ def create_table(table_name, column_list):
     Date       : 20 Dec 2017
     Purpose    : Uses SQL query to create a table
     Params     : table_name - name of table to create
-               : column_list - List of as many column details as required in the following format:
-                      FORMAT EXAMPLE:    "COLUMN_NAME type(size)"
-                      CODE EXAMPLE:       create_table("TABLE_DATA", ("RUN_ID varchar2(40)", "YEAR number(4)", "MONTH number(2)"))
-                                          OR
-                                          cols = ("RUN_ID varchar2(40)", "YEAR number(4)", "MONTH number(2)")
-                                          create_table("TABLE_DATA", cols)                      
+               : column_list - List of as many column details as 
+               : required in the following format:
+      FORMAT EXAMPLE:    "COLUMN_NAME type(size)"
+      CODE EXAMPLE:       create_table("TABLE_DATA", ("RUN_ID varchar2(40)", "YEAR number(4)", "MONTH number(2)"))
+                          OR
+                          cols = ("RUN_ID varchar2(40)", "YEAR number(4)", "MONTH number(2)")
+                          create_table("TABLE_DATA", cols)                      
     Returns    : True/False  
     """
     
@@ -195,9 +236,8 @@ def create_table(table_name, column_list):
     
     try:
         cur.execute(sql)
-    except cx_Oracle.DatabaseError:
-        # Raise (unit testing purposes) and return False to indicate table does not exist
-        raise
+    except Exception as err:
+        database_logger().error(err, exc_info = True)
         return False
     else:
         conn.commit()
@@ -220,7 +260,7 @@ def check_table(table_name):
     
     # Oracle connection variables
     conn = get_oracle_connection()
-    cur = conn.cursor()   
+    cur = conn.cursor()
      
     # Create and execute SQL query
     sql = "SELECT * from USER_TABLES where table_name = '" + table_name + "'"
@@ -228,9 +268,9 @@ def check_table(table_name):
     try:
         cur.execute(sql)
         result = cur.fetchone()
-    except cx_Oracle.DatabaseError:
+    except Exception as err:
         # Raise (unit testing purposes) and return False to indicate table does not exist
-        raise
+        database_logger().error(err, exc_info = True)
         return False
     else:
         if result != None:
@@ -262,9 +302,9 @@ def drop_table(table_name):
     
     try:
         cur.execute(sql)
-    except cx_Oracle.DatabaseError:
+    except Exception as err:
         # Raise (unit testing purposes) and return False to indicate table does not exist
-        raise
+        database_logger().error(err, exc_info = True)
         return False
     else:
         if check_table(table_name) == True:
@@ -296,6 +336,7 @@ def delete_from_table(table_name, condition1 = None, operator = None, condition2
                  "DELETE FROM table_name WHERE condition1 BETWEEN condition2 AND condition3"
     Returns    : True/False (bool)   
     """
+    
     # Confirm table exists
     if check_table(table_name) == False:
         return False    
@@ -319,7 +360,7 @@ def delete_from_table(table_name, condition1 = None, operator = None, condition2
         cur.execute(sql)
     except Exception as err:
         # Raise (unit testing purposes) and return False to indicate table does not exist
-        print(err)
+        database_logger().error(err, exc_info = True)
         return False
     else:   
         conn.commit()
@@ -349,9 +390,9 @@ def select_data(column_name, table_name, condition1, condition2):
     # Execute
     try:
         cur.execute(sql)
-    except cx_Oracle.DatabaseError:
+    except Exception as err:
         # Return False to indicate error
-        raise
+        database_logger().error(err, exc_info = True)
         return False
     else:
         val = cur.fetchone()
@@ -364,14 +405,6 @@ def select_data(column_name, table_name, condition1, condition2):
         return result
 
 
-def ips_error_check():
-    pass    
-    
-
-def commit_ips_response():
-    pass
-    
-    
 def unload_parameters(parameter_id = False):    
     """
     Author     : Thomas Mahoney
@@ -423,7 +456,6 @@ def unload_parameters(parameter_id = False):
     return tempDict
 
 
-
 def insert_dataframe_into_table(table_name, dataframe):
     column_list = list(dataframe.columns.values)
     print(column_list)
@@ -461,10 +493,8 @@ def insert_into_table(table_name, column_list, value_list):
     columns_string = str(column_list)
     columns_string = columns_string.replace(']', "").replace('[', "").replace("'","")#.replace(',', "")
     
-    
     value_string = str(value_list)
     value_string = value_string.replace(']', "").replace('[', "")#.replace("'","").replace(',', "")
-     
      
     # table_name = 'response' 
     sql = "INSERT INTO " + table_name + " (" + columns_string + ") VALUES (" + value_string + ")"

@@ -13,7 +13,7 @@ def module_level_function():
     
     # EXAMPLE 1. Same as 'if True: print("uh-oh something failed")' 
     if True:
-        logger.error('uh-oh something failed')
+        logger.error('uh-oh something failed', exc_info = True)
         
     # EXAMPLE 2. Use of try, catch statement and records traceback and error message to database
     try:
