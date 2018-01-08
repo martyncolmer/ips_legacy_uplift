@@ -6,8 +6,8 @@ Created on 1 Dec 2017
 
 import sys
 
-from IPSTransformation import CommonFunctions as cf
-
+from IPSTransformation.CommonFunctions import get_oracle_connection
+from IPSTransformation.CommonFunctions import insert_list_into_table
 
 def get_column_and_version_data(cur, version):
     
@@ -65,68 +65,92 @@ def populate_survey_subsample(conn, p_run_id):
     version_sav = 0
     col_string = ""
     val_string = ""
-    v_version_id = 0
+    version_id = 0
     
     cur = conn.cursor()
     
-    # make sure that survey_subsample has no records for run before we start
     
-    #sql = "DELETE FROM SURVEY_SUBSAMPLE WHERE RUN_ID = " + str(p_run_id)
-
-    #cur.execute(sql)
-    #conn.commit()
-    
-    
-    #sql = "SELECT max(VERSION_ID) FROM RUN_DATA_MAP WHERE RUN_ID = '" + p_run_id + "' AND DATA_SOURCE = 'SURVEY DATA LOADING'"
-    #v_version_id = cur.fetch()
-    v_version_id = '9999'
-
-    #Get sample data from SURVEY_COLUMN & SURVEY_VALUE tables
-    sample = get_column_and_version_data(cur,'9999')
-        
-    print(sample[0][0])#ColumnNumber
-    print(sample[0][1])#VersionID
-    print(sample[0][2])#ColumnDesc
-    print(sample[0][3])#SerialNumber
-    print(sample[0][4])#Value
-    
-    
-    #sql = "insert into RUN_DATA_MAP (RUN_ID,VERSION_ID,DATA_SOURCE) values ('"+p_run_id+"',"+v_version_id+",'SURVEY DATA LOADING')"
-    #print(sql)
-    #cur.execute(sql)
-    #conn.commit()
-    word = 0
-    for i in sample:
-        
-        if(i[3] != serial_sav or i[1] != version_sav):
-            
-            if(serial_sav != 0):
-                sql = 'INSERT INTO SURVEY_SUBSAMPLE (' + col_string + ') VALUES (' + val_string + ')'
-                print(sql)
-                cur.execute(sql)
-                conn.commit()
-            
-            serial_sav = i[3]
-            version_sav = i[1];
-            col_string ='run_id,serial,' + i[2]
-            val_string = '"' + p_run_id + '",' + str(i[3]) + ',' + str(i[4])
-        else:
-            col_string  = col_string + ',' + i[2]
-            val_string  = val_string + ',' + str(i[4])
-    
-    
-    cur.execute('INSERT INTO SURVEY_SUBSAMPLE (' + col_string + ') VALUES (' + val_string + ')')
+    # Ensure survey_subsample has no records for the current run before we start
+    sql = "DELETE FROM SURVEY_SUBSAMPLE WHERE RUN_ID = '" + str(p_run_id) +"'"
+    print(sql)
+    cur.execute(sql)
     conn.commit()
     
+    # Commented out because we're using false details
+    # Select the correct version_id for the current run, using the run_id
+    #sql = "SELECT max(VERSION_ID) FROM RUN_DATA_MAP WHERE RUN_ID = '" + p_run_id + "' AND DATA_SOURCE = 'SURVEY DATA LOADING'"
+    #version_id = cur.fetch()
+        
+    version_id = '9999'
     
-    sys.exit()
+    # Get sample data from SURVEY_COLUMN & SURVEY_VALUE tables using version_id
+    # (((THIS WILL BE THE VERSION ID)))
+    sample = get_column_and_version_data(cur,'16')
+        
     
-    sql = "UPDATE RUN_DATA_MAP SET DATA_SOURCE = 'SURVEY_DATA' WHERE RUN_ID = " + p_run_id + " AND VERSION_ID = " + v_version_id
+    # Write the run information to the RUN_DATA_MAP table
+    sql = "insert into RUN_DATA_MAP (RUN_ID,VERSION_ID,DATA_SOURCE) values ('" \
+            +p_run_id+"',"+version_id+",'SURVEY DATA LOADING')"
+    cur.execute(sql)
+    conn.commit()
+    
+    columns = []
+    values = []
+    dfVals = []
+    
+    # Initialise a row counter for added records
+    recCount = 1
+    
+    # Loop through the extracted sample data and populate SURVEY_SUBSAMPLE
+    for i in sample:
+        if(i[3] != serial_sav or i[1] != version_sav):
+            if(serial_sav != 0):
+                # Make all columns upper case before the insert
+                columns = [col.upper() for col in columns]
+                
+                # Remove the extra quotes from the extracted strings
+                for x in range(0,len(values)):
+                    if(type(values[x]) == type("")):
+                        values[x] = values[x].replace("'",'') 
+                                
+                # Write the row of data to the SURVEY_SUBSAMPLE table
+                insert_list_into_table('SURVEY_SUBSAMPLE', columns, values,conn)
+                
+                # Print and increment the record count to show progress
+                print(recCount)
+                recCount += 1
+            
+            # Set the current serial and version
+            serial_sav = i[3]
+            version_sav = i[1];
+            
+            # Set the initial columns and values for the row before appending
+            columns = ['run_id','serial',i[2]]
+            values = ["'" +p_run_id+"'",i[3],i[4]]
+            
+        else:
+            # Append the current column and value to the record list
+            columns.append(i[2])
+            values.append(i[4])
+    
+    
+    # Remove the extra quotes from the extracted strings
+    for x in range(0,len(values)):
+        if(type(values[x]) == type("")):
+            values[x] = values[x].replace("'",'') 
+    
+    # Write the row of data to the SURVEY_SUBSAMPLE table
+    insert_list_into_table('SURVEY_SUBSAMPLE', columns, values,conn)
+    
+    print(recCount)
+    
+    sql = "UPDATE RUN_DATA_MAP SET DATA_SOURCE = 'SURVEY_DATA' WHERE RUN_ID = '" \
+            + p_run_id + "' AND VERSION_ID = '" + version_id +"'"
     cur.execute(sql)
     conn.commit()
     
 
-connection = cf.get_oracle_connection()
+connection = get_oracle_connection()
 
 
 populate_survey_subsample(connection, 'IPSSeedRun')

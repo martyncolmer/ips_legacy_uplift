@@ -81,7 +81,7 @@ def get_sas_column_properties(sasFile):
     types.pop(0)
     lengths.pop(0)
     formats.pop(0)
-    labels.pop(0)   
+    labels.pop(0)
     return   
 
 
@@ -207,10 +207,9 @@ print("Connecting to Oracle")
 connection = cf.get_oracle_connection()
 ## Delete the data from the table
 print("DELETING")
-delete_from_table(connection, "SURVEY_VALUE", "VERSION_ID", "9999")
+#delete_from_table(connection, "SURVEY_VALUE", "VERSION_ID", "9999")
 #delete_from_table(connection, "SURVEY_COLUMN", "VERSION_ID", "9999")
 
-#process_value_dataframes_split_version(connection,df)
 process_value_dataframe(connection,df)
 #process_column_dataframe(connection,df)
 
