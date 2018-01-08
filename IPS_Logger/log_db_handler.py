@@ -54,6 +54,7 @@ class IPS_Log_Handler(logging.Handler):
             self.params["warnings"] = record.msg
         elif record.levelno == logging.INFO:
             self.params["response_code"] = 1
+            self.params["error_msg"] = record.msg
         
         # Assign traceback message
         if record.exc_info and record.exc_info[0]:
@@ -85,6 +86,7 @@ class IPS_Log_Handler(logging.Handler):
         Params     : record - This is populated by the logger automatically
         Returns    : True/False  
         """
+
         # Setup the parameters from the instance params object
         params = (self.params['process_id']
         		  , self.params['response_code']

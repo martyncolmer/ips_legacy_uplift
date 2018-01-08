@@ -36,6 +36,3 @@ def unload_parameters(id = False):
 parameters = unload_parameters(59)
 
 print (parameters)
-
-print(parameters['SURVEYDATA'])
-print(parameters['SHIFTSDATA'])

@@ -9,6 +9,7 @@ from collections import OrderedDict
 import survey_support
 from IPSTransformation import CommonFunctions as cf
 
+
 def calculate_factor(row, flag):
     """
     Author       : Thomas Mahoney
@@ -19,7 +20,7 @@ def calculate_factor(row, flag):
                    flag - Used to filter the rows being manipulated. If the
                           flag is true for the given row, the calculation would
                           be made to determine the factor.
-    Returns      : The calculated factor value, or a None value.
+    Returns      : The calculated factor value (float), or a None value.
     Requirements : NA
     Dependencies : NA
     """
@@ -34,6 +35,7 @@ def calculate_factor(row, flag):
 
     else:
         return None
+
 
 def calculate_ips_shift_factor():
     """
@@ -58,13 +60,16 @@ def calculate_ips_shift_factor():
     df_sampledshifts.dropna()
 
     # Create a new data frame using the columns specified for the sampled shifts without duplicates
-    df_sample_noduplicates = df_sampledshifts[parameters['ShiftsStratumDef'] + [parameters['var_shiftNumber']]].drop_duplicates()
+    df_sample_noduplicates = df_sampledshifts[parameters['ShiftsStratumDef']
+                                               + [parameters['var_shiftNumber']]]\
+                                               .drop_duplicates()
 
     # Sort the sample data by the 'ShiftsStratumDef' column list
     df_sample_sorted = df_sample_noduplicates.sort_values(parameters['ShiftsStratumDef'])
 
     # Calculate the number of sampled shifts by strata
-    df_totalsampledshifts = df_sample_sorted.groupby(parameters['ShiftsStratumDef'])[parameters['var_shiftNumber']].agg({'DENOMINATOR' : 'count'})
+    df_totalsampledshifts = df_sample_sorted.groupby(parameters['ShiftsStratumDef'])\
+            [parameters['var_shiftNumber']].agg({'DENOMINATOR' : 'count'})
 
     # Flattens the column structure after adding the new denominator column
     df_totalsampledshifts = df_totalsampledshifts.reset_index()
@@ -73,7 +78,8 @@ def calculate_ips_shift_factor():
     df_possibleshifts_temp = df_shiftsdata.sort_values(parameters['ShiftsStratumDef'])
 
     # Calculate the number of possible shifts by strata
-    df_possibleshifts = df_possibleshifts_temp.groupby(parameters['ShiftsStratumDef'])[parameters['var_totals']].agg({'NUMERATOR' : 'sum'})
+    df_possibleshifts = df_possibleshifts_temp.groupby(parameters['ShiftsStratumDef'])\
+            [parameters['var_totals']].agg({'NUMERATOR' : 'sum'})
 
     # Flattens the column structure after adding the new numerator column
     df_possibleshifts = df_possibleshifts.reset_index()
@@ -86,7 +92,8 @@ def calculate_ips_shift_factor():
     mergedDF = pd.merge(mergedDF,df_totalsampledshifts,on = parameters['ShiftsStratumDef'])
 
     # Calculate the shift factor for each row of the merged dataframe
-    mergedDF[parameters['var_shiftFactor']] = mergedDF.apply(calculate_factor, axis=1,args = (parameters['var_shiftFlag'],))
+    mergedDF[parameters['var_shiftFactor']] = \
+            mergedDF.apply(calculate_factor, axis=1,args = (parameters['var_shiftFlag'],))
 
     # Merge the sampled dataframe into the full survey dataframe
     df_surveydata_sf = pd.merge(df_surveydata,mergedDF,'outer')
@@ -100,11 +107,15 @@ def calculate_ips_shift_factor():
     # Return the three dataframes produced
     return (df_totalsampledshifts, df_possibleshifts, df_surveydata_sf)
 
+
 def calculate_ips_crossing_factor(df_surveydata_sf):
     """
     Author       : Nassir Mohammad
     Date         : Dec 2017
-    Purpose      : Calculate crossings factor.
+    Purpose      : Uses the imported surveydata and shiftsdata to calculate the
+                   data sets records' crossings factors. This calculated value is
+                   then appended to the original survey data set and used further
+                   in the process.
     Parameters   : NA
     Returns      : Data frames:
                        - df_totalSampledCrossings
@@ -114,7 +125,8 @@ def calculate_ips_crossing_factor(df_surveydata_sf):
     """
 
     # ShiftsStratumDef = Variable holding the shift weight stratum definition
-    StratumDef_temp = ["shift_port_grp_pv", "arrivedepart", "weekday_end_pv", "am_pm_night_pv"]
+    StratumDef_temp = ["shift_port_grp_pv", "arrivedepart", 
+                       "weekday_end_pv", "am_pm_night_pv"]
 
     # Convert table fields to upper case
     StratumDef = list(map(lambda x: x.upper(), StratumDef_temp))
@@ -152,7 +164,8 @@ def calculate_ips_crossing_factor(df_surveydata_sf):
 	# Calculate the number of sampled crossings by strata
     # Require reset_index() here to compose the correctly laid out data frame
     df_totalSampledCrossings = df_sorted_sampled_crossings.groupby(StratumDef)[crossingNumber] \
-                                                     .agg(OrderedDict([('_FREQ_', 'count'), ('DENOMINATOR', 'count')])) \
+                                                     .agg(OrderedDict([('_FREQ_', 'count'),
+                                                                       ('DENOMINATOR', 'count')])) \
                                                      .reset_index()
 
     # Not required but incase required in future for similar
@@ -167,7 +180,8 @@ def calculate_ips_crossing_factor(df_surveydata_sf):
 	# Calculate the total number of crossings by strata
     # Require reset_index() here to compose the correctly laid out data frame
     df_totalCrossings = df_sorted_crossingsData.groupby(StratumDef)[totals]\
-                                                     .agg(OrderedDict([('_FREQ_', 'count'),('NUMERATOR', 'sum')])) \
+                                                     .agg(OrderedDict([('_FREQ_', 'count'),
+                                                                       ('NUMERATOR', 'sum')])) \
                                                      .reset_index()
 
     df_totalCrossings.index = range(df_totalCrossings.shape[0])
@@ -181,16 +195,20 @@ def calculate_ips_crossing_factor(df_surveydata_sf):
     df_totalCrossings  = df_totalCrossings[StratumDef + ['NUMERATOR']]
     df_totalSampledCrossings = df_totalSampledCrossings[StratumDef + ['DENOMINATOR']]
 
-    left_join_1 = df_sorted_outputData.merge(df_totalCrossings, on = StratumDef, how = 'left') \
-                                      .merge(df_totalSampledCrossings, on = StratumDef, how = 'left')
+    left_join_1 = df_sorted_outputData.merge(df_totalCrossings, 
+                                             on = StratumDef, how = 'left') \
+                                      .merge(df_totalSampledCrossings, 
+                                             on = StratumDef, how = 'left')
 
     # Calculate crossings factor
-    left_join_1[crossingsFactor] = left_join_1.apply(calculate_factor, axis=1,args = ('CROSSINGS_FLAG_PV',))
+    left_join_1[crossingsFactor] = left_join_1.apply(calculate_factor, 
+                                                     axis=1,args = ('CROSSINGS_FLAG_PV',))
 
     # Drop numerator and denominator columns
     df_surveydata_merge = left_join_1.drop(['NUMERATOR', 'DENOMINATOR'], 1)
 
     return (df_totalSampledCrossings, df_surveydata_merge)
+
 
 def do_ips_shift_weight_calculation():
     """
@@ -220,14 +238,27 @@ def do_ips_shift_weight_calculation():
     df_totsampcrossings = crossings_factor_dfs[0]
     df_surveydata_merge = crossings_factor_dfs[1]
 
-    # The various column sets used for setting columns, sorting columns, aggregating by, merging data frames
-    colset1 = parameters['ShiftsStratumDef'] + [parameters['var_SI']]
+    # The various column sets used for setting columns, sorting columns, 
+    # aggregating by, merging data frames.
+    colset1 = parameters['ShiftsStratumDef'] \
+            + [parameters['var_SI']]
+            
     colset2 = parameters['ShiftsStratumDef']
+    
     colset3 = parameters['subStrata']
-    colset4 = colset1 + [parameters['var_possibleCount']] + [parameters['var_sampledCount']] \
-        + [parameters['var_minWeight']] + [parameters['var_avgWeight']] \
-        + [parameters['var_maxWeight']] + [parameters['var_count']] + [parameters['var_weightSum']]
-    colset5 = [parameters['var_serialNum']] + [parameters['var_shiftWeight']]
+    
+    colset4 = parameters['ShiftsStratumDef'] \
+            + [parameters['var_SI']] \
+            + [parameters['var_possibleCount']] \
+            + [parameters['var_sampledCount']] \
+            + [parameters['var_minWeight']] \
+            + [parameters['var_avgWeight']] \
+            + [parameters['var_maxWeight']] \
+            + [parameters['var_count']] \
+            + [parameters['var_weightSum']]
+            
+    colset5 = [parameters['var_serialNum']] \
+            + [parameters['var_shiftWeight']]
 
     # Make all column headers upper case
     df_surveydata_merge.columns = df_surveydata_merge.columns.str.upper()
@@ -235,7 +266,7 @@ def do_ips_shift_weight_calculation():
     df_totsampcrossings.columns = df_totsampcrossings.columns.str.upper()
     df_totsampshifts.columns = df_totsampshifts.columns.str.upper()
 
-    # Check for any missing shift factors
+    # Check for any missing shift factors by extracting incorrect values.
     df_shift_flag = df_surveydata_merge[df_surveydata_merge[parameters['var_shiftFlag']] == 1]
 
     if(len(df_shift_flag[df_shift_flag[parameters['var_shiftFactor']].isnull()]) > 0):
@@ -245,7 +276,7 @@ def do_ips_shift_weight_calculation():
             (df_surveydata_merge[parameters['var_shiftFlag']] != 1), parameters['var_shiftFactor']] = 1
         logger.info('Success: Contains shift factor(s)')
 
-    # Check for missing crossings factor
+    # Check for missing crossings factor by extracting incorrect values.
     df_crossings_flag = df_surveydata_merge[df_surveydata_merge['CROSSINGS_FLAG_PV'] == 1]
 
     if(len(df_crossings_flag[df_crossings_flag[parameters['var_crossingsFactor']].isnull()]) > 0):
@@ -255,25 +286,26 @@ def do_ips_shift_weight_calculation():
             (df_surveydata_merge.CROSSINGS_FLAG_PV != 1), parameters['var_crossingsFactor']] = 1
         logger.info('Success: Contains crossings factor(s)')
 
-    # Check for invalid shift data
+    # Check for invalid shift data by extracting incorrect values.
     df_invalid_shifts = df_surveydata_merge[df_surveydata_merge[parameters['var_shiftFactor']] < 0]
     if len(df_shift_flag) > 0 & len(df_invalid_shifts) > 0:
         logger.error('Error: Case(s) has an invalid number of possible shifts')
 
-    # Check for invalid crossings data
+    # Check for invalid crossings data by extracting incorrect values.
     df_invalid_crossings = df_surveydata_merge[df_surveydata_merge[parameters['var_crossingsFactor']] < 0]
     if len(df_crossings_flag) > 0 & len(df_invalid_crossings) > 0:
         logger.error('Error: Case(s) has an invalid number of total crossings')
 
-    # Check for missing migration sampling intervals
+    # Check for missing migration sampling intervals by extracting incorrect values.
     df_missing_migsi = df_surveydata_merge[parameters['var_SI']].isnull().sum()
     if df_missing_migsi > 0:
         logger.error('Error: Case(s) missing migration sampling interval')
 
     # Calculate shift weight
-    df_surveydata_merge[parameters['var_shiftWeight']] = df_surveydata_merge[parameters['var_shiftFactor']] \
-        * df_surveydata_merge[parameters['var_crossingsFactor']] \
-        * df_surveydata_merge[parameters['var_SI']]
+    df_surveydata_merge[parameters['var_shiftWeight']] = \
+        df_surveydata_merge[parameters['var_shiftFactor']] \
+            * df_surveydata_merge[parameters['var_crossingsFactor']] \
+            * df_surveydata_merge[parameters['var_SI']]
 
     # Sort surveydata
     df_surveydata_merge = df_surveydata_merge.sort_values(colset1)
@@ -380,13 +412,14 @@ def do_ips_shift_weight_calculation():
 
     return (df_surveydata_merge, df_summary)
 
+
 """"""
 
 # Call JSON configuration file for error logger setup
 survey_support.setup_logging('IPS_logging_config_debug.json')
 
 # Create logger object
-logger = logging.getLogger(__name__)
+logger = cf.database_logger()
 
 # Connect to Oracle and unload parameter list
 conn = cf.get_oracle_connection()
@@ -405,9 +438,8 @@ path_to_shifts_data = root_data_path + r"\shiftsdata.sas7bdat"
 # This method is untested with a range of data sets but is faster
 df_surveydata = pd.read_sas(path_to_survey_data)
 df_shiftsdata = pd.read_sas(path_to_shifts_data)
-
-cf.ips_error_check()
-
+   
+print("Start - Calculate Shift Weight")
 weight_calculated_dataframes = do_ips_shift_weight_calculation()
 
 # Extract the two data sets returned from do_ips_shift_weight_calculation
@@ -418,4 +450,6 @@ summary_dataframe = weight_calculated_dataframes[1]
 cf.insert_into_table_many(parameters['OutputData'], surveydata_dataframe)
 cf.insert_into_table_many(parameters['SummaryData'], summary_dataframe)
 
-print("Done")
+logger.info("SUCCESS - Completed Shift weight calculation.")
+
+print("Completed - Calculate Shift Weight")

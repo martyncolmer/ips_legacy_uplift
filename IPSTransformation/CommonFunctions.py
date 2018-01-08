@@ -461,7 +461,7 @@ def select_data(column_name, table_name, condition1, condition2):
         return result
 
 
-def unload_parameters(parameter_id = False):    
+def unload_parameters(parameter_id = False):
     """
     Author     : Thomas Mahoney
     Date       : 19 Dec 2017
@@ -607,7 +607,12 @@ def insert_into_table_many(table_name,dataframe,connection = False):
     ") VALUES (" \
     + parameter_string +\
     ")"
-
+    print(sql)
+    
+    # Debugging
+    for rec in rows:
+        print (rec)
+    
     cur.executemany("INSERT into " + table_name + 
          "(" 
          + columns_string + 
