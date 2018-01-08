@@ -1,7 +1,7 @@
 '''
 Created on 24 Nov 2017
 
-@author: thorne1
+@author: Elinor Thorne
 '''
 import os
 import zipfile
@@ -18,7 +18,7 @@ import survey_support as ss
 
 def database_logger():
     """
-    Author        : thorne1
+    Author        : Elinor Thorne
     Date          : 5 Jan 2018
     Purpose       : Sets up and returns database logger object   
     Parameters    : None
@@ -32,14 +32,14 @@ def database_logger():
     return logging.getLogger(__name__)
 
 
-def standard_log_message(err_msg, func_name):
+def standard_log_message(error_msg, function_name):
     """
-    Author        : thorne1
+    Author        : Elinor Thorne
     Date          : 5 Jan 2018
     Purpose       : Creates a standard log message which includes the user's 
                   : error message, the filename and function name
-    Parameters    : err_msg - user's custom error message
-                  : func_name - source function of failure
+    Parameters    : error_msg - user's custom error message
+                  : function_name - source function of failure
     Returns       : String  
     Requirements  : None
     Dependencies  : None
@@ -47,23 +47,25 @@ def standard_log_message(err_msg, func_name):
     # 0 = frame object, 1 = filename. 
     # See 28.13.4. in https://docs.python.org/2/library/inspect.html
     filename = str(inspect.stack()[0][1])
-    return err_msg + ' - File "' + filename + '", in ' + func_name + '()'
+    return (error_msg 
+            + ' - File: "' + filename 
+            + '", in ' + function_name) 
 
 
-def validate_file(xfile):
+def validate_file(xfile, function_name):
     """
-    Author     : thorne1
-    Date       : 7 Dec 2017
-    Purpose    : Generic function to validate file to check existence and size.
-               : Validation includes: empty string instead of filename,
-               : checking file exists, and if file is empty
-    Params     : xfile (file is reserved keyword) - file to validate
-    Returns    : True/False (boolean)
+    Author        : Elinor Thorne
+    Date          : 7 Dec 2017
+    Purpose       : Generic function to validate file. Validation includes: 
+                  : empty string instead of filename,
+                  : checking file exists, and if file is empty  
+    Parameters    : xfile (file is reserved keyword) - file to validate
+                  : function_name - source function of failed validation 
+    Returns       : True/False (boolean)  
+    Requirements  : None
+    Dependencies  : inspect,
+                    database_logger(),
     """
-    
-    # 0 = frame object, 3 = function name. 
-    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
-    function_name = str(inspect.stack()[0][3])
    
     if xfile == "":
         # If file name not given
@@ -86,39 +88,45 @@ def validate_file(xfile):
 
 def get_oracle_connection(credentials_file = 
                           r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials.json"):
-        """
-        Author     : thorne1
-        Date       : 27 Nov 2017
-        Purpose    : Generic function to connect to Oracle 
+    """
+    Author         : Elinor Thorne
+    Date           : 27 Nov 2017
+    Purpose        : Generic function to connect to Oracle 
                    : database and return connection object
-        Returns    : Connection (Object) 
+    Returns        : Connection (Object) 
                      (cannot return cursor object as DDL 
                      statements are implicitly committed
                      whereas DML statements are not)
-        Params     : credentials_file is set to default location 
+    Paramaters     : credentials_file is set to default location 
                    : unless user needs to point elsewhere
-        REQS       : pip install cx_Oracle 
-                     32-bit Oracle Client required
-        DEPS       : get_credentials()
-        """
-        
-        # Validate file
-        if validate_file(credentials_file) == False:
-            return False
-        
-        # Get credentials and decrypt              
-        user = ss.get_keyvalue_from_json("User", credentials_file, True)
-        password = ss.get_keyvalue_from_json("Password", credentials_file, True)
-        database = ss.get_keyvalue_from_json('Database', credentials_file)
+    Requirements   : None
+    Dependancies   : valdidate_file(),
+                     survey_support.get_keyvalue_from_json(),
+                     cx_Oracle,
+                     database_logger()
+    """
     
-        try:
-            # Connect
-            conn = cx_Oracle.connect(user, password, database)
-        except Exception as err:
-            database_logger().error(err, exc_info = True)
-            return False        
-        else:
-            return conn
+    # 0 = frame object, 3 = function name. 
+    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    function_name = str(inspect.stack()[0][3])
+    
+    # Validate file
+    if validate_file(credentials_file, function_name) == False:
+        return False
+    
+    # Get credentials and decrypt              
+    user = ss.get_keyvalue_from_json("User", credentials_file, True)
+    password = ss.get_keyvalue_from_json("Password", credentials_file, True)
+    database = ss.get_keyvalue_from_json('Database', credentials_file)
+    
+    try:
+        # Connect
+        conn = cx_Oracle.connect(user, password, database)
+    except Exception as err:
+        database_logger().error(err, exc_info = True)
+        return False        
+    else:
+        return conn
         
     
 def get_credentials(credentials_file):
@@ -132,10 +140,13 @@ def get_credentials(credentials_file):
     Dependencies  : None
     """
     
+    # 0 = frame object, 3 = function name. 
+    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    function_name = str(inspect.stack()[0][3])
+    
     # Validate file
-    if validate_file(credentials_file):
+    if validate_file(credentials_file, function_name):
         credentials_dict = {}
-        
         try:
             with open(credentials_file) as json_file:
                 credentials_dict = json.load(json_file)
@@ -145,11 +156,13 @@ def get_credentials(credentials_file):
             return False
         else:            
             return credentials_dict
+    else:
+        return False
     
 
 def extract_zip(dir_name, zip_file):
     """
-    Author       : thorne1
+    Author       : Elinor Thorne
     Date         : 8 Jan 2018
     Purpose      : Extract file from zip folder   
     Parameters   : dir_name - directory path EXCLUDING filename 
@@ -159,8 +172,12 @@ def extract_zip(dir_name, zip_file):
     Dependencies : None
     """    
 
+    # 0 = frame object, 3 = function name. 
+    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    function_name = str(inspect.stack()[0][3])
+    
     # Validate existence of file
-    if validate_file(dir_name):
+    if validate_file(dir_name, function_name):
         os.chdir(dir_name)
     
         file_found = False
@@ -180,7 +197,7 @@ def extract_zip(dir_name, zip_file):
 
 def import_csv(filename):
     """
-    Author        : thorne1
+    Author        : Elinor Thorne
     Date          : 8 Jan 2018
     Purpose       : Generic function to open a CSV   
     Parameters    : filename - full CSV path
@@ -197,7 +214,7 @@ def import_csv(filename):
     function_name = str(inspect.stack()[0][3])
 
     # Validate file    
-    if validate_file(filename):
+    if validate_file(filename, function_name):
         try:
             dataframe = pandas.read_csv(filename)
         except Exception as err:
@@ -217,7 +234,7 @@ def import_csv(filename):
 
 def import_sas(filename):
     """
-    Author        : thorne1
+    Author        : Elinor Thorne
     Date          : 8 Jan 2018
     Purpose       : Generic function to open a CSV  
     Parameters    : filename - full CSV path
@@ -229,7 +246,11 @@ def import_sas(filename):
                     database_logger()
     """
     
-    if validate_file(filename):
+    # 0 = frame object, 3 = function name. 
+    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    function_name = str(inspect.stack()[0][3])
+    
+    if validate_file(filename, function_name):
         try:
             # Create and return sas7bdat dataframe:
             with SAS7BDAT(filename) as file_object:
@@ -237,11 +258,13 @@ def import_sas(filename):
         except Exception as err:
             database_logger().error(err, exc_info = True)
             return False
+    else:
+        return False
 
 
 def create_table(table_name, column_list):
     """
-    Author        : thorne1
+    Author        : Elinor Thorne
     Date          : 20 Dec 2017
     Purpose       : Uses SQL query to create a table  
     Parameters    : table_name - name of table to create
@@ -290,7 +313,7 @@ def create_table(table_name, column_list):
 
 def check_table(table_name):
     """
-    Author        : thorne1
+    Author        : Elinor Thorne
     Date          : 7 Dec 2017
     Purpose       : Generic SQL query to check if table exists   
     Parameters    : table_name - name of table to check if exists
@@ -324,7 +347,7 @@ def check_table(table_name):
 
 def drop_table(table_name):
     """
-    Author        : thorne1
+    Author        : Elinor Thorne
     Date          : 7 Dec 2017
     Purpose       : Generic SQL query to drop table  
     Parameters    : table_name - name of table to drop
@@ -363,7 +386,7 @@ def drop_table(table_name):
     
 def delete_from_table(table_name, condition1 = None, operator = None, condition2 = None, condition3 = None):
     """
-    Author         : thorne1
+    Author         : Elinor Thorne
     Date           : 7 Dec 2017
     Purpose        : Generic SQL query to delete contents of table   
     Parameters     : table_name - name of table
@@ -422,16 +445,16 @@ def delete_from_table(table_name, condition1 = None, operator = None, condition2
 
 def select_data(column_name, table_name, condition1, condition2):
     """
-        Author        : thorne1
-        Date          : 21 Dec 2017
-        Purpose       : Uses SQL query to retrieve value from Oracle table  
-        Parameters    : column_name, table_name, condition1, condition2, i.e:
-                      : "SELECT column_name FROM table_name WHERE condition1 = condition2" (no 'AND'/'OR' clause)
-        Returns       : Result (String)  
-        Requirements  : None
-        Dependencies  : get_oracle_connection(),
-                        database_logger()
-        """
+    Author        : Elinor Thorne
+    Date          : 21 Dec 2017
+    Purpose       : Uses SQL query to retrieve value from Oracle table  
+    Parameters    : column_name, table_name, condition1, condition2, i.e:
+                  : "SELECT column_name FROM table_name WHERE condition1 = condition2" (no 'AND'/'OR' clause)
+    Returns       : Result (String)  
+    Requirements  : None
+    Dependencies  : get_oracle_connection(),
+                    database_logger()
+    """
     
     # Connection variables
     conn = get_oracle_connection()
@@ -443,8 +466,8 @@ def select_data(column_name, table_name, condition1, condition2):
            + " WHERE " + condition1 
            + " = '" + condition2 + "'")
 
-    # Execute
     try:
+        # Execute
         cur.execute(sql)
     except Exception as err:
         # Return False to indicate error
@@ -463,11 +486,16 @@ def select_data(column_name, table_name, condition1, condition2):
 
 def unload_parameters(parameter_id = False):    
     """
-    Author     : Thomas Mahoney
-    Date       : 19 Dec 2017
-    Purpose    : Extracts a list of parameters from oracle to be used in the parent process.      
-    Params     : parameter_id - the identifier used to extract specific parameter sets.
-    Returns    : A dictionary of parameters
+    Author        : Thomas Mahoney
+    Date          : 19 Dec 2017
+    Purpose       : Extracts a list of parameters from oracle 
+                  : to be used in the parent process.  
+    Parameters    : parameter_id - the identifier used to 
+                    extract specific parameter sets.
+    Returns       : A dictionary of parameters  
+    Requirements  : None
+    Dependencies  : get_oracle_connection(),
+                    cx_Oracle,
     """
    
     # Connection variables
@@ -486,14 +514,13 @@ def unload_parameters(parameter_id = False):
     
     try:
         cur.execute(sql)
-    except cx_Oracle.DatabaseError:
+    except cx_Oracle.DatabaseError as err:
         # Return False to indicate error
-        raise
+        database_logger().error(err, exc_info = True)
         return False
     else: 
         # Execute SQL query and return parameters   
         results = cur.fetchall()
-    
     
     # If no results, return False to indicate failure
     if results == []:
@@ -516,7 +543,6 @@ def insert_dataframe_into_table(table_name, dataframe):
     column_list = list(dataframe.columns.values)
     print(column_list)
     
-    
     for val in dataframe.values:
         v_list = list(val)
         print(v_list)
@@ -532,18 +558,17 @@ def insert_into_table(table_name, column_list, value_list):
     Params     : table_name = Name of table to insert
                : column_list = List the names of as many columns as required
                : value_list = List the values required to insert
-                      CODE EXAMPLE:       insert_into_table("TABLE_DATA", ("date_and_time", "message_result"), ("20/12/2017", "Hello World!"))
-                                          OR
-                                          column_list = ("date_and_time", "message_result")
-                                          values = ("20/12/2017", "Hello World!")
-                                          insert_into_table(table_name, column_list, values)                      
+    CODE EXAMPLE:       insert_into_table("TABLE_DATA", ("date_and_time", "message_result"), ("20/12/2017", "Hello World!"))
+                        OR
+                        column_list = ("date_and_time", "message_result")
+                        values = ("20/12/2017", "Hello World!")
+                        insert_into_table(table_name, column_list, values)                      
     Returns    : True/False  
     """
      
     # Oracle connection variables
     conn = get_oracle_connection()
     cur = conn.cursor()     
-     
     
     # Re-format column_list and value_lists as strings    
     columns_string = str(column_list)
@@ -598,9 +623,6 @@ def insert_into_table_many(table_name,dataframe,connection = False):
     parameter_string = parameter_string.replace(']', "").replace('[', "").replace("'","")#.replace(',', "")
     #print(parameter_string)
     
-    
-
-
     sql = "INSERT into " + table_name + \
     "(" \
     + columns_string + \

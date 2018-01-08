@@ -54,6 +54,7 @@ class IPS_Log_Handler(logging.Handler):
             self.params["warnings"] = record.msg
         elif record.levelno == logging.INFO:
             self.params["response_code"] = 1
+            self.params["warnings"] = record.msg
         
         # Assign traceback message
         if record.exc_info and record.exc_info[0]:
@@ -62,7 +63,6 @@ class IPS_Log_Handler(logging.Handler):
         else:
             self.params['stack_trace'] = ''
             
-                
 #        ET REMOVED ON 05/01/2018.  NOT CURRENTLY USED 
 #        BUT IS USEFUL CODE SHOULD WE NEED IT
 #        # Add date and time details to instance params dict
