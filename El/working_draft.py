@@ -38,4 +38,9 @@ def traceback_view():
     print params['process_id'] + params['response_code']  
 
 
-print cf.validate_file("")
+#print cf.validate_file("")
+
+dir_name = r"\\nsdata3\Social_Surveys_team\CASPA\IPS"
+zip_file = "StoredProcesses.zip"
+
+print cf.extract_zip(dir_name, zip_file)
