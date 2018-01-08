@@ -33,9 +33,9 @@ def unload_parameters(id = False):
     return tempDict
 
 
-parameters = unload_parameters(32)
+parameters = unload_parameters(59)
 
 print (parameters)
 
-print(parameters['SUMMARYDATA'])
+print(parameters['SURVEYDATA'])
 print(parameters['SHIFTSDATA'])

@@ -438,7 +438,7 @@ def insert_into_table(table_name, column_list, value_list):
     
     
     value_string = str(value_list)
-    value_string = value_string.replace(']', "").replace('[', "")#.replace("'","").replace(',', "")
+    value_string = value_string.replace(']', "").replace('[', "").replace('"', '')#.replace("'","")#.replace(',', "")
      
      
     # table_name = 'response' 
@@ -446,13 +446,15 @@ def insert_into_table(table_name, column_list, value_list):
     
     print(sql)
     
+    print("executing")
     cur.execute(sql)
+    print("commiting")
     conn.commit()
      
     # VALIDATE IT DID IT
 
 
-def insert_into_table_many(table_name,dataframe):
+def insert_into_table_many(table_name,dataframe,connection = False):
     """
     Author       : Thomas Mahoney
     Date         : 02 Jan 2018
@@ -464,8 +466,12 @@ def insert_into_table_many(table_name,dataframe):
     Dependencies : NA
     """
     
+    if(connection == False):
+        print("Getting Connection")
+        connection = get_oracle_connection()
     
-    print(table_name)
+    cur = connection.cursor()
+    #print(table_name)
     rows = [tuple(x) for x in dataframe.values]
     dataframe.columns = dataframe.columns.astype(str)#.str.split(',')
     columns_list = dataframe.columns.tolist()
@@ -481,11 +487,10 @@ def insert_into_table_many(table_name,dataframe):
     
     parameter_string = str(parameter_holder)
     parameter_string = parameter_string.replace(']', "").replace('[', "").replace("'","")#.replace(',', "")
-    print(parameter_string)
+    #print(parameter_string)
     
     
-    connection = get_oracle_connection()
-    cur = connection.cursor()
+
 
     sql = "INSERT into " + table_name + \
     "(" \
@@ -493,7 +498,11 @@ def insert_into_table_many(table_name,dataframe):
     ") VALUES (" \
     + parameter_string +\
     ")"
-    print(sql)
+    #print(sql)
+    
+    
+    
+    print(rows)
     
     cur.executemany("INSERT into " + table_name + 
          "(" 
@@ -505,8 +514,66 @@ def insert_into_table_many(table_name,dataframe):
          )
     
     connection.commit()
-    
     print("Records added to "+table_name+" table - " + str(len(rows)))     
-    
     # Returns number of rows added to table for validation
     return len(rows)
+
+
+def insert_list_into_table(table_name,columns,values,connection = False):
+    """
+    Author       : Thomas Mahoney
+    Date         : 02 Jan 2018
+    Purpose      : Inserts a single row dataframe into an SQL table 
+    Params       : table_name - the name of the target table in the sql database.
+                   columns - the column headers for the fields being added.
+                   values - the fields being added to the database.
+                   connection - the database connection object
+    Returns      : true or false depending on success.
+    Requirements : NA
+    Dependencies : NA
+    """
+    
+    if(connection == False):
+        print("Getting Connection")
+        connection = get_oracle_connection()
+    cur = connection.cursor()
+
+    # Create column header string for SQL
+    columns_string = str(columns)
+    columns_string = columns_string.replace(']', "").replace('[', "").replace("'","")
+    #print(columns_string)
+    # Create parameter holder string for SQL    
+    parameter_string = str(values)
+    parameter_string = parameter_string.replace(']', "").replace('[', "")#.replace("'","")
+    #print(parameter_string)
+    
+    
+
+
+    sql = "INSERT into " + table_name + \
+    "(" \
+    + columns_string + \
+    ") VALUES (" \
+    + parameter_string +\
+    ")"
+    print(sql)
+    
+    
+    
+    cur.execute("INSERT into " + table_name + 
+         "(" 
+         + columns_string + 
+         ") VALUES (" 
+         + parameter_string +
+         ")"
+         )
+    
+    connection.commit()
+    print("Record added to "+table_name+" table.")
+    
+    # Returns True if no errors
+    return True
+
+
+
+
