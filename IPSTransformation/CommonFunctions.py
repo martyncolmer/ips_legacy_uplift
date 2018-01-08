@@ -3,10 +3,9 @@ Created on 24 Nov 2017
 
 @author: thorne1
 '''
-
 import os
 import zipfile
-import cx_Oracle    # pip install this
+import cx_Oracle            # pip install this
 import pandas as pandas     # pip install this
 import datetime
 import numpy as np
@@ -263,7 +262,6 @@ def drop_table(table_name):
     
     try:
         cur.execute(sql)
-        # print result
     except cx_Oracle.DatabaseError:
         # Raise (unit testing purposes) and return False to indicate table does not exist
         raise
@@ -277,12 +275,25 @@ def drop_table(table_name):
             return True
     
     
-def delete_from_table(table_name):
+def delete_from_table(table_name, condition1 = None, operator = None, condition2 = None, condition3 = None):
     """
     Author     : thorne1
     Date       : 7 Dec 2017
-    Purpose    : Generic SQL query to drop contents of table   
-    Params     : table_name 
+    Purpose    : Generic SQL query to delete contents of table   
+    Parameters : table_name - name of table
+                 condition1 - first condition / value
+                 operator - comparison operator i.e    
+                  
+                 '=' Equal
+                 '!=' Not Equal
+                 '>' Greater than
+                 '>=' Greater than or equal, etc
+                 https://www.techonthenet.com/oracle/comparison_operators.php
+                 
+                 condition2 - second condition / value
+                 condition3 - third condition / value used for BETWEEN ranges, i.e:
+                 
+                 "DELETE FROM table_name WHERE condition1 BETWEEN condition2 AND condition3"
     Returns    : True/False (bool)   
     """
     # Confirm table exists
@@ -294,25 +305,26 @@ def delete_from_table(table_name):
     cur = conn.cursor() 
     
     # Create and execute SQL query
-    sql = "DELETE FROM " + table_name    
-    
+    if condition1 == None:
+        # DELETE FROM table_name
+        sql = "DELETE FROM " + table_name
+    elif condition3 == None:
+        # DELETE FROM table_name WHERE condition1 <operator> condition2
+        sql = "DELETE FROM " + table_name + " WHERE " + condition1 + " " + operator + " '" + condition2 + "'"
+    else:
+        # DELETE FROM table_name WHERE condition1 BETWEEN condition2 AND condition3
+        sql = "DELETE FROM " + table_name + " WHERE " + condition1 + " " + operator + " '" + condition2 + "'" + " AND " + condition3
+        
     try:
         cur.execute(sql)
-    except cx_Oracle.DatabaseError:
+    except Exception as err:
         # Raise (unit testing purposes) and return False to indicate table does not exist
-        raise
+        print(err)
         return False
     else:   
         conn.commit()
-        
-    sql = "SELECT * FROM " + table_name
-    result = cur.execute(sql).fetchall()
-    
-    if result != []:
-        return False
-    else:
         return True
-
+        
 
 def select_data(column_name, table_name, condition1, condition2):
     """
@@ -411,6 +423,19 @@ def unload_parameters(parameter_id = False):
     return tempDict
 
 
+
+def insert_dataframe_into_table(table_name, dataframe):
+    column_list = list(dataframe.columns.values)
+    print(column_list)
+    
+    
+    for val in dataframe.values:
+        v_list = list(val)
+        print(v_list)
+        
+        insert_into_table(table_name,column_list,v_list)
+
+
 def insert_into_table(table_name, column_list, value_list):
     """
     Author     : mahont1
@@ -450,8 +475,6 @@ def insert_into_table(table_name, column_list, value_list):
     cur.execute(sql)
     print("commiting")
     conn.commit()
-     
-    # VALIDATE IT DID IT
 
 
 def insert_into_table_many(table_name,dataframe,connection = False):
@@ -465,13 +488,13 @@ def insert_into_table_many(table_name,dataframe,connection = False):
     Requirements : NA
     Dependencies : NA
     """
-    
+
     if(connection == False):
         print("Getting Connection")
         connection = get_oracle_connection()
     
     cur = connection.cursor()
-    #print(table_name)
+
     rows = [tuple(x) for x in dataframe.values]
     dataframe.columns = dataframe.columns.astype(str)#.str.split(',')
     columns_list = dataframe.columns.tolist()
@@ -498,12 +521,7 @@ def insert_into_table_many(table_name,dataframe,connection = False):
     ") VALUES (" \
     + parameter_string +\
     ")"
-    #print(sql)
-    
-    
-    
-    print(rows)
-    
+
     cur.executemany("INSERT into " + table_name + 
          "(" 
          + columns_string + 
@@ -513,8 +531,9 @@ def insert_into_table_many(table_name,dataframe,connection = False):
          rows
          )
     
-    connection.commit()
     print("Records added to "+table_name+" table - " + str(len(rows)))     
+    connection.commit()
+    
     # Returns number of rows added to table for validation
     return len(rows)
 

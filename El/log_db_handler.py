@@ -3,7 +3,7 @@ import cx_Oracle
 import datetime
 import traceback
 
-import CommonFunctions as cf
+from IPSTransformation import CommonFunctions as cf
 
 class IPS_Log_Handler(logging.Handler):
     def __init__(self, **kwargs):
@@ -95,7 +95,7 @@ class IPS_Log_Handler(logging.Handler):
         		  , self.params['error_msg']    
         		  , self.params['stack_trace']
         		  , self.params['warnings'])
-        		  
+
         # need to do something with self.params['record_date']
         
         # Prepare SQL statement

@@ -5,7 +5,6 @@ Created on 21 Dec 2017
 '''
 import survey_support
 import logging
-import CommonFunctions as cf
 
 def module_level_function():
     # Following two lines to set up
