@@ -1,13 +1,8 @@
-'''
-Created on 1 Dec 2017
-
-@author: mahont1
-'''
-
 import sys
 
 from IPSTransformation.CommonFunctions import get_oracle_connection
 from IPSTransformation.CommonFunctions import insert_list_into_table
+
 
 def get_column_and_version_data(cur, version):
     
@@ -63,8 +58,8 @@ def populate_survey_subsample(conn, p_run_id):
 
     serial_sav = 0
     version_sav = 0
-    col_string = ""
-    val_string = ""
+    columns = []
+    values = []
     version_id = 0
     
     cur = conn.cursor()
@@ -91,13 +86,10 @@ def populate_survey_subsample(conn, p_run_id):
     # Write the run information to the RUN_DATA_MAP table
     sql = "insert into RUN_DATA_MAP (RUN_ID,VERSION_ID,DATA_SOURCE) values ('" \
             +p_run_id+"',"+version_id+",'SURVEY DATA LOADING')"
+            
     cur.execute(sql)
     conn.commit()
-    
-    columns = []
-    values = []
-    dfVals = []
-    
+        
     # Initialise a row counter for added records
     recCount = 1
     
@@ -149,8 +141,7 @@ def populate_survey_subsample(conn, p_run_id):
     cur.execute(sql)
     conn.commit()
     
-
+    
 connection = get_oracle_connection()
-
 
 populate_survey_subsample(connection, 'IPSSeedRun')

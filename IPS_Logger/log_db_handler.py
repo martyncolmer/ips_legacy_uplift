@@ -85,6 +85,7 @@ class IPS_Log_Handler(logging.Handler):
         Params     : record - This is populated by the logger automatically
         Returns    : True/False  
         """
+
         # Setup the parameters from the instance params object
         params = (self.params['process_id']
         		  , self.params['response_code']
