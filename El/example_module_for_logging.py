@@ -21,9 +21,6 @@ def basic_example():
         logger.error('uh-oh something failed', exc_info = True)        
 
 
-"""DRY"""   
-
-    
 def database_logger():
     """
     Purpose    : Sets up and returns database logger object   
@@ -58,6 +55,8 @@ def module_level_function():
     # EXAMPLE 2. Use of try, catch statement and records traceback and error message to database
     try:
         10/0
-    except:
-        error_msg = 'Example, using try block'
-        database_logger().info(standard_log_message(error_msg, function_name), exc_info = True)        
+    except Exception as err:
+        cf.database_logger().error("El's SAS_RESPONSE testing", exc_info = True)
+
+if __name__ == "__main__":
+    module_level_function()

@@ -10,6 +10,8 @@ import pandas as pandas     # pip install this
 import json
 import logging
 import inspect
+import getpass
+import datetime
 
 from sas7bdat import SAS7BDAT   # pip install this
 
@@ -32,27 +34,29 @@ def database_logger():
     return logging.getLogger(__name__)
 
 
-def standard_log_message(error_msg, function_name):
+def standard_log_message(err_msg, current_working_file, func_name):
     """
     Author        : Elinor Thorne
     Date          : 5 Jan 2018
     Purpose       : Creates a standard log message which includes the user's 
                   : error message, the filename and function name
-    Parameters    : error_msg - user's custom error message
-                  : function_name - source function of failure
+    Parameters    : err_msg - user's custom error message
+                  : current_working_file - source dir path of failure
+                  : func_name - source function of failure
     Returns       : String  
     Requirements  : None
     Dependencies  : None
     """
+
     # 0 = frame object, 1 = filename. 
     # See 28.13.4. in https://docs.python.org/2/library/inspect.html
     filename = str(inspect.stack()[0][1])
-    return (error_msg 
-            + ' - File: "' + filename 
-            + '", in ' + function_name) 
+    return (err_msg 
+            + ' - File "' + current_working_file 
+            + '", in ' + func_name + '()')
 
 
-def validate_file(xfile, function_name):
+def validate_file(xfile, current_working_file, function_name):
     """
     Author        : Elinor Thorne
     Date          : 7 Dec 2017
@@ -70,17 +74,23 @@ def validate_file(xfile, function_name):
     if xfile == "":
         # If file name not given
         err_msg = "ERROR: File name not provided"
-        database_logger().error(standard_log_message(err_msg, function_name))
+        database_logger().error(standard_log_message(err_msg
+                                                     , current_working_file
+                                                     , function_name))
         return False
     if not os.path.exists(xfile):
         # If file does not exist
         err_msg = "ERROR: File does not exist"
-        database_logger().error(standard_log_message(err_msg, function_name))
+        database_logger().error(standard_log_message(err_msg
+                                                     , current_working_file
+                                                     , function_name))
         return False
     if os.path.getsize(xfile) == 0:
         # If file is empty 
         err_msg = "ERROR: File is empty"
-        database_logger().error(standard_log_message(err_msg, function_name))
+        database_logger().error(standard_log_message(err_msg
+                                                     , current_working_file
+                                                     , function_name))
         return False
     else:
         return True         
@@ -89,36 +99,37 @@ def validate_file(xfile, function_name):
 def get_oracle_connection(credentials_file = 
                           r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials.json"):
     """
-    Author         : Elinor Thorne
-    Date           : 27 Nov 2017
-    Purpose        : Generic function to connect to Oracle 
-                   : database and return connection object
-    Returns        : Connection (Object) 
-                     (cannot return cursor object as DDL 
-                     statements are implicitly committed
-                     whereas DML statements are not)
-    Paramaters     : credentials_file is set to default location 
-                   : unless user needs to point elsewhere
-    Requirements   : None
-    Dependancies   : valdidate_file(),
-                     survey_support.get_keyvalue_from_json(),
-                     cx_Oracle,
-                     database_logger()
+    Author     : thorne1
+    Date       : 27 Nov 2017
+    Purpose    : Generic function to connect to Oracle 
+               : database and return connection object
+    Returns    : Connection (Object) 
+                 (cannot return cursor object as DDL 
+                 statements are implicitly committed
+                 whereas DML statements are not)
+    Params     : credentials_file is set to default location 
+               : unless user needs to point elsewhere
+    REQS       : pip install cx_Oracle 
+                 32-bit Oracle Client required
+    DEPS       : get_credentials()
     """
     
-    # 0 = frame object, 3 = function name. 
+    # 0 = frame object, 1 = filename, 3 = function name. 
     # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    current_working_file = str(inspect.stack()[0][1])
     function_name = str(inspect.stack()[0][3])
     
     # Validate file
-    if validate_file(credentials_file, function_name) == False:
+    if validate_file(credentials_file
+                     , current_working_file
+                     , function_name) == False:
         return False
     
     # Get credentials and decrypt              
     user = ss.get_keyvalue_from_json("User", credentials_file, True)
     password = ss.get_keyvalue_from_json("Password", credentials_file, True)
     database = ss.get_keyvalue_from_json('Database', credentials_file)
-    
+
     try:
         # Connect
         conn = cx_Oracle.connect(user, password, database)
@@ -139,13 +150,12 @@ def get_credentials(credentials_file):
     Requirements  : None
     Dependencies  : None
     """
-    
-    # 0 = frame object, 3 = function name. 
+    # 0 = frame object, 1 = filename, 3 = function name. 
     # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    current_working_file = str(inspect.stack()[0][1])
     function_name = str(inspect.stack()[0][3])
-    
-    # Validate file
-    if validate_file(credentials_file, function_name):
+   
+    if validate_file(credentials_file, current_working_file, function_name):
         credentials_dict = {}
         try:
             with open(credentials_file) as json_file:
@@ -171,13 +181,14 @@ def extract_zip(dir_name, zip_file):
     Requirements : None
     Dependencies : None
     """    
-
-    # 0 = frame object, 3 = function name. 
+   
+    # 0 = frame object, 1 = filename, 3 = function name. 
     # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    current_working_file = str(inspect.stack()[0][1])
     function_name = str(inspect.stack()[0][3])
     
     # Validate existence of file
-    if validate_file(dir_name, function_name):
+    if validate_file(dir_name, current_working_file, function_name):
         os.chdir(dir_name)
     
         file_found = False
@@ -209,12 +220,13 @@ def import_csv(filename):
                     database_logger()
     """
     
-    # 0 = frame object, 3 = function name. 
+    # 0 = frame object, 1 = filename, 3 = function name. 
     # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    current_working_file = str(inspect.stack()[0][1])
     function_name = str(inspect.stack()[0][3])
 
     # Validate file    
-    if validate_file(filename, function_name):
+    if validate_file(filename, current_working_file, function_name):
         try:
             dataframe = pandas.read_csv(filename)
         except Exception as err:
@@ -226,6 +238,7 @@ def import_csv(filename):
                 err_msg = "ERROR: Dataframe is empty"
                 # Log error in database
                 database_logger().error(standard_log_message(err_msg
+                                                             , current_working_file
                                                              , function_name))
                 return False
             else:
@@ -246,11 +259,12 @@ def import_sas(filename):
                     database_logger()
     """
     
-    # 0 = frame object, 3 = function name. 
+    # 0 = frame object, 1 = filename, 3 = function name. 
     # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    current_working_file = str(inspect.stack()[0][1])
     function_name = str(inspect.stack()[0][3])
     
-    if validate_file(filename, function_name):
+    if validate_file(filename, current_working_file, function_name):
         try:
             # Create and return sas7bdat dataframe:
             with SAS7BDAT(filename) as file_object:
@@ -282,10 +296,6 @@ def create_table(table_name, column_list):
                     database_logger()
     """
     
-    # Confirm table does not exist
-    if check_table(table_name) == True:
-        return False
-    
     # Oracle connection variables
     conn = get_oracle_connection()
     cur = conn.cursor()
@@ -304,10 +314,19 @@ def create_table(table_name, column_list):
     else:
         conn.commit()
 
+    # 0 = frame object, 1 = filename, 3 = function name. 
+    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    current_working_file = str(inspect.stack()[0][1])
+    function_name = str(inspect.stack()[0][3])    
+    
     # Confirm table was created
     if check_table(table_name) == True:
         return True
     else:
+        err_msg = "ERROR: %s was not created" %table_name
+        database_logger().error(standard_log_message(err_msg
+                                                     , current_working_file
+                                                     , function_name))
         return False
 
 
@@ -358,9 +377,10 @@ def drop_table(table_name):
                   : database_logger()
     """
     
-    # Confirm table exists
-    if check_table(table_name) == False:
-        return False
+    # 0 = frame object, 1 = filename, 3 = function name. 
+    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    current_working_file = str(inspect.stack()[0][1])
+    function_name = str(inspect.stack()[0][3]) 
     
     # Oracle connection variables
     conn = get_oracle_connection()
@@ -378,13 +398,18 @@ def drop_table(table_name):
     else:
         if check_table(table_name) == True:
             # return False to indicate table still exists
+            err_msg = "ERROR: %s was not dropped" %table_name
+            database_logger().error(standard_log_message(err_msg
+                                                     , current_working_file
+                                                     , function_name))
             return False
         else:
             conn.commit()
             return True
     
     
-def delete_from_table(table_name, condition1 = None, operator = None, condition2 = None, condition3 = None):
+def delete_from_table(table_name, condition1 = None, operator = None
+                      , condition2 = None, condition3 = None):
     """
     Author         : Elinor Thorne
     Date           : 7 Dec 2017
@@ -406,10 +431,6 @@ def delete_from_table(table_name, condition1 = None, operator = None, condition2
     Dependencies    : check_table(),
                       get_oracle_connection,
     """
-    
-    # Confirm table exists
-    if check_table(table_name) == False:
-        return False    
     
     # Oracle connection variables
     conn = get_oracle_connection()
@@ -477,8 +498,16 @@ def select_data(column_name, table_name, condition1, condition2):
         val = cur.fetchone()
         result = str(val).strip("(,)")
         
+    # 0 = frame object, 1 = filename, 3 = function name. 
+    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    current_working_file = str(inspect.stack()[0][1])
+    function_name = str(inspect.stack()[0][3]) 
+    
     if result == 'None':
-        # Query failed to return result.  Return False to indicate failure
+        err_msg = "ERROR: SQL query failed to return result."
+        database_logger().error(standard_log_message(err_msg
+                                                     , current_working_file
+                                                     , function_name))
         return False
     else:
         return result
@@ -514,7 +543,7 @@ def unload_parameters(parameter_id = False):
     
     try:
         cur.execute(sql)
-    except cx_Oracle.DatabaseError as err:
+    except Exception as err:
         # Return False to indicate error
         database_logger().error(err, exc_info = True)
         return False
@@ -522,8 +551,17 @@ def unload_parameters(parameter_id = False):
         # Execute SQL query and return parameters   
         results = cur.fetchall()
     
+    # 0 = frame object, 1 = filename, 3 = function name. 
+    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    current_working_file = str(inspect.stack()[0][1])
+    function_name = str(inspect.stack()[0][3]) 
+
     # If no results, return False to indicate failure
     if results == []:
+        err_msg = "ERROR: SQL query failed to return result."
+        database_logger().error(standard_log_message(err_msg
+                                                     , current_working_file
+                                                     , function_name))
         return False
     
     # Create dictionary of parameters and return
@@ -622,7 +660,6 @@ def insert_into_table_many(table_name,dataframe,connection = False):
     parameter_string = str(parameter_holder)
     parameter_string = parameter_string.replace(']', "").replace('[', "").replace("'","")#.replace(',', "")
     #print(parameter_string)
-    
     sql = "INSERT into " + table_name + \
     "(" \
     + columns_string + \
@@ -701,3 +738,79 @@ def insert_list_into_table(table_name,columns,values,connection = False):
     # Returns True if no errors
     return True
 
+
+def commit_to_audit_log(action, process_object, audit_msg):
+    """
+    Author        : thorne1
+    Date          : 9 Jan 2018
+    Purpose       : Commits log to audit_log   
+    Parameters    : action - populates the 'action' column within AUDIT_LOG
+                  :     i.e 'Create', 'Run', 'Upload', etc 
+                  : process_object - populates the  
+                  : 'object' column within AUDIT_LOG
+                  :     i.e 'ExternalTrafficData', 'Surveydata', 
+                  :     'SASProcessTask', etc
+                  : audit_msg - populates the 'audit_log_details' 
+                  : column within AUDIT_LOG
+                  :     i.e 'Uploaded new "Unsampled" data', 'Removed existing
+                  :        "Unsampled" data', etc
+    Returns       : None  
+    Requirements  : None
+    Dependencies  : None
+    """
+    # Create dictionary to hold table parameters 
+    params = {}
+    
+    # Oracle connection variables
+    conn = get_oracle_connection()
+    cur = conn.cursor()       
+    
+    # Assign 'audit_id' by returning max audit_id and incrementing by 1
+    # HARD-CODED AS PER DP 
+    sql = "SELECT MAX(AUDIT_ID) FROM AUDIT_LOG"
+    audit_id = cur.execute(sql).fetchone()
+    params['audit_id'] = audit_id[0] + 1
+    
+    # Assign 'actioned_by' 
+    params['actioned_by'] = getpass.getuser()
+    
+    # Assign 'action'
+    params['action'] = action
+    
+    # Assign 'process_object'
+    params['object'] = process_object
+    
+    # Assign 'log_date and time'
+    # Add date and time details to instance params dict
+    py_now = datetime.datetime.now()        
+    params['log_date'] = cx_Oracle.Timestamp(py_now.year
+                                             , py_now.month
+                                             , py_now.day
+                                             , int(py_now.hour)
+                                             , int(py_now.minute)
+                                             , int(py_now.second))
+    
+    # Assign 'audit_log_details' 
+    params['audit_log_details'] = audit_msg
+    
+    # Prepare SQL statement
+    table_name = "AUDIT_LOG "
+    params = (params['audit_id']
+              , params['actioned_by']
+              , params['action']    
+              , params['object']
+              , params['log_date']
+              , params['audit_log_details'])
+    sql = ("INSERT INTO " 
+           + table_name 
+           + """(AUDIT_ID
+           , ACTIONED_BY
+           , ACTION
+           , OBJECT
+           , LOG_DATE
+           , AUDIT_LOG_DETAILS) 
+           VALUES(:a, :b, :c, :d, :e, :f)""")
+    
+    # Execute SQL
+    cur.execute(sql, params)
+    conn.commit()
