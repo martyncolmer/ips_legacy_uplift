@@ -6,6 +6,7 @@ Created on 5 Dec 2017
 import unittest
 import os
 import json
+import inspect
 
 from IPSTransformation import CommonFunctions as cf
 
@@ -53,12 +54,17 @@ class TestCommonFunctions(unittest.TestCase):
         Requirements    : None
         Dependencies    : CommonFunctions.validate_file()
         """
+        # 0 = frame object, 1 = filename, 3 = function name. 
+        # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+        current_working_file = str(inspect.stack()[0][1])
+        function_name = str(inspect.stack()[0][3])
+        
         # Run tests with real, empty, fake and non-existent files
-        self.assertTrue(cf.validate_file(self.dave_creds_file))
-        self.assertTrue(cf.validate_file(self.rich_creds_file))
-        self.assertTrue(cf.validate_file(self.empty_creds_file))
-        self.assertTrue(cf.validate_file(self.fake_creds_file))
-        self.assertFalse(cf.validate_file(self.non_existent_creds_file))    
+        self.assertTrue(cf.validate_file(self.dave_creds_file, current_working_file, function_name))
+        self.assertTrue(cf.validate_file(self.rich_creds_file, current_working_file, function_name))
+        self.assertTrue(cf.validate_file(self.empty_creds_file, current_working_file, function_name))
+        self.assertTrue(cf.validate_file(self.fake_creds_file, current_working_file, function_name))
+        self.assertFalse(cf.validate_file(self.non_existent_creds_file, current_working_file, function_name))    
         
     
     def test_get_credentials(self):

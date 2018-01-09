@@ -1,8 +1,12 @@
 import inspect
 import os
 import sys
+import getpass
+import datetime
+import cx_Oracle
 
 from IPSTransformation import CommonFunctions as cf
+import import_traffic_data as itd
 
 def function_name_here():
     # 0 the frame object, 
@@ -35,12 +39,78 @@ def traceback_view():
     
     print msg[1]
     
-    print params['process_id'] + params['response_code']  
+    print params['process_id'] + params['response_code']
+    
+
+def returny_value():
+    cf.database_logger().info("El's testing")
+    
+    return "Refresh table" 
+    
+
+def my_sum(**kwargs):
+    return sum(kwargs)
 
 
-#print cf.validate_file("")
+def commit_to_audit_log(action, process_object, audit_msg, function_name):
+    params = {}
+    
+    # AUDIT_LOG VARIABLES #
+    # Assign 'audit_id' by returning max audit_id and increment by 1 
+    conn = cf.get_oracle_connection()
+    cur = conn.cursor()        
+    sql = "SELECT MAX(AUDIT_ID) FROM AUDIT_LOG"
+    sas_id = cur.execute(sql).fetchone()
+    params['audit_id'] = sas_id[0] + 1
+    
+    # Assign 'actioned_by' 
+    params['actioned_by'] = getpass.getuser()
+    
+    # Assign 'action'
+    params['action'] = action
+    
+    # Assign 'process_object'
+    params['object'] = process_object
+    
+    # Assign 'log_date and time'
+    # Add date and time details to instance params dict
+    # Format - 'YY-MM-DD HH:MM:SS'
+    py_now = datetime.datetime.now()        
+    params['log_date'] = cx_Oracle.Timestamp(py_now.year
+                                             , py_now.month
+                                             , py_now.day
+                                             , int(py_now.hour)
+                                             , int(py_now.minute)
+                                             , int(py_now.second))
+    
+    params['audit_log_details'] = audit_msg
+    
+    params = (params['audit_id']
+                  , params['actioned_by']
+                  , params['action']    
+                  , params['object']
+                  , params['log_date']
+                  , params['audit_log_details'])
 
-dir_name = r"\\nsdata3\Social_Surveys_team\CASPA\IPS"
-zip_file = "StoredProcesses.zip"
+    # Prepare SQL statement
+    table_name = "AUDIT_LOG "
+    sql = ("INSERT INTO " 
+           + table_name 
+           + """(AUDIT_ID
+           , ACTIONED_BY
+           , ACTION
+           , OBJECT
+           , LOG_DATE
+           , AUDIT_LOG_DETAILS) 
+           VALUES(:a, :b, :c, :d, :e, :f)""")
+    
+    # Execute SQL
+    cur.execute(sql, params)
+    conn.commit()
+    
 
-print cf.extract_zip(dir_name, zip_file)
+if __name__ == "__main__":
+    filename = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Sea Traffic Q1 2017.csv"
+    itd.import_traffic_data(filename)
+
+#print my_sum(2,3,4)

@@ -1,41 +1,55 @@
 import logging
 import traceback
+import getpass
+import datetime
+import cx_Oracle
+import inspect
 
 from IPSTransformation import CommonFunctions as cf
 
 class IPS_Log_Handler(logging.Handler):
     def __init__(self, **kwargs):
         """
-        Author     : Martyn Colmer & thorne1
-        Date       : 5 Dec 2017
-        Purpose    : Sets up the IPS log handler defaults and creates a database connection     
+        Author        : thorne1
+        Date          : 5 Dec 2017
+        Purpose       : Sets up the IPS log handler defaults and 
+                      : creates a database connection   
+        Parameters    : 
+        Returns       : None   
+        Requirements  : None
+        Dependencies  : None
         """
+        
         # Setup DB connection
         self.conn = cf.get_oracle_connection()
  
         # Set starting instance params
         self.params = {}
-        
+
         # Mapping for logging level
         self.logging_level = {40: "ERROR", 30: "WARNING", 20: "SUCCESS"}
-               
+        
         # Call to super method
         logging.Handler.__init__(self, level = kwargs.get("level", logging.NOTSET))
         
         
     def emit(self, record):
         """
-        Author     : Martyn Colmer & thorne1
-        Date       : 5 Dec 2017
-        Purpose    : Overwritten logging handler method that  
-                   : carries out the writing of the data to 
-                   : the destination object. It is called when 
-                   : you log a message using the logger.debug..etc method
-        Params     : record - This is populated by the logger automatically.   
+        Author        : thorne1
+        Date          : 5 Dec 2017
+        Purpose       : Overwritten logging handler method that  
+                      : carries out the writing of the data to 
+                      : the destination object.   
+        Parameters    : Record - It is called when 
+                      : you log a message using the logger.debug..etc method
+        Returns       : None   
+        Requirements  : None
+        Dependencies  : None
         """
-        
-        # HARD-CODED FOR THE TIMEBEING AS PER DP
-        # Return max process_id and increment by 1 
+                
+        # Assign 'process_id' (as per DP) by returning 
+        # max process_id and incrementing by 1. 
+        # To be amended once processes are in place.
         cur = self.conn.cursor()        
         sql = "SELECT MAX(SAS_PROCESS_ID) FROM SAS_RESPONSE"
         sas_id = cur.execute(sql).fetchone()
@@ -45,6 +59,7 @@ class IPS_Log_Handler(logging.Handler):
         # error or warning, as per logging.level
         self.params["error_msg"] = ''
         self.params["warnings"] = ''
+        self.params["audit_log_details"] = ''
         
         if record.levelno == logging.ERROR:
             self.params["response_code"] = 3
@@ -62,31 +77,22 @@ class IPS_Log_Handler(logging.Handler):
             self.params['stack_trace'] = traceback.format_exc().replace('\n','')
         else:
             self.params['stack_trace'] = ''
-            
-                
-#        ET REMOVED ON 05/01/2018.  NOT CURRENTLY USED 
-#        BUT IS USEFUL CODE SHOULD WE NEED IT
-#        # Add date and time details to instance params dict
-#        py_now = datetime.datetime.now()        
-#        self.params["record_date"] = cx_Oracle.Timestamp(py_now.year
-#                                                         , py_now.month
-#                                                         , py_now.day
-#                                                         , int(py_now.hour)
-#                                                         , int(py_now.minute)
-#                                                         , int(py_now.second))
         
-        self.commit_response(record)
-   
+        self.commit_to_response(record)
     
-    def commit_response(self, record):
+    
+    def commit_to_response(self, record):
         """
-        Author     : Martyn Colmer & thorne1
-        Date       : 5 Dec 2017
-        Purpose    : Writes response code and warnings to response table  
-        Params     : record - This is populated by the logger automatically
-        Returns    : True/False  
+        Author        : thorne1
+        Date          : 5 Dec 2017
+        Purpose       : Writes response code and errors/warnings 
+                      : to response table  
+        Parameters    : record - This is automatically populated by the logger  
+        Returns       : None  
+        Requirements  : None
+        Dependencies  : None
         """
-
+        
         # Setup the parameters from the instance params object
         params = (self.params['process_id']
         		  , self.params['response_code']

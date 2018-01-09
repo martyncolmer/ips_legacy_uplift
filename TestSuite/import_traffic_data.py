@@ -2,6 +2,7 @@
     Included in TestSuite purely for testing purposes
 """
 import pandas
+import inspect
 from IPSTransformation import CommonFunctions as cf
 
 def import_data(filename):
@@ -24,8 +25,13 @@ def import_data(filename):
     # THIS WILL NEED TO BE AMENDED ONCE run_id PROCESS IMPLEMENTED
     run_id = "IPSSeedRun"
     
+    # 0 = frame object, 1 = filename, 3 = function name. 
+    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    current_working_file = str(inspect.stack()[0][1])
+    function_name = str(inspect.stack()[0][3])
+    
     # Import CSV and validate
-    if cf.validate_file(filename) == True:
+    if cf.validate_file(filename, current_working_file, function_name) == True:
         try:
             pandas.read_csv(filename)
         except Exception as err:
