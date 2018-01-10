@@ -184,7 +184,7 @@ def import_csv(filename):
     Date          : 8 Jan 2018
     Purpose       : Generic function to open a CSV   
     Parameters    : filename - full CSV path
-    Returns       : Dataset (Object)  
+    Returns       : Dataframe (Object)  
     Requirements  : None
     Dependencies  : inspect,
                     validate_file()
@@ -512,17 +512,31 @@ def unload_parameters(parameter_id = False):
     return tempDict
 
 
-def insert_dataframe_into_table(table_name, dataframe):
-    column_list = list(dataframe.columns.values)
-    print(column_list)
+def get_table_values(table_name):
+    """
+    Author       : Thomas Mahoney
+    Date         : 02 Jan 2018
+    Purpose      : Inserts a single row dataframe into an SQL table 
+    Params       : table_name - the name of the target table in the sql database.
+                   columns - the column headers for the fields being added.
+                   values - the fields being added to the database.
+                   connection - the database connection object
+    Returns      : true or false depending on success.
+    Requirements : NA
+    Dependencies : NA
+    """
     
+    # Connection to the database
+    conn = get_oracle_connection()
+    cur = conn.cursor()
     
-    for val in dataframe.values:
-        v_list = list(val)
-        print(v_list)
-        
-        insert_into_table(table_name,column_list,v_list)
+    # Create SQL statement
+    sql = "SELECT * from " + table_name
 
+    # Execute the sql statement using the pandas.read_sql function and return
+    # the result.
+    return pandas.read_sql(sql, conn)
+    
 
 def insert_into_table(table_name, column_list, value_list):
     """
@@ -610,8 +624,8 @@ def insert_into_table_many(table_name,dataframe,connection = False):
     print(sql)
     
     # Debugging
-    for rec in rows:
-        print (rec)
+#     for rec in rows:
+#         print (rec)
     
     cur.executemany("INSERT into " + table_name + 
          "(" 

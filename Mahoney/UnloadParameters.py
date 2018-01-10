@@ -29,6 +29,7 @@ def unload_parameters(id = False):
     tempDict = {}
     for set in results:
         tempDict[set[0].upper()] = set[1]
+        print(set)
     
     return tempDict
 
