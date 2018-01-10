@@ -1,6 +1,7 @@
 import sys
 import os
 import logging
+import inspect
 import numpy as np
 import pandas as pd
 from sas7bdat import SAS7BDAT
@@ -32,7 +33,6 @@ def calculate_factor(row, flag):
             return None
         else:
             return result
-
     else:
         return None
 
@@ -119,7 +119,7 @@ def calculate_ips_crossing_factor(df_surveydata_sf):
     Parameters   : NA
     Returns      : Data frames:
                        - df_totalSampledCrossings
-					   - df_surveydata_merge
+                       - df_surveydata_merge
     Requirements : NA
     Dependencies : NA
     """
@@ -133,7 +133,7 @@ def calculate_ips_crossing_factor(df_surveydata_sf):
 
     # crossingFlag = variable that indicates that this record is crossings
     crossingFlag = "crossings_flag_pv".upper()
-	
+    
     # var_shiftNumber = Variable holding the shift number
     shiftNumber = "shiftno".upper()
 
@@ -160,8 +160,8 @@ def calculate_ips_crossing_factor(df_surveydata_sf):
 
     # Re-index the data frame
     df_sorted_sampled_crossings.index = range(df_sorted_sampled_crossings.shape[0])
-	
-	# Calculate the number of sampled crossings by strata
+    
+    # Calculate the number of sampled crossings by strata
     # Require reset_index() here to compose the correctly laid out data frame
     df_totalSampledCrossings = df_sorted_sampled_crossings.groupby(StratumDef)[crossingNumber] \
                                                      .agg(OrderedDict([('_FREQ_', 'count'),
@@ -177,7 +177,7 @@ def calculate_ips_crossing_factor(df_surveydata_sf):
     # Sort the data
     df_sorted_crossingsData = df_crossingsData.sort_values(StratumDef)
 
-	# Calculate the total number of crossings by strata
+    # Calculate the total number of crossings by strata
     # Require reset_index() here to compose the correctly laid out data frame
     df_totalCrossings = df_sorted_crossingsData.groupby(StratumDef)[totals]\
                                                      .agg(OrderedDict([('_FREQ_', 'count'),
@@ -270,36 +270,37 @@ def do_ips_shift_weight_calculation():
     df_shift_flag = df_surveydata_merge[df_surveydata_merge[parameters['var_shiftFlag']] == 1]
 
     if(len(df_shift_flag[df_shift_flag[parameters['var_shiftFactor']].isnull()]) > 0):
-        logger.error('Error: Case(s) contain no shift factor(s)')
+        cf.database_logger().error('Error: Case(s) contain no shift factor(s)')
+        # logger.error('Error: Case(s) contain no shift factor(s)')
     else:
         df_surveydata_merge.loc[df_surveydata_merge[parameters['var_shiftFactor']].isnull() & \
             (df_surveydata_merge[parameters['var_shiftFlag']] != 1), parameters['var_shiftFactor']] = 1
-        logger.info('Success: Contains shift factor(s)')
+        cf.database_logger().info('Success: Contains shift factor(s)')
 
     # Check for missing crossings factor by extracting incorrect values.
     df_crossings_flag = df_surveydata_merge[df_surveydata_merge['CROSSINGS_FLAG_PV'] == 1]
 
     if(len(df_crossings_flag[df_crossings_flag[parameters['var_crossingsFactor']].isnull()]) > 0):
-        logger.error('Error: Case(s) contain no crossings factor(s)')
+        cf.database_logger().error('Error: Case(s) contain no crossings factor(s)')
     else:
         df_surveydata_merge.loc[df_surveydata_merge[parameters['var_crossingsFactor']].isnull() & \
             (df_surveydata_merge.CROSSINGS_FLAG_PV != 1), parameters['var_crossingsFactor']] = 1
-        logger.info('Success: Contains crossings factor(s)')
+        cf.database_logger().info('Success: Contains crossings factor(s)')
 
     # Check for invalid shift data by extracting incorrect values.
     df_invalid_shifts = df_surveydata_merge[df_surveydata_merge[parameters['var_shiftFactor']] < 0]
     if len(df_shift_flag) > 0 & len(df_invalid_shifts) > 0:
-        logger.error('Error: Case(s) has an invalid number of possible shifts')
+        cf.database_logger().error('Error: Case(s) has an invalid number of possible shifts')
 
     # Check for invalid crossings data by extracting incorrect values.
     df_invalid_crossings = df_surveydata_merge[df_surveydata_merge[parameters['var_crossingsFactor']] < 0]
     if len(df_crossings_flag) > 0 & len(df_invalid_crossings) > 0:
-        logger.error('Error: Case(s) has an invalid number of total crossings')
+        cf.database_logger().error('Error: Case(s) has an invalid number of total crossings')
 
     # Check for missing migration sampling intervals by extracting incorrect values.
     df_missing_migsi = df_surveydata_merge[parameters['var_SI']].isnull().sum()
     if df_missing_migsi > 0:
-        logger.error('Error: Case(s) missing migration sampling interval')
+        cf.database_logger().error('Error: Case(s) missing migration sampling interval')
 
     # Calculate shift weight
     df_surveydata_merge[parameters['var_shiftWeight']] = \
@@ -386,9 +387,9 @@ def do_ips_shift_weight_calculation():
 
     # Create shift weight threshold data sets
     df_min_sw_check = df_summary[df_summary[parameters['var_sampledCount']].notnull() \
-		& (df_summary[parameters['var_minWeight']] < int(parameters['minWeightThresh']))]
+        & (df_summary[parameters['var_minWeight']] < int(parameters['minWeightThresh']))]
     df_max_sw_check = df_summary[df_summary[parameters['var_sampledCount']].notnull() \
-		& (df_summary[parameters['var_maxWeight']] > int(parameters['maxWeightThresh']))]
+        & (df_summary[parameters['var_maxWeight']] > int(parameters['maxWeightThresh']))]
 
     # Merge shift weight threshold data sets
     df_sw_thresholds_check = pd.merge(df_min_sw_check, df_max_sw_check, on = colset1, how = 'outer')
@@ -402,7 +403,7 @@ def do_ips_shift_weight_calculation():
                          + df_sw_thresholds_check.columns[2] + " : " + str(record[2]) + " | "\
                          + df_sw_thresholds_check.columns[3] + " : " + str(record[3])
     if len(df_sw_thresholds_check) > 0:
-        logger.warning('WARNING: Shift weight outside thresholds for: ' + threshold_string)
+        cf.database_logger().warning('WARNING: Shift weight outside thresholds for: ' + threshold_string)
 
     # Set surveydata columns
     df_surveydata_merge = df_surveydata_merge[colset5]
@@ -417,9 +418,6 @@ def do_ips_shift_weight_calculation():
 
 # Call JSON configuration file for error logger setup
 survey_support.setup_logging('IPS_logging_config_debug.json')
-
-# Create logger object
-logger = cf.database_logger()
 
 # Connect to Oracle and unload parameter list
 conn = cf.get_oracle_connection()
@@ -450,6 +448,13 @@ summary_dataframe = weight_calculated_dataframes[1]
 cf.insert_into_table_many(parameters['OutputData'], surveydata_dataframe)
 cf.insert_into_table_many(parameters['SummaryData'], summary_dataframe)
 
-logger.info("SUCCESS - Completed Shift weight calculation.")
+# Retrieve current function name using inspect:
+# 0 = frame object, 3 = function name. 
+# See 28.13.4. in https://docs.python.org/2/library/inspect.html
+function_name = str(inspect.stack()[0][3])
+audit_message = "Load Shift Weight calculation: %s()" %function_name
 
+# Log success message in SAS_RESPONSE and AUDIT_LOG
+cf.database_logger().info("SUCCESS - Completed Shift weight calculation.")
+cf.commit_to_audit_log("Create", "ShiftWeigh", audit_message)
 print("Completed - Calculate Shift Weight")
