@@ -1,6 +1,6 @@
 from IPSTransformation import CommonFunctions as cf
 
-def function1():
+def populate_shift_data():
 	"""
 	Author			: Richmond Rice
 	Date			: Jan 2018
@@ -26,7 +26,7 @@ def function1():
 	cur = conn.cursor()
 	cur.execute(sas_shift_data_insert_query)
 
-def function2(): # Copy shift wt pvs for survey data
+def copy_shift_wt_pvs_for_survey_data(): # Copy shift wt pvs for survey data
 	"""
 	Author			: Richmond Rice
 	Date			: Jan 2018
@@ -54,7 +54,7 @@ def function2(): # Copy shift wt pvs for survey data
 	cur = conn.cursor()
 	cur.execute(sas_process_variable_insert_query)
 
-def function3(): # Update Shift Data with PVs Output 
+def update_shift_data_with_pvs_output(): # Update Shift Data with PVs Output 
 	"""
 	Author			: Richmond Rice
 	Date			: Jan 2018
