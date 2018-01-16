@@ -428,7 +428,7 @@ root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_IPS
 # Load SAS files into dataframes (this data will come from Oracle eventually)
 path_to_survey_data = root_data_path + r"\surveydata.sas7bdat"
 path_to_shifts_data = root_data_path + r"\shiftsdata.sas7bdat"
-cf.select_data()
+
 # This method works for all data sets but is slower
 #df_surveydata = SAS7BDAT(path_to_survey_data).to_data_frame()
 #df_shiftsdata = SAS7BDAT(path_to_shifts_data).to_data_frame()
