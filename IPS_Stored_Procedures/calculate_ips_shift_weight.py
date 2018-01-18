@@ -456,5 +456,5 @@ audit_message = "Load Shift Weight calculation: %s()" %function_name
 
 # Log success message in SAS_RESPONSE and AUDIT_LOG
 cf.database_logger().info("SUCCESS - Completed Shift weight calculation.")
-cf.commit_to_audit_log("Create", "ShiftWeigh", audit_message)
+cf.commit_to_audit_log("Create", "ShiftWeight", audit_message)
 print("Completed - Calculate Shift Weight")
