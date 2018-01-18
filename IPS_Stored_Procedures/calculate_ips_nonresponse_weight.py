@@ -26,11 +26,6 @@ def do_ips_nrweight_calculation():
     df_nonresponsedata_sorted = df_nonresponsedata.sort_values(colset1)
     df_surveydata_sorted = df_surveydata.sort_values(colset1)
     
-#     df_summary = \
-#     df_surveydata_sorted.groupby(colset1)[parameters['ShiftsStratumDef']].agg({
-#         parameters['var_PSW'] : 'mean'
-#     })
-    
     df_summary = df_surveydata_sorted.groupby(parameters['ShiftsStratumDef'])\
             [parameters['var_PSW']].agg({'SHIFT_WT' : 'mean'})
             
@@ -43,7 +38,14 @@ def do_ips_nrweight_calculation():
     df_grossmignonresp['grossordnonresp'] = df_grossmignonresp['SHIFT_WT'] * \
             df_grossmignonresp['ORDTOTAL']
     
-    print (df_grossmignonresp)
+    df_grossmignonresp = df_grossmignonresp.sort_values(parameters['NRStratumDef'])
+    
+    df_summignonresp = df_grossmignonresp.groupby(['NR_PORT_GRP_PV', 'ARRIVEDEPART']).agg({\
+            'grossmignonresp' : 'sum', 'grossordnonresp' : 'sum'})
+
+        
+    print(df_out)
+    
     
 # Call JSON configuration file for error logger setup
 survey_support.setup_logging('IPS_logging_config_debug.json')
