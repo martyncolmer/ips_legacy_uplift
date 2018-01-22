@@ -46,6 +46,9 @@ def do_ips_nrweight_calculation():
     df_summignonresp = df_grossmignonresp.groupby(['NR_PORT_GRP_PV', 'ARRIVEDEPART']).agg({\
             'grossmignonresp' : 'sum', 'grossordnonresp' : 'sum'})
     
+    # Flattens the column structure after adding the new grossmignonresp and grossordnonresp columns
+    df_summignonresp = df_summignonresp.reset_index()
+    
     df_summignonresp = df_summignonresp.rename(columns = {'grossordnonresp' : 'grossinelresp'})
     
     # Calculate the grossed number of respondents over the non-response strata
@@ -58,6 +61,9 @@ def do_ips_nrweight_calculation():
             'gross_resp' : 'sum',
             'count_resps' : 'count'})
     
+    # Flattens the column structure after adding the new gross_resp and count_resps columns
+    df_sumresp = df_sumresp.reset_index()
+    
     # Calculate the grossed number of T&T non-respondents of the non-response strata        
     df_surveydata_sliced = df_surveydata.loc[df_surveydata['NR_FLAG_PV'] == 1]
     
@@ -67,17 +73,18 @@ def do_ips_nrweight_calculation():
             [parameters['var_PSW']].agg({\
             'grossordnonresp' : 'sum'})
     
+    # Flattens the column structure after adding the new grossordnonresp column
+    df_sumordnonresp = df_sumordnonresp.reset_index()
+    
     df_sumordnonresp = df_sumordnonresp.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
     
     df_sumresp = df_sumresp.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
     
     df_summignonresp = df_summignonresp.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
-    
+     
     # Use the calculated data frames to calculate the non-response weight
-    
-    print(df_sumordnonresp)
-    
-    sys.exit()
+    #df_gnr_with_drops = df_gnr.drop('j', 'x', 'z', 'errorStr') may be required to drop these values from unprepared table
+    df_gnr.fillna(0)
     
 # Call JSON configuration file for error logger setup
 survey_support.setup_logging('IPS_logging_config_debug.json')
@@ -94,11 +101,12 @@ root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_Non
 path_to_survey_data = root_data_path + r"\surveydata_1.sas7bdat"
 path_to_nonresponse_data = root_data_path + r"\nonresponsedata_1.sas7bdat"
 path_to_psw_data = root_data_path + r"\psw.sas7bdat"
-# path_to_new_data2 = root_data_path + r"\"
+path_to_gnr_data = root_data_path + r"\gnr.sas7bdat"
 
 df_surveydata = pd.read_sas(path_to_survey_data)
 df_nonresponsedata = pd.read_sas(path_to_nonresponse_data)
 df_psw = pd.read_sas(path_to_psw_data)
+df_gnr = pd.read_sas(path_to_gnr_data)
 
 # Setup the columns sets used for the calculation steps
 colset1 = parameters['ShiftsStratumDef']
