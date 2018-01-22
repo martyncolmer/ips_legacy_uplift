@@ -28,24 +28,56 @@ def do_ips_nrweight_calculation():
     
     df_summary = df_surveydata_sorted.groupby(parameters['ShiftsStratumDef'])\
             [parameters['var_PSW']].agg({'SHIFT_WT' : 'mean'})
-            
+    
+    # Only keep rows that exist in df_nonresponsedata_sorted 
     df_grossmignonresp = pd.merge(df_nonresponsedata_sorted, df_psw, on=\
             colset1, how='left')
     
+    # Add gross values using the primary sampling weight
     df_grossmignonresp['grossmignonresp'] = df_grossmignonresp['SHIFT_WT'] * \
             df_grossmignonresp['MIGTOTAL']
             
     df_grossmignonresp['grossordnonresp'] = df_grossmignonresp['SHIFT_WT'] * \
             df_grossmignonresp['ORDTOTAL']
     
+    # Summarise over non-response strata
     df_grossmignonresp = df_grossmignonresp.sort_values(parameters['NRStratumDef'])
     
     df_summignonresp = df_grossmignonresp.groupby(['NR_PORT_GRP_PV', 'ARRIVEDEPART']).agg({\
             'grossmignonresp' : 'sum', 'grossordnonresp' : 'sum'})
-
-        
-    print(df_out)
     
+    df_summignonresp = df_summignonresp.rename(columns = {'grossordnonresp' : 'grossinelresp'})
+    
+    # Calculate the grossed number of respondents over the non-response strata
+    df_surveydata_sliced = df_surveydata.loc[df_surveydata['NR_FLAG_PV'] == 0]
+    
+    df_surveydata_sorted = df_surveydata_sliced.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
+    
+    df_sumresp = df_surveydata_sorted.groupby(['NR_PORT_GRP_PV', 'ARRIVEDEPART'])\
+            [parameters['var_PSW']].agg({\
+            'gross_resp' : 'sum',
+            'count_resps' : 'count'})
+    
+    # Calculate the grossed number of T&T non-respondents of the non-response strata        
+    df_surveydata_sliced = df_surveydata.loc[df_surveydata['NR_FLAG_PV'] == 1]
+    
+    df_surveydata_sorted = df_surveydata_sliced.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])     
+    
+    df_sumordnonresp = df_surveydata_sorted.groupby(['NR_PORT_GRP_PV', 'ARRIVEDEPART'])\
+            [parameters['var_PSW']].agg({\
+            'grossordnonresp' : 'sum'})
+    
+    df_sumordnonresp = df_sumordnonresp.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
+    
+    df_sumresp = df_sumresp.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
+    
+    df_summignonresp = df_summignonresp.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
+    
+    # Use the calculated data frames to calculate the non-response weight
+    
+    print(df_sumordnonresp)
+    
+    sys.exit()
     
 # Call JSON configuration file for error logger setup
 survey_support.setup_logging('IPS_logging_config_debug.json')
