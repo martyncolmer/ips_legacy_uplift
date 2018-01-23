@@ -64,11 +64,14 @@ def do_ips_nrweight_calculation():
     # Flattens the column structure after adding the new gross_resp and count_resps columns
     df_sumresp = df_sumresp.reset_index()
     
-    # Calculate the grossed number of T&T non-respondents of the non-response strata        
+    # Calculate the grossed number of T&T non-respondents of the non-response strata    
+    
+    # Use onely records from the survey dataset where the NR_FLAG_PV is 1    
     df_surveydata_sliced = df_surveydata.loc[df_surveydata['NR_FLAG_PV'] == 1]
     
     df_surveydata_sorted = df_surveydata_sliced.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])     
     
+    # Create new column using the sum of ShiftWt (evaluates from var_PSW)
     df_sumordnonresp = df_surveydata_sorted.groupby(['NR_PORT_GRP_PV', 'ARRIVEDEPART'])\
             [parameters['var_PSW']].agg({\
             'grossordnonresp' : 'sum'})
@@ -76,6 +79,7 @@ def do_ips_nrweight_calculation():
     # Flattens the column structure after adding the new grossordnonresp column
     df_sumordnonresp = df_sumordnonresp.reset_index()
     
+    # Sort values in the three dataframes
     df_sumordnonresp = df_sumordnonresp.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
     
     df_sumresp = df_sumresp.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
@@ -84,7 +88,25 @@ def do_ips_nrweight_calculation():
      
     # Use the calculated data frames to calculate the non-response weight
     #df_gnr_with_drops = df_gnr.drop('j', 'x', 'z', 'errorStr') may be required to drop these values from unprepared table
-    df_gnr.fillna(0)
+    
+    # Merge previously sorted dataframes into one, ensuring all rows from summignonresp are kept
+    df_gnr = df_summignonresp.merge(df_sumresp, on=['NR_PORT_GRP_PV', 'ARRIVEDEPART'], how = 'outer')
+    
+    df_gnr = df_gnr.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
+
+    df_gnr = df_gnr.merge(df_sumordnonresp, on=['NR_PORT_GRP_PV', 'ARRIVEDEPART'], how = 'left')
+    
+    # Replace all NaN values in columns with zero's
+    df_gnr['grossmignonresp'].fillna(0, inplace =True)
+    df_gnr['grossinelresp'].fillna(0, inplace =True)
+    df_gnr['grossordnonresp'].fillna(0, inplace =True)
+    
+    # Add in two new columns with checks to prevent division by 0 
+    df_gnr['gnr'] = np.where(df_gnr['gross_resp'] != 0, df_gnr['grossordnonresp'] + df_gnr['grossmignonresp'] + df_gnr['grossinelresp'], 0)
+    
+    df_gnr['non_response_wt'] = np.where(df_gnr['gross_resp'] != 0, (df_gnr['gnr'] + df_gnr['gross_resp']) / df_gnr['gross_resp'], None)
+    
+    print(df_gnr)
     
 # Call JSON configuration file for error logger setup
 survey_support.setup_logging('IPS_logging_config_debug.json')
