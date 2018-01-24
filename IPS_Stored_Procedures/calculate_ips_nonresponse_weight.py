@@ -26,8 +26,7 @@ def do_ips_nrweight_calculation():
     df_nonresponsedata_sorted = df_nonresponsedata.sort_values(colset1)
     df_surveydata_sorted = df_surveydata.sort_values(colset1)
     
-    df_summary = df_surveydata_sorted.groupby(parameters['ShiftsStratumDef'])\
-            [parameters['var_PSW']].agg({'SHIFT_WT' : 'mean'})
+    df_summary = df_surveydata_sorted.groupby(colset2).agg({'SHIFT_WT' : 'mean'})
     
     # Only keep rows that exist in df_nonresponsedata_sorted 
     df_grossmignonresp = pd.merge(df_nonresponsedata_sorted, df_psw, on=\
@@ -41,7 +40,7 @@ def do_ips_nrweight_calculation():
             df_grossmignonresp['ORDTOTAL']
     
     # Summarise over non-response strata
-    df_grossmignonresp = df_grossmignonresp.sort_values(parameters['NRStratumDef'])
+    df_grossmignonresp = df_grossmignonresp.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
     
     df_summignonresp = df_grossmignonresp.groupby(['NR_PORT_GRP_PV', 'ARRIVEDEPART']).agg({\
             'grossmignonresp' : 'sum', 'grossordnonresp' : 'sum'})
@@ -57,7 +56,7 @@ def do_ips_nrweight_calculation():
     df_surveydata_sorted = df_surveydata_sliced.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
     
     df_sumresp = df_surveydata_sorted.groupby(['NR_PORT_GRP_PV', 'ARRIVEDEPART'])\
-            [parameters['var_PSW']].agg({\
+            ['SHIFT_WT'].agg({\
             'gross_resp' : 'sum',
             'count_resps' : 'count'})
     
@@ -73,7 +72,7 @@ def do_ips_nrweight_calculation():
     
     # Create new column using the sum of ShiftWt (evaluates from var_PSW)
     df_sumordnonresp = df_surveydata_sorted.groupby(['NR_PORT_GRP_PV', 'ARRIVEDEPART'])\
-            [parameters['var_PSW']].agg({\
+            ['SHIFT_WT'].agg({\
             'grossordnonresp' : 'sum'})
     
     # Flattens the column structure after adding the new grossordnonresp column
@@ -103,17 +102,48 @@ def do_ips_nrweight_calculation():
     
     # Add in two new columns with checks to prevent division by 0 
     df_gnr['gnr'] = np.where(df_gnr['gross_resp'] != 0, df_gnr['grossordnonresp'] + df_gnr['grossmignonresp'] + df_gnr['grossinelresp'], 0)
-    
     df_gnr['non_response_wt'] = np.where(df_gnr['gross_resp'] != 0, (df_gnr['gnr'] + df_gnr['gross_resp']) / df_gnr['gross_resp'], None)
     
-    print(df_gnr)
+    # Sort df_gnr and df_surveydata ready for producing summary
+    df_surveydata_sorted = df_surveydata.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
+    df_gnr = df_gnr.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
+
+    # Ensure only complete or partial responses are kept
+    df_surveydata_sorted = df_surveydata_sorted.loc[df_surveydata_sorted['NR_FLAG_PV'] == 0]
     
+    # Produce summary by merging survey data and gnr data together
+    df_out = df_surveydata_sorted.merge(df_gnr[['NR_PORT_GRP_PV', \
+                                                'ARRIVEDEPART', \
+                                                'non_response_wt']], \
+                                        on=['NR_PORT_GRP_PV', \
+                                            'ARRIVEDEPART'], \
+                                        how = 'left')
+    
+    # Produce summary output
+    df_out = df_out.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
+    
+    # Setup for aggregation function; outlines variables to work on, columns to\
+    # add and functions to perform
+    summary_aggregation = {
+                              'SHIFT_WT' : {'mean_resps_sh_wt' : 'mean',
+                                            'prior_sum' : 'sum',
+                                            'count_resps' : 'count'},
+                              'non_response_wt' : {'mean_nr_wt' : 'mean'}
+                              }
+
+    df_summary_new = df_out.groupby(['NR_PORT_GRP_PV',\
+                                'ARRIVEDEPART',\
+                                'WEEKDAY_END_PV']).agg(summary_aggregation)
+    
+    print(df_summary)
+    
+
 # Call JSON configuration file for error logger setup
 survey_support.setup_logging('IPS_logging_config_debug.json')
 
 # Connect to Oracle
 conn = cf.get_oracle_connection()
-parameters = cf.unload_parameters(136)
+#parameters = cf.unload_parameters(136)
 
 
 # Setup path to the base directory containing data files
@@ -131,10 +161,9 @@ df_psw = pd.read_sas(path_to_psw_data)
 df_gnr = pd.read_sas(path_to_gnr_data)
 
 # Setup the columns sets used for the calculation steps
-colset1 = parameters['ShiftsStratumDef']
+colset1 = ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV']
      
-colset2 = parameters['ShiftsStratumDef'] \
-+ [parameters['var_PSW']]
+colset2 = ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'SHIFT_WT']
 
 df_psw.columns = df_psw.columns.str.upper()
 df_surveydata.columns = df_surveydata.columns.str.upper()
