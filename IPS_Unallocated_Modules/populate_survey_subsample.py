@@ -54,38 +54,37 @@ def get_column_and_version_data(cur, version):
     return cur.fetchall()
 
 
-def populate_survey_subsample(conn, p_run_id):
+def populate_survey_subsample(run_id,conn):
 
     serial_sav = 0
     version_sav = 0
     columns = []
     values = []
-    version_id = 0
     
     cur = conn.cursor()
     
     
     # Ensure survey_subsample has no records for the current run before we start
-    sql = "DELETE FROM SURVEY_SUBSAMPLE WHERE RUN_ID = '" + str(p_run_id) +"'"
+    sql = "DELETE FROM SURVEY_SUBSAMPLE WHERE RUN_ID = '" + str(run_id) +"'"
     print(sql)
     cur.execute(sql)
     conn.commit()
     
     # Commented out because we're using false details
     # Select the correct version_id for the current run, using the run_id
-    #sql = "SELECT max(VERSION_ID) FROM RUN_DATA_MAP WHERE RUN_ID = '" + p_run_id + "' AND DATA_SOURCE = 'SURVEY DATA LOADING'"
+    #sql = "SELECT max(VERSION_ID) FROM RUN_DATA_MAP WHERE RUN_ID = '" + run_id + "' AND DATA_SOURCE = 'SURVEY DATA LOADING'"
     #version_id = cur.fetch()
         
     version_id = '9999'
     
     # Get sample data from SURVEY_COLUMN & SURVEY_VALUE tables using version_id
     # (((THIS WILL BE THE VERSION ID)))
-    sample = get_column_and_version_data(cur,'16')
+    sample = get_column_and_version_data(cur,version_id)
         
     
     # Write the run information to the RUN_DATA_MAP table
     sql = "insert into RUN_DATA_MAP (RUN_ID,VERSION_ID,DATA_SOURCE) values ('" \
-            +p_run_id+"',"+version_id+",'SURVEY DATA LOADING')"
+            +run_id+"',"+version_id+",'SURVEY DATA LOADING')"
             
     cur.execute(sql)
     conn.commit()
@@ -118,7 +117,7 @@ def populate_survey_subsample(conn, p_run_id):
             
             # Set the initial columns and values for the row before appending
             columns = ['run_id','serial',i[2]]
-            values = ["'" +p_run_id+"'",i[3],i[4]]
+            values = ["'" +run_id+"'",i[3],i[4]]
             
         else:
             # Append the current column and value to the record list
@@ -137,15 +136,18 @@ def populate_survey_subsample(conn, p_run_id):
     print(recCount)
     
     sql = "UPDATE RUN_DATA_MAP SET DATA_SOURCE = 'SURVEY_DATA' WHERE RUN_ID = '" \
-            + p_run_id + "' AND VERSION_ID = '" + version_id +"'"
+            + run_id + "' AND VERSION_ID = '" + version_id +"'"
     cur.execute(sql)
     conn.commit()
+    print("populate_survey_subsample complete")
     
     
-connection = get_oracle_connection()
+def populate(run_id, conn):
+    
+    populate_survey_subsample(run_id,conn)
 
 
-# Hard Coded for now, this will be generated
-run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
-
-populate_survey_subsample(connection, run_id)
+if __name__ == '__main__':
+    run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
+    connection = get_oracle_connection()
+    populate(run_id,connection)

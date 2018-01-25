@@ -6,12 +6,10 @@ Created on 9 Jan 2018
 from IPSTransformation import CommonFunctions as cf
 import pandas as pd
 import sys
+from IPS_Stored_Procedures import process_variables
 
-"""
-Step Functions
-"""
 
-def populate_survey_data_for_shift_wt(conn):
+def populate_survey_data_for_shift_wt(run_id,conn):
     """
     Author       : Thomas Mahoney
     Date         : 10 Jan 2017
@@ -107,7 +105,7 @@ def populate_survey_data_for_shift_wt(conn):
     move_survey_subsample_to_sas_table(conn)
 
 
-def populate_shift_data(conn):
+def populate_shift_data(run_id,conn):
     """
     Author       : Richmond Rice
     Date         : Jan 2018
@@ -133,7 +131,7 @@ def populate_shift_data(conn):
     conn.commit()
 
 
-def copy_shift_wt_pvs_for_survey_data(conn): 
+def copy_shift_wt_pvs_for_survey_data(run_id,conn): 
     """
     Author       : Richmond Rice
     Date         : Jan 2018
@@ -195,7 +193,7 @@ def update_survey_data_with_shift_wt_pv_output(conn):
     conn.commit()            
 
 
-def copy_shift_wt_pvs_for_shift_data(conn):
+def copy_shift_wt_pvs_for_shift_data(run_id,conn):
     """
     Author       : Thomas Mahoney
     Date         : 10 Jan 2017
@@ -300,7 +298,7 @@ def update_survey_data_with_shift_wt_results(conn):
     cf.delete_from_table("SAS_SHIFT_WT")    
 
 
-def store_survey_data_with_shift_wt_results(conn):
+def store_survey_data_with_shift_wt_results(run_id,conn):
     """
     Author       : Thomas Mahoney
     Date         : 10 Jan 2017
@@ -340,7 +338,7 @@ def store_survey_data_with_shift_wt_results(conn):
     cf.delete_from_table("SAS_SURVEY_SUBSAMPLE")  
 
 
-def store_shift_wt_summary(conn):
+def store_shift_wt_summary(run_id,conn):
     """
     Author       : Thomas Mahoney
     Date         : 10 Jan 2017
@@ -375,45 +373,49 @@ def store_shift_wt_summary(conn):
     cf.insert_into_table_many('PS_SHIFT_DATA', df_content, conn)
     cf.delete_from_table('SAS_PS_SHIFT_DATA')
 
-"""
-Process start
-"""
 
-# Hard Coded for now, this will be generated
-run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
+def run_all(run_id,conn):
+    # Hard Coded for now, this will be generated
+    #run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
+        
+    #  Populate Survey Data For Shift Wt                   TM
+    populate_survey_data_for_shift_wt(run_id,conn)
+    
+    # Populate Shift Data                                  RR
+    populate_shift_data(run_id,conn)
+    
+    # Copy Shift Wt PVs For Survey Data                    RR
+    copy_shift_wt_pvs_for_survey_data(run_id,conn)
+    
+    # Apply Shift Wt PVs On Survey Data                    X
+    process_variables.process()                                                     ##############
+    
+    # Update Survey Data with Shift Wt PV Output           TM
+    update_survey_data_with_shift_wt_pv_output(run_id,conn)
+    
+    # Copy Shift Wt PVs For Shift Data                     TM
+    copy_shift_wt_pvs_for_shift_data(run_id,conn)
+    
+    # Apply Shift Wt PVs On Shift Data                     X
+    process_variables                                                               ##############
+    
+    # Update Shift Data with PVs Output                    RR
+    update_shift_data_with_pvs_output()
+    
+    # Calculate Shift Weight                               X 
+    
+    # Update Survey Data With Shift Wt Results             TM
+    update_survey_data_with_shift_wt_results(run_id,conn)
+    
+    # Store Survey Data With Shift Wt Results              TM
+    store_survey_data_with_shift_wt_results(run_id,conn)
+    
+    # Store Shift Wt Summary                               TM 
+    store_shift_wt_summary(run_id,conn)
 
-conn = cf.get_oracle_connection()
-cur = conn.cursor()
+    pass
 
-#  Populate Survey Data For Shift Wt                   TM
-populate_survey_data_for_shift_wt(conn)
 
-# Populate Shift Data                                  RR
-populate_shift_data()
+if __name__ == '__main__':
+    run_all()
 
-# Copy Shift Wt PVs For Survey Data                    RR
-copy_shift_wt_pvs_for_survey_data()
-
-# Apply Shift Wt PVs On Survey Data                    X
-
-# Update Survey Data with Shift Wt PV Output           TM
-update_survey_data_with_shift_wt_pv_output(conn)
-
-# Copy Shift Wt PVs For Shift Data                     TM
-copy_shift_wt_pvs_for_shift_data(conn)
-
-# Apply Shift Wt PVs On Shift Data                     X
-
-# Update Shift Data with PVs Output                    RR
-update_shift_data_with_pvs_output()
-
-# Calculate Shift Weight                               X 
-
-# Update Survey Data With Shift Wt Results             TM
-update_survey_data_with_shift_wt_results(conn)
-
-# Store Survey Data With Shift Wt Results              TM
-store_survey_data_with_shift_wt_results(conn)
-
-# Store Shift Wt Summary                               TM 
-store_shift_wt_summary(conn)
