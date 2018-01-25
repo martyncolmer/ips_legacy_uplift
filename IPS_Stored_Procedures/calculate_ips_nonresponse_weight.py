@@ -26,7 +26,10 @@ def do_ips_nrweight_calculation():
     df_nonresponsedata_sorted = df_nonresponsedata.sort_values(colset1)
     df_surveydata_sorted = df_surveydata.sort_values(colset1)
     
-    df_summary = df_surveydata_sorted.groupby(colset2).agg({'SHIFT_WT' : 'mean'})
+    df_psw = df_surveydata_sorted.groupby(colset1)\
+            ['SHIFT_WT'].agg({'SHIFT_WT' : 'mean'})
+    
+    df_psw = df_psw.reset_index()
     
     # Only keep rows that exist in df_nonresponsedata_sorted 
     df_grossmignonresp = pd.merge(df_nonresponsedata_sorted, df_psw, on=\
@@ -102,7 +105,7 @@ def do_ips_nrweight_calculation():
     
     # Add in two new columns with checks to prevent division by 0 
     df_gnr['gnr'] = np.where(df_gnr['gross_resp'] != 0, df_gnr['grossordnonresp'] + df_gnr['grossmignonresp'] + df_gnr['grossinelresp'], 0)
-    df_gnr['non_response_wt'] = np.where(df_gnr['gross_resp'] != 0, (df_gnr['gnr'] + df_gnr['gross_resp']) / df_gnr['gross_resp'], None)
+    df_gnr['non_response_wt'] = np.where(df_gnr['gross_resp'] != 0, (df_gnr['gnr'] + df_gnr['gross_resp']) / df_gnr['gross_resp'], np.NaN)
     
     # Sort df_gnr and df_surveydata ready for producing summary
     df_surveydata_sorted = df_surveydata.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
@@ -122,20 +125,29 @@ def do_ips_nrweight_calculation():
     # Produce summary output
     df_out = df_out.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
     
+    print(df_out)
+    
     # Setup for aggregation function; outlines variables to work on, columns to\
     # add and functions to perform
     summary_aggregation = {
-                              'SHIFT_WT' : {'mean_resps_sh_wt' : 'mean',
+                           'SHIFT_WT' : {'mean_resps_sh_wt' : 'mean',
                                             'prior_sum' : 'sum',
                                             'count_resps' : 'count'},
-                              'non_response_wt' : {'mean_nr_wt' : 'mean'}
+                           'non_response_wt' : {'mean_nr_wt' : 'mean'}
                               }
 
-    df_summary_new = df_out.groupby(['NR_PORT_GRP_PV',\
+    df_summary = df_out.groupby(['NR_PORT_GRP_PV',\
                                 'ARRIVEDEPART',\
                                 'WEEKDAY_END_PV']).agg(summary_aggregation)
     
-    print(df_summary)
+    df_summary = df_summary.reset_index()
+    
+    print(df_gnr.columns)
+    
+    sys.exit()
+    
+    df_summary = pd.merge(df_summary, df_gnr['gnr'], on=\
+            colset1, how='left')
     
 
 # Call JSON configuration file for error logger setup
@@ -152,20 +164,16 @@ root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_Non
 # Retrieve SAS data and load into dataframes
 path_to_survey_data = root_data_path + r"\surveydata_1.sas7bdat"
 path_to_nonresponse_data = root_data_path + r"\nonresponsedata_1.sas7bdat"
-path_to_psw_data = root_data_path + r"\psw.sas7bdat"
-path_to_gnr_data = root_data_path + r"\gnr.sas7bdat"
+
 
 df_surveydata = pd.read_sas(path_to_survey_data)
 df_nonresponsedata = pd.read_sas(path_to_nonresponse_data)
-df_psw = pd.read_sas(path_to_psw_data)
-df_gnr = pd.read_sas(path_to_gnr_data)
 
 # Setup the columns sets used for the calculation steps
 colset1 = ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV']
      
 colset2 = ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'SHIFT_WT']
 
-df_psw.columns = df_psw.columns.str.upper()
 df_surveydata.columns = df_surveydata.columns.str.upper()
 df_nonresponsedata.columns = df_nonresponsedata.columns.str.upper()
 
