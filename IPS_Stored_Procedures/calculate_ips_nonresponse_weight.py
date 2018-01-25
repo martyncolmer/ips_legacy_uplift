@@ -115,40 +115,49 @@ def do_ips_nrweight_calculation():
     df_surveydata_sorted = df_surveydata_sorted.loc[df_surveydata_sorted['NR_FLAG_PV'] == 0]
     
     # Produce summary by merging survey data and gnr data together
-    df_out = df_surveydata_sorted.merge(df_gnr[['NR_PORT_GRP_PV', \
-                                                'ARRIVEDEPART', \
-                                                'non_response_wt']], \
-                                        on=['NR_PORT_GRP_PV', \
-                                            'ARRIVEDEPART'], \
+    df_out = df_surveydata_sorted.merge(df_gnr[['NR_PORT_GRP_PV',
+                                                'ARRIVEDEPART', 
+                                                'non_response_wt']],
+                                        on=['NR_PORT_GRP_PV',
+                                            'ARRIVEDEPART'],
                                         how = 'left')
     
     # Produce summary output
     df_out = df_out.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
     
-    print(df_out)
-    
     # Setup for aggregation function; outlines variables to work on, columns to\
     # add and functions to perform
-    summary_aggregation = {
-                           'SHIFT_WT' : {'mean_resps_sh_wt' : 'mean',
-                                            'prior_sum' : 'sum',
-                                            'count_resps' : 'count'},
-                           'non_response_wt' : {'mean_nr_wt' : 'mean'}
-                              }
 
-    df_summary = df_out.groupby(['NR_PORT_GRP_PV',\
-                                'ARRIVEDEPART',\
-                                'WEEKDAY_END_PV']).agg(summary_aggregation)
+    df_summary = df_out.groupby(['NR_PORT_GRP_PV',
+                                'ARRIVEDEPART',
+                                'WEEKDAY_END_PV'])['SHIFT_WT'].agg({'mean_resps_sh_wt' : 'mean',\
+                                                                   'count_resps' : 'count',\
+                                                                   'prior_sum' : 'sum'})
     
-    df_summary = df_summary.reset_index()
+    df_summary.reset_index(inplace = True)
     
-    print(df_gnr.columns)
+    df_summary_nr = df_out.groupby(['NR_PORT_GRP_PV',
+                                'ARRIVEDEPART',
+                                'WEEKDAY_END_PV'])['non_response_wt'].agg({'mean_nr_wt' : 'mean'})
     
-    sys.exit()
+    df_summary_nr.reset_index(inplace = True)
     
-    df_summary = pd.merge(df_summary, df_gnr['gnr'], on=\
-            colset1, how='left')
+    df_summary = df_summary.merge(df_summary_nr, on = ['NR_PORT_GRP_PV',
+                                          'ARRIVEDEPART',
+                                          'WEEKDAY_END_PV'],
+                     how = 'outer')
     
+    df_summary = df_summary.merge(df_gnr[['count_resps',
+                                        'NR_PORT_GRP_PV',
+                                        'ARRIVEDEPART',
+                                        'gnr']],\
+                                  on = ['NR_PORT_GRP_PV',
+                                        'ARRIVEDEPART'], how='outer')
+    
+    df_summary.reset_index(inplace = True)
+    
+    print(df_summary)
+
 
 # Call JSON configuration file for error logger setup
 survey_support.setup_logging('IPS_logging_config_debug.json')
@@ -172,7 +181,7 @@ df_nonresponsedata = pd.read_sas(path_to_nonresponse_data)
 # Setup the columns sets used for the calculation steps
 colset1 = ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV']
      
-colset2 = ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'SHIFT_WT']
+colset2 = ['NR_PORT_GRP_PV', 'ARRIVEDEPART']
 
 df_surveydata.columns = df_surveydata.columns.str.upper()
 df_nonresponsedata.columns = df_nonresponsedata.columns.str.upper()
