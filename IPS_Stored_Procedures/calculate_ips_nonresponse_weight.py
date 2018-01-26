@@ -147,17 +147,15 @@ def do_ips_nrweight_calculation():
                                           'WEEKDAY_END_PV'],
                      how = 'outer')
     
-    df_summary = df_summary.merge(df_gnr[['count_resps',
-                                        'NR_PORT_GRP_PV',
+    df_summary = df_gnr[['NR_PORT_GRP_PV',
                                         'ARRIVEDEPART',
-                                        'gnr']],\
+                                        'gnr',
+                                        'gross_resp']].merge(df_summary,\
                                   on = ['NR_PORT_GRP_PV',
                                         'ARRIVEDEPART'], how='outer')
     
-    df_summary.reset_index(inplace = True)
+    df_summary.to_csv('finalsummary.csv')
     
-    print(df_summary)
-
 
 # Call JSON configuration file for error logger setup
 survey_support.setup_logging('IPS_logging_config_debug.json')
