@@ -3,33 +3,40 @@ import pandas as pd
 import sys
 import random
 
-pv_name = 'apd_pv'
+pv_name = 'weekday_end_pv'
 
 val = """
 '
-if row[''OSPORT2_PV''] in (210,500,600,700,800):
-    APDBAND = 1
-elif row[''OSPORT2_PV''] in (1000,1100,1200,1700,2000):
-    APDBAND = 1
-elif row[''OSPORT2_PV''] in (2100,2200,2300,2390,2500):
-    APDBAND = 1
-elif row[''OSPORT2_PV''] in (2590,2800,2830,2840,150,160):
-    APDBAND = 1
-elif row[''OSPORT2_PV''] in (310,320,340,2760,3020,3030):
-    APDBAND = 1
-elif row[''OSPORT2_PV''] in (3040,3050,3060,3130,3170,3180):
-    APDBAND = 1
-elif row[''OSPORT2_PV''] in (3000,3010):
-    APDBAND = 1
-else:
-    APDBAND = 2
+weekday = float(''nan'')                    
+if dataset == ''survey'': 
+    
+    from datetime import datetime
 
-if row[''FLOW''] > 4:
-    row[''APD_PV''] = 0
-elif APDBAND == 1:
-    row[''APD_PV''] = 10/2
+    day = int(row[''INTDATE''][:2])
+    month = int(row[''INTDATE''][2:4])
+    year = int(row[''INTDATE''][4:8])
+    
+    d = datetime(year,month,day)
+    
+    dayweek = (d.isoweekday() + 1) % 7
+
+    if (row[''PORTROUTE''] == 811):
+        if (dayweek >= 2 and dayweek <= 5):
+            weekday = 1    
+        else:
+            weekday = 2  
+    else:  
+        if (dayweek >= 2 and dayweek <= 6):
+            weekday = 1   
+        else:
+            weekday = 2
+            
+if (row[''PORTROUTE''] == 811):
+    row[''WEEKDAY_END_PV''] = weekday
+elif (row[''PORTROUTE''] >= 600):
+    row[''WEEKDAY_END_PV''] = 1
 else:
-    row[''APD_PV''] = 40/2
+    row[''WEEKDAY_END_PV''] = weekday
 '
 """
 

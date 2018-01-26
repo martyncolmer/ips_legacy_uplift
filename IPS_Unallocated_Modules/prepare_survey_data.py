@@ -204,37 +204,49 @@ def copy_shift_wt_pvs_for_shift_data(run_id,conn):
     Dependencies : NA
     """
     
-    cf.delete_from_table("SAS_PROCESS_VARIABLE")
-    cf.delete_from_table("SAS_SHIFT_PV")
+    sas_process_variable_table = 'SAS_PROCESS_VARIABLE'
+    sas_shift_pv_table = 'SAS_SHIFT_PV'
     
-    sql ="""select 
-                pv.PV_NAME, pv.PV_DEF, 0 
-            from 
-                process_variable pv 
-            where 
-                pv.RUN_ID = '""" + run_id + """' 
-            and 
-                upper(pv.PV_NAME) in ('SHIFT_PORT_GRP_PV','WEEKDAY_END_PV','AM_PM_NIGHT_PV')
-            """
+    sas_process_variable_insert_query = "INSERT INTO " + sas_process_variable_table + " \
+        (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, 0 \
+        FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
+        AND UPPER(PV.PV_NAME) IN ('SHIFT_PORT_GRP_PV', 'WEEKDAY_END_PV', \
+        'AM_PM_NIGHT_PV'))"
     
-    df_content = pd.read_sql(sql,conn)
+    cf.delete_from_table(sas_process_variable_table)
+    cf.delete_from_table(sas_shift_pv_table)
     
-    cf.insert_into_table_many("SAS_PROCESS_VARIABLE", df_content, conn)
+    cur = conn.cursor()
+    cur.execute(sas_process_variable_insert_query)
+    conn.commit()  
     
-    
-    #     """            
-    #     insert into sas_process_variable ( PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER ) 
-    #     (
-    #     select 
-    #         pv.PV_NAME, pv.PV_DEF, 0                  
-    #     from 
-    #         process_variable pv 
-    #     where 
-    #         pv.RUN_ID = '{RID}'
-    #     and 
-    #         upper(pv.PV_NAME) in ('SHIFT_PORT_GRP_PV','WEEKDAY_END_PV','AM_PM_NIGHT_PV')
-    #     ) 
-    #     """
+#     OLD sql
+#     sql ="""select 
+#                 pv.PV_NAME, pv.PV_DEF, 0 
+#             from 
+#                 process_variable pv 
+#             where 
+#                 pv.RUN_ID = '""" + run_id + """' 
+#             and 
+#                 upper(pv.PV_NAME) in ('SHIFT_PORT_GRP_PV','WEEKDAY_END_PV','AM_PM_NIGHT_PV')
+#             """
+#     
+#     df_content = pd.read_sql(sql,conn)
+#     
+#     cf.insert_into_table_many("SAS_PROCESS_VARIABLE", df_content, co
+#         """            
+#         insert into sas_process_variable ( PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER ) 
+#         (
+#         select 
+#             pv.PV_NAME, pv.PV_DEF, 0                  
+#         from 
+#             process_variable pv 
+#         where 
+#             pv.RUN_ID = '{RID}'
+#         and 
+#             upper(pv.PV_NAME) in ('SHIFT_PORT_GRP_PV','WEEKDAY_END_PV','AM_PM_NIGHT_PV')
+#         ) 
+#         """
 
 
 def update_shift_data_with_pvs_output(conn): 
@@ -255,7 +267,7 @@ def update_shift_data_with_pvs_output(conn):
 
     sas_shift_data_update_query = "UPDATE SAS_SHIFT_DATA SSD SET (SSD.SHIFT_PORT_GRP_PV, \
         SSD.WEEKDAY_END_PV, SSD.AM_PM_NIGHT_PV) = (SELECT SSP.SHIFT_PORT_GRP_PV, \
-        SSP.WEEKDAY_END_PV,SSP.AM_PM_NIGHT_PV FROM " + sas_shift_pv_table + "SSP \
+        SSP.WEEKDAY_END_PV,SSP.AM_PM_NIGHT_PV FROM " + sas_shift_pv_table + " SSP \
         WHERE SSD.REC_ID = SSP.REC_ID)"
 
     print(sas_shift_data_update_query)
@@ -351,27 +363,43 @@ def store_shift_wt_summary(run_id,conn):
     
     cf.delete_from_table('PS_SHIFT_DATA', 'RUN_ID', '=', run_id)
 
-    column_string = "'"+ run_id+"""', 
-                    SHIFT_PORT_GRP_PV, 
-                    ARRIVEDEPART, 
-                    WEEKDAY_END_PV, 
-                    AM_PM_NIGHT_PV, 
-                    MIGSI, 
-                    POSS_SHIFT_CROSS, 
-                    SAMP_SHIFT_CROSS, 
-                    MIN_SH_WT, 
-                    MEAN_SH_WT, 
-                    MAX_SH_WT, 
-                    COUNT_RESPS, 
-                    SUM_SH_WT """     
+#     column_string = "'"+ run_id+"""', 
+#                     SHIFT_PORT_GRP_PV, 
+#                     ARRIVEDEPART, 
+#                     WEEKDAY_END_PV, 
+#                     AM_PM_NIGHT_PV, 
+#                     MIGSI, 
+#                     POSS_SHIFT_CROSS, 
+#                     SAMP_SHIFT_CROSS, 
+#                     MIN_SH_WT, 
+#                     MEAN_SH_WT, 
+#                     MAX_SH_WT, 
+#                     COUNT_RESPS, 
+#                     SUM_SH_WT """     
+#     
+    #sql = "select "+column_string+" from sas_ps_shift_data"
+    #df_content = pd.read_sql(sql,conn)
+    #df_content.to_csv("sas_ps_shift_data.csv")
+    #df_content.columns.values[0] = 'RUN_ID'
     
-    sql = "select "+column_string+" from sas_ps_shift_data"
+    #cf.insert_into_table_many('PS_SHIFT_DATA', df_content, conn)
     
-    df_content = pd.read_sql(sql,conn)
-    df_content.columns.values[0] = 'RUN_ID'
+    sql = """
+     insert into ps_shift_data 
+     (RUN_ID, SHIFT_PORT_GRP_PV, ARRIVEDEPART, WEEKDAY_END_PV, AM_PM_NIGHT_PV, MIGSI, POSS_SHIFT_CROSS, SAMP_SHIFT_CROSS, MIN_SH_WT, MEAN_SH_WT, MAX_SH_WT, COUNT_RESPS, SUM_SH_WT)
+     (select '"""+run_id+"""', SHIFT_PORT_GRP_PV, ARRIVEDEPART, WEEKDAY_END_PV, AM_PM_NIGHT_PV, MIGSI, POSS_SHIFT_CROSS, SAMP_SHIFT_CROSS, MIN_SH_WT, MEAN_SH_WT, MAX_SH_WT, COUNT_RESPS, SUM_SH_WT        
+     from sas_ps_shift_data)
+    """
     
-    cf.insert_into_table_many('PS_SHIFT_DATA', df_content, conn)
+    cur = conn.cursor()
+    cur.execute(sql)
+    conn.commit()  
+    
+    
     cf.delete_from_table('SAS_PS_SHIFT_DATA')
+
+
+
 
 
 def run_all(run_id,conn):
