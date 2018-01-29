@@ -125,7 +125,7 @@ def calculate_ips_crossing_factor(df_surveydata_sf):
     """
 
     # ShiftsStratumDef = Variable holding the shift weight stratum definition
-    StratumDef_temp = ["shift_port_grp_pv", "arrivedepart", 
+    StratumDef_temp = ["shift_port_grp_pv", "arrivedepart",
                        "weekday_end_pv", "am_pm_night_pv"]
 
     # Convert table fields to upper case
@@ -133,7 +133,7 @@ def calculate_ips_crossing_factor(df_surveydata_sf):
 
     # crossingFlag = variable that indicates that this record is crossings
     crossingFlag = "crossings_flag_pv".upper()
-    
+
     # var_shiftNumber = Variable holding the shift number
     shiftNumber = "shiftno".upper()
 
@@ -160,7 +160,7 @@ def calculate_ips_crossing_factor(df_surveydata_sf):
 
     # Re-index the data frame
     df_sorted_sampled_crossings.index = range(df_sorted_sampled_crossings.shape[0])
-    
+
     # Calculate the number of sampled crossings by strata
     # Require reset_index() here to compose the correctly laid out data frame
     df_totalSampledCrossings = df_sorted_sampled_crossings.groupby(StratumDef)[crossingNumber] \
@@ -195,13 +195,13 @@ def calculate_ips_crossing_factor(df_surveydata_sf):
     df_totalCrossings  = df_totalCrossings[StratumDef + ['NUMERATOR']]
     df_totalSampledCrossings = df_totalSampledCrossings[StratumDef + ['DENOMINATOR']]
 
-    left_join_1 = df_sorted_outputData.merge(df_totalCrossings, 
+    left_join_1 = df_sorted_outputData.merge(df_totalCrossings,
                                              on = StratumDef, how = 'left') \
-                                      .merge(df_totalSampledCrossings, 
+                                      .merge(df_totalSampledCrossings,
                                              on = StratumDef, how = 'left')
 
     # Calculate crossings factor
-    left_join_1[crossingsFactor] = left_join_1.apply(calculate_factor, 
+    left_join_1[crossingsFactor] = left_join_1.apply(calculate_factor,
                                                      axis=1,args = ('CROSSINGS_FLAG_PV',))
 
     # Drop numerator and denominator columns
@@ -222,10 +222,10 @@ def do_ips_shift_weight_calculation():
     Dependencies : Function - calculate_ips_shift_factor
                    Function - calculate_ips_crossing_factor
     """
-        
+
     # Calculate the Shift Factor for the given data sets
     shift_factor_dfs = calculate_ips_shift_factor()
-    
+
     # Extract the data frames returned by calculate_ips_shift_factor()
     df_totsampshifts = shift_factor_dfs[0]
     df_possshifts = shift_factor_dfs[1]
@@ -238,15 +238,15 @@ def do_ips_shift_weight_calculation():
     df_totsampcrossings = crossings_factor_dfs[0]
     df_surveydata_merge = crossings_factor_dfs[1]
 
-    # The various column sets used for setting columns, sorting columns, 
+    # The various column sets used for setting columns, sorting columns,
     # aggregating by, merging data frames.
     colset1 = parameters['ShiftsStratumDef'] \
             + [parameters['var_SI']]
-            
+
     colset2 = parameters['ShiftsStratumDef']
-    
+
     colset3 = parameters['subStrata']
-    
+
     colset4 = parameters['ShiftsStratumDef'] \
             + [parameters['var_SI']] \
             + [parameters['var_possibleCount']] \
@@ -256,7 +256,7 @@ def do_ips_shift_weight_calculation():
             + [parameters['var_maxWeight']] \
             + [parameters['var_count']] \
             + [parameters['var_weightSum']]
-            
+
     colset5 = [parameters['var_serialNum']] \
             + [parameters['var_shiftWeight']]
 
@@ -271,7 +271,6 @@ def do_ips_shift_weight_calculation():
 
     if(len(df_shift_flag[df_shift_flag[parameters['var_shiftFactor']].isnull()]) > 0):
         cf.database_logger().error('Error: Case(s) contain no shift factor(s)')
-        # logger.error('Error: Case(s) contain no shift factor(s)')
     else:
         df_surveydata_merge.loc[df_surveydata_merge[parameters['var_shiftFactor']].isnull() & \
             (df_surveydata_merge[parameters['var_shiftFlag']] != 1), parameters['var_shiftFactor']] = 1
@@ -414,47 +413,67 @@ def do_ips_shift_weight_calculation():
     return (df_surveydata_merge, df_summary)
 
 
-""""""
+def calc_shift_weight():
+    """
+    Author       : Richmond Rice
+    Date         : Jan 2018
+    Purpose      :
+    Parameters   : 
+    Returns      : 
+    Requirements : 
+    Dependencies :
+    """
 
-# Call JSON configuration file for error logger setup
-survey_support.setup_logging('IPS_logging_config_debug.json')
+    # Call JSON configuration file for error logger setup
+    survey_support.setup_logging('IPS_logging_config_debug.json')
 
-# Connect to Oracle and unload parameter list
-conn = cf.get_oracle_connection()
-parameters = cf.unload_parameters(59)
+    # Connect to Oracle and unload parameter list
+    conn = cf.get_oracle_connection()
+    global parameters
+    parameters = cf.unload_parameters(205)
 
-root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_IPS_Shift_Weight"
+    # Load SAS files into dataframes (this data will come from Oracle eventually)
 
-# Load SAS files into dataframes (this data will come from Oracle eventually)
-path_to_survey_data = root_data_path + r"\surveydata.sas7bdat"
-path_to_shifts_data = root_data_path + r"\shiftsdata.sas7bdat"
-cf.select_data()
-# This method works for all data sets but is slower
-#df_surveydata = SAS7BDAT(path_to_survey_data).to_data_frame()
-#df_shiftsdata = SAS7BDAT(path_to_shifts_data).to_data_frame()
+    root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_IPS_Shift_Weight"
+    path_to_survey_data = root_data_path + r"\surveydata.sas7bdat"
+    path_to_shifts_data = root_data_path + r"\shiftsdata.sas7bdat"
 
-# This method is untested with a range of data sets but is faster
-df_surveydata = pd.read_sas(path_to_survey_data)
-df_shiftsdata = pd.read_sas(path_to_shifts_data)
-   
-print("Start - Calculate Shift Weight")
-weight_calculated_dataframes = do_ips_shift_weight_calculation()
+    # This method works for all data sets but is slower
+    #df_surveydata = SAS7BDAT(path_to_survey_data).to_data_frame()
+    #df_shiftsdata = SAS7BDAT(path_to_shifts_data).to_data_frame()
 
-# Extract the two data sets returned from do_ips_shift_weight_calculation
-surveydata_dataframe = weight_calculated_dataframes[0]
-summary_dataframe = weight_calculated_dataframes[1]
+    # This method is untested with a range of data sets but is faster
+    global df_surveydata
+    global df_shiftsdata
+    df_surveydata = pd.read_sas(path_to_survey_data)
+    df_shiftsdata = pd.read_sas(path_to_shifts_data)
 
-# Append the generated data to output tables
-cf.insert_into_table_many(parameters['OutputData'], surveydata_dataframe)
-cf.insert_into_table_many(parameters['SummaryData'], summary_dataframe)
+    print("Start - Calculate Shift Weight")
+    weight_calculated_dataframes = do_ips_shift_weight_calculation()
 
-# Retrieve current function name using inspect:
-# 0 = frame object, 3 = function name. 
-# See 28.13.4. in https://docs.python.org/2/library/inspect.html
-function_name = str(inspect.stack()[0][3])
-audit_message = "Load Shift Weight calculation: %s()" %function_name
+    # Extract the two data sets returned from do_ips_shift_weight_calculation
+    surveydata_dataframe = weight_calculated_dataframes[0]
+    summary_dataframe = weight_calculated_dataframes[1]
 
-# Log success message in SAS_RESPONSE and AUDIT_LOG
-cf.database_logger().info("SUCCESS - Completed Shift weight calculation.")
-cf.commit_to_audit_log("Create", "ShiftWeigh", audit_message)
-print("Completed - Calculate Shift Weight")
+    # Output to Excel for show and tell SAS comparison
+    surveydata_dataframe.to_csv('surveydata_dataframe.csv')
+    summary_dataframe.to_csv('summary_dataframe.csv')
+
+    # Append the generated data to output tables
+    cf.insert_into_table_many(parameters['OutputData'], surveydata_dataframe)
+    cf.insert_into_table_many(parameters['SummaryData'], summary_dataframe)
+
+    # Retrieve current function name using inspect:
+    # 0 = frame object, 3 = function name.
+    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    function_name = str(inspect.stack()[0][3])
+    audit_message = "Load Shift Weight calculation: %s()" %function_name
+
+    # Log success message in SAS_RESPONSE and AUDIT_LOG
+    cf.database_logger().info("SUCCESS - Completed Shift weight calculation.")
+    cf.commit_to_audit_log("Create", "ShiftWeigh", audit_message)
+    print("Completed - Calculate Shift Weight")
+
+
+if __name__ == '__main__':
+    calc_shift_weight()
