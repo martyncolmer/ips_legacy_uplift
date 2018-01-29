@@ -36,8 +36,6 @@ import_traffic_data.import_traffic_data(path_to_shift_data)
 
 # 2 - Process
 
-# Shift Weight
-
 print("Start - populate_survey_data_for_shift_wt")
 prepare_survey_data.populate_survey_data_for_shift_wt(run_id, connection)
 
@@ -47,7 +45,6 @@ prepare_survey_data.populate_shift_data(run_id, connection)
 print("Start - copy_shift_wt_pvs_for_survey_data")
 prepare_survey_data.copy_shift_wt_pvs_for_survey_data(run_id, connection)
 
-# Apply PV's to survey data
 print("Start - Apply PVs On survey Data")
 process_variables.process(in_dataset = 'survey',
                           in_intabname = 'SAS_SURVEY_SUBSAMPLE',
@@ -60,7 +57,6 @@ prepare_survey_data.update_survey_data_with_shift_wt_pv_output(connection)
 print("Start - copy_shift_wt_pvs_for_shift_data")
 prepare_survey_data.copy_shift_wt_pvs_for_shift_data(run_id, connection)
 
-# Apply Shift Wt PVs On Shift Data
 print("Start - Apply Shift Wt PVs On Shift Data")
 process_variables.process(in_dataset = 'shift',
                           in_intabname = 'SAS_SHIFT_DATA',
@@ -70,7 +66,9 @@ process_variables.process(in_dataset = 'shift',
 print("Start - update_shift_data_with_pvs_output")
 prepare_survey_data.update_shift_data_with_pvs_output(connection)
 
+
 sys.exit()
+
 print("Start - Calculate Shift Weight")
 # Calculate Shift Weight
 
@@ -84,9 +82,8 @@ print("Start - store_shift_wt_summary")
 prepare_survey_data.store_shift_wt_summary(run_id, connection)
 
 
-print("At Export")
-
 # 3 - Export
 #export_data
 
+print("At Export")
 

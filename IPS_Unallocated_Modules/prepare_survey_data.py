@@ -399,9 +399,6 @@ def store_shift_wt_summary(run_id,conn):
     cf.delete_from_table('SAS_PS_SHIFT_DATA')
 
 
-
-
-
 def run_all(run_id,conn):
     # Hard Coded for now, this will be generated
     #run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
