@@ -242,3 +242,14 @@ def calc_nr_weight():
     print("Completed - Calculate NonResponse Weight")
 
 
+def calculate(SurveyData,NonResponseData,OutputData,SummaryData,ResponseTable,
+              NRStratumDef,ShiftsStratumDef,var_NRtotals,var_NonMigTotals,var_SI,
+              var_migSI,var_TandTSI,var_PSW,var_NRFlag,var_migFlag,var_respCount,
+              var_NRWeight,var_meanSW,var_priorSum,var_meanNRW,var_grossResp,
+              var_gnr,var_serialNum,minCountThresh):
+    pass
+
+if __name__ == '__main__':
+    calc_nr_weight()
+    calculate()
+    

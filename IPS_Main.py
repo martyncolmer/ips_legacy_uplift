@@ -9,7 +9,8 @@ from IPS_Unallocated_Modules import transpose_survey_data
 from IPS_Unallocated_Modules import populate_survey_subsample
 from IPS_Unallocated_Modules import prepare_survey_data
 from IPS_Unallocated_Modules import import_traffic_data
-from IPS_Stored_Procedures import process_variables, calculate_ips_shift_weight
+from IPS_Stored_Procedures import process_variables, calculate_ips_shift_weight,\
+    calculate_ips_nonresponse_weight
 
 root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\TestInputFiles"
 path_to_test_data = root_data_path + r"\testdata.sas7bdat"
@@ -114,4 +115,37 @@ prepare_survey_data.store_shift_wt_summary(run_id, connection)
 #export_data
 
 print("At Export")
+
+
+
+
+sys.exit()
+
+calculate_ips_nonresponse_weight.calculate(SurveyData = 'sas_survey_subsample', 
+                                           NonResponseData = 'sas_non_response_data', 
+                                           OutputData = 'sas_non_response_wt', 
+                                           SummaryData = 'sas_ps_non_response', 
+                                           ResponseTable = 'sas_response', 
+                                           NRStratumDef = ['nr_port_grp_pv', 
+                                                         'arrivedepart'],  
+                                           ShiftsStratumDef = ['nr_port_grp_pv', 
+                                                         'arrivedepart',
+                                                         'weekday_end_pv'],   
+                                           var_NRtotals = 'migtotal', 
+                                           var_NonMigTotals = 'ordtotal', 
+                                           var_SI = '', 
+                                           var_migSI = 'migSI', 
+                                           var_TandTSI = 'TandTSI', 
+                                           var_PSW = 'shift_wt', 
+                                           var_NRFlag = 'nr_flag_pv', 
+                                           var_migFlag = 'mig_flag_pv', 
+                                           var_respCount = 'count_resps', 
+                                           var_NRWeight = 'non_response_wt', 
+                                           var_meanSW = 'mean_resps_sh_wt', 
+                                           var_priorSum = 'prior_sum', 
+                                           var_meanNRW = 'mean_nr_wt', 
+                                           var_grossResp = 'gross_resp', 
+                                           var_gnr = 'gnr', 
+                                           var_serialNum = 'serial', 
+                                           minCountThresh = '30')
 
