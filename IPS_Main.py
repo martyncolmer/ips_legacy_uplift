@@ -9,7 +9,7 @@ from IPS_Unallocated_Modules import transpose_survey_data
 from IPS_Unallocated_Modules import populate_survey_subsample
 from IPS_Unallocated_Modules import prepare_survey_data
 from IPS_Unallocated_Modules import import_traffic_data
-from IPS_Stored_Procedures import process_variables
+from IPS_Stored_Procedures import process_variables, calculate_ips_shift_weight
 
 root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\TestInputFiles"
 path_to_test_data = root_data_path + r"\testdata.sas7bdat"
@@ -67,10 +67,38 @@ print("Start - update_shift_data_with_pvs_output")
 prepare_survey_data.update_shift_data_with_pvs_output(connection)
 
 
-sys.exit()
-
 print("Start - Calculate Shift Weight")
-# Calculate Shift Weight
+calculate_ips_shift_weight.calculate(SurveyData = 'sas_survey_subsample',
+                                     ShiftsData = 'sas_shift_data', 
+                                     OutputData = 'sas_shift_wt', 
+                                     SummaryData = 'sas_ps_shift_data', 
+                                     ResponseTable = 'sas_response', 
+                                     ShiftsStratumDef = ['shift_port_grp_pv', 
+                                                         'arrivedepart',
+                                                         'weekday_end_pv',
+                                                         'am_pm_night_pv'], 
+                                     var_serialNum = 'serial', 
+                                     var_shiftFlag = 'shift_flag_pv', 
+                                     var_shiftFactor = 'shift_factor', 
+                                     var_totals = 'total', 
+                                     var_shiftNumber = 'shiftno', 
+                                     var_crossingFlag = 'crossings_flag_pv', 
+                                     var_crossingsFactor = 'crossings_factor', 
+                                     var_crossingNumber = 'shuttle', 
+                                     var_SI = 'migSI', 
+                                     var_shiftWeight = 'shift_wt', 
+                                     var_count = 'count_resps', 
+                                     var_weightSum = 'sum_sh_wt', 
+                                     var_minWeight = 'min_sh_wt', 
+                                     var_avgWeight = 'mean_sh_wt', 
+                                     var_maxWeight = 'max_sh_wt', 
+                                     var_summaryKey = 'shift_port_grp_pv', 
+                                     subStrata = ['shift_port_grp_pv', 
+                                                  'arrivedepart'], 
+                                     var_possibleCount = 'poss_shift_cross', 
+                                     var_sampledCount = 'samp_shift_cross', 
+                                     minWeightThresh = '50', 
+                                     maxWeightThresh = '5000')
 
 print("Start - update_survey_data_with_shift_wt_results")
 prepare_survey_data.update_survey_data_with_shift_wt_results(connection)

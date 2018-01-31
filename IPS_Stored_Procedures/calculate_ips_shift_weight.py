@@ -92,6 +92,8 @@ def calculate_ips_shift_factor():
     mergedDF = pd.merge(mergedDF,df_totalsampledshifts,on = parameters['ShiftsStratumDef'])
 
     # Calculate the shift factor for each row of the merged dataframe
+    print("ABOUT TO FAIL")
+    
     mergedDF[parameters['var_shiftFactor']] = \
             mergedDF.apply(calculate_factor, axis=1,args = (parameters['var_shiftFlag'],))
 
@@ -462,6 +464,82 @@ def calc_shift_weight():
     # Append the generated data to output tables
     cf.insert_into_table_many(parameters['OutputData'], surveydata_dataframe)
     cf.insert_into_table_many(parameters['SummaryData'], summary_dataframe)
+
+    # Retrieve current function name using inspect:
+    # 0 = frame object, 3 = function name.
+    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    function_name = str(inspect.stack()[0][3])
+    audit_message = "Load Shift Weight calculation: %s()" %function_name
+
+    # Log success message in SAS_RESPONSE and AUDIT_LOG
+    cf.database_logger().info("SUCCESS - Completed Shift weight calculation.")
+    cf.commit_to_audit_log("Create", "ShiftWeigh", audit_message)
+    print("Completed - Calculate Shift Weight")
+
+
+def calculate(SurveyData,ShiftsData,OutputData,SummaryData,ResponseTable,
+              ShiftsStratumDef,var_serialNum,var_shiftFlag,var_shiftFactor,
+              var_totals,var_shiftNumber,var_crossingFlag,var_crossingsFactor,
+              var_crossingNumber,var_SI,var_shiftWeight,var_count,
+              var_weightSum,var_minWeight,var_avgWeight,var_maxWeight,
+              var_summaryKey,subStrata,var_possibleCount,var_sampledCount,
+              minWeightThresh,maxWeightThresh):
+    """
+    Author       : Richmond Rice / Thomas Mahoney
+    Date         : Jan 2018
+    Purpose      :
+    Parameters   : 
+    Returns      : 
+    Requirements : 
+    Dependencies :
+    """
+
+    # Call JSON configuration file for error logger setup
+    survey_support.setup_logging('IPS_logging_config_debug.json')
+
+    # Connect to Oracle and unload parameter list
+    conn = cf.get_oracle_connection()
+    global parameters
+    parameters = cf.unload_parameters(205)
+
+    # Load SAS files into dataframes (this data will come from Oracle eventually)
+
+    root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_IPS_Shift_Weight"
+    path_to_survey_data = root_data_path + r"\surveydata.sas7bdat"
+    path_to_shifts_data = root_data_path + r"\shiftsdata.sas7bdat"
+
+    # This method works for all data sets but is slower
+    #df_surveydata = SAS7BDAT(path_to_survey_data).to_data_frame()
+    #df_shiftsdata = SAS7BDAT(path_to_shifts_data).to_data_frame()
+
+    # This method is untested with a range of data sets but is faster
+    global df_surveydata
+    global df_shiftsdata
+    df_surveydata = pd.read_sas(path_to_survey_data)
+    df_shiftsdata = pd.read_sas(path_to_shifts_data)
+
+    df_surveyImport = cf.get_table_values(SurveyData)
+    df_shiftsImport = cf.get_table_values(ShiftsData)
+    #df_surveydata = cf.get_table_values(SurveyData)
+    #df_shiftsdata = cf.get_table_values(ShiftsData)
+
+
+    print("Start - Calculate Shift Weight")
+    weight_calculated_dataframes = do_ips_shift_weight_calculation()
+
+    # Extract the two data sets returned from do_ips_shift_weight_calculation
+    surveydata_dataframe = weight_calculated_dataframes[0]
+    summary_dataframe = weight_calculated_dataframes[1]
+
+    # Output to Excel for show and tell SAS comparison
+    surveydata_dataframe.to_csv('surveydata_dataframe.csv')
+    summary_dataframe.to_csv('summary_dataframe.csv')
+
+    # Append the generated data to output tables
+    #cf.insert_into_table_many(parameters['OutputData'], surveydata_dataframe)
+    #cf.insert_into_table_many(parameters['SummaryData'], summary_dataframe)
+    cf.insert_into_table_many(OutputData, surveydata_dataframe)
+    cf.insert_into_table_many(SummaryData, summary_dataframe)
 
     # Retrieve current function name using inspect:
     # 0 = frame object, 3 = function name.
