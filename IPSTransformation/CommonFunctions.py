@@ -567,11 +567,13 @@ def unload_parameters(parameter_id = False):
     # Create dictionary of parameters and return
     tempDict = {}
     for result in results:
-        value = result[1].upper()
-        
-        if " " in value:
-            value = value.split(" ")
+        if result[1] != None:
+            value = result[1].upper()
             
+            if " " in value:
+                value = value.split(" ")
+        else:
+            value = ''
         tempDict[result[0]] = value
     
     return tempDict

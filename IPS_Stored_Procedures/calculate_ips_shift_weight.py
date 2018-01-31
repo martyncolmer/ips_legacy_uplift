@@ -457,9 +457,11 @@ def calc_shift_weight():
     surveydata_dataframe = weight_calculated_dataframes[0]
     summary_dataframe = weight_calculated_dataframes[1]
 
+
     # Output to Excel for show and tell SAS comparison
     surveydata_dataframe.to_csv('surveydata_dataframe.csv')
     summary_dataframe.to_csv('summary_dataframe.csv')
+
 
     # Append the generated data to output tables
     cf.insert_into_table_many(parameters['OutputData'], surveydata_dataframe)
@@ -555,3 +557,4 @@ def calculate(SurveyData,ShiftsData,OutputData,SummaryData,ResponseTable,
 
 if __name__ == '__main__':
     calc_shift_weight()
+
