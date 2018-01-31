@@ -17,7 +17,7 @@ def do_ips_nrweight_calculation():
     Date         : Jan 2018
     Purpose      : Performs calculations to find the nonresponse weight.
     Parameters   : NA
-    Returns      : NA
+    Returns      : Two dataframes
     Requirements : 
     Dependencies : 
     """
@@ -171,55 +171,74 @@ def do_ips_nrweight_calculation():
     # Reduce output to just key value pairs
     df_out = df_out[['SERIAL', 'non_response_wt']]
     
+    return (df_out, df_summary)
     
+def calc_nr_weight():
+    """
+    Author       : James Burr
+    Date         : Jan 2018
+    Purpose      : Function called to setup and initiate the calculation
+    Parameters   : NA
+    Returns      : NA
+    Requirements : 
+    Dependencies : 
+    """
     
-# Call JSON configuration file for error logger setup
-survey_support.setup_logging('IPS_logging_config_debug.json')
-
-# Connect to Oracle
-conn = cf.get_oracle_connection()
-#parameters = cf.unload_parameters(136)
-
-
-# Setup path to the base directory containing data files
-root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_Non_Response_Weight"
-
-# Retrieve SAS data and load into dataframes
-path_to_survey_data = root_data_path + r"\surveydata_1.sas7bdat"
-path_to_nonresponse_data = root_data_path + r"\nonresponsedata_1.sas7bdat"
-
-
-df_surveydata = pd.read_sas(path_to_survey_data)
-df_nonresponsedata = pd.read_sas(path_to_nonresponse_data)
-
-# Setup the columns sets used for the calculation steps
-colset1 = ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV']
+    # Call JSON configuration file for error logger setup
+    survey_support.setup_logging('IPS_logging_config_debug.json')
      
-colset2 = ['NR_PORT_GRP_PV', 'ARRIVEDEPART']
+    # Connect to Oracle
+    conn = cf.get_oracle_connection()
+    #parameters = cf.unload_parameters(136) - Currently not working, to be replaced
+     
+    # Setup path to the base directory containing data files
+    root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_Non_Response_Weight"
+     
+    # Retrieve SAS data and load into dataframes
+    path_to_survey_data = root_data_path + r"\surveydata_1.sas7bdat"
+    path_to_nonresponse_data = root_data_path + r"\nonresponsedata_1.sas7bdat"
+     
+     
+    df_surveydata = pd.read_sas(path_to_survey_data)
+    df_nonresponsedata = pd.read_sas(path_to_nonresponse_data)
+     
+    # Setup the columns sets used for the calculation steps
+    colset1 = ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV']
+          
+    colset2 = ['NR_PORT_GRP_PV', 'ARRIVEDEPART']
+     
+    df_surveydata.columns = df_surveydata.columns.str.upper()
+    df_nonresponsedata.columns = df_nonresponsedata.columns.str.upper()
+     
+    print("Start - Calculate NonResponse Weight.")
+    do_ips_nrweight_calculation()
+     
+    weight_calculated_dataframes = do_ips_nrweight_calculation()
+     
+    # Extract the two data sets returned from do_ips_nrweight_calculation
+    surveydata_dataframe = weight_calculated_dataframes[0]
+    summary_dataframe = weight_calculated_dataframes[1]
+     
+    # Append the generated data to output tables
+    
+    # 31st Jan 2018 - below two lines commented out by James Burr due to the 
+    # parameters referenced there do not work currently, due to the
+    # unload_parameters function relying on a table which doesn't exist. This
+    # parameters section will be replaced with a different method in the near
+    # future at which point this code will be changed.
+    
+    #cf.insert_into_table_many(parameters['OutputData'], surveydata_dataframe)
+    #cf.insert_into_table_many(parameters['SummaryData'], summary_dataframe)
+     
+    # Retrieve current function name using inspect:
+    # 0 = frame object, 3 = function name. 
+    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    function_name = str(inspect.stack()[0][3])
+    audit_message = "Load NonResponse Weight calculation: %s()" % function_name
+     
+    # Log success message in SAS_RESPONSE and AUDIT_LOG
+    cf.database_logger().info("SUCCESS - Completed NonResponse weight calculation.")
+    cf.commit_to_audit_log("Create", "NonReponse", audit_message)
+    print("Completed - Calculate NonResponse Weight")
 
-df_surveydata.columns = df_surveydata.columns.str.upper()
-df_nonresponsedata.columns = df_nonresponsedata.columns.str.upper()
 
-print("Start - Calculate NonResponse Weight.")
-do_ips_nrweight_calculation()
-
-# weight_calculated_dataframes = do_ips_nrweight_calculation()
-# 
-# # Extract the two data sets returned from do_ips_nrweight_calculation
-# surveydata_dataframe = weight_calculated_dataframes[0]
-# summary_dataframe = weight_calculated_dataframes[1]
-# 
-# # Append the generated data to output tables
-# cf.insert_into_table_many(parameters['OutputData'], surveydata_dataframe)
-# cf.insert_into_table_many(parameters['SummaryData'], summary_dataframe)
-# 
-# # Retrieve current function name using inspect:
-# # 0 = frame object, 3 = function name. 
-# # See 28.13.4. in https://docs.python.org/2/library/inspect.html
-# function_name = str(inspect.stack()[0][3])
-# audit_message = "Load NonResponse Weight calculation: %s()" % function_name
-# 
-# # Log success message in SAS_RESPONSE and AUDIT_LOG
-# cf.database_logger().info("SUCCESS - Completed NonResponse weight calculation.")
-# cf.commit_to_audit_log("Create", "NonReponse", audit_message)
-print("Completed - Calculate NonResponse Weight")
