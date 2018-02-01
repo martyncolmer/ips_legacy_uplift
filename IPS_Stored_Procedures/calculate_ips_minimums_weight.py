@@ -36,14 +36,14 @@ def do_ips_minweight_calculation():
     df_summin = df_mins.groupby(['MINS_PORT_GRP_PV', 'MINS_CTRY_GRP_PV'])\
             ['SWNRwght'].agg({\
             'prior_gross_mins' : 'sum',
-            'v' : 'count'})
+            'mins_cases' : 'count'})
     
     df_summin.reset_index(inplace = True)
     
     # Summarise only full responses by strata
     df_fulls = df_surveydata_sorted[df_surveydata_sorted['MINS_FLAG_PV'] == 0]
     
-    df_sumfull = df_mins.groupby(['MINS_PORT_GRP_PV', 'MINS_CTRY_GRP_PV'])\
+    df_sumfull = df_fulls.groupby(['MINS_PORT_GRP_PV', 'MINS_CTRY_GRP_PV'])\
             ['SWNRwght'].agg({\
             'prior_gross_fulls' : 'sum',
             'fulls_cases' : 'count'})
@@ -64,18 +64,68 @@ def do_ips_minweight_calculation():
     df_sumfull.sort_values(['MINS_PORT_GRP_PV', 'MINS_CTRY_GRP_PV'])
     df_summig.sort_values(['MINS_PORT_GRP_PV', 'MINS_CTRY_GRP_PV'])
     
-    df_summary = df_summin.merge(df_sumfull, df_summig, how = 'outer')
+    df_summary = pd.merge(df_sumfull, df_summig, on = ['MINS_PORT_GRP_PV',
+                                                              'MINS_CTRY_GRP_PV'],
+                          how = 'outer')
+    
+    df_summary = df_summary.merge(df_summin, on = ['MINS_PORT_GRP_PV',
+                                                              'MINS_CTRY_GRP_PV'],
+                                  how = 'outer')
+    
+    df_summary['mins_wt'] = np.where(df_summary['prior_gross_fulls'] > 0,
+                                     (df_summary['prior_gross_mins'] + 
+                                     df_summary['prior_gross_fulls']) /
+                                     df_summary['prior_gross_fulls'],
+                                     1)
     
     # Replace missing values with 0
-    df_summary['prior_gross_mins'].fillna(0, inplace =True)
-    df_summary['prior_gross_fulls'].fillna(0, inplace =True)
-    df_summary['sumPriorWeightMigs'].fillna(0, inplace =True)
+    df_summary['prior_gross_mins'].fillna(0, inplace = True)
+    df_summary['prior_gross_fulls'].fillna(0, inplace = True)
+    df_summary['sumPriorWeightMigs'].fillna(0, inplace = True)
     
     df_summary['prior_gross_all'] = df_summary['prior_gross_mins'] + \
                                     df_summary['prior_gross_fulls'] + \
                                     df_summary['sumPriorWeightMigs']
     
+    df_summary = df_summary.sort_values(['MINS_PORT_GRP_PV', 'MINS_CTRY_GRP_PV'])
     
+    df_summary['mins_wt'] = np.where(df_summary['prior_gross_fulls'] > 0,
+                                     (df_summary['prior_gross_mins'] +
+                                     df_summary['prior_gross_fulls']) /
+                                     df_summary['prior_gross_fulls'],
+                                     df_summary['mins_wt'])
+    
+    df_out = df_summary.merge(df_surveydata_sorted, on = ['MINS_PORT_GRP_PV',
+                                                              'MINS_CTRY_GRP_PV'],
+                              how = 'outer')
+    
+    # Set mins_wt to either 0 or 1 conditionally, then calculate the postweight value
+    df_out['mins_wt'] = np.where(df_out['MINS_FLAG_PV'] == 1.0, 0, df_out['mins_wt'])
+    df_out['mins_wt'] = np.where(df_out['MINS_FLAG_PV'] == 2.0, 1, df_out['mins_wt'])
+    df_out['SWNRMINwght'] = df_out['SHIFT_WT'] * \
+                            df_out['NON_RESPONSE_WT'] * \
+                            df_out['mins_wt']
+    
+    df_out_sliced = df_out[df_out['MINS_FLAG_PV'] != 1]
+    df_postsum = df_out_sliced.groupby(['MINS_PORT_GRP_PV', 'MINS_CTRY_GRP_PV'])\
+            ['SWNRMINwght'].agg({\
+            'post_sum' : 'sum',
+            'cases_carried_forward' : 'count'})
+    
+    df_postsum.reset_index(inplace = True)
+    
+    df_postsum.sort_values(['MINS_PORT_GRP_PV', 'MINS_CTRY_GRP_PV'])
+    
+    # Merge the updated dataframe with specific columns from GNR.
+    df_summary = df_summary.merge(df_postsum,
+                                  on = ['MINS_PORT_GRP_PV',
+                                        'MINS_CTRY_GRP_PV'], how='outer')
+    
+    df_summary.drop(['post_sum', 'cases_carried_forward'], axis=1, inplace=True) 
+    
+    df_out = df_out[['SERIAL', 'mins_wt']]
+    
+    return (df_out, df_summary)
     
 
 def calc_minimums_weight():
@@ -95,7 +145,7 @@ def calc_minimums_weight():
     # Connect to Oracle and unload parameter list
     conn = cf.get_oracle_connection()
     global parameters
-    parameters = cf.unload_parameters(205)
+    #parameters = cf.unload_parameters(205)
 
     # Load SAS file into dataframe (this data will come from Oracle eventually)
 
@@ -109,7 +159,7 @@ def calc_minimums_weight():
     global df_surveydata
     df_surveydata = pd.read_sas(path_to_survey_data)
 
-    print("Start - Calculate Shift Weight")
+    print("Start - Calculate Minimums Weight")
     weight_calculated_dataframes = do_ips_minweight_calculation()
 
     # Extract the two data sets returned from do_ips_shift_weight_calculation
@@ -128,12 +178,12 @@ def calc_minimums_weight():
     # 0 = frame object, 3 = function name.
     # See 28.13.4. in https://docs.python.org/2/library/inspect.html
     function_name = str(inspect.stack()[0][3])
-    audit_message = "Load Shift Weight calculation: %s()" %function_name
+    audit_message = "Load Minimums Weight calculation: %s()" %function_name
 
     # Log success message in SAS_RESPONSE and AUDIT_LOG
-    cf.database_logger().info("SUCCESS - Completed Shift weight calculation.")
-    cf.commit_to_audit_log("Create", "ShiftWeigh", audit_message)
-    print("Completed - Calculate Shift Weight")
+    cf.database_logger().info("SUCCESS - Completed Minimums weight calculation.")
+    cf.commit_to_audit_log("Create", "MinimumsWeight", audit_message)
+    print("Completed - Calculate Minimums Weight")
 
 
 if __name__ == '__main__':
