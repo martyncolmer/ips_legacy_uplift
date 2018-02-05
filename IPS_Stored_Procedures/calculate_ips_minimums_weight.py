@@ -132,7 +132,8 @@ def calc_minimums_weight():
     """
     Author       : James Burr
     Date         : Jan 2018
-    Purpose      :
+    Purpose      : Performs the setup required for the calculation function, then
+                   calls the function
     Parameters   : 
     Returns      : 
     Requirements : 
