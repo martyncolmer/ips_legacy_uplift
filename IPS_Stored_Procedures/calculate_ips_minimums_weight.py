@@ -72,11 +72,16 @@ def do_ips_minweight_calculation():
                                                               'MINS_CTRY_GRP_PV'],
                                   how = 'outer')
     
-    df_summary['mins_wt'] = np.where(df_summary['prior_gross_fulls'] > 0,
-                                     (df_summary['prior_gross_mins'] + 
-                                     df_summary['prior_gross_fulls']) /
-                                     df_summary['prior_gross_fulls'],
-                                     1)
+    df_check_prior_gross_fulls = df_summary[df_summary['prior_gross_fulls'] <= 0]
+    
+    if(df_check_prior_gross_fulls.empty == False  & df_summin.empty == False):
+        cf.database_logger().error('Error: No complete or partial responses')
+    else:
+        df_summary['mins_wt'] = np.where(df_summary['prior_gross_fulls'] > 0,
+                                         (df_summary['prior_gross_mins'] + 
+                                         df_summary['prior_gross_fulls']) /
+                                         df_summary['prior_gross_fulls'],
+                                         1)
     
     # Replace missing values with 0
     df_summary['prior_gross_mins'].fillna(0, inplace = True)
@@ -122,6 +127,21 @@ def do_ips_minweight_calculation():
                                         'MINS_CTRY_GRP_PV'], how='outer')
     
     df_summary.drop(['post_sum', 'cases_carried_forward'], axis=1, inplace=True) 
+    
+    df_temp_check_1 = df_summary[df_summary['fulls_cases'] < 30]
+    df_temp_check_2 = df_summary[df_summary['mins_cases'] > 0]
+    
+    df_final_check = df_temp_check_1.merge(df_temp_check_2, how = 'inner')
+    df_final_check = df_final_check[['MINS_PORT_GRP_PV', 'MINS_CTRY_GRP_PV']]
+    
+    # Collect data outside of specified threshold
+    threshold_string = ""
+    for index, record in df_final_check.iterrows():
+        threshold_string += "___||___" \
+                         + df_final_check.columns[0] + " : " + str(record[0]) + " | "\
+                         + df_final_check.columns[1] + " : " + str(record[1])
+    if len(df_final_check) > 0:
+        cf.database_logger().warning('WARNING: Minimums weight outside thresholds for: ' + threshold_string)   
     
     df_out = df_out[['SERIAL', 'mins_wt']]
     
