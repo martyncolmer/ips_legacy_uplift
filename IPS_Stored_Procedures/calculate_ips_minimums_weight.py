@@ -128,20 +128,24 @@ def do_ips_minweight_calculation():
     
     df_summary.drop(['post_sum', 'cases_carried_forward'], axis=1, inplace=True) 
     
-    df_temp_check_1 = df_summary[df_summary['fulls_cases'] < 30]
-    df_temp_check_2 = df_summary[df_summary['mins_cases'] > 0]
+    # Perform data validation
+    df_fulls_below_threshold = df_summary[df_summary['fulls_cases'] < 30]
+    df_mins_below_threshold = df_summary[df_summary['mins_cases'] > 0]
     
-    df_final_check = df_temp_check_1.merge(df_temp_check_2, how = 'inner')
-    df_final_check = df_final_check[['MINS_PORT_GRP_PV', 'MINS_CTRY_GRP_PV']]
+    df_merged_thresholds = df_fulls_below_threshold.merge(df_mins_below_threshold
+                                                          ,how = 'inner')
+    df_merged_thresholds = df_merged_thresholds[['MINS_PORT_GRP_PV'
+                                                 , 'MINS_CTRY_GRP_PV']]
     
     # Collect data outside of specified threshold
     threshold_string = ""
-    for index, record in df_final_check.iterrows():
+    for index, record in df_merged_thresholds.iterrows():
         threshold_string += "___||___" \
-                         + df_final_check.columns[0] + " : " + str(record[0]) + " | "\
-                         + df_final_check.columns[1] + " : " + str(record[1])
-    if len(df_final_check) > 0:
-        cf.database_logger().warning('WARNING: Minimums weight outside thresholds for: ' + threshold_string)   
+                         + df_merged_thresholds.columns[0] + " : " + str(record[0]) + " | "\
+                         + df_merged_thresholds.columns[1] + " : " + str(record[1])
+    if len(df_merged_thresholds) > 0:
+        cf.database_logger().warning('WARNING: Minimums weight outside thresholds for: ' 
+                                     + threshold_string)   
     
     df_out = df_out[['SERIAL', 'mins_wt']]
     
@@ -186,10 +190,6 @@ def calc_minimums_weight():
     # Extract the two data sets returned from do_ips_shift_weight_calculation
     surveydata_dataframe = weight_calculated_dataframes[0]
     summary_dataframe = weight_calculated_dataframes[1]
-
-    # Output to Excel for show and tell SAS comparison
-    surveydata_dataframe.to_csv('surveydata_dataframe.csv')
-    summary_dataframe.to_csv('summary_dataframe.csv')
 
     # Append the generated data to output tables
     cf.insert_into_table_many(parameters['OutputData'], surveydata_dataframe)
