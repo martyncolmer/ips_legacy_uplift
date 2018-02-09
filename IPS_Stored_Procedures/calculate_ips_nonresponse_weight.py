@@ -22,6 +22,10 @@ def do_ips_nrweight_calculation():
     Dependencies : 
     """
     
+        # Setup the columns sets used for the calculation steps
+    colset1 = ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV']
+          
+    colset2 = ['NR_PORT_GRP_PV', 'ARRIVEDEPART']
     
     df_nonresponsedata_sorted = df_nonresponsedata.sort_values(colset1)
     df_surveydata_sorted = df_surveydata.sort_values(colset1)
@@ -43,6 +47,13 @@ def do_ips_nrweight_calculation():
             
     df_grossmignonresp['grossordnonresp'] = df_grossmignonresp['SHIFT_WT'] * \
             df_grossmignonresp['ORDTOTAL']
+    
+    # Validate that non-reponse totals can be grossed
+    
+    df_migtotal_not_zero = df_grossmignonresp[df_grossmignonresp['MIGTOTAL'] != 0]
+    
+    if(len(df_migtotal_not_zero[df_migtotal_not_zero['grossmignonresp'].isnull()]) > 0):
+        logger.error('Error: Unable to gross up non-response total.')
     
     # Summarise over non-response strata
     df_grossmignonresp = df_grossmignonresp.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
@@ -111,6 +122,11 @@ def do_ips_nrweight_calculation():
     df_gnr['gnr'] = np.where(df_gnr['gross_resp'] != 0, df_gnr['grossordnonresp'] + df_gnr['grossmignonresp'] + df_gnr['grossinelresp'], 0)
     df_gnr['non_response_wt'] = np.where(df_gnr['gross_resp'] != 0, (df_gnr['gnr'] + df_gnr['gross_resp']) / df_gnr['gross_resp'], np.NaN)
     
+    df_gross_resp_is_zero = df_gnr[df_gnr['gross_resp'] == 0]
+    
+    if(len(df_gross_resp_is_zero) > 0):
+        logger.error('Error: Gross response is 0.')
+    
     # Sort df_gnr and df_surveydata ready for producing summary
     df_surveydata_sorted = df_surveydata.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
     df_gnr = df_gnr.sort_values(by=['NR_PORT_GRP_PV', 'ARRIVEDEPART'])
@@ -168,10 +184,33 @@ def do_ips_nrweight_calculation():
                                  (df_out['non_response_wt'] * df_out['TANDTSI'])
                                 / df_out['MIGSI'], df_out['non_response_wt'])
     
+    # Perform data validation
+    df_count_below_threshold = df_summary[df_summary['count_resps'] > 0]
+    df_gnr_below_threshold = df_summary[df_summary['gnr'] > 0]
+    
+    df_merged_thresholds = df_count_below_threshold.merge(df_gnr_below_threshold
+                                                          ,how = 'inner')
+
+    df_merged_thresholds = df_merged_thresholds[df_merged_thresholds['count_resps'] < 30]
+    
+    df_merged_thresholds = df_merged_thresholds[['NR_PORT_GRP_PV'
+                                                 , 'ARRIVEDEPART']]
+    
+    # Collect data outside of specified threshold
+    threshold_string = ""
+    for index, record in df_merged_thresholds.iterrows():
+        threshold_string += "___||___" \
+                         + df_merged_thresholds.columns[0] + " : " + str(record[0]) + " | "\
+                         + df_merged_thresholds.columns[1] + " : " + str(record[1])
+    if len(df_merged_thresholds) > 0:
+        logger.warning('WARNING: Respondent count below minimum threshold for : ' 
+                                     + threshold_string)
+    
     # Reduce output to just key value pairs
     df_out = df_out[['SERIAL', 'non_response_wt']]
     
     return (df_out, df_summary)
+   
     
 def calc_nr_weight():
     """
@@ -186,6 +225,9 @@ def calc_nr_weight():
     
     # Call JSON configuration file for error logger setup
     survey_support.setup_logging('IPS_logging_config_debug.json')
+    
+    global logger 
+    logger = cf.database_logger()
      
     # Connect to Oracle
     conn = cf.get_oracle_connection()
@@ -198,23 +240,20 @@ def calc_nr_weight():
     path_to_survey_data = root_data_path + r"\surveydata_1.sas7bdat"
     path_to_nonresponse_data = root_data_path + r"\nonresponsedata_1.sas7bdat"
      
+    global df_surveydata
+    global df_nonresponsedata
      
     df_surveydata = pd.read_sas(path_to_survey_data)
     df_nonresponsedata = pd.read_sas(path_to_nonresponse_data)
-     
-    # Setup the columns sets used for the calculation steps
-    colset1 = ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV']
-          
-    colset2 = ['NR_PORT_GRP_PV', 'ARRIVEDEPART']
      
     df_surveydata.columns = df_surveydata.columns.str.upper()
     df_nonresponsedata.columns = df_nonresponsedata.columns.str.upper()
      
     print("Start - Calculate NonResponse Weight.")
-    do_ips_nrweight_calculation()
+    #do_ips_nrweight_calculation()
      
     weight_calculated_dataframes = do_ips_nrweight_calculation()
-     
+    
     # Extract the two data sets returned from do_ips_nrweight_calculation
     surveydata_dataframe = weight_calculated_dataframes[0]
     summary_dataframe = weight_calculated_dataframes[1]
@@ -241,4 +280,6 @@ def calc_nr_weight():
     cf.commit_to_audit_log("Create", "NonReponse", audit_message)
     print("Completed - Calculate NonResponse Weight")
 
+if __name__ == '__main__':
+    calc_nr_weight()
 
