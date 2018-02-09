@@ -285,27 +285,23 @@ def calculate(SurveyData,NonResponseData,OutputData,SummaryData,ResponseTable,
     # Call JSON configuration file for error logger setup
     survey_support.setup_logging('IPS_logging_config_debug.json')
     
-    # Connect to Oracle
-    conn = cf.get_oracle_connection()
-     
     # Setup path to the base directory containing data files
     root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_Non_Response_Weight"
     path_to_survey_data = root_data_path + r"\surveydata_1.sas7bdat"
     path_to_nonresponse_data = root_data_path + r"\nonresponsedata_1.sas7bdat"
 
-    # Load SAS files into dataframes (this data will come from Oracle eventually)
-
     global df_surveydata
     global df_nonresponsedata  
 
+    # Import data via SAS
     # This method works for all data sets but is slower
     #df_surveydata = SAS7BDAT(path_to_survey_data).to_data_frame()
     #df_nonresponsedata = SAS7BDAT(path_to_nonresponse_data).to_data_frame()
-
     # This method is untested with a range of data sets but is faster
     #df_surveydata = pd.read_sas(path_to_survey_data)
     #df_nonresponsedata = pd.read_sas(path_to_nonresponse_data)
     
+    # Import data via SQL
     df_surveydata = cf.get_table_values(SurveyData)
     df_nonresponsedata = cf.get_table_values(NonResponseData)
     
@@ -324,13 +320,6 @@ def calculate(SurveyData,NonResponseData,OutputData,SummaryData,ResponseTable,
     summary_dataframe = weight_calculated_dataframes[1]
      
     # Append the generated data to output tables
-    
-    # 31st Jan 2018 - below two lines commented out by James Burr due to the 
-    # parameters referenced there do not work currently, due to the
-    # unload_parameters function relying on a table which doesn't exist. This
-    # parameters section will be replaced with a different method in the near
-    # future at which point this code will be changed.
-    
     cf.insert_into_table_many(OutputData, surveydata_dataframe)
     cf.insert_into_table_many(SummaryData, summary_dataframe)
      
@@ -344,6 +333,7 @@ def calculate(SurveyData,NonResponseData,OutputData,SummaryData,ResponseTable,
     cf.database_logger().info("SUCCESS - Completed NonResponse weight calculation.")
     cf.commit_to_audit_log("Create", "NonReponse", audit_message)
     print("Completed - Calculate NonResponse Weight")
+
 
 if __name__ == '__main__':
     calculate(SurveyData = 'SAS_SURVEY_SUBSAMPLE',

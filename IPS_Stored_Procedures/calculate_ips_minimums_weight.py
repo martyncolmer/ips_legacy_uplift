@@ -182,7 +182,7 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, MinStratumDef,
     df_surveydata = pd.read_sas(path_to_survey_data)
 
     # Import data via SQL
-    df_surveydata = cf.get_table_values(SurveyData)
+    #df_surveydata = cf.get_table_values(SurveyData)
 
     df_surveydata.columns = df_surveydata.columns.str.upper()
 
