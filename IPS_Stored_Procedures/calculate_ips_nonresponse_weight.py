@@ -284,7 +284,7 @@ def calculate(SurveyData,NonResponseData,OutputData,SummaryData,ResponseTable,
     
     # Call JSON configuration file for error logger setup
     survey_support.setup_logging('IPS_logging_config_debug.json')
-    s
+    
     # Connect to Oracle
     conn = cf.get_oracle_connection()
      
