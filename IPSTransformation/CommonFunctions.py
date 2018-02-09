@@ -595,7 +595,6 @@ def get_table_values(table_name):
 
     # Connection to the database
     conn = get_oracle_connection()
-    cur = conn.cursor()
     
     # Create SQL statement
     sql = "SELECT * from " + table_name
@@ -731,6 +730,9 @@ def insert_list_into_table(table_name,columns,values,connection = False):
     # Create parameter holder string for SQL    
     parameter_string = str(values)
     parameter_string = parameter_string.replace(']', "").replace('[', "")#.replace("'","")
+    
+    # Removes .0's from numerics - This has been added due to a constraint issue in populate_survey_sub
+    parameter_string = parameter_string.replace(".0'","'")
     #print(parameter_string)
 
     sql = "INSERT into " + table_name + \

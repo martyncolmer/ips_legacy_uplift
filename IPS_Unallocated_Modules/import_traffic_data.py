@@ -24,7 +24,7 @@ def import_traffic_data(filename):
     # run_id currently hard-coded due to
     # primary-key constraint on TRAFFIC_DATA (see RUN table)
     # THIS WILL NEED TO BE AMENDED ONCE run_id PROCESS IMPLEMENTED
-    run_id = "IPSSeedRun"
+    run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
     
     # 0 = frame object, 1 = filename, 3 = function name. 
     # See 28.13.4. in https://docs.python.org/2/library/inspect.html
@@ -53,15 +53,20 @@ def import_traffic_data(filename):
         return False
     
     # Change column names to upper case
-    dataframe.columns = dataframe.columns.str.upper()                           
+    dataframe.columns = dataframe.columns.str.upper()   
+                            
     # remove whitespaces within column names
-    dataframe.columns = dataframe.columns.str.replace(' ', '')                  
+    dataframe.columns = dataframe.columns.str.replace(' ', '')  
+                    
     # insert "ROW_ID" column to dataframe
-    dataframe["RUN_ID"] = pandas.Series(run_id, index = dataframe.index)        
+    dataframe["RUN_ID"] = pandas.Series(run_id, index = dataframe.index)   
+         
     # replace "DATASOURCE" column name with "DATA_SOURCE_ID"
-    dataframe.rename(columns={"DATASOURCE":"DATA_SOURCE_ID"}, inplace = True)   
+    dataframe.rename(columns={"DATASOURCE":"DATA_SOURCE_ID"}, inplace = True) 
+      
     # replace Nan values with empty string
-    dataframe = dataframe.fillna('')                                            
+    dataframe = dataframe.fillna('')      
+                                          
     # replace "REGION" values with 0 if not an expected value
     if "REGION" in dataframe.columns:                                                                      
         dataframe['REGION'].replace(['None',"",".",'nan'],0,inplace=True) 
