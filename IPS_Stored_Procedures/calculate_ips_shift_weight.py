@@ -429,27 +429,23 @@ def calculate(SurveyData,ShiftsData,OutputData,SummaryData,ResponseTable,
     # Call JSON configuration file for error logger setup
     survey_support.setup_logging('IPS_logging_config_debug.json')
 
-    # Connect to Oracle and unload parameter list
-    conn = cf.get_oracle_connection()
-
     # Setup path to the base directory containing data files
     root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_IPS_Shift_Weight"
     path_to_survey_data = root_data_path + r"\surveydatasmall.sas7bdat"
     path_to_shifts_data = root_data_path + r"\shiftsdatasmall.sas7bdat"
 
-    # Load SAS files into dataframes (this data will come from Oracle eventually)
-
     global df_surveydata
     global df_shiftsdata
 
+    # Import data via SAS
     # This method works for all data sets but is slower
     #df_surveydata = SAS7BDAT(path_to_survey_data).to_data_frame()
     #df_shiftsdata = SAS7BDAT(path_to_shifts_data).to_data_frame()
-
     # This method is untested with a range of data sets but is faster
     #df_surveydata = pd.read_sas(path_to_survey_data)
     #df_shiftsdata = pd.read_sas(path_to_shifts_data)
 
+    # Import data via SQL
     df_surveydata = cf.get_table_values(SurveyData)
     df_shiftsdata = cf.get_table_values(ShiftsData)
 
@@ -469,10 +465,7 @@ def calculate(SurveyData,ShiftsData,OutputData,SummaryData,ResponseTable,
     surveydata_dataframe = weight_calculated_dataframes[0]
     summary_dataframe = weight_calculated_dataframes[1]
 
-
-    
     # Append the generated data to output tables
-    print(surveydata_dataframe)
     cf.insert_into_table_many(OutputData, surveydata_dataframe)
     cf.insert_into_table_many(SummaryData, summary_dataframe)
 
