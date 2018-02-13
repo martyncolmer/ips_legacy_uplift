@@ -22,6 +22,7 @@ conn = cf.get_oracle_connection()
 global parameters
 parameters = cf.unload_parameters(205)
 
+print(type(parameters))
 #     calculate_ips_traffic_weight()
 
 def calculate_ips_traffic_weight(schema, dbase, gparam_table_name, parameter_set_id):
@@ -109,5 +110,5 @@ def do_ips_ges_weighting():
 
  # generate_ips_tw_summary()
  
- def generate_ips_tw_summary():
+def generate_ips_tw_summary():
     pass
