@@ -25,85 +25,85 @@ def do_ips_imbweight_calculation():
     Requirements  :
     """
     
-#    print survey_data_df[["NON_RESPONSE_WT"
+#    print df_survey_data[["NON_RESPONSE_WT"
 #                         , "MINS_WT", "TRAFFIC_WT", "UNSAMP_TRAFFIC_WT"
 #                         , "imbal_wt".upper(), "shift_wt".upper()
 #                         , "non_response_wt".upper(), "mins_wt".upper()
 #                         , "traffic_wt".upper(), "unsamp_traffic_wt".upper()
 #                         , "FLOW", "ARRIVEDEPART"]].head()
-#    print survey_data_df.info()
+#    print df_survey_data.info()
 #    sys.exit()
     
     # Change column names to upper case (just in case)
-    survey_data_df.columns = survey_data_df.columns.str.upper()
+    df_survey_data.columns = df_survey_data.columns.str.upper()
     
     # If col IMBAL_ELIGIBLE_PV == 1.0 then col IMBAL_WT = 1.0
-    survey_data_df.loc[survey_data_df["IMBAL_ELIGIBLE_PV"] == 1, "IMBAL_WT"] = 1.0
+    df_survey_data.loc[df_survey_data["IMBAL_ELIGIBLE_PV"] == 1, "IMBAL_WT"] = 1.0
     
     # FUDGE SOME VALUES - TO BE REMOVED WHEN TEST DATASET IS COMPLETE
-#    print survey_data_df[["NON_RESPONSE_WT", "MINS_WT", "TRAFFIC_WT", "UNSAMP_TRAFFIC_WT", "imbal_wt".upper(), "shift_wt".upper(), "non_response_wt".upper(), "mins_wt".upper(), "traffic_wt".upper(), "unsamp_traffic_wt".upper(), "FLOW", "ARRIVEDEPART"]]
-    survey_data_df["NON_RESPONSE_WT"] = 1    
-    survey_data_df["MINS_WT"] = 2
-    survey_data_df["TRAFFIC_WT"] = 3
-    survey_data_df["UNSAMP_TRAFFIC_WT"] = 4
-    survey_data_df["ARRIVEDEPART"] = np.random.randint(1,3, survey_data_df.shape[0])
-    survey_data_df["IMBAL_CTRY_FACT_PV"] = np.around(np.random.rand(survey_data_df.shape[0]), 2)
-#    survey_data_df["imbal_wt".upper()] = 5 
-#    survey_data_df["shift_wt".upper()] = 6
-#    survey_data_df["IMBAL_PORT_FACT_PV"] = 0.99
-#    survey_data_df["FLOW"] = np.random.randint(1,10, survey_data_df.shape[0])         
+#    print df_survey_data[["NON_RESPONSE_WT", "MINS_WT", "TRAFFIC_WT", "UNSAMP_TRAFFIC_WT", "imbal_wt".upper(), "shift_wt".upper(), "non_response_wt".upper(), "mins_wt".upper(), "traffic_wt".upper(), "unsamp_traffic_wt".upper(), "FLOW", "ARRIVEDEPART"]]
+    df_survey_data["NON_RESPONSE_WT"] = 1    
+    df_survey_data["MINS_WT"] = 2
+    df_survey_data["TRAFFIC_WT"] = 3
+    df_survey_data["UNSAMP_TRAFFIC_WT"] = 4
+    df_survey_data["ARRIVEDEPART"] = np.random.randint(1,3, df_survey_data.shape[0])
+    df_survey_data["IMBAL_CTRY_FACT_PV"] = np.around(np.random.rand(df_survey_data.shape[0]), 2)
+#    df_survey_data["imbal_wt".upper()] = 5 
+#    df_survey_data["shift_wt".upper()] = 6
+#    df_survey_data["IMBAL_PORT_FACT_PV"] = 0.99
+#    df_survey_data["FLOW"] = np.random.randint(1,10, df_survey_data.shape[0])         
     # END OF FUDGE
     
-#    print survey_data_df[["NON_RESPONSE_WT"
+#    print df_survey_data[["NON_RESPONSE_WT"
 #                         , "MINS_WT", "TRAFFIC_WT", "UNSAMP_TRAFFIC_WT"
 #                         , "imbal_wt".upper(), "shift_wt".upper()
 #                         , "non_response_wt".upper(), "mins_wt".upper()
 #                         , "traffic_wt".upper(), "unsamp_traffic_wt".upper()
 #                         , "FLOW", "ARRIVEDEPART"]].head()
-#    survey_data_df.info()
+#    df_survey_data.info()
 #    sys.exit()
 
     # Create total traffic df
-    total_traffic_df = survey_data_df[["PORTROUTE", "FLOW"]].copy()
-    total_traffic_df["TOT_NI_TRAFFIC"] = pd.Series(survey_data_df["NON_RESPONSE_WT"] 
-                                                   * survey_data_df["MINS_WT"]            
-                                                   * survey_data_df["TRAFFIC_WT"]        
-                                                   * survey_data_df["UNSAMP_TRAFFIC_WT"])
-#    print "total_traffic_df"
-#    print total_traffic_df.info()
+    df_total_traffic = df_survey_data[["PORTROUTE", "FLOW"]].copy()
+    df_total_traffic["TOT_NI_TRAFFIC"] = pd.Series(df_survey_data["NON_RESPONSE_WT"] 
+                                                   * df_survey_data["MINS_WT"]            
+                                                   * df_survey_data["TRAFFIC_WT"]        
+                                                   * df_survey_data["UNSAMP_TRAFFIC_WT"])
+#    print "df_total_traffic"
+#    print df_total_traffic.info()
 #    sys.exit()
 
     # Update output with provisional imbalance weight for overseas departures
-    overseas_deps_df = survey_data_df.copy()
-    flow_condition = (overseas_deps_df["FLOW"] == 1) | (overseas_deps_df["FLOW"] == 5)
-    arrivedepart_condition = overseas_deps_df["ARRIVEDEPART"] == 2
-    overseas_deps_df.loc[(flow_condition) & (arrivedepart_condition)
-                         , "IMBAL_WT"] = overseas_deps_df["IMBAL_PORT_FACT_PV"]                               
-#    print overseas_deps_df[["FLOW","ARRIVEDEPART","IMBAL_WT", "IMBAL_PORT_FACT_PV"]].head()
-#    print overseas_deps_df.info()
+    df_overseas_deps = df_survey_data.copy()
+    flow_condition = (df_overseas_deps["FLOW"] == 1) | (df_overseas_deps["FLOW"] == 5)
+    arrivedepart_condition = df_overseas_deps["ARRIVEDEPART"] == 2
+    df_overseas_deps.loc[(flow_condition) & (arrivedepart_condition)
+                         , "IMBAL_WT"] = df_overseas_deps["IMBAL_PORT_FACT_PV"]                               
+#    print df_overseas_deps[["FLOW","ARRIVEDEPART","IMBAL_WT", "IMBAL_PORT_FACT_PV"]].head()
+#    print df_overseas_deps.info()
 #    sys.exit()
     
     # Update output with provisional imbalance weight for overseas arrivals
-    flow_condition = (overseas_deps_df["FLOW"] == 3) | (overseas_deps_df["FLOW"] == 7)
-    arrivedepart_condition = overseas_deps_df["ARRIVEDEPART"] == 1
-    overseas_deps_df.loc[(flow_condition) & (arrivedepart_condition)
-                         , "IMBAL_WT"] = overseas_deps_df["IMBAL_PORT_FACT_PV"]
-#    print overseas_deps_df[["FLOW","ARRIVEDEPART","IMBAL_WT","IMBAL_PORT_FACT_PV"]].head()
-#    print overseas_deps_df.info()
+    flow_condition = (df_overseas_deps["FLOW"] == 3) | (df_overseas_deps["FLOW"] == 7)
+    arrivedepart_condition = df_overseas_deps["ARRIVEDEPART"] == 1
+    df_overseas_deps.loc[(flow_condition) & (arrivedepart_condition)
+                         , "IMBAL_WT"] = df_overseas_deps["IMBAL_PORT_FACT_PV"]
+#    print df_overseas_deps[["FLOW","ARRIVEDEPART","IMBAL_WT","IMBAL_PORT_FACT_PV"]].head()
+#    print df_overseas_deps.info()
 #    sys.exit()
     
     # Update overseas departures with country imbalance
-    flow_condition = (overseas_deps_df["FLOW"] == 1) | (overseas_deps_df["FLOW"] == 5)
-    overseas_deps_df.loc[(flow_condition)
-                         , "IMBAL_WT"] = (overseas_deps_df["IMBAL_WT"]
-                                           * overseas_deps_df["IMBAL_CTRY_FACT_PV"])
-#    print overseas_deps_df[["FLOW","IMBAL_WT","IMBAL_CTRY_FACT_PV"]].head()
-#    print overseas_deps_df.info()
+    flow_condition = (df_overseas_deps["FLOW"] == 1) | (df_overseas_deps["FLOW"] == 5)
+    df_overseas_deps.loc[(flow_condition)
+                         , "IMBAL_WT"] = (df_overseas_deps["IMBAL_WT"]
+                                           * df_overseas_deps["IMBAL_CTRY_FACT_PV"])
+#    print df_overseas_deps[["FLOW","IMBAL_WT","IMBAL_CTRY_FACT_PV"]].head()
+#    print df_overseas_deps.info()
 #    sys.exit()
 
     # Calculate the pre and post sums for overseas residents
-    prepost_df = survey_data_df.copy()
-#    print prepost_df[["FLOW"
+    df_prepost = df_survey_data.copy()
+#    print df_prepost[["FLOW"
 #                      , "imbal_wt".upper()
 #                      , "shift_wt".upper()
 #                      , "mins_wt".upper()
@@ -111,24 +111,22 @@ def do_ips_imbweight_calculation():
 #                      , "unsamp_traffic_wt".upper()
 #                      , "non_response_wt".upper()
 #                      , "unsamp_traffic_wt".upper()]].head()
-    flow_condition = ((prepost_df["FLOW"] == 1) 
-                      | (prepost_df["FLOW"] == 3) 
-                         | (prepost_df["FLOW"] == 5) 
-                            | (prepost_df["FLOW"] == 7))
-    pre_imb_weights_calc = (prepost_df["shift_wt".upper()] 
-                       * prepost_df["non_response_wt".upper()]
-                       * prepost_df["mins_wt".upper()]
-                       * prepost_df["traffic_wt".upper()]
-                       * prepost_df["unsamp_traffic_wt".upper()])
-    post_imb_weights_calc = (prepost_df["imbal_wt".upper()] 
-                            * prepost_df["shift_wt".upper()]
-                            * prepost_df["non_response_wt".upper()]
-                            * prepost_df["mins_wt".upper()]
-                            * prepost_df["traffic_wt".upper()]
-                            * prepost_df["unsamp_traffic_wt".upper()])
-    prepost_df.loc[(flow_condition), "PRE_IMB_WEIGHTS"] = pre_imb_weights_calc
-    prepost_df.loc[(flow_condition), "POST_IMB_WEIGHTS"] = post_imb_weights_calc
-#    print prepost_df[["FLOW"
+    prepost_flow_range = [1,3,5,7]
+    flow_condition = ((df_prepost["FLOW"].isin(prepost_flow_range)))
+    pre_imb_weights_calc = (df_prepost["shift_wt".upper()] 
+                       * df_prepost["non_response_wt".upper()]
+                       * df_prepost["mins_wt".upper()]
+                       * df_prepost["traffic_wt".upper()]
+                       * df_prepost["unsamp_traffic_wt".upper()])
+    post_imb_weights_calc = (df_prepost["imbal_wt".upper()] 
+                            * df_prepost["shift_wt".upper()]
+                            * df_prepost["non_response_wt".upper()]
+                            * df_prepost["mins_wt".upper()]
+                            * df_prepost["traffic_wt".upper()]
+                            * df_prepost["unsamp_traffic_wt".upper()])
+    df_prepost.loc[(flow_condition), "PRE_IMB_WEIGHTS"] = pre_imb_weights_calc
+    df_prepost.loc[(flow_condition), "POST_IMB_WEIGHTS"] = post_imb_weights_calc
+#    print df_prepost[["FLOW"
 #                      , "imbal_wt".upper()
 #                      , "shift_wt".upper()
 #                      , "mins_wt".upper()
@@ -138,59 +136,56 @@ def do_ips_imbweight_calculation():
 #                      , "unsamp_traffic_wt".upper()
 #                      , "PRE_IMB_WEIGHTS"
 #                      , "POST_IMB_WEIGHTS"]].head()
-#    print prepost_df.info()
+#    print df_prepost.info()
 #    sys.exit()
     
-    # Sort data by &var_portroute &var_flow;
-    prepost_df = prepost_df.sort_values(by=["PORTROUTE", "FLOW"])
-#    print "prepost_df"
-#    print prepost_df.info()
-#    print ""
-#    print prepost_df.head()
-#    sys.exit()
-    
-    # Summarise
-    # SELECT sum(PREPOST_DF[pre_imb_weights]) as pre_imb_weights
-    #      , sum(PREPOST_DF[post_imb_weights]) as post_imb_weights 
-    # FROM PREPOST_DF
-    # GROUP BY PREPOST_DF[&var_portroute]
-    #      , PREPOST_DF[&var_flow]
-    temp2_df = prepost_df.groupby(["PORTROUTE", "FLOW"]).agg({\
+    # Summarise - group by PORTROUTE and FLOW, 
+    # and total the pre and post imbalanace weights
+    df_overseas_residents = df_prepost.groupby(["PORTROUTE", "FLOW"]).agg({\
             'PRE_IMB_WEIGHTS':'sum'
             ,'POST_IMB_WEIGHTS':'sum'})
-    temp2_df = temp2_df.reset_index() 
-#    print temp2_df 
-#    print temp2_df.info()
+    df_overseas_residents = df_overseas_residents.reset_index() 
+#    print df_overseas_residents 
+#    print df_overseas_residents.info()
 #    sys.exit() 
     
-    # Calculate the difference between pre and post imbalance  
-    # weighting for departures and calculate the ratio of the 
-    # difference for departures at each port
-    portroute_condition = total_traffic_df["PORTROUTE"].isin(temp2_df["PORTROUTE"])
+    # Calculate the difference between pre and post imbalance
+    # weighting for departures and calculate the ratio  
+    # of the difference for departures at each port
     
+    # Set first condition
+    portroute_condition = df_total_traffic["PORTROUTE"].isin(df_overseas_residents["PORTROUTE"])
+    
+    # Set second condition
     total_traffic_flow_range = [2,4,6,8]
-    temp2_flow_range = [1,3,5,7]
-    flow_condition = ((total_traffic_df["FLOW"].isin(total_traffic_flow_range)) 
-                            | (temp2_df["FLOW"].isin(temp2_flow_range)))
+    overseas_residents_flow_range = [1,3,5,7]
+    flow_condition = ((df_total_traffic["FLOW"].isin(total_traffic_flow_range)) 
+                            | (df_overseas_residents["FLOW"].isin(overseas_residents_flow_range)))
     
-    total_traffic_condition = (total_traffic_df["TOT_NI_TRAFFIC"] != 0)
+    # Set third condition
+    total_traffic_condition = (df_total_traffic["TOT_NI_TRAFFIC"] != 0)
     
+    # Set one condition to rule them all...and in the darkness bind them
     all_conditions = ((portroute_condition)
                            & (flow_condition)
                            & (total_traffic_condition))
     
-    temp3_df = temp2_df.loc[all_conditions]
-    temp4_df = temp3_df.copy()
+    # Select data, where conditions
+    df_temp = df_overseas_residents.loc[all_conditions]
+    df_calc_imb_weighting = df_temp.copy()
 
-    temp4_df["DIFFERENCE"] = pd.Series(temp3_df["POST_IMB_WEIGHTS"] 
-                                                   - temp3_df["PRE_IMB_WEIGHTS"])
-    temp4_df["RATIO"] = pd.Series(temp4_df["DIFFERENCE"] 
-                                                   / total_traffic_df["TOT_NI_TRAFFIC"])
-    del temp4_df["POST_IMB_WEIGHTS"]
-    del temp4_df["PRE_IMB_WEIGHTS"]
-
-    print temp4_df
-    sys.exit()
+    # Set "DIFFERENCE" and "RATIO" column and values
+    df_calc_imb_weighting["DIFFERENCE"] = pd.Series(df_temp["POST_IMB_WEIGHTS"] 
+                                                   - df_temp["PRE_IMB_WEIGHTS"])
+    df_calc_imb_weighting["RATIO"] = pd.Series(df_calc_imb_weighting["DIFFERENCE"] 
+                                                   / df_total_traffic["TOT_NI_TRAFFIC"])
+    
+    # Delete unnecessary columns 
+    del df_calc_imb_weighting["POST_IMB_WEIGHTS"]
+    del df_calc_imb_weighting["PRE_IMB_WEIGHTS"]
+#
+#    print df_calc_imb_weighting
+#    sys.exit()
     
 
 def calc_imb_weight(oracle_dataset = True):
@@ -208,7 +203,7 @@ def calc_imb_weight(oracle_dataset = True):
     global parameters
     global output_data_df
     global summary_data_df
-    global survey_data_df
+    global df_survey_data
     
     # Call JSON configuration file for error logger setup
     survey_support.setup_logging('IPS_logging_config_debug.json')
@@ -224,13 +219,13 @@ def calc_imb_weight(oracle_dataset = True):
     
     # CHOOSE MY PREFERRED DATASET
     if oracle_dataset == True:
-        survey_data_df = cf.get_table_values(parameters["SurveyData"])
+        df_survey_data = cf.get_table_values(parameters["SurveyData"])
     else:
         # Load SAS files into dataframes (this  
         # data will come from Oracle eventually)
         root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Imbalance Weight"
         path_to_survey_data = root_data_path + r"\surveydata_1.sas7bdat"
-        survey_data_df = pd.read_sas(path_to_survey_data)
+        df_survey_data = pd.read_sas(path_to_survey_data)
     # END OF PREFERECNE FUDGE
     
     do_ips_imbweight_calculation()
