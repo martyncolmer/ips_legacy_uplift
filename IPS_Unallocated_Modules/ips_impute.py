@@ -1,7 +1,8 @@
 import numpy as np
+import pandas as pd
 
-def ips_impute(input,output,var_serialNum,stratsbase,threshbase,numLevels,
-               imputeVar,var_value,imputeFunction,var_imputeFlag,var_impLevel):
+def ips_impute(input,output,var_serialNum,strata_base,thresh_base,num_levels,
+               impute_var,var_value,impute_function,var_impute_flag,var_impute_level):
     """
     Author       : James Burr
     Date         : 09 Feb 2018
@@ -27,8 +28,42 @@ def ips_impute(input,output,var_serialNum,stratsbase,threshbase,numLevels,
     
     df_impute_from = df_input[df_input['STAY_IMP_FLAG_PV'] == False]
     
+    # Create recipient set, in which the inpute flag is true
     df_to_impute = df_input[df_input['STAY_IMP_FLAG_PV'] == True]
-
+    
+    level = 0
+    
+    # This loop is poorly programmed in SAS and so is very awkward to translate.
+    # Not yet implemented, but the plan is to create a dictionary of dataframes
+    # in which the keys are created dynamically within each loop iteration and the
+    # current state of the output dataframe is stored as the key. In this way, 
+    # each state can be accessed with a dynamically produced name. This dictionary
+    # will store each dataframe to keep consistent with the sas code but the 
+    # additional datasests don't seem to be used. Will come back to this code.
+    while((level < num_levels) & (df_to_impute.empty == False)):
+        
+        # Pass the bases with the level string concatenated
+        strata_base_var = strata_base + level
+        thresh_base_var = thresh_base + level
+        
+        # Unsure what imputed&level should be. Corresponds to output parameter
+        # in the ips_impute_segment function but imputed does not exist in the
+        # SAS code. Also can't find where count is created. Tom has mentioned that
+        # some variables in SAS are created in the function call and persist between
+        # calls. Imputed var may be redundant, unsure about count. Revisit this.
+        df_segment_output = ips_impute_segment(df_impute_from, imputed&level
+                                               , strata_base_var, impute_var
+                                               , impute_function, var_value
+                                               , count, thresh_base_var)
+        
+        df_output = ips_impute_match(df_to_impute, imputed&level
+                                           , df_segment_output, strata_base_var
+                                           , var_value, impute_var, level
+                                           , var_impute_level, var_impute_flag)
+        
+        level += 1
+        
+        return df_output
 
 def ips_impute_segment(input,output,strata,imputeVar,function,var_value,
                        var_count,thresh):
@@ -49,15 +84,19 @@ def ips_impute_segment(input,output,strata,imputeVar,function,var_value,
     Dependencies : NA
     """
     
+    # SAS code is unclear here. Summary being performed using input as the input
+    # dataset but the output is the resolved version of the output dataset with
+    # a condition applied. Unsure if the input and output data is supposed to be
+    # merged in this instance.
+    
     df_input = input
     
     df_input = df_input.sort_values(strata)
     
-    df_output = output.where(output['var_count'] > output['thresh'])
-    
-    
     df_output = df_input.groupby(imputeVar).agg({\
             'var_value' : function, 'var_count' : 'count'})
+    
+    df_output = output.where(output['var_count'] > output['thresh'])
     
     # Might be temporary. When level is 0, performs the same function as 
     # concatenating var_value with the value of level
@@ -65,8 +104,9 @@ def ips_impute_segment(input,output,strata,imputeVar,function,var_value,
     
     return df_output
     
-def ips_impute_match(remainder,input,output,strata,var_value,imputeVar,level,
-                     var_level,var_imputeFlag):
+    
+def ips_impute_match(remainder,input,output,strata,var_value,impute_var,level,
+                     var_level,var_impute_flag):
     """
     Author       : James Burr
     Date         : 09 Feb 2018
@@ -94,11 +134,20 @@ def ips_impute_match(remainder,input,output,strata,var_value,imputeVar,level,
     
     df_input = df_input.sort_values(strata)
     
+    # Ensure remainder contains observations that require imputing
     df_input = df_input.where(df_input[strata] == np.NaN)
     
     df_remainder = df_remainder.merge(df_input, how = "outer")
     
     df_output = output
     
+    # Update output
     df_output.sort_values(strata, inplace = True)
     
+    df_input[var_level] = np.where(df_input[var_level] == np.NaN & df_input[var_impute_flag] == 1, level, df_input[var_level])
+    
+    df_input[var_value] = np.where(df_input[var_level] == np.NaN & df_input[var_impute_flag] == 1, var_value + level, df_input[var_level])
+        
+    df_output = df_output.merge(df_input, on = strata, how = 'outer')
+    
+    return df_output

@@ -1,4 +1,6 @@
 from IPS_Unallocated_Modules import ips_impute
+import survey_support
+from IPSTransformation import CommonFunctions as cf
 
 
 def do_ips_stay_imputation(input, output, var_serialNum, varStem, threshStem,
@@ -26,11 +28,18 @@ def do_ips_stay_imputation(input, output, var_serialNum, varStem, threshStem,
     """
     df_input = input
     
+    # Ensure imputation only occurs on eligible rows
     df_eligible = df_input.where(df_input['var_eligibleFlag'] == True)
     
-    ips_impute.ips_impute(df_eligible, output, var_serialNum, varStem, threshStem
-                          , numLevels, donorVar,outputVar, measure, var_impFlag
-                          , var_impLevel)
+    df_output_final = ips_impute.ips_impute(df_eligible, output, var_serialNum
+                                            , varStem, threshStem, numLevels
+                                            , donorVar,outputVar, measure
+                                            , var_impFlag, var_impLevel)
+    
+    # Round output column to nearest integer
+    df_output_final['output_var'] = df_output_final['output_var'].round()
+    
+    return df_output_final
 
 
 def ips_stay_imp(SurveyData = 'sas_survey_subsample',OutputData = 'sas_stay_imp'
@@ -58,7 +67,28 @@ def ips_stay_imp(SurveyData = 'sas_survey_subsample',OutputData = 'sas_stay_imp'
     Requirements : NA
     Dependencies : NA
     """
-    do_ips_stay_imputation(SurveyData, OutputData, var_serialNum, varStem
-                           , threshStem, numLevels, donorVar, outputVar, measure
-                           , var_eligibleFlag, var_impFlag, var_impLevel)
+    
+    # Call JSON configuration file for error logger setup
+    survey_support.setup_logging('IPS_logging_config_debug.json')
+    
+    df_output = do_ips_stay_imputation(SurveyData, OutputData, var_serialNum
+                                       , varStem, threshStem, numLevels, donorVar
+                                       , outputVar, measure, var_eligibleFlag
+                                       , var_impFlag, var_impLevel)
+    
+    # Append the generated data to output tables
+    cf.insert_into_table_many(OutputData, df_output)
+    #cf.insert_into_table_many(SummaryData, summary_dataframe)
+
+    # Retrieve current function name using inspect:
+    # 0 = frame object, 3 = function name.
+    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+#     function_name = str(inspect.stack()[0][3])
+#     audit_message = "Load Shift Weight calculation: %s()" %function_name
+    
+    # Log success message in SAS_RESPONSE and AUDIT_LOG
+#     cf.database_logger().info("SUCCESS - Completed Shift weight calculation.")
+#     cf.commit_to_audit_log("Create", "ShiftWeight", audit_message)
+    print("Completed - Calculate Stay Imputation")
+    
     
