@@ -34,17 +34,20 @@ def ips_impute(input,output,var_serialNum,strata_base,thresh_base,num_levels,
     level = 0
     
     # This loop is poorly programmed in SAS and so is very awkward to translate.
-    # Not yet implemented, but the plan is to create a dictionary of dataframes
-    # in which the keys are created dynamically within each loop iteration and the
-    # current state of the output dataframe is stored as the key. In this way, 
-    # each state can be accessed with a dynamically produced name. This dictionary
-    # will store each dataframe to keep consistent with the sas code but the 
-    # additional datasests don't seem to be used. Will come back to this code.
+    # dictionary_of_dataframes will contain a copy of the output dataframe at
+    # each iteration of the while loop, accessed through the key which uses
+    # the iteration number to define it. SAS creates intermediate datasets in 
+    # this style, but may not use them. Currently creating this dictionary for 
+    # the sake of complete translation but this may not be required.
+    dictionary_of_dataframes = {}
+    
     while((level < num_levels) & (df_to_impute.empty == False)):
         
+        key_name = 'df_output_' + str(level)
+        
         # Pass the bases with the level string concatenated
-        strata_base_var = strata_base + level
-        thresh_base_var = thresh_base + level
+        strata_base_var = strata_base + str(level)
+        thresh_base_var = thresh_base + str(level)
         
         # Unsure what imputed&level should be. Corresponds to output parameter
         # in the ips_impute_segment function but imputed does not exist in the
@@ -61,9 +64,11 @@ def ips_impute(input,output,var_serialNum,strata_base,thresh_base,num_levels,
                                            , var_value, impute_var, level
                                            , var_impute_level, var_impute_flag)
         
+        dictionary_of_dataframes[key_name] = df_output.copy()
+        
         level += 1
         
-        return df_output
+    return df_output
 
 def ips_impute_segment(input,output,strata,imputeVar,function,var_value,
                        var_count,thresh):
@@ -144,9 +149,12 @@ def ips_impute_match(remainder,input,output,strata,var_value,impute_var,level,
     # Update output
     df_output.sort_values(strata, inplace = True)
     
-    df_input[var_level] = np.where(df_input[var_level] == np.NaN & df_input[var_impute_flag] == 1, level, df_input[var_level])
+    df_input[var_level] = np.where(df_input[var_level] == np.NaN & df_input[var_impute_flag] == 1
+                                   , level, df_input[var_level])
     
-    df_input[var_value] = np.where(df_input[var_level] == np.NaN & df_input[var_impute_flag] == 1, var_value + level, df_input[var_level])
+    df_input[var_value] = np.where(df_input[var_level] == np.NaN & df_input[var_impute_flag] == 1
+                                   , var_value + str(level)
+                                   , df_input[var_level])
         
     df_output = df_output.merge(df_input, on = strata, how = 'outer')
     
