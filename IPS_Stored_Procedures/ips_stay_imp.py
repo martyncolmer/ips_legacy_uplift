@@ -1,6 +1,16 @@
-from IPS_Unallocated_Modules import ips_impute
+import sys
+import os
+import logging
+import inspect
+import numpy as np
+import pandas as pd
+from sas7bdat import SAS7BDAT
+from pandas.util.testing import assert_frame_equal
+from collections import OrderedDict
 import survey_support
 from IPSTransformation import CommonFunctions as cf
+from IPS_Unallocated_Modules import ips_impute
+
 
 
 def do_ips_stay_imputation(input, output, var_serialNum, varStem, threshStem,
@@ -22,7 +32,7 @@ def do_ips_stay_imputation(input, output, var_serialNum, varStem, threshStem,
                    both donor and recipient
                    var_imp_flag - the imputation required trigger/flag field name
                    var_imp_level - the imputation level field name
-    Returns      : 
+    Returns      : Dataframe - df_output_final
     Requirements : NA
     Dependencies : NA
     """
@@ -42,12 +52,9 @@ def do_ips_stay_imputation(input, output, var_serialNum, varStem, threshStem,
     return df_output_final
 
 
-def ips_stay_imp(SurveyData = 'sas_survey_subsample',OutputData = 'sas_stay_imp'
-                 ,ResponseTable = 'sas_response',var_serialNum = 'serial'
-                 ,varStem = 'vars',threshStem = 'thresh',numLevels = 1
-                 ,donorVar = 'numNights',outputVar = 'stay',measure = 'mean'
-                 ,var_eligibleFlag
-                 ,var_impFlag = 'stay_imp_flag_pv',var_impLevel = 'stayk'):
+def ips_stay_imp(SurveyData,OutputData,ResponseTable,var_serialNum,varStem
+                 ,threshStem,numLevels,donorVar,outputVar,measure
+                 ,var_eligibleFlag,var_impFlag,var_impLevel):
     """
     Author       : James Burr
     Date         : 12 Feb 2018
@@ -71,6 +78,21 @@ def ips_stay_imp(SurveyData = 'sas_survey_subsample',OutputData = 'sas_stay_imp'
     # Call JSON configuration file for error logger setup
     survey_support.setup_logging('IPS_logging_config_debug.json')
     
+    # Setup path to the base directory containing data files
+    root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_IPS_Shift_Weight"
+    
+    # This commented out to be changed when data is availabe for this step
+    #path_to_survey_data = root_data_path + r"\surveydatasmall.sas7bdat"
+    
+    # Create dataframe to store output
+    global df_surveydata
+    
+    # Import data via SQL
+    df_surveydata = cf.get_table_values(SurveyData)
+    
+    df_surveydata.columns = df_surveydata.columns.str.upper()
+    
+    print("Start - Calculate Stay Imputation")
     df_output = do_ips_stay_imputation(SurveyData, OutputData, var_serialNum
                                        , varStem, threshStem, numLevels, donorVar
                                        , outputVar, measure, var_eligibleFlag
@@ -78,17 +100,26 @@ def ips_stay_imp(SurveyData = 'sas_survey_subsample',OutputData = 'sas_stay_imp'
     
     # Append the generated data to output tables
     cf.insert_into_table_many(OutputData, df_output)
-    #cf.insert_into_table_many(SummaryData, summary_dataframe)
 
     # Retrieve current function name using inspect:
     # 0 = frame object, 3 = function name.
     # See 28.13.4. in https://docs.python.org/2/library/inspect.html
-#     function_name = str(inspect.stack()[0][3])
-#     audit_message = "Load Shift Weight calculation: %s()" %function_name
+    function_name = str(inspect.stack()[0][3])
+    audit_message = "Load Stay Imputation calculation: %s()" %function_name
     
     # Log success message in SAS_RESPONSE and AUDIT_LOG
-#     cf.database_logger().info("SUCCESS - Completed Shift weight calculation.")
-#     cf.commit_to_audit_log("Create", "ShiftWeight", audit_message)
+    cf.database_logger().info("SUCCESS - Completed Stay imputation.")
+    cf.commit_to_audit_log("Create", "StayImputation", audit_message)
+    
     print("Completed - Calculate Stay Imputation")
+    
+    
+if __name__ == '__main__':
+    ips_stay_imp(SurveyData = 'SAS_SURVEY_SUBSAMPLE',OutputData = 'SAS_STAY_IMP'
+                 ,ResponseTable = 'SAS_RESPONSE',var_serialNum = 'SERIAL'
+                 ,varStem = 'VARS',threshStem = 'THRESH',numLevels = 1
+                 ,donorVar = 'NUMNIGHTS',outputVar = 'STAY',measure = 'MEAN'
+                 ,var_eligibleFlag = 'STAY_IMP_ELIGIBLE_PV'
+                 ,var_impFlag = 'STAY_IMP_FLAG_PV',var_impLevel = 'STAYK')
     
     

@@ -89,15 +89,14 @@ def ips_impute_segment(input,output,strata,imputeVar,function,var_value,
     Dependencies : NA
     """
     
-    # SAS code is unclear here. Summary being performed using input as the input
-    # dataset but the output is the resolved version of the output dataset with
-    # a condition applied. Unsure if the input and output data is supposed to be
-    # merged in this instance.
-    
     df_input = input
     
     df_input = df_input.sort_values(strata)
     
+    # SAS code is unclear here. Summary being performed using input as the input
+    # dataset but the output is the resolved version of the output dataset with
+    # a condition applied. Unsure if the input and output data is supposed to be
+    # merged in this instance.
     df_output = df_input.groupby(imputeVar).agg({\
             'var_value' : function, 'var_count' : 'count'})
     
@@ -146,7 +145,7 @@ def ips_impute_match(remainder,input,output,strata,var_value,impute_var,level,
     
     df_output = output
     
-    # Update output
+    # Update output with imputed values
     df_output.sort_values(strata, inplace = True)
     
     df_input[var_level] = np.where(df_input[var_level] == np.NaN & df_input[var_impute_flag] == 1
