@@ -5,6 +5,7 @@ Created on 7 Feb 2018
 '''
 
 import pandas as pd
+import pandasql as ps
 import numpy as np
 import inspect
 import sys
@@ -25,6 +26,7 @@ def do_ips_imbweight_calculation():
     Requirements  :
     """
     
+    df_survey_data = gldf_survey_data.copy()
 #    print df_survey_data[["NON_RESPONSE_WT"
 #                         , "MINS_WT", "TRAFFIC_WT", "UNSAMP_TRAFFIC_WT"
 #                         , "imbal_wt".upper(), "shift_wt".upper()
@@ -33,9 +35,9 @@ def do_ips_imbweight_calculation():
 #                         , "FLOW", "ARRIVEDEPART"]].head()
 #    print df_survey_data.info()
 #    sys.exit()
-    
+
     # Change column names to upper case (just in case)
-    df_survey_data.columns = df_survey_data.columns.str.upper()
+#    df_survey_data.columns = df_survey_data.columns.str.upper()
 
     # Do some initial setup and selection
     df_survey_data.drop(df_survey_data[df_survey_data.IMBAL_ELIGIBLE_PV != 1].index, inplace=True)
@@ -44,28 +46,6 @@ def do_ips_imbweight_calculation():
 #    print df_survey_data
 #    sys.exit()
     
-#    # FUDGE SOME VALUES - TO BE REMOVED WHEN TEST DATASET IS COMPLETE
-##    print df_survey_data[["NON_RESPONSE_WT", "MINS_WT", "TRAFFIC_WT", "UNSAMP_TRAFFIC_WT", "imbal_wt".upper(), "shift_wt".upper(), "non_response_wt".upper(), "mins_wt".upper(), "traffic_wt".upper(), "unsamp_traffic_wt".upper(), "FLOW", "ARRIVEDEPART"]]
-#    df_survey_data["NON_RESPONSE_WT"] = 1    
-#    df_survey_data["MINS_WT"] = 2
-#    df_survey_data["TRAFFIC_WT"] = 3
-#    df_survey_data["UNSAMP_TRAFFIC_WT"] = 4
-#    df_survey_data["ARRIVEDEPART"] = np.random.randint(1,3, df_survey_data.shape[0])
-#    df_survey_data["IMBAL_CTRY_FACT_PV"] = np.around(np.random.rand(df_survey_data.shape[0]), 2)
-##    df_survey_data["imbal_wt".upper()] = 5 
-##    df_survey_data["shift_wt".upper()] = 6
-##    df_survey_data["IMBAL_PORT_FACT_PV"] = 0.99
-##    df_survey_data["FLOW"] = np.random.randint(1,10, df_survey_data.shape[0])         
-#    # END OF FUDGE
-#    print df_survey_data[["NON_RESPONSE_WT"
-#                         , "MINS_WT", "TRAFFIC_WT", "UNSAMP_TRAFFIC_WT"
-#                         , "imbal_wt".upper(), "shift_wt".upper()
-#                         , "non_response_wt".upper(), "mins_wt".upper()
-#                         , "traffic_wt".upper(), "unsamp_traffic_wt".upper()
-#                         , "FLOW", "ARRIVEDEPART"]].head()
-#    df_survey_data.info()
-#    sys.exit()
-
     # Create total traffic df
     df_total_traffic = df_survey_data[["PORTROUTE", "FLOW"]].copy()
     df_total_traffic["TOT_NI_TRAFFIC"] = pd.Series(df_survey_data["NON_RESPONSE_WT"] 
@@ -115,6 +95,7 @@ def do_ips_imbweight_calculation():
     # Calculate the pre and post sums for overseas residents
     df_prepost = df_survey_data.copy()
     df_prepost.reset_index(drop=True,inplace=True)
+    
     prepost_flow_range = [1,3,5,7]
     df_prepost = df_prepost[df_prepost['FLOW'].isin(prepost_flow_range)]
     df_prepost["PRE_IMB_WEIGHTS"] = pd.Series(df_prepost["shift_wt".upper()]
@@ -177,37 +158,26 @@ def do_ips_imbweight_calculation():
     # Delete unnecessary columns 
     del df_calc_departures["POST_IMB_WEIGHTS"]
     del df_calc_departures["PRE_IMB_WEIGHTS"]
-    # Compare with temp3.sas7bdat
+##     Compare with temp3.sas7bdat
 #    print df_calc_departures
 #    sys.exit()
 
     # Calculate the imbalance weight
-    
-    # Set conditions of first and second inner nested select
+    df_survey_data.reset_index(drop=True,inplace=True)
+    df_survey_data["RATIO"] = np.nan
     flow_range1 = [2,4,6,8]
     flow_range2 = [1,3,5,7]
-    condition1 = df_survey_data["PORTROUTE"].isin(df_calc_departures["PORTROUTE"])
-    condition2 = ((df_survey_data["FLOW"].isin(flow_range1)) | (df_calc_departures["FLOW"].isin(flow_range2)))
-    nested_condition = ((condition1) & (condition2))
+                       
+    df_survey_data.loc[((df_survey_data.PORTROUTE.isin(df_calc_departures.PORTROUTE)) 
+                        & (df_survey_data["FLOW"].isin(flow_range1))), "IMBAL_WT"] \
+                   = (1.0 - df_survey_data["RATIO"])    
     
-    
-        
-    
-#    UPDATE df_survey_data
-#    SET df_survey_data['IMBAL_WT'] = 1.0 - (SELECT df_calc_departures["RATIO"] 
-#                                            FROM df_calc_departures
-        #                                        WHERE df_survey_data["PORTROUTE"] = df_calc_departures["PORTROUTE"]
-        #                                              & ((df_survey_data["FLOW"] = 2 & df_calc_departures["FLOW"] = 1) |
-        #                                                   (df_survey_data["FLOW"] = 4 & df_calc_departures["FLOW"] = 3) |
-        #                                                    (df_survey_data["FLOW"] = 6 & df_calc_departures["FLOW"] = 5) |
-        #                                                   (df_survey_data["FLOW"] = 8 & df_calc_departures["FLOW"] = 7)))
-#    WHERE EXISTS (SELECT * FROM df_calc_departures
-#                    WHERE df_survey_data["PORTROUTE"] = df_calc_departures["PORTROUTE"]
-#                          & ((df_survey_data["FLOW"] = 2 & df_calc_departures["FLOW"] = 1) |
-#                               (df_survey_data["FLOW"] = 4 & df_calc_departures["FLOW"] = 3) |
-#                                (df_survey_data["FLOW"] = 6 & df_calc_departures["FLOW"] = 5) |
-#                               (df_survey_data["FLOW"] = 8 & df_calc_departures["FLOW"] = 7)));
-    
+#    # Compare with in_update4
+#    rows = [2, 8,9,11,12,13,16,18,21,23,24,25,30,31,33,34,35]
+#    rows2 = [0,1,3,4,5,6,7,10,14,15,17,19,20,22,26,27,28,29,32]
+#    print df_survey_data[["SERIAL","IMBAL_WT", "PORTROUTE", "FLOW"]].ix[rows]
+#    print df_survey_data[["SERIAL","IMBAL_WT", "PORTROUTE", "FLOW"]].ix[rows2]
+#    sys.exit()
 
     
 def calc_imb_weight(oracle_dataset = True):
@@ -225,7 +195,7 @@ def calc_imb_weight(oracle_dataset = True):
     global parameters
     global output_data_df
     global summary_data_df
-    global df_survey_data
+    global gldf_survey_data
     
 #    # Call JSON configuration file for error logger setup
 #    survey_support.setup_logging('IPS_logging_config_debug.json')
@@ -241,13 +211,13 @@ def calc_imb_weight(oracle_dataset = True):
 #    
     # CHOOSE MY PREFERRED DATASET
     if oracle_dataset == True:
-        df_survey_data = cf.get_table_values(parameters["SurveyData"])
+        gldf_survey_data = cf.get_table_values(parameters["SurveyData"])
     else:
         # Load SAS files into dataframes (this  
         # data will come from Oracle eventually)
         root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Imbalance Weight"
         path_to_survey_data = root_data_path + r"\surveydata_1.sas7bdat"
-        df_survey_data = pd.read_sas(path_to_survey_data)
+        gldf_survey_data = pd.read_sas(path_to_survey_data)
     # END OF PREFERECNE FUDGE
     
     do_ips_imbweight_calculation()
