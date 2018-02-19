@@ -6,7 +6,7 @@ def ips_impute(input,output,var_serialNum,strata_base,thresh_base,num_levels,
     """
     Author       : James Burr
     Date         : 09 Feb 2018
-    Purpose      : Generates segments for use within IPS imputation.
+    Purpose      : Performs imputations based on input parameters
     Parameters   : input - dataframe holding both donors and recipients
                    output - dataframe holding imputed records
                    var_serialNum - variable holding the serial number
@@ -41,6 +41,9 @@ def ips_impute(input,output,var_serialNum,strata_base,thresh_base,num_levels,
     # the sake of complete translation but this may not be required.
     dictionary_of_dataframes = {}
     
+    count = ''
+    imputed = ''
+    
     while((level < num_levels) & (df_to_impute.empty == False)):
         
         key_name = 'df_output_' + str(level)
@@ -54,12 +57,12 @@ def ips_impute(input,output,var_serialNum,strata_base,thresh_base,num_levels,
         # SAS code. Also can't find where count is created. Tom has mentioned that
         # some variables in SAS are created in the function call and persist between
         # calls. Imputed var may be redundant, unsure about count. Revisit this.
-        df_segment_output = ips_impute_segment(df_impute_from, imputed&level
+        df_segment_output = ips_impute_segment(df_impute_from, imputed + str(level)
                                                , strata_base_var, impute_var
                                                , impute_function, var_value
                                                , count, thresh_base_var)
         
-        df_output = ips_impute_match(df_to_impute, imputed&level
+        df_output = ips_impute_match(df_to_impute, imputed + str(level)
                                            , df_segment_output, strata_base_var
                                            , var_value, impute_var, level
                                            , var_impute_level, var_impute_flag)

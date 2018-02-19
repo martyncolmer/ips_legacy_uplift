@@ -58,19 +58,20 @@ def ips_stay_imp(SurveyData,OutputData,ResponseTable,var_serialNum,varStem
     """
     Author       : James Burr
     Date         : 12 Feb 2018
-    Purpose      : Generates segments for use within IPS imputation.
-    Parameters   : input - dataframe holding both donors and recipients
-                   output - dataframe holding imputed records
-                   var_serialNum - variable holding the serial number
-                   strata_base - stem for the strata variables
-                   thresh_base - stem for the threshold variables
-                   num_levels - number of imputation levels (run from 0 to num-1)
-                   impute_var - variable to be imputed
-                   var_value - variable holding the name of the output value field
-                   impute_function - imputation cluster measure function (e.g. mean)
-                   var_impute_flag - name of the imputation flag variable
-                   var_impute_level - name of the imputation level output field
-    Returns      : Dataframe containing the imputed records
+    Purpose      : Produces imputed values for step 8, stay_imputation
+    Parameters   : SurveyData - the IPS survey dataset
+                   OutputData - the output
+                   ResponseTable - the SAS response table
+                   var_serialNum - the serial number field name
+                   varStem - stem of the imputation variables parameters
+                   threshStem - stem of the imputation threshold parameters
+                   numLevels - number of imputation levels
+                   donorVar - Name of the donor variable
+                   outputVar - Name of the output variable    
+                   var_eligibleFlag - the imputation eligibility (donor+recipient) field name
+                   var_impFlag - the imputation required trigger/flag field name
+                   var_impLevel - the imputation level field name
+    Returns      : NA
     Requirements : NA
     Dependencies : NA
     """
@@ -93,7 +94,7 @@ def ips_stay_imp(SurveyData,OutputData,ResponseTable,var_serialNum,varStem
     df_surveydata.columns = df_surveydata.columns.str.upper()
     
     print("Start - Calculate Stay Imputation")
-    df_output = do_ips_stay_imputation(SurveyData, OutputData, var_serialNum
+    df_output = do_ips_stay_imputation(df_surveydata, OutputData, var_serialNum
                                        , varStem, threshStem, numLevels, donorVar
                                        , outputVar, measure, var_eligibleFlag
                                        , var_impFlag, var_impLevel)
