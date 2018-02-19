@@ -10,6 +10,7 @@ from collections import OrderedDict
 import survey_support
 from IPSTransformation import CommonFunctions as cf
 
+# Place holder function. This is being used until the actual GES weighting function is complete.
 def do_ips_ges_weighting(input, SerialNumVarName, DesignWeightVarName, 
                       StrataDef, PopTotals, TotalVar, MaxRuleLength, 
                       ModelGroup, Output, GWeightVar, CalWeightVar, 
@@ -27,8 +28,9 @@ def do_ips_unsampled_weight_calculation(inn, summary, var_serialNum, var_shiftWe
     
     """
     Author       : Thomas Mahoney
-    Date         : 12 / 02 / 2018
-    Purpose      : Performs calculations to find the unsampled weight.
+    Date         : 16 / 02 / 2018
+    Purpose      : Performs calculations to determine the unsampled weight of the
+                   imported dataset.
     Parameters   : NA
     Returns      : Two dataframes
     Requirements : 
@@ -41,31 +43,19 @@ def do_ips_unsampled_weight_calculation(inn, summary, var_serialNum, var_shiftWe
     inn[OOHDesignWeight] = \
         inn[var_shiftWeight] * inn[var_NRWeight] * inn[var_minWeight] * inn[var_trafficWeight];
     
-    #
     
     # Summarise the uplift totals over the strata
-    PopTotals = PopTotals.sort_values(by = OOHStrataDef)
-    
-    #
-    
+    PopTotals = PopTotals.sort_values(by = OOHStrataDef)        
     popTotals = PopTotals.groupby(OOHStrataDef)[var_totals].agg({'UPLIFT' : 'sum'})
     
-    #
     
     # Summarise the previous totals over the strata
+    # Only use values where the OODesignWeight is greater than zero
     inn = inn.sort_values(by = OOHStrataDef)
-    
-    #
-    
     prevTotals = inn.loc[inn[OOHDesignWeight] > 0]
-    
     prevTotals = prevTotals.groupby(OOHStrataDef)[OOHDesignWeight].agg({'PREVTOTAL' : 'sum'})
     
-    #
-    
     popTotals = popTotals.sort_values(by = OOHStrataDef)
-    
-    #
     
     # Generate the lifted totals data set from the two sets created
     liftedTotals = pd.merge(prevTotals,popTotals,on = OOHStrataDef, how = 'left')
@@ -79,9 +69,7 @@ def do_ips_unsampled_weight_calculation(inn, summary, var_serialNum, var_shiftWe
     
     # Remove any records where var_totals value is not greater than zero
     liftedTotals = liftedTotals[liftedTotals[var_totals] > 0]
-    
-    #
-        
+      
     # Call the GES weighting macro
     do_ips_ges_weighting(inn, var_serialNum, OOHDesignWeight, 
                       OOHStrataDef, liftedTotals, var_totals, MaxRuleLength, 
@@ -90,41 +78,38 @@ def do_ips_unsampled_weight_calculation(inn, summary, var_serialNum, var_shiftWe
     
     
     
-    # Generate the summary table
     
+    # Sort inn dataframe before merge
     inn = inn.sort_values(by = var_serialNum)
     
-    #
-    
+
+    # Merge the inn and output data frame to generate the summary table
     inn = pd.merge(inn,output, on = [var_serialNum,var_OOHWeight], how = 'left')
     
+    # Fill blank UNSAMP_TRAFFIC_WT values with 1.0
     inn[var_OOHWeight].fillna(1.0, inplace=True)
     
-    inn['POSTWEIGHT'] = inn[var_OOHWeight] + inn[OOHDesignWeight]
-    
-    #
-    
+    # Generate POSTWEIGHT values from the UNSAMP_TRAFFIC_WT and OOHDesignWeight values
+    inn['POSTWEIGHT'] = inn[var_OOHWeight] + inn[OOHDesignWeight]    
     inn = inn.sort_values(by = OOHStrataDef)
     
-    #
-    
+    # Create the summary data frame from the sample with OOHDesignWeight not equal to zero
     df_summary = inn[inn[OOHDesignWeight] != 0]
     df_summary = df_summary.groupby(OOHStrataDef)[var_OOHWeight].agg({\
             OOHDesignWeight : 'sum' ,'POSTWEIGHT' : 'sum', var_OOHWeight : 'mean'})
     
     # Flattens the column structure after adding the new OOHDesignWeight and POSTWEIGHT columns
     df_summary = df_summary.reset_index()
-    
     df_summary = df_summary.rename(columns = {OOHDesignWeight : var_priorWeightSum,
                                               'POSTWEIGHT' : var_OOHWeightSum})
     
-    #
-    
+        
     # Identify groups where the total has been uplifted but the
     # respondent count is below the threshold.
     
-    # Create shift weight threshold data sets
+    # Create unsampled data set outside of the threshold
     df_unsampled_thresholds_check = df_summary[(df_summary[var_OOHWeightSum] > df_summary[var_priorWeightSum]) & (df_summary[var_caseCount] < df_summary[minCountThresh])]
+    
     # Collect data outside of specified threshold
     threshold_string = ""
     for index, record in df_unsampled_thresholds_check.iterrows():
@@ -133,11 +118,11 @@ def do_ips_unsampled_weight_calculation(inn, summary, var_serialNum, var_shiftWe
                          + df_unsampled_thresholds_check.columns[1] + " : " + str(record[1]) + " | "\
                          + df_unsampled_thresholds_check.columns[2] + " : " + str(record[2]) + " | "\
                          + df_unsampled_thresholds_check.columns[3] + " : " + str(record[3])
+                         
+    # Output the values outside of the threshold to the logger
     if len(df_unsampled_thresholds_check) > 0:
         cf.database_logger().warning('WARNING: Respondent count below minimum threshold for: ' + threshold_string)
 
-    
-    
 
 def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum, 
               var_shiftWeight, var_NRWeight, var_minWeight, var_trafficWeight,
@@ -171,9 +156,9 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum,
     print("Start - Calculate UnSampled Weight.")     
     
     
-    weight_calculated_dataframes = do_ips_unsampled_weight_calculation(survey, summary, var_serialNum, var_shiftWeight, var_NRWeight, 
+    weight_calculated_dataframes = do_ips_unsampled_weight_calculation(survey, 'summary', var_serialNum, var_shiftWeight, var_NRWeight, 
                                         var_minWeight, var_trafficWeight, OOHStrataDef, ustotals, 
-                                        var_totals, MaxRuleLength, var_modelGroup, output, 
+                                        var_totals, MaxRuleLength, var_modelGroup, 'output', 
                                         var_OOHWeight, var_caseCount, var_priorWeightSum, 
                                         var_OOHWeightSum, GESBoundType, GESUpperBound, GESLowerBound, 
                                         GESMaxDiff, GESMaxIter, GESMaxDist, minCountThresh)
@@ -227,4 +212,3 @@ if __name__ == '__main__':
               var_OOHWeightSum = 'SUM_UNSAMP_TRAFFIC_WT',
               var_priorWeightSum = 'SUM_PRIOR_WT',
               minCountThresh = '30')
-            
