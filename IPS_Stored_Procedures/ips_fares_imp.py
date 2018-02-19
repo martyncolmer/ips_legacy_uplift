@@ -12,13 +12,18 @@ from IPSTransformation import CommonFunctions as cf
 from IPS_Unallocated_Modules import ips_impute
 
 
-def do_ips_stay_imputation(input, output, var_serialNum, varStem, threshStem,
-                            numLevels, donorVar, outputVar, measure,
-                            var_eligibleFlag, var_impFlag,var_impLevel):
+def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
+                            , num_levels, donor_var, output_var, measure
+                            ,var_eligible_flag, var_imp_flag,var_imp_level
+                            , var_fare_age, var_baby_fare, var_child_fare, var_apd
+                            , var_package, var_fare_discount, var_QMfare
+                            , var_package_cost, var_discounted_package_cost
+                            ,var_persons, var_expenditure, var_befaf, var_spend
+                            , var_spend_reason_key, var_duty_free, var_old_package):
     """
     Author       : James Burr
-    Date         : 12 Feb 2018
-    Purpose      : Imputes stay for the IPS system.
+    Date         : 19 Feb 2018
+    Purpose      : Imputes fares for the IPS system.
     Parameters   : input - the IPS survey dataset.
                    output - dataframe holding imputed records
                    var_serialNum - the serial number field name
@@ -31,6 +36,22 @@ def do_ips_stay_imputation(input, output, var_serialNum, varStem, threshStem,
                    both donor and recipient
                    var_imp_flag - the imputation required trigger/flag field name
                    var_imp_level - the imputation level field name
+                   var_fare_age - the fare age field name
+                   var_baby_fare - the baby fare factor field name
+                   var_child_fare - the child fare factor field name
+                   var_apd - the airport duty field name
+                   var_package - the package type field name
+                   var_fare_discount - the fare discount factor field name
+                   var_QMFare - the Queen Mary Fare field name
+                   var_package_cost - the package cost field name
+                   var_discounted_package_cost - the discounted package factor field
+                   var_persons - the number of persons field name
+                   var_expenditure - the expenditure field name
+                   var_befaf - the before/after field name
+                   var_spend - the spend field name
+                   var_spend_reason_key - field indicating that spend should be 
+                                           imputed
+                   var_duty_free - the duty free field name
     Returns      : Dataframe - df_output_final
     Requirements : NA
     Dependencies : NA
@@ -40,10 +61,10 @@ def do_ips_stay_imputation(input, output, var_serialNum, varStem, threshStem,
     # Ensure imputation only occurs on eligible rows
     df_eligible = df_input.where(df_input['var_eligibleFlag'] == True)
     
-    df_output_final = ips_impute.ips_impute(df_eligible, output, var_serialNum
-                                            , varStem, threshStem, numLevels
-                                            , donorVar,outputVar, measure
-                                            , var_impFlag, var_impLevel)
+    df_output_final = ips_impute.ips_impute(df_eligible, output, var_serial_num
+                                            , var_stem, thresh_stem, num_levels
+                                            , donor_var,output_var, measure
+                                            , var_imp_flag, var_imp_level)
     
     # Round output column to nearest integer
     df_output_final['output_var'] = df_output_final['output_var'].round()
@@ -51,12 +72,12 @@ def do_ips_stay_imputation(input, output, var_serialNum, varStem, threshStem,
     return df_output_final
 
 
-def ips_stay_imp(SurveyData,OutputData,ResponseTable,var_serialNum,varStem
+def ips_fares_imp(SurveyData,OutputData,ResponseTable,var_serialNum,varStem
                  ,threshStem,numLevels,donorVar,outputVar,measure
                  ,var_eligibleFlag,var_impFlag,var_impLevel):
     """
     Author       : James Burr
-    Date         : 12 Feb 2018
+    Date         : 19 Feb 2018
     Purpose      : Generates segments for use within IPS imputation.
     Parameters   : input - dataframe holding both donors and recipients
                    output - dataframe holding imputed records
@@ -92,7 +113,7 @@ def ips_stay_imp(SurveyData,OutputData,ResponseTable,var_serialNum,varStem
     df_surveydata.columns = df_surveydata.columns.str.upper()
     
     print("Start - Calculate Stay Imputation")
-    df_output = do_ips_stay_imputation(SurveyData, OutputData, var_serialNum
+    df_output = do_ips_fares_imputation(SurveyData, OutputData, var_serialNum
                                        , varStem, threshStem, numLevels, donorVar
                                        , outputVar, measure, var_eligibleFlag
                                        , var_impFlag, var_impLevel)
@@ -104,19 +125,19 @@ def ips_stay_imp(SurveyData,OutputData,ResponseTable,var_serialNum,varStem
     # 0 = frame object, 3 = function name.
     # See 28.13.4. in https://docs.python.org/2/library/inspect.html
     function_name = str(inspect.stack()[0][3])
-    audit_message = "Load Stay Imputation calculation: %s()" %function_name
+    audit_message = "Load Fares Imputation calculation: %s()" %function_name
     
     # Log success message in SAS_RESPONSE and AUDIT_LOG
-    cf.database_logger().info("SUCCESS - Completed Stay imputation.")
-    cf.commit_to_audit_log("Create", "StayImputation", audit_message)
+    cf.database_logger().info("SUCCESS - Completed Fares Imputation.")
+    cf.commit_to_audit_log("Create", "FaresImputation", audit_message)
     
-    print("Completed - Calculate Stay Imputation")
+    print("Completed - Calculate Fares Imputation")
     
     
 if __name__ == '__main__':
-    ips_stay_imp(SurveyData = 'SAS_SURVEY_SUBSAMPLE',OutputData = 'SAS_STAY_IMP'
+    ips_fares_imp(SurveyData = 'SAS_SURVEY_SUBSAMPLE',OutputData = 'SAS_FARES_IMP'
                  ,ResponseTable = 'SAS_RESPONSE',var_serialNum = 'SERIAL'
                  ,varStem = 'VARS',threshStem = 'THRESH',numLevels = 1
                  ,donorVar = 'NUMNIGHTS',outputVar = 'STAY',measure = 'MEAN'
-                 ,var_eligibleFlag = 'STAY_IMP_ELIGIBLE_PV'
-                 ,var_impFlag = 'STAY_IMP_FLAG_PV',var_impLevel = 'STAYK')
+                 ,var_eligibleFlag = 'FARES_IMP_ELIGIBLE_PV'
+                 ,var_impFlag = 'FARES_IMP_FLAG_PV',var_impLevel = 'STAYK')
