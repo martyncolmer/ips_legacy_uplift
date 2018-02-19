@@ -25,19 +25,50 @@ def do_ips_unsampled_weight_calculation(inn, summary, var_serialNum, var_shiftWe
                                     var_OOHWeight, var_caseCount, var_priorWeightSum, 
                                     var_OOHWeightSum, GESBoundType, GESUpperBound, GESLowerBound, 
                                     GESMaxDiff, GESMaxIter, GESMaxDist, minCountThresh):  
-    
     """
     Author       : Thomas Mahoney
     Date         : 16 / 02 / 2018
-    Purpose      : Performs calculations to determine the unsampled weight of the
-                   imported dataset.
-    Parameters   : NA
-    Returns      : Two dataframes
-    Requirements : 
-    Dependencies : 
+    Purpose      : Performs calculations to determine the unsampled weight values
+                   of the imported dataset.
+    Parameters   : inn - the IPS survey records for the period                                
+                   summary - Oracle table to hold the summary data                            
+                   var_serialNum - variable holding the record serial number (UID)            
+                   var_shiftWeight - variable holding the shift weight field name                
+                   var_NRWeight - variable holding the non-response weight field name        
+                   var_minWeight - variable holding the minimum weight field name            
+                   var_trafficWeight - variable holding the traffic weight field name        
+                   OOHStrataDef - List of classificatory variables                            
+                   PopTotals - Population totals file                                         
+                   var_totals - Variable that holds the population totals                    
+                   MaxRuleLength - maximum length of an auxiliary rule (e.g. 512)            
+                   var_modelGroup - Variable that will hold the model group number            
+                   output - output dataset                                                 
+                   var_OOHWeight - Variable that will hold the OOH weights                    
+                   var_caseCount -  Variable holding the name of the case count field        
+                   var_priorWeightSum - Variable that will hold the prior weight summary    
+                   var_OOHWeightSum - Variable that will hold the post weight sum            
+                   GESBoundType - GES parameter : 'G' => cal. weights bound, 'F' => final  
+                                                   weights bound                            
+                   GESUpperBound - GES parameter : upper bound for weights (can be null)    
+                   GESLowerBound - GES parameter : lower bound for weights (can be null)    
+                   GESMaxDiff - GES parameter : maximum difference (e.g. 1E-8)                
+                   GESMaxIter - GES parameter : maximum number of iterations (e.g. 50)        
+                   GESMaxDist - GES parameter : maximum distance (e.g. 1E-8)                
+                   minCountThresh - The minimum cell count threshold                        
+    Returns      : df_summary(dataframe containing random sample of rows)
+                   df_output(dataframe containing serial number and calculated unsampled weight)
+    Requirements : NA
+    Dependencies : NA
+    
+    
+    NOTES        : Currently GES weighing has not been written. Therefore the current solution
+                   does not generate the output data frame. Once the function is written and we
+                   are aware of what is being returned from the GES weighting function as well
+                   as what is actually needed to be *sent* passed to the function we will rewrite the 
+                   function call and implement its return functionality 
+                   be rewriting the 
     """
-    
-    
+
     # Create new column for design weights (Generate the design weights)
     OOHDesignWeight = 'OOHDESIGNWEIGHT'
     inn[OOHDesignWeight] = \
@@ -73,11 +104,8 @@ def do_ips_unsampled_weight_calculation(inn, summary, var_serialNum, var_shiftWe
     # Call the GES weighting macro
     do_ips_ges_weighting(inn, var_serialNum, OOHDesignWeight, 
                       OOHStrataDef, liftedTotals, var_totals, MaxRuleLength, 
-                      'ModelGroup', output, var_OOHWeight, 'CalWeight', GESBoundType, 
+                      var_modelGroup, output, var_OOHWeight, 'CalWeight', GESBoundType, 
                       GESUpperBound, GESLowerBound, GESMaxDiff, GESMaxIter, GESMaxDist)
-    
-    
-    
     
     # Sort inn dataframe before merge
     inn = inn.sort_values(by = var_serialNum)
@@ -107,8 +135,10 @@ def do_ips_unsampled_weight_calculation(inn, summary, var_serialNum, var_shiftWe
     # Identify groups where the total has been uplifted but the
     # respondent count is below the threshold.
     
-    # Create unsampled data set outside of the threshold
-    df_unsampled_thresholds_check = df_summary[(df_summary[var_OOHWeightSum] > df_summary[var_priorWeightSum]) & (df_summary[var_caseCount] < df_summary[minCountThresh])]
+    # Create unsampled data set for rows outside of the threshold
+    df_unsampled_thresholds_check = \
+        df_summary[(df_summary[var_OOHWeightSum] > df_summary[var_priorWeightSum]) \
+                   & (df_summary[var_caseCount] < df_summary[minCountThresh])]
     
     # Collect data outside of specified threshold
     threshold_string = ""
@@ -122,6 +152,10 @@ def do_ips_unsampled_weight_calculation(inn, summary, var_serialNum, var_shiftWe
     # Output the values outside of the threshold to the logger
     if len(df_unsampled_thresholds_check) > 0:
         cf.database_logger().warning('WARNING: Respondent count below minimum threshold for: ' + threshold_string)
+    
+    
+    # Return the generated data frames to be appended to oracle
+    return (output, df_summary)
 
 
 def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum, 
@@ -130,7 +164,46 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum,
               var_modelGroup, var_OOHWeight, GESBoundType, GESUpperBound,
               GESLowerBound, GESMaxDiff, GESMaxIter, GESMaxDist, var_caseCount,
               var_OOHWeightSum, var_priorWeightSum, minCountThresh):
-    
+    """
+    Author       : Thomas Mahoney
+    Date         : 16 / 02 / 2018
+    Purpose      : Imports the required data sets for performing the unsampled
+                   weight calculation. This function also triggers the unsmapled
+                   weight calculation function using the imported data. Once 
+                   complete it will append the newly generated data frames to the 
+                   specified oracle database tables. 
+    Parameters   : SurveyData - the IPS survey records for the period                             
+                   SummaryData - the weighting summary output table                        
+                   responseTable - Oracle table to hold response information (status etc.)    
+                   var_serialNum - variable holding the record serial number (UID)            
+                   var_shiftWeight - variable holding the shift weight field name                
+                   var_NRWeight - variable holding the non-response weight field name        
+                   var_minWeight - variable holding the minimum weight field name            
+                   var_trafficWeight - variable holding the traffic weight field name        
+                   var_designWeight - Variable holding the design weight field name         
+                   OOHStrataDef - List of classificatory variables                            
+                   PopTotals - OOH population totals file                                    
+                   var_totals - Variable that holds the population totals                    
+                   MaxRuleLength - maximum length of an auxiliary rule (e.g. 512)            
+                   ModelGroup - Model definition file                                    
+                   var_modelGroup - Variable that will hold the model group number            
+                   OutputData - output file (holds weights)                                
+                   var_OOHWeight - Variable that will hold the OOH weight                     
+                   var_caseCount - Variable that will hold the number of cases by strata     
+                   var_priorWeightSum - Variable that will hold the prior weight summary    
+                   var_OOHWeightSum - Variable that will hold the post weight sum            
+                   GESBoundType - GES parameter : 'G' => cal. weights bound, 'F' => final  
+                                                    weights bound                            
+                   GESUpperBound - GES parameter : upper bound for weights (can be null)    
+                   GESLowerBound - GES parameter : lower bound for weights (can be null)    
+                   GESMaxDiff - GES parameter : maximum difference (e.g. 1E-8)                
+                   GESMaxIter - GES parameter : maximum number of iterations (e.g. 50)        
+                   GESMaxDist - GES parameter : maximum distance (e.g. 1E-8)                
+                   minCountThresh - The minimum cell count threshold                        
+    Returns      : NA
+    Requirements : NA
+    Dependencies : NA
+    """
     
     # Call JSON configuration file for error logger setup
     survey_support.setup_logging('IPS_logging_config_debug.json')
@@ -153,9 +226,9 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum,
     survey.columns = survey.columns.str.upper()
     ustotals.columns = ustotals.columns.str.upper()
 
+
+    # Calculate the unsampled weights of the imported dataset.
     print("Start - Calculate UnSampled Weight.")     
-    
-    
     weight_calculated_dataframes = do_ips_unsampled_weight_calculation(survey, 'summary', var_serialNum, var_shiftWeight, var_NRWeight, 
                                         var_minWeight, var_trafficWeight, OOHStrataDef, ustotals, 
                                         var_totals, MaxRuleLength, var_modelGroup, 'output', 
