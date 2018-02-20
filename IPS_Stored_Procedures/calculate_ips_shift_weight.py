@@ -477,7 +477,7 @@ def calculate(SurveyData,ShiftsData,OutputData,SummaryData,ResponseTable,
 
     # Log success message in SAS_RESPONSE and AUDIT_LOG
     cf.database_logger().info("SUCCESS - Completed Shift weight calculation.")
-    cf.commit_to_audit_log("Create", "ShiftWeight", audit_message)
+    cf.commit_to_audit_log("Create", "ShiftWeigh", audit_message)
     print("Completed - Calculate Shift Weight")
 
 
