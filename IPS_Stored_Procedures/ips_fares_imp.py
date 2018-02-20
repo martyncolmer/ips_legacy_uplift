@@ -50,7 +50,7 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
                    var_befaf - the before/after field name
                    var_spend - the spend field name
                    var_spend_reason_key - field indicating that spend should be 
-                                           imputed
+                                          imputed
                    var_duty_free - the duty free field name
     Returns      : Dataframe - df_output_final
     Requirements : NA
@@ -72,24 +72,45 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
     return df_output_final
 
 
-def ips_fares_imp(SurveyData,OutputData,ResponseTable,var_serialNum,varStem
-                 ,threshStem,numLevels,donorVar,outputVar,measure
-                 ,var_eligibleFlag,var_impFlag,var_impLevel):
+def ips_fares_imp(SurveyData,OutputData,ResponseTable,var_serial_num,var_stem
+                 ,thresh_stem,num_levels,donor_var,output_var,measure
+                 ,var_eligible_flag,var_imp_flag,var_imp_level, var_fare_age
+                 , var_baby_fare, var_child_fare, var_apd, var_package
+                 , var_fare_discount, var_QMFare, var_package_cost
+                 , var_discounted_package_cost, var_persons, var_expenditure
+                 , var_befaf, var_spend, var_spend_reason_key, var_duty_free
+                 , var_old_package):
     """
     Author       : James Burr
     Date         : 19 Feb 2018
-    Purpose      : Generates segments for use within IPS imputation.
-    Parameters   : input - dataframe holding both donors and recipients
-                   output - dataframe holding imputed records
-                   var_serialNum - variable holding the serial number
-                   strata_base - stem for the strata variables
-                   thresh_base - stem for the threshold variables
-                   num_levels - number of imputation levels (run from 0 to num-1)
-                   impute_var - variable to be imputed
-                   var_value - variable holding the name of the output value field
-                   impute_function - imputation cluster measure function (e.g. mean)
-                   var_impute_flag - name of the imputation flag variable
-                   var_impute_level - name of the imputation level output field
+    Purpose      : Imputes fares for IPS system
+    Parameters   : SurveyData - the IPS survey dataset
+                   OutputData - the output
+                   var_serial_num - the serial number field name
+                   var_stem - stem of the imputation variables parameters
+                   thresh_stem - stem of the imputation threshold parameters
+                   num_levels - number of imputation levels
+                   donor_var - Name of the donor variable
+                   output_var - Name of the output variable
+                   measure - Measure function (e.g. mean)
+                   var_eligible_flag - the imputation eligibility (donor+recipient) field name
+                   var_imp_flag - the imputation required trigger/flag field name
+                   var_imp_fevel - the imputation level field name
+                   var_fare_age - the fare age field name
+                   var_baby_fare - the baby fare factor field name
+                   var_child_fare - the child fare factor field name
+                   var_apd - the airport duty field name
+                   var_package - the package type field name
+                   var_fare_discount - the fare discount factor field name
+                   var_QMFare - the Queen Mary Fare field name
+                   var_package_cost - the package cost field name
+                   var_discounted_package_cost - the discounted package factor field
+                   var_persons - the number of persons field name
+                   var_expenditure - the expenditure field name
+                   var_befaf - the before/after field name
+                   var_spend - the spend field name
+                   var_spend_reason_key - field indicating that spend should be imputed
+                   var_duty_free - the duty free field name    
     Returns      : Dataframe containing the imputed records
     Requirements : NA
     Dependencies : NA
@@ -112,11 +133,17 @@ def ips_fares_imp(SurveyData,OutputData,ResponseTable,var_serialNum,varStem
     
     df_surveydata.columns = df_surveydata.columns.str.upper()
     
-    print("Start - Calculate Stay Imputation")
-    df_output = do_ips_fares_imputation(SurveyData, OutputData, var_serialNum
-                                       , varStem, threshStem, numLevels, donorVar
-                                       , outputVar, measure, var_eligibleFlag
-                                       , var_impFlag, var_impLevel)
+    print("Start - Calculate Fares Imputation")
+    df_output = do_ips_fares_imputation(df_surveydata, OutputData, var_serial_num
+                                       , var_stem, thresh_stem, num_levels, donor_var
+                                       , output_var, measure, var_eligible_flag
+                                       , var_imp_flag, var_imp_level, var_fare_age
+                                       , var_baby_fare, var_child_fare, var_apd
+                                       , var_package, var_fare_discount, var_QMFare
+                                       , var_package_cost, var_discounted_package_cost
+                                       , var_persons, var_expenditure, var_befaf
+                                       , var_spend, var_spend_reason_key
+                                       , var_duty_free, var_old_package)
     
     # Append the generated data to output tables
     cf.insert_into_table_many(OutputData, df_output)
@@ -137,7 +164,16 @@ def ips_fares_imp(SurveyData,OutputData,ResponseTable,var_serialNum,varStem
 if __name__ == '__main__':
     ips_fares_imp(SurveyData = 'SAS_SURVEY_SUBSAMPLE',OutputData = 'SAS_FARES_IMP'
                  ,ResponseTable = 'SAS_RESPONSE',var_serialNum = 'SERIAL'
-                 ,varStem = 'VARS',threshStem = 'THRESH',numLevels = 1
-                 ,donorVar = 'NUMNIGHTS',outputVar = 'STAY',measure = 'MEAN'
+                 ,varStem = 'VARS',threshStem = 'THRESH',numLevels = 9
+                 ,donorVar = 'DVFARE',outputVar = 'FARE',measure = 'MEAN'
                  ,var_eligibleFlag = 'FARES_IMP_ELIGIBLE_PV'
-                 ,var_impFlag = 'FARES_IMP_FLAG_PV',var_impLevel = 'STAYK')
+                 ,var_impFlag = 'FARES_IMP_FLAG_PV',var_impLevel = 'FAREK'
+                 ,var_fare_age = 'FAGE_PV', var_baby_fare = 'BABYFARE'
+                 , var_child_fare = 'CHILDFARE', var_apd = 'APD_PV'
+                 , var_package = 'DVPACKAGE', var_fare_discount = 'DISCNT_F2_PV'
+                 ,var_QM_fare = 'QMFARE_PV', var_package_cost = 'DVPACKCOST'
+                 ,var_discounted_package_cost = 'DISCNT_PACKAGE_COST_PV'
+                 , var_persons = 'DVPERSONS', var_expenditure = 'DVEXPEND'
+                 ,var_befaf = 'BEFAF', var_spend = 'SPEND'
+                 , var_spend_reason_key = 'SPENDIMPREASON', var_duty_free = 'DUTY_FREE_PV'
+                 , var_old_package = 'PACKAGE')
