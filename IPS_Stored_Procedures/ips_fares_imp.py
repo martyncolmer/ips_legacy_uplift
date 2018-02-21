@@ -14,11 +14,11 @@ from IPS_Unallocated_Modules import ips_impute
 
 def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
                             , num_levels, donor_var, output_var, measure
-                            ,var_eligible_flag, var_imp_flag,var_imp_level
+                            , var_eligible_flag, var_imp_flag,var_imp_level
                             , var_fare_age, var_baby_fare, var_child_fare, var_apd
                             , var_package, var_fare_discount, var_QMfare
                             , var_package_cost, var_discounted_package_cost
-                            ,var_persons, var_expenditure, var_befaf, var_spend
+                            , var_persons, var_expenditure, var_befaf, var_spend
                             , var_spend_reason_key, var_duty_free, var_old_package):
     """
     Author       : James Burr
@@ -66,20 +66,31 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
                                             , donor_var,output_var, measure
                                             , var_imp_flag, var_imp_level)
     
+#    # Merge df_output_final and df_input by var_serial_num
+#    
+#    # Compute spend based on fare
+#    df_compute = df_output_final[[var_serial_num, var_spend
+#                                       , var_spend_reason_key, output_var 
+#                                       , var_imp_level]]
+#    
+#    if df_output_final[var_imp_flag] or df_output_final[var_eligible_flag] == True:
+#        df_compute[output_var] = donor_var
+#    
+#    # Sort out baby/child fares
+    
+    
     # Round output column to nearest integer
     df_output_final['output_var'] = df_output_final['output_var'].round()
     
     return df_output_final
 
 
-def ips_fares_imp(SurveyData,OutputData,ResponseTable,var_serial_num,var_stem
-                 ,thresh_stem,num_levels,donor_var,output_var,measure
-                 ,var_eligible_flag,var_imp_flag,var_imp_level, var_fare_age
-                 , var_baby_fare, var_child_fare, var_apd, var_package
-                 , var_fare_discount, var_QMFare, var_package_cost
-                 , var_discounted_package_cost, var_persons, var_expenditure
-                 , var_befaf, var_spend, var_spend_reason_key, var_duty_free
-                 , var_old_package):
+def ips_fares_imp(SurveyData, OutputData, ResponseTable, var_serialNum, varStem
+                  , threshStem, numLevels, donorVar, outputVar, measure, var_eligibleFlag
+                  , var_impFlag,var_impLevel, var_fare_age, var_baby_fare, var_child_fare
+                  , var_apd, var_package, var_fare_discount, var_QM_fare, var_package_cost
+                  , var_discounted_package_cost, var_persons, var_expenditure, var_befaf
+                  , var_spend, var_spend_reason_key, var_duty_free, var_old_package):
     """
     Author       : James Burr
     Date         : 19 Feb 2018
@@ -134,16 +145,20 @@ def ips_fares_imp(SurveyData,OutputData,ResponseTable,var_serial_num,var_stem
     df_surveydata.columns = df_surveydata.columns.str.upper()
     
     print("Start - Calculate Fares Imputation")
-    df_output = do_ips_fares_imputation(df_surveydata, OutputData, var_serial_num
-                                       , var_stem, thresh_stem, num_levels, donor_var
-                                       , output_var, measure, var_eligible_flag
-                                       , var_imp_flag, var_imp_level, var_fare_age
-                                       , var_baby_fare, var_child_fare, var_apd
-                                       , var_package, var_fare_discount, var_QMFare
-                                       , var_package_cost, var_discounted_package_cost
-                                       , var_persons, var_expenditure, var_befaf
-                                       , var_spend, var_spend_reason_key
-                                       , var_duty_free, var_old_package)
+    
+    df_output = do_ips_fares_imputation(df_surveydata, OutputData, var_serialNum
+                                      , varStem, threshStem, numLevels, donorVar
+                                      , outputVar, measure, var_eligibleFlag
+                                      , var_impFlag,var_impLevel, var_fare_age
+                                      , var_baby_fare, var_child_fare, var_apd
+                                      , var_package, var_fare_discount, var_QM_fare
+                                      , var_package_cost, var_discounted_package_cost
+                                      , var_persons, var_expenditure, var_befaf
+                                      , var_spend, var_spend_reason_key
+                                      , var_duty_free, var_old_package)
+    
+    print df_output
+    sys.exit()
     
     # Append the generated data to output tables
     cf.insert_into_table_many(OutputData, df_output)
@@ -163,7 +178,7 @@ def ips_fares_imp(SurveyData,OutputData,ResponseTable,var_serial_num,var_stem
     
 if __name__ == '__main__':
     ips_fares_imp(SurveyData = 'SAS_SURVEY_SUBSAMPLE',OutputData = 'SAS_FARES_IMP'
-                 ,ResponseTable = 'SAS_RESPONSE',var_serialNum = 'SERIAL'
+                 ,ResponseTable = 'SAS_RESPONSE', var_serialNum = 'SERIAL'
                  ,varStem = 'VARS',threshStem = 'THRESH',numLevels = 9
                  ,donorVar = 'DVFARE',outputVar = 'FARE',measure = 'MEAN'
                  ,var_eligibleFlag = 'FARES_IMP_ELIGIBLE_PV'
