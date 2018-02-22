@@ -13,7 +13,9 @@ import inspect
 import getpass
 import datetime
 
+from pprint import pprint
 from sas7bdat import SAS7BDAT   # pip install this
+from pandas.util.testing import assert_frame_equal
 
 import survey_support as ss
 
@@ -833,3 +835,30 @@ def commit_to_audit_log(action, process_object, audit_msg):
     # Execute SQL
     cur.execute(sql, params)
     conn.commit()
+
+
+def compare_datasets(test_name, sas_file, py_df):
+    """
+    Author        : thorne1
+    Date          : 22 Feb 2018
+    Purpose       : Compare SAS datasets with Python dataframes   
+    Parameters    : test_name - Name it whatever you like for your sanity
+                    , sas_file - full dir path to sas7bdat file
+                    , py_df - your Python dataframe
+    Returns       : Nothing but useful print statements to console  
+    """
+    sas_df = pandas.read_sas(sas_file)
+    
+    print("TESTING " + test_name)
+    
+    try:
+        assert_frame_equal(sas_df, py_df, check_names = False, check_like = True)
+    except Exception as err:
+        print test_name + " failed.  Details below.."
+        print err
+    else:
+        print test_name + " SUCCESS"
+
+
+if __name__ == "__main__":
+    pprint(unload_parameters(279))
