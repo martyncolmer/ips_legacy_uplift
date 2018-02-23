@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
+import sys
 
-def ips_impute(input,output,var_serialNum,strata_base,thresh_base,num_levels,
+def ips_impute(input,output,var_serialNum,strata_base_list,thresh_base_list,num_levels,
                impute_var,var_value,impute_function,var_impute_flag,var_impute_level):
     """
     Author       : James Burr
@@ -26,54 +27,49 @@ def ips_impute(input,output,var_serialNum,strata_base,thresh_base,num_levels,
     # Create the donor set, in which the impute flag is false
     df_input = input
     
-    df_impute_from = df_input[df_input['STAY_IMP_FLAG_PV'] == False]
+    df_impute_from = df_input[df_input[var_impute_flag] == False]
     
     # Create recipient set, in which the inpute flag is true
-    df_to_impute = df_input[df_input['STAY_IMP_FLAG_PV'] == True]
+    df_to_impute = df_input[df_input[var_impute_flag] == True]
     
     level = 0
     
-    # This loop is poorly programmed in SAS and so is very awkward to translate.
     # dictionary_of_dataframes will contain a copy of the output dataframe at
     # each iteration of the while loop, accessed through the key which uses
     # the iteration number to define it. SAS creates intermediate datasets in 
-    # this style, but may not use them. Currently creating this dictionary for 
-    # the sake of complete translation but this may not be required.
+    # this style, but may not use them.
     dictionary_of_dataframes = {}
     
-    count = ''
-    imputed = ''
+    count = 'COUNT'
     
     while((level < num_levels) & (df_to_impute.empty == False)):
         
         key_name = 'df_output_' + str(level)
         
-        # Pass the bases with the level string concatenated
-        strata_base_var = strata_base + str(level)
-        thresh_base_var = thresh_base + str(level)
-        
-        # Unsure what imputed&level should be. Corresponds to output parameter
-        # in the ips_impute_segment function but imputed does not exist in the
-        # SAS code. Also can't find where count is created. Tom has mentioned that
-        # some variables in SAS are created in the function call and persist between
-        # calls. Imputed var may be redundant, unsure about count. Revisit this.
-        df_segment_output = ips_impute_segment(df_impute_from, imputed + str(level)
-                                               , strata_base_var, impute_var
+        # 'Imputed' and 'count' may be redudant as they are 'return variables' in SAS
+        # Thresh and strata base lists are each a list containing other lists
+        # These lists need to be hard coded and passed in from the calling procedure
+        df_segment_output = ips_impute_segment(df_impute_from, level
+                                               , strata_base_list[level], impute_var
                                                , impute_function, var_value
-                                               , count, thresh_base_var)
+                                               , count, thresh_base_list[level])
         
-        df_output = ips_impute_match(df_to_impute, imputed + str(level)
-                                           , df_segment_output, strata_base_var
+        df_output = ips_impute_match(df_to_impute, df_segment_output
+                                           , strata_base_list[level]
                                            , var_value, impute_var, level
                                            , var_impute_level, var_impute_flag)
         
         dictionary_of_dataframes[key_name] = df_output.copy()
         
         level += 1
-        
+    
+    print(df_output)
+    sys.exit()
+    
     return df_output
 
-def ips_impute_segment(input,output,strata,imputeVar,function,var_value,
+
+def ips_impute_segment(input,level,strata,impute_var,function,var_value,
                        var_count,thresh):
     """
     Author       : James Burr
@@ -82,7 +78,7 @@ def ips_impute_segment(input,output,strata,imputeVar,function,var_value,
     Parameters   : input - dataframe holding the records to be segmented
                    output - dataframe holding the produced segments
                    strata - the list of classification variables
-                   imputeVar - variable to impute
+                   impute_var - variable to impute
                    function - measurement function to use e.g. mean
                    var_value - variable holding the name of the output value field
                    var_count - variable holding the name of the segment count field
@@ -95,24 +91,29 @@ def ips_impute_segment(input,output,strata,imputeVar,function,var_value,
     df_input = input
     
     df_input = df_input.sort_values(strata)
-    
+
     # SAS code is unclear here. Summary being performed using input as the input
     # dataset but the output is the resolved version of the output dataset with
     # a condition applied. Unsure if the input and output data is supposed to be
     # merged in this instance.
-    df_output = df_input.groupby(imputeVar).agg({\
-            'var_value' : function, 'var_count' : 'count'})
     
-    df_output = output.where(output['var_count'] > output['thresh'])
+    df_input.fillna(value = 'Nothing', inplace = True)
     
-    # Might be temporary. When level is 0, performs the same function as 
-    # concatenating var_value with the value of level
-    df_output['var_value'] = df_output['var_value'] * 10
+    df_output = df_input.groupby(strata)[impute_var].agg({\
+            str(var_value) + str(level) : str(function), str(var_count) : 'count'})
     
+    df_output.reset_index(inplace = True)
+    
+    df_output = df_output.replace('Nothing', np.NaN)
+    
+    df_output = df_output.where(df_output[var_count] > thresh)
+    
+    df_output = df_output.dropna(thresh = 2)
+
     return df_output
     
     
-def ips_impute_match(remainder,input,output,strata,var_value,impute_var,level,
+def ips_impute_match(remainder,input,strata,var_value,impute_var,level,
                      var_level,var_impute_flag):
     """
     Author       : James Burr
@@ -120,7 +121,7 @@ def ips_impute_match(remainder,input,output,strata,var_value,impute_var,level,
     Purpose      : Produces and returns imputed records.
     Parameters   : remainder - dataframe of records left to impute
                    input - donor dataframe
-                   output - file with imputed records
+                   level - current imputation level
                    strata - list of classification variables
                    var_value - variable holding the name of the output value field
                    imputeVar - variable to be imputed
@@ -146,7 +147,8 @@ def ips_impute_match(remainder,input,output,strata,var_value,impute_var,level,
     
     df_remainder = df_remainder.merge(df_input, how = "outer")
     
-    df_output = output
+    print(df_remainder)
+    sys.exit()
     
     # Update output with imputed values
     df_output.sort_values(strata, inplace = True)
