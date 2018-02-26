@@ -68,14 +68,15 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
                                                    * df_output_data[var_trafficWeight]        
                                                    * df_output_data[var_OOHWeight])
     df_total_traffic = df_total_traffic.groupby([var_portroute, var_flow])["TOT_NI_TRAFFIC"].agg({"TOT_NI_TRAFFIC" : 'sum'})
-            
     df_total_traffic.reset_index(inplace=True)
-
+    
+#    print df_total_traffic
+#    sys.exit()
+    
 
     # TEST temp1.sas7bdat
 #    compare_dfs("temp1", "temp1.sas7bdat", df_total_traffic)
 #    sys.exit()
-#    cf.compare_datasets("temp1", r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Imbalance Weight\temp1.sas7bdat", df_total_traffic)
     
     
     # Update output with provisional imbalance weight for overseas departures
@@ -136,14 +137,21 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
 
     
     # Summarise - group by PORTROUTE and FLOW, and total the pre and post imbalanace weights
+    df_prepost.sort_values(by=[var_portroute, var_flow])
+
     df_overseas_residents = df_prepost.groupby([var_portroute, var_flow]).agg({\
             'PRE_IMB_WEIGHTS':'sum'
             ,'POST_IMB_WEIGHTS':'sum'})
     df_overseas_residents = df_overseas_residents.reset_index()
+#    print df_overseas_residents
+#    sys.exit()
     
     
     # Compare with temp2.sas7bdat
+#    print "Testing temp2/df_overseas_residents"
+#    print ""
 #    print df_overseas_residents
+#    compare_dfs("temp2", "temp2.sas7bdat", df_overseas_residents)
     
     # Calculate the difference between pre & post imbalance weighting for departures  
     # and calculate the ratio of the difference for departures at each port.  
@@ -151,18 +159,32 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
     portroute_condition = df_total_traffic[var_portroute].isin(df_overseas_residents[var_portroute])
     
     # Set second condition
-    total_traffic_flow_range = [2,4,6,8]
-    overseas_residents_flow_range = [1,3,5,7]
-    flow_condition = ((df_total_traffic[var_flow].isin(total_traffic_flow_range)) 
-                            | (df_overseas_residents[var_flow].isin(overseas_residents_flow_range)))
+    flow_condition = (((df_total_traffic[var_flow] == 2) & (df_overseas_residents[var_flow] == 1)) |
+    ((df_total_traffic[var_flow] == 4) & (df_overseas_residents[var_flow] == 3)) |
+    ((df_total_traffic[var_flow] == 6) & (df_overseas_residents[var_flow] == 5)) |
+    ((df_total_traffic[var_flow] == 8) & (df_overseas_residents[var_flow] == 7)))
+    
+    
+#    total_traffic_flow_range = [2,4,6,8]
+#    overseas_residents_flow_range = [1,3,5,7]
+#    flow_condition = ((df_total_traffic[var_flow].isin(total_traffic_flow_range)) 
+#                            & (df_overseas_residents[var_flow].isin(overseas_residents_flow_range)))
     
     # Set third condition
     total_traffic_condition = (df_total_traffic["TOT_NI_TRAFFIC"] != 0)
     
     # Set one condition to rule them all...and in the darkness bind them
     all_conditions = ((portroute_condition)
-                           & (flow_condition)
-                           & (total_traffic_condition))
+                           & (flow_condition))
+#                           & (total_traffic_condition))
+    
+#    # create df_total_traffic2 where FLOW != 1,3,5 or 7
+#    range = [2,4,6,8]
+#    df_total_traffic2 = df_total_traffic[df_total_traffic[var_flow].isin(range)]
+#    df_total_traffic2.to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\something.csv")
+#    sys.exit()
+#    # stick it all in
+#    # 
     
     # Select data, where conditions
     df_temp = df_overseas_residents.loc[all_conditions]
@@ -171,8 +193,26 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
     # Set "DIFFERENCE" and "RATIO" column and values
     df_calc_departures["DIFFERENCE"] = pd.Series(df_temp["POST_IMB_WEIGHTS"] 
                                                    - df_temp["PRE_IMB_WEIGHTS"])
-    df_calc_departures["RATIO"] = pd.Series(df_calc_departures["DIFFERENCE"] 
+    df_calc_departures["RATIO"] = 0
+     
+#    df_calc = ((df_temp["POST_IMB_WEIGHTS"] - df_temp["PRE_IMB_WEIGHTS"]) 
+#                                                   / df_total_traffic["TOT_NI_TRAFFIC"])
+#    
+    df_calc_departures.loc[(all_conditions), "RATIO"] = ((df_temp["POST_IMB_WEIGHTS"] - df_temp["PRE_IMB_WEIGHTS"]) 
                                                    / df_total_traffic["TOT_NI_TRAFFIC"])
+    print df_calc_departures
+    sys.exit()
+                                                
+    
+#    df_output_data.loc[(flow_condition)
+#                         , var_imbalanceWeight] = (df_output_data[var_imbalanceWeight]
+#                                           * df_output_data[var_cgFactor])
+    
+    
+    print df_calc
+    sys.exit() 
+    
+    
     
     # Delete unnecessary columns 
     del df_calc_departures["POST_IMB_WEIGHTS"]
@@ -180,8 +220,9 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
 
 
 ##     Compare with temp3.sas7bdat
+    print df_calc_departures
 #    compare_dfs("temp3", "temp3.sas7bdat", df_calc_departures)
-#    sys.exit()
+    sys.exit()
 
 
     # Calculate the imbalance weight
@@ -195,7 +236,9 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
     
     
     # Compare with in_update4.sas7bdat
-#    compare_dfs("in_update4", "in_update4.sas7bdat", df_output_data, ["SERIAL","IMBAL_WT", "PORTROUTE", "FLOW"])
+    print df_calc_departures
+    sys.exit()
+    compare_dfs("in_update4", "in_update4.sas7bdat", df_output_data, ["SERIAL","IMBAL_WT", "PORTROUTE", "FLOW"])
 #    sys.exit()
     
     
@@ -206,7 +249,9 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
 
 
 ##    # Compare with surveydata_merge_in.sas7bdat
-#    print gldf_survey_data
+    print "Testing surveydata_merge_in/gldf_survey_data"
+    print ""
+    print gldf_survey_data
 #    sys.exit()
 
 
@@ -316,6 +361,7 @@ def compare_dfs(test_name, sas_file, df, col_list = False):
         df[col_list].to_csv(fdir+"\\"+test_name+py)
     
     print(test_name + " COMPLETE")
+    print("")
 
 
 def compare_dfs2(test_name, sas_file, py_df):
