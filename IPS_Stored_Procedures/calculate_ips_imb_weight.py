@@ -62,6 +62,7 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
     
     # Create total traffic df
     df_total_traffic = df_output_data[[var_portroute, var_flow]].copy()
+    df_total_traffic.sort_values(by = [var_portroute, var_flow])
     df_total_traffic["TOT_NI_TRAFFIC"] = pd.Series(df_output_data[var_shiftWeight]
                                                    * df_output_data[var_NRWeight] 
                                                    * df_output_data[var_minWeight]            
@@ -69,6 +70,7 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
                                                    * df_output_data[var_OOHWeight])
     df_total_traffic = df_total_traffic.groupby([var_portroute, var_flow])["TOT_NI_TRAFFIC"].agg({"TOT_NI_TRAFFIC" : 'sum'})
     df_total_traffic.reset_index(inplace=True)
+    
     
 #    print df_total_traffic
 #    sys.exit()
@@ -162,7 +164,8 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
     def ratio(row):
         global df_calc_departures
         temp = df_total_traffic[(df_total_traffic['PORTROUTE']==row['PORTROUTE'])
-                               &(df_total_traffic['FLOW']==row['FLOW']+1)]
+                               &(df_total_traffic['FLOW']==row['FLOW']+1)
+                               &(df_total_traffic['TOT_NI_TRAFFIC'] != 0)]
         if not(temp.empty):
             rec = pd.DataFrame([[row['PORTROUTE'],
                                 row['FLOW'],
@@ -173,10 +176,16 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
                 df_calc_departures = rec
             else:
                 df_calc_departures = pd.concat([df_calc_departures, rec], axis=0)
-
+                
         return row
     
     df_overseas_residents.apply(ratio,axis = 1)
+    
+    # Cleanse dataframe
+    df_calc_departures.columns = ["PORTROUTE", "FLOW", "DIFFERENCE", "RATIO"]
+    df_calc_departures.index = range(0,len(df_calc_departures))
+    df_calc_departures.drop(1, inplace=True)
+    df_calc_departures.reset_index()
     
 ##     Compare with temp3.sas7bdat
 #    print df_calc_departures
@@ -194,10 +203,10 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
     
     
     # Compare with in_update4.sas7bdat
-    print df_calc_departures
-    sys.exit()
-    compare_dfs("in_update4", "in_update4.sas7bdat", df_output_data, ["SERIAL","IMBAL_WT", "PORTROUTE", "FLOW"])
+#    print df_calc_departures
 #    sys.exit()
+    compare_dfs("in_update4", "in_update4.sas7bdat", df_output_data, ["SERIAL","IMBAL_WT", "PORTROUTE", "FLOW"])
+    sys.exit()
     
     
     # Append the imbalance weight to the input
