@@ -155,75 +155,33 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
     
     # Calculate the difference between pre & post imbalance weighting for departures  
     # and calculate the ratio of the difference for departures at each port.  
-    # Set first condition
-    portroute_condition = df_total_traffic[var_portroute].isin(df_overseas_residents[var_portroute])
-    
-    # Set second condition
-    flow_condition = (((df_total_traffic[var_flow] == 2) & (df_overseas_residents[var_flow] == 1)) |
-    ((df_total_traffic[var_flow] == 4) & (df_overseas_residents[var_flow] == 3)) |
-    ((df_total_traffic[var_flow] == 6) & (df_overseas_residents[var_flow] == 5)) |
-    ((df_total_traffic[var_flow] == 8) & (df_overseas_residents[var_flow] == 7)))
-    
-    
-#    total_traffic_flow_range = [2,4,6,8]
-#    overseas_residents_flow_range = [1,3,5,7]
-#    flow_condition = ((df_total_traffic[var_flow].isin(total_traffic_flow_range)) 
-#                            & (df_overseas_residents[var_flow].isin(overseas_residents_flow_range)))
-    
-    # Set third condition
-    total_traffic_condition = (df_total_traffic["TOT_NI_TRAFFIC"] != 0)
-    
-    # Set one condition to rule them all...and in the darkness bind them
-    all_conditions = ((portroute_condition)
-                           & (flow_condition))
-#                           & (total_traffic_condition))
-    
-#    # create df_total_traffic2 where FLOW != 1,3,5 or 7
-#    range = [2,4,6,8]
-#    df_total_traffic2 = df_total_traffic[df_total_traffic[var_flow].isin(range)]
-#    df_total_traffic2.to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\something.csv")
-#    sys.exit()
-#    # stick it all in
-#    # 
-    
-    # Select data, where conditions
-    df_temp = df_overseas_residents.loc[all_conditions]
-    df_calc_departures = df_temp.copy()
 
-    # Set "DIFFERENCE" and "RATIO" column and values
-    df_calc_departures["DIFFERENCE"] = pd.Series(df_temp["POST_IMB_WEIGHTS"] 
-                                                   - df_temp["PRE_IMB_WEIGHTS"])
-    df_calc_departures["RATIO"] = 0
-     
-#    df_calc = ((df_temp["POST_IMB_WEIGHTS"] - df_temp["PRE_IMB_WEIGHTS"]) 
-#                                                   / df_total_traffic["TOT_NI_TRAFFIC"])
-#    
-    df_calc_departures.loc[(all_conditions), "RATIO"] = ((df_temp["POST_IMB_WEIGHTS"] - df_temp["PRE_IMB_WEIGHTS"]) 
-                                                   / df_total_traffic["TOT_NI_TRAFFIC"])
-    print df_calc_departures
-    sys.exit()
-                                                
+    global df_calc_departures
+    df_calc_departures = pd.DataFrame()
     
-#    df_output_data.loc[(flow_condition)
-#                         , var_imbalanceWeight] = (df_output_data[var_imbalanceWeight]
-#                                           * df_output_data[var_cgFactor])
-    
-    
-    print df_calc
-    sys.exit() 
-    
-    
-    
-    # Delete unnecessary columns 
-    del df_calc_departures["POST_IMB_WEIGHTS"]
-    del df_calc_departures["PRE_IMB_WEIGHTS"]
+    def ratio(row):
+        global df_calc_departures
+        temp = df_total_traffic[(df_total_traffic['PORTROUTE']==row['PORTROUTE'])
+                               &(df_total_traffic['FLOW']==row['FLOW']+1)]
+        if not(temp.empty):
+            rec = pd.DataFrame([[row['PORTROUTE'],
+                                row['FLOW'],
+                                row['POST_IMB_WEIGHTS'] - row['PRE_IMB_WEIGHTS'],
+                                ((row['POST_IMB_WEIGHTS'] - row['PRE_IMB_WEIGHTS'])/temp['TOT_NI_TRAFFIC'].values[0])
+                                ]])
+            if(df_calc_departures.empty):
+                df_calc_departures = rec
+            else:
+                df_calc_departures = pd.concat([df_calc_departures, rec], axis=0)
 
-
+        return row
+    
+    df_overseas_residents.apply(ratio,axis = 1)
+    
 ##     Compare with temp3.sas7bdat
-    print df_calc_departures
+#    print df_calc_departures
 #    compare_dfs("temp3", "temp3.sas7bdat", df_calc_departures)
-    sys.exit()
-
+#    sys.exit()
 
     # Calculate the imbalance weight
     df_output_data.reset_index(drop=True,inplace=True)
