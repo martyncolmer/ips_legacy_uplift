@@ -72,8 +72,8 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
     thresh_base_list = [3, 3, 3, 3, 3, 3, 3, 0, 0]
     
     # Ensure imputation only occurs on eligible rows
-    df_eligible = df_input.where(df_input[var_eligible_flag] == True)
-    
+    df_eligible = df_input.loc[df_input[var_eligible_flag] == 1.0]
+
     df_output = ips_impute.ips_impute(df_eligible, output, var_serial_num
                                             , strata_base_list, thresh_base_list
                                             , num_levels, donor_var,output_var
@@ -82,8 +82,6 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
     
     # Merge df_output_final and df_input by var_serial_num
     df_output.sort_values(var_serial_num, inplace = True)
-    print(df_output)
-    sys.exit()
     
     # Compute spend based on fare
     df_compute = df_output[[var_serial_num, var_spend

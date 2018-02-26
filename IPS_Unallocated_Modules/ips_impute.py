@@ -27,10 +27,12 @@ def ips_impute(input,output,var_serialNum,strata_base_list,thresh_base_list,num_
     # Create the donor set, in which the impute flag is false
     df_input = input
     
-    df_impute_from = df_input[df_input[var_impute_flag] == False]
+    df_output = df_input
+    
+    df_to_impute = df_input.loc[df_input[var_impute_flag] == 1.0]
     
     # Create recipient set, in which the inpute flag is true
-    df_to_impute = df_input[df_input[var_impute_flag] == True]
+    df_impute_from = df_input.loc[df_input[var_impute_flag] == 0.0]
     
     level = 0
     
@@ -44,9 +46,9 @@ def ips_impute(input,output,var_serialNum,strata_base_list,thresh_base_list,num_
     
     while((level < num_levels) & (df_to_impute.empty == False)):
         
-        key_name = 'df_output_' + str(level)
+        key_name = 'df_output_match_' + str(level)
         
-        # 'Imputed' and 'count' may be redudant as they are 'return variables' in SAS
+        # 'Imputed' and 'count' may be redundant as they are 'return variables' in SAS
         # Thresh and strata base lists are each a list containing other lists
         # These lists need to be hard coded and passed in from the calling procedure
         df_segment_output = ips_impute_segment(df_impute_from, level
@@ -54,10 +56,13 @@ def ips_impute(input,output,var_serialNum,strata_base_list,thresh_base_list,num_
                                                , impute_function, var_value
                                                , count, thresh_base_list[level])
         
-        df_output = ips_impute_match(df_to_impute, df_segment_output
+        df_output_frames = ips_impute_match(df_to_impute, df_segment_output, df_output
                                            , strata_base_list[level]
                                            , var_value, impute_var, level
                                            , var_impute_level, var_impute_flag)
+        
+        df_output = df_output_frames[0]
+        df_to_impute = df_output_frames[1]
         
         dictionary_of_dataframes[key_name] = df_output.copy()
         
@@ -87,20 +92,21 @@ def ips_impute_segment(input,level,strata,impute_var,function,var_value,
     Requirements : NA
     Dependencies : NA
     """
-    
+
     df_input = input
     
     df_input = df_input.sort_values(strata)
+    
+    
 
     # SAS code is unclear here. Summary being performed using input as the input
     # dataset but the output is the resolved version of the output dataset with
     # a condition applied. Unsure if the input and output data is supposed to be
     # merged in this instance.
-    
     df_input.fillna(value = 'Nothing', inplace = True)
     
     df_output = df_input.groupby(strata)[impute_var].agg({\
-            str(var_value) + str(level) : str(function), str(var_count) : 'count'})
+            var_value + str(level) : str(function), var_count : 'count'})
     
     df_output.reset_index(inplace = True)
     
@@ -109,11 +115,11 @@ def ips_impute_segment(input,level,strata,impute_var,function,var_value,
     df_output = df_output.where(df_output[var_count] > thresh)
     
     df_output = df_output.dropna(thresh = 2)
-
+    
     return df_output
     
     
-def ips_impute_match(remainder,input,strata,var_value,impute_var,level,
+def ips_impute_match(remainder,input, output,strata,var_value,impute_var,level,
                      var_level,var_impute_flag):
     """
     Author       : James Burr
@@ -121,6 +127,8 @@ def ips_impute_match(remainder,input,strata,var_value,impute_var,level,
     Purpose      : Produces and returns imputed records.
     Parameters   : remainder - dataframe of records left to impute
                    input - donor dataframe
+                   output - current latest output set
+                   impute_from - dataframe containing current overall output
                    level - current imputation level
                    strata - list of classification variables
                    var_value - variable holding the name of the output value field
@@ -143,23 +151,34 @@ def ips_impute_match(remainder,input,strata,var_value,impute_var,level,
     df_input = df_input.sort_values(strata)
     
     # Ensure remainder contains observations that require imputing
-    df_input = df_input.where(df_input[strata] == np.NaN)
+    df_input.dropna(thresh = 2, inplace = True)
     
-    df_remainder = df_remainder.merge(df_input, how = "outer")
+    # Merge all data and indicate where the data is found. Keep rows that are
+    # not found in both datasets.
+    df_remainder = pd.merge(df_remainder, df_input, how = "outer"
+                            , indicator = True).query("_merge == 'left_only'")
     
-    print(df_remainder)
-    sys.exit()
+    df_remainder = df_remainder.drop('_merge', axis = 1)
+    df_remainder = df_remainder.reset_index(drop = True)
     
     # Update output with imputed values
+    df_to_impute_merge_input = df_remainder
+    
+    df_to_impute_merge_input.sort_values(strata, inplace = True)
+    
+    # Merge current output data with donor dataframe
+    df_output = output
     df_output.sort_values(strata, inplace = True)
-    
-    df_input[var_level] = np.where(df_input[var_level] == np.NaN & df_input[var_impute_flag] == 1
-                                   , level, df_input[var_level])
-    
-    df_input[var_value] = np.where(df_input[var_level] == np.NaN & df_input[var_impute_flag] == 1
-                                   , var_value + str(level)
-                                   , df_input[var_level])
-        
     df_output = df_output.merge(df_input, on = strata, how = 'outer')
     
-    return df_output
+    # If condtions are met, set df_input[var_level] to level and
+    # set df_input[var_value] to df_input[var_value + iteration number/level]
+    # i.e. the value of the column FARE3 if on the third iteration, for example
+    df_output[var_level] = np.where((df_output[var_level] == np.NaN) & (df_output[var_impute_flag] == 1.0)
+                                   , level, df_output[var_level])
+    
+    df_output[var_value] = np.where((df_output[var_level] == np.NaN) & (df_output[var_impute_flag] == 1.0)
+                                   , df_output[var_value + str(level)]
+                                   , df_output[var_value])
+    
+    return (df_output, df_remainder)
