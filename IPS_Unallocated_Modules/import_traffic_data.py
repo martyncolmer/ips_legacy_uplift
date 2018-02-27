@@ -6,7 +6,7 @@ import inspect
 import survey_support as ss
 from IPSTransformation import CommonFunctions as cf
 
-def import_traffic_data(filename):
+def import_traffic_data(run_id,filename):
     """
     Author        : Elinor Thorne
     Date          : 27 Nov 2017
@@ -24,7 +24,8 @@ def import_traffic_data(filename):
     # run_id currently hard-coded due to
     # primary-key constraint on TRAFFIC_DATA (see RUN table)
     # THIS WILL NEED TO BE AMENDED ONCE run_id PROCESS IMPLEMENTED
-    run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
+    if(run_id == ''):
+        run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
     
     # 0 = frame object, 1 = filename, 3 = function name. 
     # See 28.13.4. in https://docs.python.org/2/library/inspect.html
