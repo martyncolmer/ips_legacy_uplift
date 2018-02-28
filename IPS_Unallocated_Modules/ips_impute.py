@@ -2,6 +2,29 @@ import numpy as np
 import pandas as pd
 import sys
 
+def compare_dfs(test_name, sas_file, df, col_list = False):
+    
+    sas_root = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Fares Imputation"
+    print sas_root + "\\" + sas_file
+    csv = pd.read_sas(sas_root + "\\" + sas_file)
+    
+    fdir = r"H:\\My Documents\Git Repositories\ILU_Fares_impute_testing"
+    sas = "_sas.csv"
+    py = "_py.csv"
+    
+    print("TESTING " + test_name)
+    
+    if col_list == False:
+        csv.to_csv(fdir+"\\"+test_name+sas)
+        df.to_csv(fdir+"\\"+test_name+py)
+    else:
+        csv[col_list].to_csv(fdir+"\\"+test_name+sas)
+        df[col_list].to_csv(fdir+"\\"+test_name+py)
+    
+    print(test_name + " COMPLETE")
+    print("")
+
+
 def ips_impute(input,output,var_serialNum,strata_base_list,thresh_base_list,num_levels,
                impute_var,var_value,impute_function,var_impute_flag,var_impute_level):
     """
@@ -48,7 +71,6 @@ def ips_impute(input,output,var_serialNum,strata_base_list,thresh_base_list,num_
         
         key_name = 'df_output_match_' + str(level)
         
-        # 'Imputed' and 'count' may be redundant as they are 'return variables' in SAS
         # Thresh and strata base lists are each a list containing other lists
         # These lists need to be hard coded and passed in from the calling procedure
         df_segment_output = ips_impute_segment(df_impute_from, level
@@ -68,7 +90,7 @@ def ips_impute(input,output,var_serialNum,strata_base_list,thresh_base_list,num_
         
         level += 1
     
-    print(df_output)
+    compare_dfs('final_output_test', 'output_final.sas7bdat', df_output)
     sys.exit()
     
     return df_output
@@ -96,8 +118,6 @@ def ips_impute_segment(input,level,strata,impute_var,function,var_value,
     df_input = input
     
     df_input = df_input.sort_values(strata)
-    
-    
 
     # SAS code is unclear here. Summary being performed using input as the input
     # dataset but the output is the resolved version of the output dataset with
@@ -150,9 +170,6 @@ def ips_impute_match(remainder,input, output,strata,var_value,impute_var,level,
     
     df_input = df_input.sort_values(strata)
     
-    # Ensure remainder contains observations that require imputing
-    df_input.dropna(thresh = 2, inplace = True)
-    
     # Merge all data and indicate where the data is found. Keep rows that are
     # not found in both datasets.
     df_remainder = pd.merge(df_remainder, df_input, how = "outer"
@@ -168,17 +185,27 @@ def ips_impute_match(remainder,input, output,strata,var_value,impute_var,level,
     
     # Merge current output data with donor dataframe
     df_output = output
-    df_output.sort_values(strata, inplace = True)
-    df_output = df_output.merge(df_input, on = strata, how = 'outer')
+    df_output = df_output.merge(df_input, how = "left"
+                            , on = strata, indicator = True)
     
-    # If condtions are met, set df_input[var_level] to level and
+    df_output.sort_values(strata, inplace = True)
+    
+    # If conditions are met, set df_input[var_level] to level and
     # set df_input[var_value] to df_input[var_value + iteration number/level]
     # i.e. the value of the column FARE3 if on the third iteration, for example
-    df_output[var_level] = np.where((df_output[var_level] == np.NaN) & (df_output[var_impute_flag] == 1.0)
-                                   , level, df_output[var_level])
+    value_level = str(var_value) + str(level)
     
-    df_output[var_value] = np.where((df_output[var_level] == np.NaN) & (df_output[var_impute_flag] == 1.0)
-                                   , df_output[var_value + str(level)]
-                                   , df_output[var_value])
+    df_output[var_value] = np.where((df_output[var_level].isnull() == True) & (df_output[var_impute_flag] == 1.0) & (df_output['_merge'] == 'both'), df_output[value_level], df_output[var_value])
+    df_output[var_level] = np.where((df_output[var_level].isnull() == True) & (df_output[var_impute_flag] == 1.0) & (df_output['_merge'] == 'both'), level, df_output[var_level])
     
-    return (df_output, df_remainder)
+    #df_output = df_output.loc[(df_output[var_level].isnull() == True) & (df_output[var_impute_flag] == 1.0) & (df_output['_merge'] != 'left_only'), [var_value]] = df_output[value_level]
+   # df_output = df_output.loc[(df_output[var_level].isnull() == True) & (df_output[var_impute_flag] == 1.0) & (df_output['_merge'] != 'left_only'), [var_level]] = level
+    
+    df_output = df_output.drop('_merge', axis = 1)
+    df_output = df_output.reset_index(drop = True)
+    
+    df_output = df_output.sort_values(strata)
+    
+    print("Output match 1 doneso.")
+
+    return (df_output, df_to_impute_merge_input)
