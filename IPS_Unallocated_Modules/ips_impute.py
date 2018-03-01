@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import copy
 import sys
 
 def compare_dfs(test_name, sas_file, df, col_list = False):
@@ -67,9 +68,13 @@ def ips_impute(input,output,var_serialNum,strata_base_list,thresh_base_list,num_
     
     count = 'COUNT'
     
+    #df_output_merge_strata = copy.deepcopy(strata_base_list)
+    
     while((level < num_levels) & (df_to_impute.empty == False)):
         
         key_name = 'df_output_match_' + str(level)
+        
+        #df_output_merge_strata[level].append('COUNT')
         
         # Thresh and strata base lists are each a list containing other lists
         # These lists need to be hard coded and passed in from the calling procedure
@@ -80,6 +85,7 @@ def ips_impute(input,output,var_serialNum,strata_base_list,thresh_base_list,num_
         
         df_output_frames = ips_impute_match(df_to_impute, df_segment_output, df_output
                                            , strata_base_list[level]
+                                           #, df_output_merge_strata[level]
                                            , var_value, impute_var, level
                                            , var_impute_level, var_impute_flag)
         
@@ -126,13 +132,13 @@ def ips_impute_segment(input,level,strata,impute_var,function,var_value,
     df_input.fillna(value = 'Nothing', inplace = True)
     
     df_output = df_input.groupby(strata)[impute_var].agg({\
-            var_value + str(level) : str(function), var_count : 'count'})
+            var_value + str(level) : str(function), var_count + str(level) : 'count'})
     
     df_output.reset_index(inplace = True)
     
     df_output = df_output.replace('Nothing', np.NaN)
     
-    df_output = df_output.where(df_output[var_count] > thresh)
+    df_output = df_output.where(df_output[var_count + str(level)] > thresh)
     
     df_output = df_output.dropna(thresh = 2)
     
@@ -206,6 +212,6 @@ def ips_impute_match(remainder,input, output,strata,var_value,impute_var,level,
     
     df_output = df_output.sort_values(strata)
     
-    print("Output match 1 doneso.")
+    print("Output match iteration done.")
 
     return (df_output, df_to_impute_merge_input)
