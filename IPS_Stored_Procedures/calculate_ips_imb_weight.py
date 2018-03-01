@@ -11,6 +11,7 @@ import sys
 
 import survey_support
 from IPSTransformation import CommonFunctions as cf
+from pprint import pprint
 
 def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serialNum
                                , var_shiftWeight, var_NRWeight, var_minWeight
@@ -42,7 +43,6 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
                                , var_eligible_flag = "IMBAL_ELIGIBLE_PV" 
     Returns       : Output and Summary dataframes  
     """
-    
     df_output_data = gldf_survey_data.copy() 
     
     
@@ -86,7 +86,7 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
     arrivedepart_condition = df_output_data[var_direction] == 2
     df_output_data.loc[(flow_condition) & (arrivedepart_condition)
                          , var_imbalanceWeight] = df_output_data[var_pgFactor]
-
+                         
 
 #    # TEST in_update1.sas7bdat
 #    compare_dfs("in_update1", "in_update1.sas7bdat", df_output_data, ["SERIAL", "FLOW","ARRIVEDEPART","IMBAL_WT", "IMBAL_PORT_FACT_PV"])
@@ -98,7 +98,7 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
     arrivedepart_condition = df_output_data[var_direction] == 1
     df_output_data.loc[(flow_condition) & (arrivedepart_condition)
                          , var_imbalanceWeight] = df_output_data[var_pgFactor]
-    
+ 
     
     # Compare with in_update2.sas7bdat
 #    compare_dfs("in_update2", "in_update2.sas7bdat", df_output_data, ["SERIAL", "FLOW","ARRIVEDEPART","IMBAL_WT","IMBAL_PORT_FACT_PV"])
@@ -110,7 +110,7 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
     df_output_data.loc[(flow_condition)
                          , var_imbalanceWeight] = (df_output_data[var_imbalanceWeight]
                                            * df_output_data[var_cgFactor])
-                         
+                    
     # Compare with in_update3.sas7bdat
 #    compare_dfs("in_update3", "in_update3.sas7bdat", df_output_data, ["SERIAL", "FLOW","ARRIVEDEPART","IMBAL_WT","IMBAL_PORT_FACT_PV"])
 #    sys.exit()
@@ -157,14 +157,14 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
     
     # Calculate the difference between pre & post imbalance weighting for departures  
     # and calculate the ratio of the difference for departures at each port.  
-
+    
     global df_calc_departures
     df_calc_departures = pd.DataFrame()
     
     def ratio(row):
         global df_calc_departures
         temp = df_total_traffic[(df_total_traffic['PORTROUTE']==row['PORTROUTE'])
-                               &(df_total_traffic['FLOW']==row['FLOW']+1)
+                               &(df_total_traffic['FLOW']==row['FLOW']-1)
                                &(df_total_traffic['TOT_NI_TRAFFIC'] != 0)]
         if not(temp.empty):
             rec = pd.DataFrame([[row['PORTROUTE'],
@@ -185,20 +185,107 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
     df_calc_departures.columns = ["PORTROUTE", "FLOW", "DIFFERENCE", "RATIO"]
     df_calc_departures.index = range(0,len(df_calc_departures))
     df_calc_departures.drop(1, inplace=True)
+    df_calc_departures.index = range(0,len(df_calc_departures))
     df_calc_departures.reset_index()
     
 ##     Compare with temp3.sas7bdat
-#    print df_calc_departures
-#    compare_dfs("temp3", "temp3.sas7bdat", df_calc_departures)
+#    compare_dfs("df_calc_departures", "temp3.sas7bdat", df_calc_departures)
+
+#    output = pd.read_sas(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Imbalance Weight\in_update4.sas7bdat")
+#    df_output_data[["SERIAL", "IMBAL_WT", "PORTROUTE", "FLOW"]].to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\input.csv")
+#    df_calc_departures.to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\condition.csv")
+#    output[["SERIAL", "IMBAL_WT", "PORTROUTE", "FLOW"]].to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\endresult.csv")
 #    sys.exit()
 
     # Calculate the imbalance weight
+    global df_output_data2
+    df_output_data2 = pd.DataFrame()
+    
+#    print len(df_output_data.columns)+1
+#    print df_output_data.ix[:, 0:(len(df_output_data.columns))]
+#    sys.exit()
+
+#    df.loc[:, "a":"c"] ### Selective label based column ranges slicing
+#    df[df.columns[2]]
+#    df_output_data.columns.values.tolist()
+#    sys.exit()
+
+    global new_val
+    new_val = pd.DataFrame()
+    
+    def get_ratio(row):
+        global new_val
+        temp = df_calc_departures[(df_calc_departures['PORTROUTE']==row['PORTROUTE'])]
+#                               &(df_calc_departures['FLOW']==row['FLOW']-1)]
+        
+        if not(temp.empty):
+            rec = pd.DataFrame([[row["SERIAL"],
+                                 row['PORTROUTE'],
+                                 row['FLOW'],
+                                 temp['PORTROUTE'].values[0],
+                                 temp['FLOW'].values[0],
+                                 temp['RATIO'].values[0]]])
+#            rec = pd.DataFrame([[row["SERIAL"],
+#                                 row['PORTROUTE'],
+#                                 row['FLOW'],
+#                                 temp['PORTROUTE'].values[0],
+#                                 temp['FLOW'].values[0],
+#                                 temp['RATIO'].values[0],
+#                                 (1.0 - temp['RATIO'].values[0])]])
+##            rec = pd.DataFrame([[df_output_data2.ix[:, 0:(len(df_output_data2.columns))],
+#                                (1.0 - temp['RATIO'].values[0])
+#                                ]])
+            if(new_val.empty):
+                new_val = rec
+            else:
+                new_val = pd.concat([new_val, rec], axis=0)
+##        print rec
+        
+        return row
+    
+    df_output_data.reset_index(inplace = True)
+    df_output_data.apply(get_ratio, axis = 1)
+    
+    new_val.index = range(0,len(new_val))
+#    df_output_data2.columns = ["row['SERIAL']",
+#                                 "row['PORTROUTE']",
+#                                 "row['FLOW']",
+#                                 "temp['PORTROUTE']",
+#                                 "temp['FLOW']",
+#                                 "temp['RATIO']"]
+    
+#    df_output_data2.drop(1, inplace=True)
+#    df_output_data2.reset_index()
+    
+#    print df_output_data.info()
+    new_val.to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\annoyingdf.csv")
+    sys.exit() 
+    
+#    # Cleanse dataframe
+#    df_ratio_temp.columns = ["row.SERIAL"
+#                             , "row['PORTROUTE']",
+#                                 "row['FLOW']",
+#                                 "df_calc_departures['PORTROUTE']",
+#                                 "df_calc_departures['FLOW']",
+#                                 "NEW IMBAL WT"]
+#                             , "FLOW", "IMBAL_WT", "RATIO"]
+#    df_ratio_temp.index = range(0,len(df_ratio_temp))
+#    df_ratio_temp.drop(1, inplace=True)
+#    df_ratio_temp.reset_index()
+#    
+#    print df_ratio_temp
+#    sys.exit()
+    
+    
+    ########
+
+    
     df_output_data.reset_index(drop=True,inplace=True)
     df_output_data["RATIO"] = np.nan
-    flow_range = [2,4,6,8]
+    flow_condition = (df_output_data['FLOW']==df_calc_departures['FLOW']-1)
                        
     df_output_data.loc[((df_output_data.PORTROUTE.isin(df_calc_departures.PORTROUTE)) 
-                        & (df_output_data[var_flow].isin(flow_range)))
+                        & (flow_condition))
                        , var_imbalanceWeight] = (1.0 - df_output_data["RATIO"])
     
     
@@ -346,6 +433,13 @@ def compare_dfs2(test_name, sas_file, py_df):
         print test_name + " SUCCESS"
         
 if __name__ == "__main__":
+#    csv = pd.read_sas(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Imbalance Weight\in_update3.sas7bdat")
+#    csv[["SERIAL","IMBAL_WT", "PORTROUTE", "FLOW"]].to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\UPDATE_in_update3.csv")
+#    
+#    csv = pd.read_sas(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Imbalance Weight\in_update4.sas7bdat")
+#    csv[["SERIAL","IMBAL_WT", "PORTROUTE", "FLOW"]].to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\OUTPUT.csv")
+#    
+
     calculate_imbalance_weight(surveyData = "SAS_SURVEY_SUBSAMPLE"
                                , OutputData = "SAS_IMBALANCE_WT"
                                , SummaryData = "SAS_PS_IMBALANCE"
