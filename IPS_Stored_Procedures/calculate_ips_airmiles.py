@@ -278,13 +278,159 @@ def calculate(inputtablename, outputtablename, responsetable, key_id, dist1,
     # Set all of the columns imported to uppercase
     df_surveydata.columns = df_surveydata.columns.str.upper()
     
-
-
-
+    
+    airmiles_columns = [key_id, 
+                        'APORTLATDEG', 'APORTLATMIN', 'APORTLATSEC', 'APORTLATNS', 
+                        'APORTLONDEG', 'APORTLONMIN', 'APORTLONSEC', 'APORTLONEW',
+                        'CPORTLATDEG', 'CPORTLATMIN', 'CPORTLATSEC', 'CPORTLATNS',
+                        'CPORTLONDEG', 'CPORTLONMIN', 'CPORTLONSEC', 'CPORTLONEW',
+                        'FLOW',
+                        'PROUTELATDEG', 'PROUTELATMIN', 'PROUTELATSEC', 'PROUTELATNS',
+                        'PROUTELONDEG', 'PROUTELONMIN', 'PROUTELONSEC', 'PROUTELONEW']
+    
+    # Select rows from the imported data that have the correct 'FLOW' value
     df_airmiles = df_surveydata[df_surveydata['FLOW'].isin((1,2,3,4))]
 
+    # Extract the airmiles columns from the imported data
+    df_airmiles = df_airmiles[airmiles_columns]
 
-    compare_dfs('Airmiles', 'airmiles.sas7bdat', df_airmiles)
+    
+    
+    # Setup air extract 1 data
+    
+    # Create data frame from the specified column sets
+    air_1_columns = [key_id,
+                     'PROUTELATDEG', 'PROUTELATMIN', 'PROUTELATSEC', 
+                     'PROUTELONDEG', 'PROUTELONMIN', 'PROUTELONSEC', 
+                     'APORTLATDEG', 'APORTLATMIN', 'APORTLATSEC', 
+                     'APORTLONDEG', 'APORTLONMIN', 'APORTLONSEC', 
+                     'PROUTELATNS', 'PROUTELONEW',
+                     'APORTLATNS', 'APORTLONEW']
+    
+    df_air_ext1 =  df_airmiles[air_1_columns]
+    
+    # Rename the dataframe's columns
+    df_air_ext1 = df_air_ext1.rename(columns = {'PROUTELATDEG':'START_LAT_DEGREE', 
+                                                'PROUTELATMIN':'START_LAT_MIN', 
+                                                'PROUTELATSEC':'START_LAT_SEC', 
+                                                'PROUTELONDEG':'START_LON_DEGREE', 
+                                                'PROUTELONMIN':'START_LON_MIN', 
+                                                'PROUTELONSEC':'START_LON_SEC', 
+                                                'APORTLATDEG':'END_LAT_DEGREE', 
+                                                'APORTLATMIN':'END_LAT_MIN', 
+                                                'APORTLATSEC':'END_LAT_SEC', 
+                                                'APORTLONDEG':'END_LON_DEGREE', 
+                                                'APORTLONMIN':'END_LON_MIN', 
+                                                'APORTLONSEC':'END_LON_SEC', 
+                                                'PROUTELATNS':'START_LAT_DIR',
+                                                'APORTLATNS':'END_LAT_DIR',
+                                                'PROUTELONEW':'START_LON_DIR',
+                                                'APORTLONEW':'END_LON_DIR'})
+    
+    
+    # Setup air extract 2 data
+    
+    # Create data frame from the specified column sets
+    air_2_columns = [key_id,
+                     'CPORTLATDEG', 'CPORTLATMIN', 'CPORTLATSEC', 
+                     'CPORTLONDEG', 'CPORTLONMIN', 'CPORTLONSEC',
+                     'APORTLATDEG', 'APORTLATMIN', 'APORTLATSEC', 
+                     'APORTLONDEG', 'APORTLONMIN', 'APORTLONSEC', 
+                     'CPORTLATNS', 'CPORTLONEW',
+                     'APORTLATNS', 'APORTLONEW']    
+
+    df_air_ext2 =  df_airmiles[air_2_columns]
+    
+    # Rename the dataframe's columns
+    df_air_ext2 = df_air_ext2.rename(columns = {'CPORTLATDEG':'START_LAT_DEGREE', 
+                                                'CPORTLATMIN':'START_LAT_MIN', 
+                                                'CPORTLATSEC':'START_LAT_SEC', 
+                                                'CPORTLONDEG':'START_LON_DEGREE', 
+                                                'CPORTLONMIN':'START_LON_MIN', 
+                                                'CPORTLONSEC':'START_LON_SEC', 
+                                                'APORTLATDEG':'END_LAT_DEGREE', 
+                                                'APORTLATMIN':'END_LAT_MIN', 
+                                                'APORTLATSEC':'END_LAT_SEC', 
+                                                'APORTLONDEG':'END_LON_DEGREE', 
+                                                'APORTLONMIN':'END_LON_MIN', 
+                                                'APORTLONSEC':'END_LON_SEC', 
+                                                'CPORTLATNS':'START_LAT_DIR',
+                                                'APORTLATNS':'END_LAT_DIR',
+                                                'CPORTLONEW':'START_LON_DIR',
+                                                'APORTLONEW':'END_LON_DIR'})
+    
+    
+    # Setup air extract 3 data
+
+    # Create data frame from the specified column sets
+    air_3_columns = [key_id,
+                     'PROUTELATDEG', 'PROUTELATMIN', 'PROUTELATSEC', 
+                     'PROUTELONDEG', 'PROUTELONMIN', 'PROUTELONSEC', 
+                     'CPORTLATDEG', 'CPORTLATMIN', 'CPORTLATSEC', 
+                     'CPORTLONDEG', 'CPORTLONMIN', 'CPORTLONSEC', 
+                     'PROUTELATNS', 'PROUTELONEW',
+                     'CPORTLATNS', 'CPORTLONEW']
+    
+    df_air_ext3 =  df_airmiles[air_3_columns]
+
+    # Rename the dataframe's columns
+    df_air_ext3 = df_air_ext3.rename(columns = {'PROUTELATDEG':'START_LAT_DEGREE', 
+                                                'PROUTELATMIN':'START_LAT_MIN', 
+                                                'PROUTELATSEC':'START_LAT_SEC', 
+                                                'PROUTELONDEG':'START_LON_DEGREE', 
+                                                'PROUTELONMIN':'START_LON_MIN', 
+                                                'PROUTELONSEC':'START_LON_SEC', 
+                                                'CPORTLATDEG':'END_LAT_DEGREE', 
+                                                'CPORTLATMIN':'END_LAT_MIN', 
+                                                'CPORTLATSEC':'END_LAT_SEC', 
+                                                'CPORTLONDEG':'END_LON_DEGREE', 
+                                                'CPORTLONMIN':'END_LON_MIN', 
+                                                'CPORTLONSEC':'END_LON_SEC', 
+                                                'PROUTELATNS':'START_LAT_DIR',
+                                                'CPORTLATNS':'END_LAT_DIR',
+                                                'PROUTELONEW':'START_LON_DIR',
+                                                'CPORTLONEW':'END_LON_DIR'})
+    
+    # Calculate the airmiles of all the datasets created
+    
+    def airmiles (row):
+        """
+        This will actually calculate the airmiles for each dataset passed to it
+        """
+        return row
+    
+    air = airmiles(df_air_ext1);
+    air2 = airmiles(df_air_ext1);
+    air3 = airmiles(df_air_ext1);
+    
+
+    df_airmiles1 = air[[key_id,'AIRMILES']]
+    df_airmiles1 = df_airmiles1.rename(columns = {'AIRMILES':dist1})
+    
+    df_airmiles2 = air[[key_id,'AIRMILES']]
+    df_airmiles2 = df_airmiles2.rename(columns = {'AIRMILES':dist2})
+    
+    df_airmiles3 = air[[key_id,'AIRMILES']]
+    df_airmiles3 = df_airmiles3.rename(columns = {'AIRMILES':dist3})
+
+    # Merge the airmiles datasets
+    
+    sys.exit()
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    compare_dfs('Air_Ext3', 'air_ext3.sas7bdat', df_air_ext3)
     
     sys.exit()
 
