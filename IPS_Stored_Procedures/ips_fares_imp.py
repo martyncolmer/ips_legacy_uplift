@@ -11,6 +11,27 @@ import survey_support
 from IPSTransformation import CommonFunctions as cf
 from IPS_Unallocated_Modules import ips_impute
 
+def compare_dfs(test_name, sas_file, df, col_list = False):
+    
+    sas_root = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Fares Imputation"
+    print sas_root + "\\" + sas_file
+    csv = pd.read_sas(sas_root + "\\" + sas_file)
+    
+    fdir = r"H:\\My Documents\Git Repositories\ILU_Fares_impute_testing"
+    sas = "_sas.csv"
+    py = "_py.csv"
+    
+    print("TESTING " + test_name)
+    
+    if col_list == False:
+        csv.to_csv(fdir+"\\"+test_name+sas)
+        df.to_csv(fdir+"\\"+test_name+py)
+    else:
+        csv[col_list].to_csv(fdir+"\\"+test_name+sas)
+        df[col_list].to_csv(fdir+"\\"+test_name+py)
+    
+    print(test_name + " COMPLETE")
+    print("")
 
 def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
                             , num_levels, donor_var, output_var, measure
@@ -26,7 +47,7 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
     Purpose      : Imputes fares for the IPS system.
     Parameters   : input - the IPS survey dataset.
                    output - dataframe holding imputed records
-                   var_serialNum - the serial number field name
+                   var_serial_num - the serial number field name
                    var_stem - stem of the imputation variables parameters
                    num_levels - number of imputation levels
                    donor_var - name of the donor variable
@@ -58,7 +79,8 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
     """
     df_input = input
     
-    # Setup thresh and strata base nested lists
+    # Setup thresh and strata base nested lists. These are used to group the data
+    # differently at each iteration.
     strata_base_list = [['INTMONTH', 'TYPE_PV', 'UKPORT1_PV', 'OSPORT1_PV', 'OPERA_PV']
                         ,['INTMONTH', 'TYPE_PV', 'UKPORT2_PV', 'OSPORT1_PV', 'OPERA_PV']
                         ,['INTMONTH', 'TYPE_PV', 'UKPORT1_PV', 'OSPORT2_PV', 'OPERA_PV']
@@ -73,7 +95,8 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
     
     # Ensure imputation only occurs on eligible rows
     df_eligible = df_input.loc[df_input[var_eligible_flag] == 1.0]
-
+    
+    # Perform the imputation on eligible dataset
     df_output = ips_impute.ips_impute(df_eligible, output, var_serial_num
                                             , strata_base_list, thresh_base_list
                                             , num_levels, donor_var,output_var
@@ -82,6 +105,32 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
     
     # Merge df_output_final and df_input by var_serial_num
     df_output.sort_values(var_serial_num, inplace = True)
+    
+    df_input.sort_values(var_serial_num, inplace = True)
+    
+    df_output = df_input.merge(df_output, on = var_serial_num, how = 'left')
+    
+    # Above merge creates fares_x and fares_y column; this line removes the empty
+    # fares_x column and keeps then renames the imputed fares_y column 
+    df_output = df_output.drop(columns = [output_var + '_x', var_imp_level + '_x'])
+    
+    df_output.rename(index=str, columns={output_var + '_y' : output_var, var_imp_level + '_y' : var_imp_level}, inplace = True)
+    
+    # Resort columns by column name in alphabetical order (may not be required)
+    df_output.sort_index(axis = 1, inplace = True)
+    
+    # Output current progress to csv. Up to this point, everything works correctly
+    df_output.to_csv('current_progress_output.csv')
+    print('Current progress completed, csv produced in local folder.')
+    sys.exit()
+    
+    # Huge if statment block, 10+ individual if statements many with one or more
+    # else conditions. Attempted to begin but made little progress before going
+    #  on leave - JB, March 2nd '18
+#     if(df_output[var_eligible_flag] == 0 | df_output[var_imp_flag] == 0):
+#         df_output[output_var] = df_output['DVFARE']
+#     else:
+#         if(df_input)
     
     # Compute spend based on fare
     df_compute = df_output[[var_serial_num, var_spend
