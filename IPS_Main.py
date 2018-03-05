@@ -147,3 +147,4 @@ calculate_ips_nonresponse_weight.calculate(SurveyData = 'SAS_SURVEY_SUBSAMPLE',
                                            var_serialNum = 'SERIAL', 
                                            minCountThresh = '30')
 
+#IPS_traffic_weight_calc.calculate()
