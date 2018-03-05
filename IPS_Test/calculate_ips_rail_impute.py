@@ -180,20 +180,9 @@ def calculate(SurveyData, OutputData, ResponseTable, var_serial, var_flow,
     survey_support.setup_logging('IPS_logging_config_debug.json')
     
     global df_surveydata
-    
-    # Import data via SAS
-    # This method works for all data sets but is slower
-    #df_surveydata = SAS7BDAT(path_to_survey_data).to_data_frame()
-    #df_nonresponsedata = SAS7BDAT(path_to_nonresponse_data).to_data_frame()
-    
-    # This method is untested with a range of data sets but is faster
-    path_to_survey_data = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Rail Imputation\surveydata.sas7bdat"
-    df_surveydata = pd.read_sas(path_to_survey_data)
-    
-    # Import data via SQL
-    #df_surveydata = cf.get_table_values(SurveyData)
-    #df_ustotals = cf.get_table_values(PopTotals)
-    
+
+    df_surveydata = SurveyData
+
     df_surveydata.columns = df_surveydata.columns.str.upper()
     
     
@@ -202,20 +191,7 @@ def calculate(SurveyData, OutputData, ResponseTable, var_serial, var_flow,
     output_dataframe = do_ips_railex_imp(df_surveydata, 'output', var_serial, var_flow, var_fweight,
     										var_count, strata , var_railexercise, var_spend, minCountThresh)
     
-    # Append the generated data to output table
-    cf.insert_into_table_many(OutputData, output_dataframe)
-     
-    # Retrieve current function name using inspect:
-    # 0 = frame object, 3 = function name. 
-    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
-    function_name = str(inspect.stack()[0][3])
-    audit_message = "Load Rail Imputationn: %s()" % function_name
-     
-    # Log success message in SAS_RESPONSE and AUDIT_LOG
-    cf.database_logger().info("SUCCESS - Completed Rail Imputation.")
-    cf.commit_to_audit_log("Create", "RailImputation", audit_message)
-    print("Completed - Calculate IPS Rail Impute.")
-    
+    return output_dataframe
     
     
 
