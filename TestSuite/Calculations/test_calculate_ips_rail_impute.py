@@ -6,7 +6,7 @@ Created on 05 March 2018
 
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
-from IPS_Test.calculate_ips_rail_impute import calculate
+from IPS_Test_Modules.calculate_ips_rail_impute import calculate
 import winsound
 
 def compare_dfs(test_name, sas_file, df, col_list = False):
@@ -68,11 +68,8 @@ def test_calculate():
     
     test_result_summary = test_result_summary.sort_values(by = 'SERIAL')  
     result_data = result_data.sort_values(by = 'SERIAL') 
-    
-    compare_dfs('PickleRick', 'output_final.sas7bdat', result_data)
-    compare_dfs('PickleRick_2', 'output_final.sas7bdat', test_result_summary)
-    
-    assert_frame_equal(result_data, test_result_summary)
+        
+    assert_frame_equal(result_data, test_result_summary,)
 
 def test_do_ips_shift_weight_calculation():
     # TODO implement unit test
