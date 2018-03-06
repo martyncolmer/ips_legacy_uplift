@@ -10,41 +10,6 @@ from pandas.util.testing import assert_frame_equal
 from collections import OrderedDict
 import survey_support
 from IPSTransformation import CommonFunctions as cf
-import winsound
-
-
-
-
-
-def compare_dfs(test_name, sas_file, df, col_list = False):
-    
-    def beep():
-        frequency = 600  # Set Frequency To 2500 Hertz
-        duration = 150  # Set Duration To 1000 ms == 1 second
-        winsound.Beep(frequency, duration)
-    
-    sas_root = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Rail Imputation"
-    print sas_root + "\\" + sas_file
-    csv = pd.read_sas(sas_root + "\\" + sas_file)
-    
-    fdir = r"\\NDATA12\mahont1$\My Documents\GIT_Repositories\Test_Drop"
-    sas = "_sas.csv"
-    py = "_py.csv"
-    
-    print("TESTING " + test_name)
-    
-    if col_list == False:
-        csv.to_csv(fdir+"\\"+test_name+sas,index = False)
-        df.to_csv(fdir+"\\"+test_name+py,index = False)
-    else:
-        csv[col_list].to_csv(fdir+"\\"+test_name+sas,index = False)
-        df[col_list].to_csv(fdir+"\\"+test_name+py,index = False)
-    
-    print(test_name + " COMPLETE")
-    beep()
-    print("") 
-    
-    
     
     
 def do_ips_railex_imp(df_input, output, var_serial, var_eligible, var_fweight,
@@ -150,9 +115,7 @@ def do_ips_railex_imp(df_input, output, var_serial, var_eligible, var_fweight,
     # Return the generated data frame to be appended to oracle
     return (df_output)
     
-    
-    
-    
+
 def calculate(SurveyData, OutputData, ResponseTable, var_serial, var_flow,
 		  var_fweight, var_count, strata, var_railexercise, var_spend,
 		  minCountThresh):			  
@@ -196,7 +159,6 @@ def calculate(SurveyData, OutputData, ResponseTable, var_serial, var_flow,
     
     df_surveydata.columns = df_surveydata.columns.str.upper()
     
-    
     # Start the Calculate IPS Rail Impute function.
     print("Start - Calculate IPS Rail Impute.")     
     output_dataframe = do_ips_railex_imp(df_surveydata, 'output', var_serial, var_flow, var_fweight,
@@ -217,8 +179,6 @@ def calculate(SurveyData, OutputData, ResponseTable, var_serial, var_flow,
     print("Completed - Calculate IPS Rail Impute.")
     
     
-    
-
 if __name__ == '__main__':
     calculate(SurveyData = 'SAS_SURVEY_SUBSAMPLE',
               OutputData = 'SAS_RAIL_IMP', 
