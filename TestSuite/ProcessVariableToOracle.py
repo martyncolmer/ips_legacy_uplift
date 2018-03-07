@@ -87,5 +87,5 @@ def read_pv_table(pv_name = None,conn = None):
 
 """"""
 
-write_pv_to_table(pv_name, val)
-read_pv_table(pv_name = pv_name)
+#write_pv_to_table(pv_name, val)
+read_pv_table()
