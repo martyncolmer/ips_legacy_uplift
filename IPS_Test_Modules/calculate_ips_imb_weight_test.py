@@ -231,12 +231,12 @@ def do_ips_imbweight_calculation(surveyData, OutputData, SummaryData, var_serial
             var_priorSum:'sum'
             , var_postSum:'sum'})
     df_summary_data = df_summary_data.reset_index()
-
+    
     # Cleanse dataframes before returning
     df_survey_data.drop('index', axis=1, inplace=True)
     df_survey_data.drop('SUM_IMBAL_WT', axis=1, inplace=True)
     df_survey_data.drop('SUM_PRIOR_WT', axis=1, inplace=True)
-    
+
     return (df_survey_data, df_summary_data)
     
         
@@ -256,24 +256,25 @@ def calculate_imbalance_weight(surveyData, OutputData, SummaryData, var_serialNu
     """
     
     global df_survey_data
+    df_survey_data = surveyData
     
     # Call JSON configuration file for error logger setup
-    survey_support.setup_logging('IPS_logging_config_debug.json')
-    logger = cf.database_logger()
+#    survey_support.setup_logging('IPS_logging_config_debug.json')
+#    logger = cf.database_logger()
     
     # Setup path to the base directory containing data files
-    root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Imbalance Weight"
-    path_to_survey_data = root_data_path + r"\surveydata.sas7bdat"
+#    root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Imbalance Weight"
+#    path_to_survey_data = root_data_path + r"\surveydata.sas7bdat"
 
     # Import data via SAS
     # This method works for all data sets but is slower
     #df_surveydata = SAS7BDAT(path_to_survey_data).to_data_frame()
     # This method is untested with a range of data sets but is faster
-    df_survey_data = pd.read_sas(path_to_survey_data)
+#    df_survey_data = pd.read_sas(path_to_survey_data)
     df_survey_data.columns = df_survey_data.columns.str.upper()
     
     print("Start - Calculate Imbalance Weight")
-    df_imbalance_calculated = do_ips_imbweight_calculation(surveyData, OutputData
+    df_imbalance_calculated = do_ips_imbweight_calculation(df_survey_data, OutputData
                                 , SummaryData, var_serialNum, var_shiftWeight
                                 , var_NRWeight, var_minWeight, var_trafficWeight
                                 , var_OOHWeight, var_imbalanceWeight, var_portroute
@@ -284,21 +285,23 @@ def calculate_imbalance_weight(surveyData, OutputData, SummaryData, var_serialNu
     df_survey_data = df_imbalance_calculated[0]
     df_summary_data = df_imbalance_calculated[1]
     
-    # Append the generated data to output tables
-    cf.insert_into_table_many(OutputData
-                              , df_survey_data[[var_serialNum, var_imbalanceWeight]])
-    cf.insert_into_table_many(SummaryData, df_summary_data)
+#    # Append the generated data to output tables
+#    cf.insert_into_table_many(OutputData
+#                              , df_survey_data[[var_serialNum, var_imbalanceWeight]])
+#    cf.insert_into_table_many(SummaryData, df_summary_data)
     
     # Retrieve current function name using inspect:
     # 0 = frame object, 3 = function name.
     # See 28.13.4. in https://docs.python.org/2/library/inspect.html
-    function_name = str(inspect.stack()[0][3])
-    audit_message = "Imbalance Weight calculation: %s()" %function_name
-    
-    # Log success message in SAS_RESPONSE and AUDIT_LOG
-    logger.info("SUCCESS - Completed Imbalance Weight Calculation.")
-    cf.commit_to_audit_log("Create", "ImbalanceWeight", audit_message)
+#    function_name = str(inspect.stack()[0][3])
+#    audit_message = "Imbalance Weight calculation: %s()" %function_name
+#    
+#    # Log success message in SAS_RESPONSE and AUDIT_LOG
+#    logger.info("SUCCESS - Completed Imbalance Weight Calculation.")
+#    cf.commit_to_audit_log("Create", "ImbalanceWeight", audit_message)
     print("Completed - Calculate Imbalance Weight")
+    
+    return (df_survey_data, df_summary_data)
 
 
 if __name__ == "__main__":
