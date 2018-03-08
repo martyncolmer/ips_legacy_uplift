@@ -9,6 +9,37 @@ from pandas.util.testing import assert_frame_equal
 from collections import OrderedDict
 import survey_support
 from IPSTransformation import CommonFunctions as cf
+import math
+    
+def compare_dfs(test_name, sas_file, df, col_list = False):
+    
+    import winsound
+    
+    def beep():
+        frequency = 500  # Set Frequency To 2500 Hertz
+        duration = 200  # Set Duration To 1000 ms == 1 second
+        winsound.Beep(frequency, duration)
+    
+    sas_root = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Unsampled Weight"
+    print sas_root + "\\" + sas_file
+    csv = pd.read_sas(sas_root + "\\" + sas_file)
+    
+    fdir = r"\\NDATA12\mahont1$\My Documents\GIT_Repositories\Test_Drop"
+    sas = "_sas.csv"
+    py = "_py.csv"
+    
+    print("TESTING " + test_name)
+    
+    if col_list == False:
+        csv.to_csv(fdir+"\\"+test_name+sas)
+        df.to_csv(fdir+"\\"+test_name+py)
+    else:
+        csv[col_list].to_csv(fdir+"\\"+test_name+sas)
+        df[col_list].to_csv(fdir+"\\"+test_name+py)
+    
+    print(test_name + " COMPLETE")
+    beep()
+    print("") 
     
     
 def ips_check_ges_totals(SampleData, SummarisedPopulation, StrataDef, var_sample,    
@@ -94,10 +125,56 @@ def ips_check_ges_totals(SampleData, SummarisedPopulation, StrataDef, var_sample
         cf.database_logger().error(error_string)
         print("Error thrown in ges data - stopping application. This will be implemented when the application is built.")
         sys.exit()
+
+
+def ips_setup_ges_auxvars(df_poptotals, StrataDef, AuxVar, TotVar, 
+                          AuxVarPrefix, TotVarPrefix):
+    """
+    Author       : Thomas Mahoney
+    Date         : 08 / 03 / 2018
+    Purpose      : Creates the GES cvset file and assigns the auxiliary count to a macro 
+                   variable.
+    Parameters   : df_poptotals - Population totals file   
+                   StrataDef - List of classificatory variables          
+                   AuxVar - Variable that will hold the names of the auxiliary variables
+                   TotVar - Variable that will holds the names of the total variables
+                   AuxVarPrefix - Prefix for auxiliary variables (e.g. Y_)
+                   TotVarPrefix - Prefix for total variables (e.g. T_)
+    Returns      : NA
+    Requirements : NA
+    Dependencies : NA
+    """
+    
+    
+    # Create the model definition data frame 
+    df_model_definition = df_poptotals[StrataDef]
+    
+    # Set the aux variable count
+    AuxVarCount = len(df_model_definition.index)
+    
+    
+    # Set up the aux variable number format macro
+    AuxNumFormat = int(math.log10(AuxVarCount)) + 1
+    
+    # Generate the df_cv_set values
+    av = [""]*AuxVarCount
+    tv = [""]*AuxVarCount
+    for x in range (1,AuxVarCount+1):
+        av[x-1] = AuxVarPrefix + str(x)[:AuxNumFormat]
+        tv[x-1] = TotVarPrefix + str(x)[:AuxNumFormat]
+        
+    
+    # Create the cvset data frame
+    df_cv_set = df_poptotals
+    df_cv_set[AuxVar] = av
+    df_cv_set[TotVar] = tv
+    df_cv_set = df_cv_set[[AuxVar,TotVar]]
+    
+    return df_cv_set, df_model_definition, AuxVar, TotVar, AuxVarCount, AuxNumFormat 
     
 
-def do_ips_ges_weighting(input, SerialNumVarName, DesignWeightVarName, 
-                         StrataDef, PopTotals, TotalVar, MaxRuleLength, 
+def do_ips_ges_weighting(df_input, SerialNumVarName, DesignWeightVarName, 
+                         StrataDef, df_poptotals, TotalVar, MaxRuleLength, 
                          ModelGroup, Output, GWeightVar, CalWeightVar, GESBoundType, 
                          GESUpperBound, GESLowerBound, GESMaxDiff, GESMaxIter, GESMaxDist):
     """
@@ -105,11 +182,11 @@ def do_ips_ges_weighting(input, SerialNumVarName, DesignWeightVarName,
     Date         : 06 / 03 / 2018
     Purpose      : Calculates GES single stage, element weighting. This is used in the IPS
                    traffic and OOH weights.
-    Parameters   : Survey - the IPS survey records for the period
+    Parameters   : df_input - the IPS survey records for the period
                    SerialNumVarName - variable holding the record serial number (UID)                
                    DesignWeightVarName - Variable holding the design weights                            
                    StrataDef - List of classificatory variables          
-                   PopTotals - Population totals file               
+                   df_poptotals - Population totals file               
                    TotalVar - Variable that holds the population totals 
                    MaxRuleLength - maximum length of an auxiliary rule (e.g. 512)            
                    ModelGroup - Variable that will hold the model group number                
@@ -128,15 +205,20 @@ def do_ips_ges_weighting(input, SerialNumVarName, DesignWeightVarName,
     """
     
     # Create ges_input data set from the relevant input data columns
-    df_ges_input = input[StrataDef + [DesignWeightVarName] + ['SERIAL']]
+    df_ges_input = df_input[StrataDef + [DesignWeightVarName] + ['SERIAL']]
     df_ges_input[ModelGroup] = 1
     df_ges_input = df_ges_input.rename(columns = {'SERIAL' : 'GES_SERIAL'})
     
     # Only include records where the 'DesignWeightVarName' value is above zero
     df_ges_input = df_ges_input[df_ges_input[DesignWeightVarName] > 0]
         
-    # Calls the check_ges_totals function
-    ips_check_ges_totals(df_ges_input, PopTotals, StrataDef, DesignWeightVarName, TotalVar)
+    # Check the ges totals
+    ips_check_ges_totals(df_ges_input, df_poptotals, StrataDef, DesignWeightVarName, TotalVar)
     
+    # Setup the ges auxiliary variables 
+    df_cvset, df_moddef, auxvar, totvar, NumAuxVars, AuxNumForm = \
+            ips_setup_ges_auxvars(df_poptotals, StrataDef, 'AUXVAR', 'TOTVAR', 'Y_', 'T_');
+
+
     sys.exit()
     pass
