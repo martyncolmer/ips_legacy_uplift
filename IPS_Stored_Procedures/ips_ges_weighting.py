@@ -1,46 +1,9 @@
 import sys
-import os
-import logging
-import inspect
 import numpy as np
 import pandas as pd
-from sas7bdat import SAS7BDAT
-from pandas.util.testing import assert_frame_equal
-from collections import OrderedDict
-import survey_support
 from IPSTransformation import CommonFunctions as cf
 import math
-    
-def compare_dfs(test_name, sas_file, df, col_list = False):
-    
-    import winsound
-    
-    def beep():
-        frequency = 500  # Set Frequency To 2500 Hertz
-        duration = 200  # Set Duration To 1000 ms == 1 second
-        winsound.Beep(frequency, duration)
-    
-    sas_root = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Unsampled Weight"
-    print sas_root + "\\" + sas_file
-    csv = pd.read_sas(sas_root + "\\" + sas_file)
-    
-    fdir = r"\\NDATA12\mahont1$\My Documents\GIT_Repositories\Test_Drop"
-    sas = "_sas.csv"
-    py = "_py.csv"
-    
-    print("TESTING " + test_name)
-    
-    if col_list == False:
-        csv.to_csv(fdir+"\\"+test_name+sas)
-        df.to_csv(fdir+"\\"+test_name+py)
-    else:
-        csv[col_list].to_csv(fdir+"\\"+test_name+sas)
-        df[col_list].to_csv(fdir+"\\"+test_name+py)
-    
-    print(test_name + " COMPLETE")
-    beep()
-    print("") 
-    
+
     
 def ips_check_ges_totals(SampleData, SummarisedPopulation, StrataDef, var_sample,    
                         var_population):
@@ -132,8 +95,7 @@ def ips_setup_ges_auxvars(df_poptotals, StrataDef, AuxVar, TotVar,
     """
     Author       : Thomas Mahoney
     Date         : 08 / 03 / 2018
-    Purpose      : Creates the GES cvset file and assigns the auxiliary count to a macro 
-                   variable.
+    Purpose      : Creates the GES cvset data frame and sets up auxiliary variables 
     Parameters   : df_poptotals - Population totals file   
                    StrataDef - List of classificatory variables          
                    AuxVar - Variable that will hold the names of the auxiliary variables
@@ -219,6 +181,8 @@ def do_ips_ges_weighting(df_input, SerialNumVarName, DesignWeightVarName,
     df_cvset, df_moddef, auxvar, totvar, NumAuxVars, AuxNumForm = \
             ips_setup_ges_auxvars(df_poptotals, StrataDef, 'AUXVAR', 'TOTVAR', 'Y_', 'T_');
 
+    #Next ges steps
+    
 
     sys.exit()
     pass
