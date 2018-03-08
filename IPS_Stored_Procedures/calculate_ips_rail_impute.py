@@ -11,7 +11,6 @@ from collections import OrderedDict
 import survey_support
 from IPSTransformation import CommonFunctions as cf
     
-    
 def do_ips_railex_imp(df_input, output, var_serial, var_eligible, var_fweight,
 					var_count, strata, var_railfare, var_spend, minCountThresh):
     """
@@ -57,12 +56,11 @@ def do_ips_railex_imp(df_input, output, var_serial, var_eligible, var_fweight,
     gp_summin = gp_summin.reset_index()
     railexp_summin = railexp_summin.reset_index()
     
-    # Replace the previously filled blanks with their original values
-    gp_summin[strata] = gp_summin[strata].replace(0,np.NaN)
-    railexp_summin[strata] = railexp_summin[strata].replace(0,np.NaN)
-    
     # Merge the generated data sets into one
     df_summin = pd.merge(gp_summin,railexp_summin,how = 'inner')
+        
+    # Replace the previously filled blanks with their original values
+    df_summin[strata] = df_summin[strata].replace(0,np.NaN)
     
     # Report any cells with respondent counts below the minCountThreshold
     
@@ -96,8 +94,6 @@ def do_ips_railex_imp(df_input, output, var_serial, var_eligible, var_fweight,
     # Sort the calculated data frame by the strata ready to be merged
     df_summinsum = df_summinsum.sort_values(by = strata)
     
-
-    
     # Append the calculated values to the input data set (generating our output)
     df_output = pd.merge(df_input,df_summinsum, on = strata, how = 'left')
     
@@ -108,7 +104,7 @@ def do_ips_railex_imp(df_input, output, var_serial, var_eligible, var_fweight,
         return row
 
     df_output = df_output.apply(calculate_spend,axis = 1)
-    
+        
     # Keep only the 'SERIAL' and 'SPEND' columns
     df_output = df_output[[var_serial,var_spend]]
     
@@ -141,17 +137,15 @@ def calculate(SurveyData, OutputData, ResponseTable, var_serial, var_flow,
     
     # Call JSON configuration file for error logger setup
     survey_support.setup_logging('IPS_logging_config_debug.json')
-    
-    global df_surveydata
-    
+        
     # Import data via SAS
     # This method works for all data sets but is slower
     #df_surveydata = SAS7BDAT(path_to_survey_data).to_data_frame()
     #df_nonresponsedata = SAS7BDAT(path_to_nonresponse_data).to_data_frame()
     
     # This method is untested with a range of data sets but is faster
-    path_to_survey_data = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Rail Imputation\surveydata.sas7bdat"
-    df_surveydata = pd.read_sas(path_to_survey_data)
+    path_to_survey_data = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Rail Imputation\surveydata.pkl"
+    df_surveydata = pd.read_pickle(path_to_survey_data)
     
     # Import data via SQL
     #df_surveydata = cf.get_table_values(SurveyData)
