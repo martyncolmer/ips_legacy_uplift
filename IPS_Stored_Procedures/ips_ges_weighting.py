@@ -4,6 +4,31 @@ import pandas as pd
 from IPSTransformation import CommonFunctions as cf
 import math
 
+
+def apply_aux_rules(row):
+    """
+    Author       : Thomas Mahoney
+    Date         : 09 / 03 / 2018
+    Purpose      : Apply function that executes strings as python code to set 
+                   auxiliary variables within the input data set.
+    Parameters   : row - A record from the data frame being modified
+    Returns      : row - A modified record with the auxiliary rule applied
+    Requirements : NA
+    Dependencies : NA
+    """
+    # Set a breakout boolean to allow the loop to exit prematurely 
+    breakout = False
+    
+    # Loop through the rules and apply them to the row in question
+    for rule in aux_rules:
+        # Execute the rule string as python code
+        exec(rule)
+        # Exit the loop if the breakout variable has been triggered
+        if(breakout):
+            break
+    # Return the modified row
+    return row
+    
     
 def ips_check_ges_totals(SampleData, SummarisedPopulation, StrataDef, var_sample,    
                         var_population):
@@ -135,6 +160,66 @@ def ips_setup_ges_auxvars(df_poptotals, StrataDef, AuxVar, TotVar,
     return df_cv_set, df_model_definition, AuxVar, TotVar, AuxVarCount, AuxNumFormat 
     
 
+def ips_assign_ges_auxiliaries(df_survey, ModelDefinition, MaxRuleLength, 
+                                  AuxVarPrefix, AuxCount, StrataDef):
+    """
+    Author       : Thomas Mahoney
+    Date         : 09 / 03 / 2018
+    Purpose      : Adds the auxiliary variables (required by GES) to the survey data 
+    Parameters   : df_survey = the IPS survey records for the period
+                   ModelDefinition = Model definition file
+                   MaxRuleLength = maximum length of an auxiliary rule (e.g. 512)
+                   AuxVarPrefix = Prefix for auxiliary variables (e.g. Y_)
+                   AuxCount = Variable holding the number of auxiliary variables
+                   StrataDef = List of classificatory variables
+    Returns      : df_survey - the original survey data with auxiliary variables.
+    Requirements : NA
+    Dependencies : NA
+    """
+    
+    # Create a list to hold the generated auxiliary variable rules
+    global aux_rules
+    aux_rules = []*1
+
+    # Use the model definition to generate the auxiliary variable rules
+    def generate_rules(row):
+        global aux_rules
+        
+        rule = ''
+        for x in range(0,len(StrataDef)):
+            if(x == 0):
+                rule = 'if '
+            else:
+                rule += ' and '
+            
+            if pd.isna(row[StrataDef[x]]):
+                rule += '(1 == 1)'
+            else:
+                if isinstance(row[StrataDef[x]], basestring):
+                    rule += '(row["' + str(StrataDef[x]) + '"] == "' + str(row[StrataDef[x]]) + '")'
+                else:
+                    rule += '(row["' + str(StrataDef[x]) + '"] == ' + str(row[StrataDef[x]]) + ')'
+                    
+        rule += ' : row["' + AuxVarPrefix + str(row.name+1) + '"] = 1; breakout = True'
+                
+        aux_rules.append(rule)
+        return row
+    
+    ModelDefinition.apply(generate_rules, axis = 1)
+    
+    # Create auxiliary variable columns in the survey data frame
+    for x in range(1,AuxCount+1):
+        df_survey[AuxVarPrefix + str(x)] = 0
+    
+    # Apply the generated rules to the survey data set.    
+    df_survey = df_survey.apply(apply_aux_rules, axis = 1)
+    
+    # Reset the output's index 
+    df_survey.index = range(0, len(df_survey))
+    
+    return df_survey
+    
+    
 def do_ips_ges_weighting(df_input, SerialNumVarName, DesignWeightVarName, 
                          StrataDef, df_poptotals, TotalVar, MaxRuleLength, 
                          ModelGroup, Output, GWeightVar, CalWeightVar, GESBoundType, 
@@ -181,8 +266,8 @@ def do_ips_ges_weighting(df_input, SerialNumVarName, DesignWeightVarName,
     df_cvset, df_moddef, auxvar, totvar, NumAuxVars, AuxNumForm = \
             ips_setup_ges_auxvars(df_poptotals, StrataDef, 'AUXVAR', 'TOTVAR', 'Y_', 'T_');
 
-    #Next ges steps
-    
+    # Assign ges auxiliary variables
+    df_ges_input = ips_assign_ges_auxiliaries(df_ges_input, df_moddef, MaxRuleLength, 
+                                  'Y_', NumAuxVars, StrataDef)
 
-    sys.exit()
-    pass
+    
