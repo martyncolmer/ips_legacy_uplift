@@ -4,7 +4,38 @@ import pandas as pd
 from IPSTransformation import CommonFunctions as cf
 import math
 
-
+    
+def compare_dfs(test_name, sas_file, df, col_list = False):
+    
+    import winsound
+    
+    def beep():
+        frequency = 500  # Set Frequency To 2500 Hertz
+        duration = 200  # Set Duration To 1000 ms == 1 second
+        winsound.Beep(frequency, duration)
+    
+    sas_root = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Unsampled Weight"
+    print sas_root + "\\" + sas_file
+    csv = pd.read_sas(sas_root + "\\" + sas_file)
+    
+    fdir = r"\\NDATA12\mahont1$\My Documents\GIT_Repositories\Test_Drop"
+    sas = "_sas.csv"
+    py = "_py.csv"
+    
+    print("TESTING " + test_name)
+    
+    if col_list == False:
+        csv.to_csv(fdir+"\\"+test_name+sas)
+        df.to_csv(fdir+"\\"+test_name+py)
+    else:
+        csv[col_list].to_csv(fdir+"\\"+test_name+sas)
+        df[col_list].to_csv(fdir+"\\"+test_name+py)
+    
+    print(test_name + " COMPLETE")
+    beep()
+    print("") 
+    
+    
 def apply_aux_rules(row):
     """
     Author       : Thomas Mahoney
@@ -220,6 +251,40 @@ def ips_assign_ges_auxiliaries(df_survey, ModelDefinition, MaxRuleLength,
     return df_survey
     
     
+def ips_get_population_totals(PopTotals, ModelGroup, PopRowVec, TotalVar, 
+                              TotVarPrefix, TotVarFormat):
+    
+    # Set the total variable count
+    tv_count = len(PopTotals.index)
+    
+    
+    # Create a list the size of the total variable count
+    tv = [""]*tv_count
+    
+    # Fill the tv array with the totvar values
+    for x in range (1,tv_count+1):
+        tv[x-1] = TotVarPrefix + str(x)[:TotVarFormat]
+
+    # Create a model group column and set the values to '1'
+    PopTotals[ModelGroup] = '1'
+    
+    # Set the totvar column to the values stored in the previously created array
+    PopTotals['TOTVAR'] = tv
+    
+    # Reset the data frame's index adding the nex column's created
+    PopTotals = PopTotals.reset_index()
+    
+    compare_dfs('pre_chop', 'modliftedtotals.sas7bdat', PopTotals)
+    
+    # Select the required columns from the generated data frame
+    df_mod_poptotals = PopTotals[[TotalVar, ModelGroup, 'TOTVAR']]
+    
+    compare_dfs('mod_pop_totals', 'modliftedtotals.sas7bdat', df_mod_poptotals)
+    sys.exit()
+    
+    #Done up to here.
+    
+    
 def do_ips_ges_weighting(df_input, SerialNumVarName, DesignWeightVarName, 
                          StrataDef, df_poptotals, TotalVar, MaxRuleLength, 
                          ModelGroup, Output, GWeightVar, CalWeightVar, GESBoundType, 
@@ -269,5 +334,8 @@ def do_ips_ges_weighting(df_input, SerialNumVarName, DesignWeightVarName,
     # Assign ges auxiliary variables
     df_ges_input = ips_assign_ges_auxiliaries(df_ges_input, df_moddef, MaxRuleLength, 
                                   'Y_', NumAuxVars, StrataDef)
+
+    ips_get_population_totals(df_poptotals, ModelGroup, 'PopRowVec', 
+                              TotalVar, 'T_', AuxNumForm)
 
     
