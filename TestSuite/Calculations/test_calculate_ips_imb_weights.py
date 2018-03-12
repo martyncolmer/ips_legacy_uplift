@@ -6,7 +6,7 @@ Created on 6 Mar 2018
 import pandas as pd
 import numpy as np
 from pandas.util.testing import assert_frame_equal
-from IPS_Test_Modules import calculate_ips_imb_weight_test as imb
+from IPS_Stored_Procedures import calculate_ips_imb_weight as imb
 
 import pprint
 from sas7bdat import SAS7BDAT
@@ -15,9 +15,10 @@ def test_calculate():
     # This is an integration test as it runs the entire step
 #    test_survey = pd.read_pickle(r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Imbalance Weight\Pickles\surveydata_input.pkl')
     test_survey = SAS7BDAT(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Imbalance Weight\surveydata.sas7bdat").to_data_frame()
+    test_survey.columns = test_survey.columns.str.upper()
 
     # Retrieve Python output data
-    result_py_data = imb.calculate_imbalance_weight(test_survey
+    result_py_data = imb.do_ips_imbweight_calculation(test_survey
                                , OutputData = "SAS_IMBALANCE_WT"
                                , SummaryData = "SAS_PS_IMBALANCE"
                                , var_serialNum = "SERIAL"
