@@ -34,7 +34,7 @@ transpose_survey_data.transpose(path_to_test_data)
 populate_survey_subsample.populate(run_id,connection)
 
 # Import Shift Data
-import_traffic_data.import_traffic_data(path_to_shift_data)
+import_traffic_data.import_traffic_data(run_id,path_to_shift_data)
 
 # 2 - Process
 

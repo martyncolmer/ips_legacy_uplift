@@ -1,9 +1,4 @@
 import sys
-
-# for jupyter notebooks
-# sys.path.insert(0, r'C:\Git_projects\Survey_Support')
-# sys.path.insert(0, r'C:\Git_projects\IPS_Legacy_Uplift\IPSTransformation')
-
 import os
 import logging
 import inspect
@@ -15,13 +10,13 @@ from collections import OrderedDict
 import survey_support
 from IPSTransformation import CommonFunctions as cf
 
-# TODO:
-# 1. do_ips_ges_weighting() - plug-in solution once done  
-# 2. TODO: generate_ips_tw_summary() - checks? 
-# 3. insert data into tables check?
-# 4. do the testing of the functions
-# 6. pickle data and put into GIt
-# remove redundant python code copied over from SAS
+# TODO (if required):
+# 1. do_ips_ges_weighting() - plug-in solution once done
+# 2. do the testing of the function from TestSuite without SQL code
+# 3. pickle data and put into GIt
+# 4. remove redundant python code copied over from SAS
+# 5. clean up local git history
+# 6. commit version with all manual test code for reference
                        
 def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum,
               var_shiftWeight, var_NRWeight, var_minWeight, StrataDef, PopTotals,
@@ -132,8 +127,7 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum,
     # append summary information to summary table
     cf.insert_into_table_many(SummaryData, df_summary_merge_sum_traftot)
 
-#    commit the response information to the response table
-#    %commit_ips_sas_response
+    print("Completed - Calculate Traffic Weight")
 
 def do_ips_trafweight_calculation(df_survey, summary, var_serialNum, var_shiftWeight, var_NRWeight,
                                      var_minWeight, StrataDef, PopTotals, TotalVar,      
@@ -227,10 +221,7 @@ def do_ips_trafweight_calculation(df_survey, summary, var_serialNum, var_shiftWe
     df_test.columns = df_test.columns.str.upper() 
     assert_frame_equal(df_survey_serialNum_sort, df_test, check_column_type=False)     
     # test end
-    
-    return (df_popTotals, df_popTotals)
-
-              
+                      
     # Generate the summary table    
     df_summary_merge_sum_traftot = generate_ips_tw_summary(df_survey, df_output_merge_final, summary, StrataDef, var_count,
                                                            var_serialNum, GWeightVar, trafDesignWeight,
@@ -425,7 +416,28 @@ def generate_ips_tw_summary(df_survey, df_output_merge_final, summary, StrataDef
     df_test.columns = df_test.columns.str.upper() 
     assert_frame_equal(df_summary_merge_sum_traftot, df_test, check_column_type=False)
     # test code end
-    
+
+    # perform checks and log
+    df_sum = df_summary_merge_sum_traftot
+    df_sum_check = df_sum[(df_sum[var_count].isnull()) | (df_sum[var_count] < minCountThresh)]
+    df_sum_check = df_sum_check[StrataDef]
+
+    if len(df_sum_check) > 0:
+        threshold_string_cap = 4000
+        warningStr = "Respondent count below minimum threshold for";
+
+        # Loop over classificatory variables
+        threshold_string = ""
+        for index, record in df_sum_check.iterrows():
+            threshold_string += \
+                warningStr + " " + StrataDef[0] + " = " + str(record[0])\
+                + " " + StrataDef[1] + "=" + str(record[1]) + "\n"
+
+        threshold_string_capped = threshold_string[:threshold_string_cap]
+
+        print(threshold_string_capped)
+        cf.database_logger().warning("WARNING: " + threshold_string_capped)
+
     return df_summary_merge_sum_traftot
 
     
