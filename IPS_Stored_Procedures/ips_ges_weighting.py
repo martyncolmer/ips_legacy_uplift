@@ -4,38 +4,6 @@ import pandas as pd
 from IPSTransformation import CommonFunctions as cf
 import math
 
-
-def compare_dfs(test_name, sas_file, df, col_list = False, save_index = True):
-    
-    import winsound
-    
-    def beep():
-        frequency = 500  # Set Frequency To 2500 Hertz
-        duration = 200  # Set Duration To 1000 ms == 1 second
-        winsound.Beep(frequency, duration)
-    
-    sas_root = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Unsampled Weight"
-    print sas_root + "\\" + sas_file
-    csv = pd.read_sas(sas_root + "\\" + sas_file)
-    
-    fdir = r"\\NDATA12\mahont1$\My Documents\GIT_Repositories\Test_Drop"
-    sas = "_sas.csv"
-    py = "_py.csv"
-    
-    print("TESTING " + test_name)
-    
-    if col_list == False:
-        csv.to_csv(fdir+"\\"+test_name+sas, index = save_index)
-        df.to_csv(fdir+"\\"+test_name+py, index = save_index)
-    else:
-        csv[col_list].to_csv(fdir+"\\"+test_name+sas)
-        df[col_list].to_csv(fdir+"\\"+test_name+py)
-    
-    print(test_name + " COMPLETE")
-    beep()
-    print("") 
-    
-
     
 def apply_aux_rules(row):
     """
@@ -369,8 +337,6 @@ def do_ips_ges_weighting(df_input, SerialNumVarName, DesignWeightVarName,
     df_PopRowVec = ips_get_population_totals(df_poptotals, ModelGroup, TotalVar, 
                                              'T_', AuxNumForm)
     
-    compare_dfs('JamesTest', 'poprowvec.sas7bdat', df_PopRowVec, save_index = False)
-    sys.exit()
     #GES calculation here...
     
     
