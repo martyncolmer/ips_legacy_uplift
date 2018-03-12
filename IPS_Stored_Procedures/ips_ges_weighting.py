@@ -4,37 +4,7 @@ import pandas as pd
 from IPSTransformation import CommonFunctions as cf
 import math
 
-    
-def compare_dfs(test_name, sas_file, df, col_list = False):
-    
-    import winsound
-    
-    def beep():
-        frequency = 500  # Set Frequency To 2500 Hertz
-        duration = 200  # Set Duration To 1000 ms == 1 second
-        winsound.Beep(frequency, duration)
-    
-    sas_root = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Unsampled Weight"
-    print sas_root + "\\" + sas_file
-    csv = pd.read_sas(sas_root + "\\" + sas_file)
-    
-    fdir = r"\\NDATA12\mahont1$\My Documents\GIT_Repositories\Test_Drop"
-    sas = "_sas.csv"
-    py = "_py.csv"
-    
-    print("TESTING " + test_name)
-    
-    if col_list == False:
-        csv.to_csv(fdir+"\\"+test_name+sas)
-        df.to_csv(fdir+"\\"+test_name+py)
-    else:
-        csv[col_list].to_csv(fdir+"\\"+test_name+sas)
-        df[col_list].to_csv(fdir+"\\"+test_name+py)
-    
-    print(test_name + " COMPLETE")
-    beep()
-    print("") 
-    
+
     
 def apply_aux_rules(row):
     """
@@ -251,12 +221,24 @@ def ips_assign_ges_auxiliaries(df_survey, ModelDefinition, MaxRuleLength,
     return df_survey
     
     
-def ips_get_population_totals(PopTotals, ModelGroup, PopRowVec, TotalVar, 
+def ips_get_population_totals(df_poptotals, ModelGroup, TotalVar, 
                               TotVarPrefix, TotVarFormat):
+    """
+    Author       : Thomas Mahoney
+    Date         : 12 / 03 / 2018
+    Purpose      : Creates the population totals row for GES
+    Parameters   : df_poptotals - Population totals data frame
+                   ModelGroup - Variable that will hold the model group number
+                   TotalVar - Variable that will holds the population totals
+                   TotVarPrefix - Prefix for total variables (e.g. T_)
+                   TotVarFormat - Format for total variable numbers
+    Returns      : df_poptransposed - the transposed population totals
+    Requirements : NA
+    Dependencies : NA
+    """
     
     # Set the total variable count
-    tv_count = len(PopTotals.index)
-    
+    tv_count = len(df_poptotals.index)
     
     # Create a list the size of the total variable count
     tv = [""]*tv_count
@@ -266,25 +248,45 @@ def ips_get_population_totals(PopTotals, ModelGroup, PopRowVec, TotalVar,
         tv[x-1] = TotVarPrefix + str(x)[:TotVarFormat]
 
     # Create a model group column and set the values to '1'
-    PopTotals[ModelGroup] = '1'
+    df_poptotals[ModelGroup] = '1'
     
     # Set the totvar column to the values stored in the previously created array
-    PopTotals['TOTVAR'] = tv
+    df_poptotals['TOTVAR'] = tv
     
     # Reset the data frame's index adding the nex column's created
-    PopTotals = PopTotals.reset_index()
-    
-    compare_dfs('pre_chop', 'modliftedtotals.sas7bdat', PopTotals)
-    
+    df_poptotals = df_poptotals.reset_index()
+        
     # Select the required columns from the generated data frame
-    df_mod_poptotals = PopTotals[[TotalVar, ModelGroup, 'TOTVAR']]
+    df_mod_poptotals = df_poptotals[[TotalVar, ModelGroup, 'TOTVAR']]
+        
+    # Create copy of df_mod_poptotals
+    df_poptransposed = df_mod_poptotals
     
-    compare_dfs('mod_pop_totals', 'modliftedtotals.sas7bdat', df_mod_poptotals)
-    sys.exit()
+    # Create column list for the transpose output
+    transpose_columns = []
     
-    #Done up to here.
+    # Add the model group column to the transpose column list
+    transpose_columns.append(ModelGroup)
     
+    # Loop through the TOTVAR values and append each one to the transpose column list
+    for x in df_poptransposed['TOTVAR'].values:
+        transpose_columns.append(x)
     
+    # Reshape the data into the desired output
+    df_poptransposed = df_poptransposed.pivot_table(index=[ModelGroup], columns='TOTVAR', aggfunc=sum, fill_value=0)
+    
+    # Setup the new columns
+    df_poptransposed.columns = [x[1] for x in df_poptransposed.columns]
+    
+    # Reset the index collapsing the multiple level columns into one
+    df_poptransposed = df_poptransposed.reset_index().rename_axis(None, axis=1)
+    
+    # Select the transpose columns from the generated data frame
+    df_poptransposed = df_poptransposed[transpose_columns]
+    
+    return df_poptransposed
+
+
 def do_ips_ges_weighting(df_input, SerialNumVarName, DesignWeightVarName, 
                          StrataDef, df_poptotals, TotalVar, MaxRuleLength, 
                          ModelGroup, Output, GWeightVar, CalWeightVar, GESBoundType, 
@@ -335,7 +337,12 @@ def do_ips_ges_weighting(df_input, SerialNumVarName, DesignWeightVarName,
     df_ges_input = ips_assign_ges_auxiliaries(df_ges_input, df_moddef, MaxRuleLength, 
                                   'Y_', NumAuxVars, StrataDef)
 
-    ips_get_population_totals(df_poptotals, ModelGroup, 'PopRowVec', 
-                              TotalVar, 'T_', AuxNumForm)
-
+    # Get the population totals
+    df_PopRowVec = ips_get_population_totals(df_poptotals, ModelGroup, TotalVar, 
+                                             'T_', AuxNumForm)
     
+    #GES calculation here...
+    
+    
+    
+     
