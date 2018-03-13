@@ -119,32 +119,109 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
     # Resort columns by column name in alphabetical order (may not be required)
     df_output.sort_index(axis = 1, inplace = True)
     
-    # Output current progress to csv. Up to this point, everything works correctly
-    df_output.to_csv('current_progress_output.csv')
-    print('Current progress completed, csv produced in local folder.')
-    sys.exit()
-    
-    # Huge if statment block, 10+ individual if statements many with one or more
-    # else conditions. Attempted to begin but made little progress before going
-    #  on leave - JB, March 2nd '18
-#     if(df_output[var_eligible_flag] == 0 | df_output[var_imp_flag] == 0):
-#         df_output[output_var] = df_output['DVFARE']
-#     else:
-#         if(df_input)
-    
     # Compute spend based on fare
-    df_compute = df_output[[var_serial_num, var_spend
-                                       , var_spend_reason_key, output_var 
-                                       , var_imp_level]]
     
-    if df_output[var_imp_flag] or df_output[var_eligible_flag] == True:
-        df_compute[output_var] = donor_var
+    # Leave til last: keeps only a certain subset of columns
+#     df_compute = df_output[[var_serial_num, var_spend
+#                                        , var_spend_reason_key, output_var 
+#                                        , var_imp_level]]
     
-    # Sort out baby/child fares
+    def compute_additional_fare_vars(row):
+
+        if (row[var_imp_flag] == 0 or row[var_eligible_flag] == 0):
+            row[output_var] = row[donor_var]
+            
+        else:
+            day =  int(row['INTDATE'][:2])
+            month =  int(row['INTDATE'][2:4])
+            year =  int(row['INTDATE'][4:8])
+            
+            if (year > 2016 or (year >= 2016 and month >= 5 and day >= 1)):
+                if (row[var_fare_age] == 1):
+                    non_pack_fare = row['BABYFARE'] * (row['FARE'] - row['APD_PV'])
+                    
+                elif (row[var_fare_age] == 2):
+                    non_pack_fare = row['CHILDFARE'] * (row['FARE'] - row['APD_PV'])
+                    
+                elif (row[var_fare_age] == 6):
+                    non_pack_fare = row['FARE']
+                    
+            else:
+                if (row[var_fare_age] == 1):
+                    non_pack_fare = row['BABYFARE'] * (row['FARE'] - row['APD_PV'])
+                    
+                elif (row[var_fare_age] == 2):
+                    non_pack_fare = (row['CHILDFARE'] * (row['FARE'] - row['APD_PV'])) + row['APD_PV']
+                    
+                elif (row[var_fare_age] == 6):
+                    non_pack_fare = row['FARE']
+             
+            if (row['DVPACKAGE'] in (1,2)):
+                row['FARE'] = round(non_pack_fare * row['DISCNT_F2_PV'])
+                
+            else:
+                row['FARE'] = round(non_pack_fare, 1)
+                
+        if (row['FARE'] == np.nan and row['QMFARE_PV'] != np.nan):
+            row['FARE'] = row['QMFARE_PV']
+        
+        if (row['DVPACKAGE'] == 1):
+            if (row['DVPACKCOST'] == 0 and row['DVEXPEND'] == 0 and row['BEFAF'] == 0):
+                row['SPEND'] == 0
+            
+            elif (row['DVPACKCOST'] == 999999 or row['DVPACKCOST'] == np.nan\
+                  or row['DISCNT_PACKAGE_COST_PV'] == np.nan\
+                  or row['DVPERSONS'] == np.nan\
+                  or row['FARE'] == np.nan\
+                  or row['DVEXPEND'] == 999999\
+                  or row['DVEXPEND'] == np.nan\
+                  or row['BEFAF'] == np.nan\
+                  or row['BEFAF'] == 999999):
+                row['SPEND'] = np.nan
+                
+            elif(((row['DISCNT_PACKAGE_COST_PV'] + row['DVEXPEND'] + \
+                  row['BEFAF']) / row['DVPERSONS']) < (row['FARE'] * 2)):
+                 row['SPEND'] = np.nan
+                 row['SPENDIMPREASON'] = 1
+            
+            else:
+                row['SPEND'] = ((row['DISCNT_PACKAGE_COST_PV'] + row['DVEXPEND']\
+                                + row['BEFAF']) / row['DVPERSONS']) - (row['FARE'] - 2)
+        
+        else:
+            if (row['PACKAGE'] == 9):
+                row['SPEND'] == np.nan
+            
+            elif (row['DVEXPEND'] == 0 and row['BEFAF'] == 0):
+                row['SPEND'] = 0
+            
+            elif (row['DVEXPEND'] == 999999 or row['DVEXPEND'] == np.nan\
+                  or row['BEFAF'] == 999999 or row['BEFAF'] == np.nan\
+                  or row['DVPERSONS'] == np.nan):
+                row['SPEND'] = np.nan
+            else:
+                row['SPEND'] = (row['DVEXPEND'] + row['BEFAF']) / row['DVPERSONS']
+        
+        if (row['SPEND'] != np.nan):
+            row['SPEND'] = row['SPEND'] + row['DUTY_FREE_PV']
+        
+        #df_final_output[outputVar] =  df_final_output[outputVar].apply(lambda x: round(x, 0))
+        row['SPEND'] = round(row['SPEND'], 0)
+        row['FARE'] = round(row['FARE'], 0)
+        #row['SPEND'] = round(row['SPEND'])
+        #row['FARE'] = round(row['FARE'])
+        
+        return row
     
+    df_output = df_output.apply(compute_additional_fare_vars, axis = 1)
     
-    # Round output column to nearest integer
-    df_output[output_var] = df_output[output_var].round()
+    final_output_column_list = ['SERIAL', 'SPEND', 'SPENDIMPREASON', 'FARE', 'FAREK']
+    
+    df_output = df_output[final_output_column_list]
+    
+    df_output.to_csv('Final_Fares_output.csv')
+    print("Done")
+    sys.exit()
     
     return df_output
 
@@ -206,6 +283,8 @@ def ips_fares_imp(SurveyData, OutputData, ResponseTable, var_serial_num, varStem
     # Import data
     # This method is untested with a range of data sets but is faster
     df_surveydata = pd.read_sas(path_to_survey_data)
+    
+    df_surveydata['INTDATE'] = df_surveydata['INTDATE'].astype(str)
     
     # Import data via SQL
     #df_surveydata = cf.get_table_values(SurveyData)
