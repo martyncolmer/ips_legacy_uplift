@@ -5,8 +5,6 @@ Created on 7 Feb 2018
 '''
 import pandas as pd
 import inspect
-import sys
-
 import survey_support
 from IPSTransformation import CommonFunctions as cf
 
@@ -61,8 +59,7 @@ def do_ips_imbweight_calculation(df_survey_data, OutputData, SummaryData, var_se
                                                    * df_output_data[var_minWeight]            
                                                    * df_output_data[var_trafficWeight]        
                                                    * df_output_data[var_OOHWeight])
-    df_total_traffic = df_total_traffic.groupby([var_portroute
-                                                 , var_flow])["TOT_NI_TRAFFIC"] \
+    df_total_traffic = df_total_traffic.groupby([var_portroute, var_flow])\
                                                  .agg({"TOT_NI_TRAFFIC" : 'sum'})
     df_total_traffic.reset_index(inplace=True)
     
@@ -104,7 +101,7 @@ def do_ips_imbweight_calculation(df_survey_data, OutputData, SummaryData, var_se
     
     # Summarise. Group by PORTROUTE & FLOW, & total the pre & post imbalanace weights
     df_prepost.sort_values(by=[var_portroute, var_flow])
-    df_overseas_residents = df_prepost.groupby([var_portroute, var_flow]).agg({\
+    df_overseas_residents = df_prepost.groupby([var_portroute, var_flow]).agg({
             'PRE_IMB_WEIGHTS':'sum'
             ,'POST_IMB_WEIGHTS':'sum'})
     df_overseas_residents = df_overseas_residents.reset_index()
@@ -157,7 +154,7 @@ def do_ips_imbweight_calculation(df_survey_data, OutputData, SummaryData, var_se
     # Append the imbalance weight to the input and cleanse
     df_survey_data_concat = pd.concat([df_survey_data, df_output_data]
                                ,ignore_index=True)
-    df_survey_data = df_survey_data_concat.reindex_axis(df_survey_data.columns
+    df_survey_data = df_survey_data_concat.reindex(df_survey_data.columns
                                                         , axis=1)
     df_survey_data.loc[df_survey_data[var_imbalanceWeight].isnull()
                        , var_imbalanceWeight] = 1
@@ -176,8 +173,8 @@ def do_ips_imbweight_calculation(df_survey_data, OutputData, SummaryData, var_se
                                            * df_survey_data[var_OOHWeight])
     
     df_sliced = df_survey_data[df_survey_data[var_postSum] > 0]
-    df_sliced[var_imbalanceWeight] = df_sliced[var_imbalanceWeight].apply(lambda x: round(x, 3))
-    df_summary_data = df_sliced.groupby([var_flow]).agg({\
+    df_sliced[var_imbalanceWeight] = df_sliced[var_imbalanceWeight].astype('float').round(decimals=3)
+    df_summary_data = df_sliced.groupby([var_flow]).agg({
             var_priorSum:'sum'
             , var_postSum:'sum'})
     df_summary_data = df_summary_data.reset_index()
