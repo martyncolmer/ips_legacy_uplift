@@ -9,25 +9,26 @@ from pandas.util.testing import assert_frame_equal
 from collections import OrderedDict
 import survey_support
 from IPSTransformation import CommonFunctions as cf
+import IPS_Stored_Procedures.ips_ges_weighting
 
 # Place holder function. This is being used until the actual GES weighting function is complete.
-def do_ips_ges_weighting(input, SerialNumVarName, DesignWeightVarName, 
-                      StrataDef, PopTotals, TotalVar, MaxRuleLength, 
-                      ModelGroup, Output, GWeightVar, CalWeightVar, 
-                      GESBoundType, GESUpperBound, GESLowerBound, 
-                      GESMaxDiff, GESMaxIter, GESMaxDist):
-    pass
-    path_to_survey_data = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Unsampled Weight\survey_serialNum_sort.sas7bdat"
-    path_to_unsampled_data = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Unsampled Weight\output_merge_final.sas7bdat"
-    df_survey_post_ges = pd.read_sas(path_to_survey_data)
-    df_output_post_ges = pd.read_sas(path_to_unsampled_data)
-        
-    df_survey_post_ges.columns = df_survey_post_ges.columns.str.upper()
-    df_output_post_ges.columns = df_output_post_ges.columns.str.upper()
-
-    
-
-    return (df_survey_post_ges,df_output_post_ges)
+# def do_ips_ges_weighting(input, SerialNumVarName, DesignWeightVarName, 
+#                       StrataDef, PopTotals, TotalVar, MaxRuleLength, 
+#                       ModelGroup, Output, GWeightVar, CalWeightVar, 
+#                       GESBoundType, GESUpperBound, GESLowerBound, 
+#                       GESMaxDiff, GESMaxIter, GESMaxDist):
+#     pass
+#     path_to_survey_data = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Unsampled Weight\survey_serialNum_sort.sas7bdat"
+#     path_to_unsampled_data = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Unsampled Weight\output_merge_final.sas7bdat"
+#     df_survey_post_ges = pd.read_sas(path_to_survey_data)
+#     df_output_post_ges = pd.read_sas(path_to_unsampled_data)
+#         
+#     df_survey_post_ges.columns = df_survey_post_ges.columns.str.upper()
+#     df_output_post_ges.columns = df_output_post_ges.columns.str.upper()
+# 
+#     
+# 
+#     return (df_survey_post_ges,df_output_post_ges)
 
 
 def do_ips_unsampled_weight_calculation(df_surveydata, summary, var_serialNum, var_shiftWeight, var_NRWeight,
@@ -130,7 +131,7 @@ def do_ips_unsampled_weight_calculation(df_surveydata, summary, var_serialNum, v
     liftedTotals = liftedTotals[liftedTotals[var_totals] > 0]
             
     # Call the GES weighting macro
-    ges_dataframes = do_ips_ges_weighting(df_surveydata, var_serialNum, OOHDesignWeight, 
+    ges_dataframes = IPS_Stored_Procedures.ips_ges_weighting.do_ips_ges_weighting(df_surveydata, var_serialNum, OOHDesignWeight, 
                                           OOHStrataDef, liftedTotals, var_totals, MaxRuleLength, 
                                           var_modelGroup, output, var_OOHWeight, 'CalWeight', GESBoundType, 
                                           GESUpperBound, GESLowerBound, GESMaxDiff, GESMaxIter, GESMaxDist)
