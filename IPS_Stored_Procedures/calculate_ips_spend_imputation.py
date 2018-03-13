@@ -75,7 +75,6 @@ def do_ips_spend_imputation(df_survey_data, OutputData, var_serialNum, varStem
     df_final_output[outputVar] =  df_final_output[outputVar].apply(lambda x: round(x, 0))
     
     # Cleanse df before returning
-    df_final_output.drop("STAYDAYS", axis=1, inplace=True)
     df_final_output = df_final_output[[var_serialNum, var_impLevel, outputVar]]
     
     return df_final_output
