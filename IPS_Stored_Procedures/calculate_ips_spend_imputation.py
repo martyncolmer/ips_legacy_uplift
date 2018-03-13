@@ -3,7 +3,6 @@ Created on 7 Mar 2018
 
 @author: thorne1
 '''
-import sys
 import inspect
 import numpy as np
 import pandas as pd
@@ -19,16 +18,29 @@ def do_ips_spend_imputation(df_survey_data, OutputData, var_serialNum, varStem
     """
     Author        : thorne1
     Date          : 7 Mar 2018
-    Purpose       :   
-    Parameters    : 
-    Returns       :   
+    Purpose       : Imputes spend for IPS system  
+    Parameters    : df_survey_data = the IPS survey dataset
+                    OutputData = the output
+                    var_serialNum = the serial number field name
+                    varStem = stem of the imputation variables parameters
+                    threshStem = stem of the imputation threshold parameters
+                    numLevels = number of imputation levels
+                    donorVar = Name of the donor variable
+                    outputVar = Name of the output variable
+                    measure = Measure function (e.g. mean)
+                    var_eligibleFlag = the imputation eligibility (donor+recipient) field name
+                    var_impFlag = the imputation required trigger/flag field name
+                    var_impLevel = the imputation level field name
+                    var_stay = the stay variable field name
+    Returns       : Dataframe  
     """
     
     # Select only the eligible donors and recipients
     df_eligible = df_survey_data.copy()
     df_eligible["STAYDAYS"] = np.where(df_eligible[var_eligibleFlag] == 1.0
                                           , (df_eligible[var_stay] + 1.0), np.NaN)
-    df_eligible.drop(df_eligible[df_eligible[var_eligibleFlag] != 1.0].index, inplace=True)
+    df_eligible.drop(df_eligible[df_eligible[var_eligibleFlag] != 1.0].index
+                     , inplace=True)
     
     def selection(row):
         if row[var_impFlag] != 1.0:
@@ -42,44 +54,14 @@ def do_ips_spend_imputation(df_survey_data, OutputData, var_serialNum, varStem
     
     df_eligible = df_eligible.apply(selection, axis = 1)
 
-    #===============================================================================    
-    #===============================================================================
-#    df_eligible.to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\df_eligible_py.csv")
-#    sas = pd.read_sas(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Spend Imputation\eligible.sas7bdat")
-#    sas.to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\df_eligible_sas.csv")
-#    cf.beep()
-#    sys.exit()
-    #===============================================================================
-    #===============================================================================
-    
     # Perform the imputation
-    strata_base_list = [["UK_OS_PV", "STAYIMPCTRYLEVEL1_PV", "DUR1_PV", "PUR1_PV"]
-                        ,["UK_OS_PV", "STAYIMPCTRYLEVEL1_PV", "DUR1_PV", "PUR2_PV"]
-                        ,["UK_OS_PV", "STAYIMPCTRYLEVEL2_PV", "DUR1_PV", "PUR1_PV"]
-                        ,["UK_OS_PV", "STAYIMPCTRYLEVEL2_PV", "DUR1_PV", "PUR2_PV"]
-                        ,["UK_OS_PV", "STAYIMPCTRYLEVEL3_PV", "DUR1_PV", "PUR2_PV"]
-                        ,["UK_OS_PV", "STAYIMPCTRYLEVEL2_PV", "DUR2_PV", "PUR2_PV"]
-                        ,["UK_OS_PV", "STAYIMPCTRYLEVEL3_PV", "DUR2_PV", "PUR2_PV"]
-                        ,["UK_OS_PV", "STAYIMPCTRYLEVEL4_PV", "DUR2_PV", "PUR2_PV"]
-                        ,["UK_OS_PV", "STAYIMPCTRYLEVEL4_PV", "DUR2_PV", "PUR3_PV"]
-                        ,["UK_OS_PV", "DUR2_PV", "PUR3_PV"]]
-    thresh_base_list = [19, 12, 12, 12, 12, 12, 12, 12, 0, 0]
-    
     df_output = imp.ips_impute(df_eligible, OutputData, var_serialNum
-                               , strata_base_list, thresh_base_list
-                               , numLevels, "XPD", outputVar, measure
-                               , var_impFlag, var_impLevel)
-    
-    #===============================================================================
-# #    df_output = pd.read_sas(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Spend Imputation\output10.sas7bdat")
-# #    df_output.columns = df_output.columns.str.upper()
-# #    df_output.to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\df_fake_output.csv")
-# #    cf.beep()
-# #    sys.exit()
-    #===============================================================================
+                               , varStem, threshStem, numLevels, "XPD"
+                               , outputVar, measure, var_impFlag, var_impLevel)
     
     # Merge and cleanse
-    df_final_output = pd.merge(df_eligible, df_output, on=var_serialNum, how = 'left')
+    df_final_output = pd.merge(df_eligible, df_output, on=var_serialNum
+                               , how = 'left')
     df_final_output.drop(var_impLevel + "_x", axis=1, inplace=True)
     df_final_output.rename(columns={var_impLevel + "_y": var_impLevel
                                     , "STAYDAYS_x":"STAYDAYS"}, inplace = True)
@@ -88,14 +70,13 @@ def do_ips_spend_imputation(df_survey_data, OutputData, var_serialNum, varStem
     df_final_output = df_final_output[[var_serialNum, outputVar, var_impLevel
                                        , "STAYDAYS"]]
     df_final_output.loc[df_final_output[var_impLevel].notnull()
-                       , outputVar] = np.around((df_final_output[outputVar] 
-                                                * df_final_output["STAYDAYS"]))
+                       , outputVar] = (df_final_output[outputVar] 
+                                                * df_final_output["STAYDAYS"])
+    df_final_output[outputVar] =  df_final_output[outputVar].apply(lambda x: round(x, 0))
     
     # Cleanse df before returning
     df_final_output.drop("STAYDAYS", axis=1, inplace=True)
     df_final_output = df_final_output[[var_serialNum, var_impLevel, outputVar]]
-    df_final_output.fillna(np.NaN, inplace=True)
-#    cf.compare_dfs("output_merge_eligible", "output_merge_eligible.sas7bdat", df_final_output)
     
     return df_final_output
 
@@ -106,9 +87,21 @@ def calculate(SurveyData, OutputData, var_serialNum, varStem, threshStem
     """
     Author        : thorne1
     Date          : 7 Mar 2018
-    Purpose       :   
-    Parameters    : 
-    Returns       :   
+    Purpose       : Imputes spend for IPS system  
+    Parameters    : SurveyData = the IPS survey dataset
+                    OutputData = the output
+                    var_serialNum = the serial number field name
+                    varStem = stem of the imputation variables parameters
+                    threshStem = stem of the imputation threshold parameters
+                    numLevels = number of imputation levels
+                    donorVar = Name of the donor variable
+                    outputVar = Name of the output variable
+                    measure = Measure function (e.g. mean)
+                    var_eligibleFlag = the imputation eligibility (donor+recipient) field name
+                    var_impFlag = the imputation required trigger/flag field name
+                    var_impLevel = the imputation level field name
+                    var_stay = the stay variable field name
+    Returns       : N/A  
     """
     
     # Call JSON configuration file for error logger setup
@@ -152,8 +145,17 @@ if __name__ == '__main__':
     calculate(SurveyData = "SAS_SURVEY_SUBSAMPLE"
               , OutputData = "SAS_SPEND_IMP"
               , var_serialNum = "SERIAL"
-              , varStem = "VARS"
-              , threshStem = "THRESH"
+              , varStem = [["UK_OS_PV", "STAYIMPCTRYLEVEL1_PV", "DUR1_PV", "PUR1_PV"]
+                        ,["UK_OS_PV", "STAYIMPCTRYLEVEL1_PV", "DUR1_PV", "PUR2_PV"]
+                        ,["UK_OS_PV", "STAYIMPCTRYLEVEL2_PV", "DUR1_PV", "PUR1_PV"]
+                        ,["UK_OS_PV", "STAYIMPCTRYLEVEL2_PV", "DUR1_PV", "PUR2_PV"]
+                        ,["UK_OS_PV", "STAYIMPCTRYLEVEL3_PV", "DUR1_PV", "PUR2_PV"]
+                        ,["UK_OS_PV", "STAYIMPCTRYLEVEL2_PV", "DUR2_PV", "PUR2_PV"]
+                        ,["UK_OS_PV", "STAYIMPCTRYLEVEL3_PV", "DUR2_PV", "PUR2_PV"]
+                        ,["UK_OS_PV", "STAYIMPCTRYLEVEL4_PV", "DUR2_PV", "PUR2_PV"]
+                        ,["UK_OS_PV", "STAYIMPCTRYLEVEL4_PV", "DUR2_PV", "PUR3_PV"]
+                        ,["UK_OS_PV", "DUR2_PV", "PUR3_PV"]]
+              , threshStem = [19, 12, 12, 12, 12, 12, 12, 12, 0, 0]
               , numLevels = 10
               , donorVar = "SPEND"
               , outputVar = "NEWSPEND"
