@@ -209,10 +209,7 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
     final_output_column_list = ['SERIAL', 'SPEND', 'SPENDIMPREASON', 'FARE', 'FAREK']
     
     df_output = df_output[final_output_column_list]
-    
-    print(df_output)
-    sys.exit()
-    
+
     return df_output
 
 

@@ -12,7 +12,6 @@ from IPSTransformation import CommonFunctions as cf
 from IPS_Unallocated_Modules import ips_impute
 
 
-
 def do_ips_stay_imputation(input, output, var_serialNum, varStem, threshStem,
                             numLevels, donorVar, outputVar, measure,
                             var_eligibleFlag, var_impFlag,var_impLevel):

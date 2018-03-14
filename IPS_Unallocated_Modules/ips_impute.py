@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+
 def ips_impute(input,output,var_serial_num,strata_base_list,thresh_base_list,num_levels,
                impute_var,var_value,impute_function,var_impute_flag,var_impute_level):
     """
