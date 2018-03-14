@@ -12,11 +12,6 @@ from IPSTransformation import CommonFunctions as cf
 
 # TODO (if required):
 # 1. do_ips_ges_weighting() - plug-in solution once done
-# 2. do the testing of the function from TestSuite without SQL code
-# 3. pickle data and put into GIt
-# 4. remove redundant python code copied over from SAS
-# 5. clean up local git history
-# 6. commit version with all manual test code for reference
                        
 def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum,
               var_shiftWeight, var_NRWeight, var_minWeight, StrataDef, PopTotals,
@@ -54,7 +49,7 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum,
                    var_trafficTotal = Variable holding the name of the traffic total output|;
                    var_postSum = Variable holding the name of the post traffic weight sum     
                    minCountThresh = The minimum cell count threshold
-    Returns      : TODO
+    Returns      : tuple of dataframes - (df_output_merge_final, df_summary_merge_sum_traftot)
     Requirements : TODO
     Dependencies : do_ips_trafweight_calculation(), 
     """
@@ -111,23 +106,27 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum,
     summary = None
     output = None    
 
-    (df_output_merge_final, df_summary_merge_sum_traftot) = do_ips_trafweight_calculation(df_survey, summary, var_serialNum, var_shiftWeight, 
+    (df_output_merge_final_rounded, df_summary_merge_sum_traftot) = do_ips_trafweight_calculation(df_survey, summary,
+                                                                    var_serialNum, var_shiftWeight,
                                                             var_NRWeight, var_minWeight,StrataDef, df_trtotals, 
                                                             TotalVar, MaxRuleLength, ModelGroup, output, GWeightVar, 
                                                             GESBoundType, GESUpperBound, GESLowerBound, GESMaxDiff,
                                                             GESMaxIter, GESMaxDist, var_count, var_trafficTotal, 
                                                             var_postSum, minCountThresh)
 
+    # test code for deleting table data before insertion
+    #cf.delete_from_table('sas_traffic_wt'.upper())
+    #cf.delete_from_table('sas_ps_traffic'.upper())
 
-    # to test we would need to read the table from Oracle and then test it against SAS output
-    
-    # append the weights to the output table   
-    cf.insert_into_table_many(OutputData, df_output_merge_final)       
+    # append the weights to the output table
+    #cf.insert_into_table_many(OutputData, df_output_merge_final)
  
     # append summary information to summary table
-    cf.insert_into_table_many(SummaryData, df_summary_merge_sum_traftot)
+    #cf.insert_into_table_many(SummaryData, df_summary_merge_sum_traftot)
 
     print("Completed - Calculate Traffic Weight")
+
+    return (df_output_merge_final_rounded, df_summary_merge_sum_traftot)
 
 def do_ips_trafweight_calculation(df_survey, summary, var_serialNum, var_shiftWeight, var_NRWeight,
                                      var_minWeight, StrataDef, PopTotals, TotalVar,      
@@ -236,15 +235,17 @@ def do_ips_trafweight_calculation(df_survey, summary, var_serialNum, var_shiftWe
      
     # Round the weights to 3dp    
     df_output_merge_final[GWeightVar] = df_output_merge_final[GWeightVar].apply(lambda x: round(x,3))
-     
+
+    df_output_merge_final_rounded = df_output_merge_final
+
     # test start
     root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Traffic_Weight"
     df_test = SAS7BDAT(root_data_path + r"\output_rounded.sas7bdat" ).to_data_frame()
     df_test.columns = df_test.columns.str.upper() 
-    assert_frame_equal(df_output_merge_final, df_test)
+    assert_frame_equal(df_output_merge_final_rounded, df_test)
     # test end
      
-    return (df_output_merge_final, df_summary_merge_sum_traftot)
+    return (df_output_merge_final_rounded, df_summary_merge_sum_traftot)
 
 def do_ips_ges_weighting(df_survey, var_serialNum, trafDesignWeight, StrataDef, df_popTotals,
                          TotalVar, MaxRuleLength, ModelGroup, output, GWeightVar, CalWeight,
@@ -308,7 +309,7 @@ def generate_ips_tw_summary(df_survey, df_output_merge_final, summary, StrataDef
                    TrafficTotals = Traffic (population) totals dataset                        
                    var_postSum    = Variable holding the name of the post sum field            
                    minCountThresh = The minimum cell count threshold
-    Returns      : TODO
+    Returns      : dataframe - df_summary_merge_sum_traftot
     Requirements : TODO
     Dependencies : TODO
     """ 
