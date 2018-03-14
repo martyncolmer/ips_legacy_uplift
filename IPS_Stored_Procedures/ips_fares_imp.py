@@ -11,28 +11,6 @@ import survey_support
 from IPSTransformation import CommonFunctions as cf
 from IPS_Unallocated_Modules import ips_impute
 
-def compare_dfs(test_name, sas_file, df, col_list = False):
-    
-    sas_root = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Fares Imputation"
-    print sas_root + "\\" + sas_file
-    csv = pd.read_sas(sas_root + "\\" + sas_file)
-    
-    fdir = r"H:\\My Documents\Git Repositories\ILU_Fares_impute_testing"
-    sas = "_sas.csv"
-    py = "_py.csv"
-    
-    print("TESTING " + test_name)
-    
-    if col_list == False:
-        csv.to_csv(fdir+"\\"+test_name+sas)
-        df.to_csv(fdir+"\\"+test_name+py)
-    else:
-        csv[col_list].to_csv(fdir+"\\"+test_name+sas)
-        df[col_list].to_csv(fdir+"\\"+test_name+py)
-    
-    print(test_name + " COMPLETE")
-    print("")
-
 def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
                             , num_levels, donor_var, output_var, measure
                             , var_eligible_flag, var_imp_flag,var_imp_level
@@ -119,23 +97,30 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
     # Resort columns by column name in alphabetical order (may not be required)
     df_output.sort_index(axis = 1, inplace = True)
     
-    # Compute spend based on fare
-    
-    # Leave til last: keeps only a certain subset of columns
-#     df_compute = df_output[[var_serial_num, var_spend
-#                                        , var_spend_reason_key, output_var 
-#                                        , var_imp_level]]
     
     def compute_additional_fare_vars(row):
-
+        """
+        Author       : James Burr
+        Date         : 13 March 2018
+        Purpose      : Computes spend based on fares data and updates output dataframe.
+        Parameters   : Each individal row of the df_output data frame.
+        Returns      : The same row with extra calculations/edits applied.
+        Requirements : NA
+        Dependencies : NA
+        """
+        
+        # Sort out child/baby fares
         if (row[var_imp_flag] == 0 or row[var_eligible_flag] == 0):
             row[output_var] = row[donor_var]
             
         else:
+            # Separate intdate column into usable integer values.
             day =  int(row['INTDATE'][:2])
             month =  int(row['INTDATE'][2:4])
             year =  int(row['INTDATE'][4:8])
             
+            # Ensure date is on or later than the 1st of May 2016
+            # This is because APD for under 16's was removed from this date.
             if (year > 2016 or (year >= 2016 and month >= 5 and day >= 1)):
                 if (row[var_fare_age] == 1):
                     non_pack_fare = row['BABYFARE'] * (row['FARE'] - row['APD_PV'])
@@ -155,19 +140,25 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
                     
                 elif (row[var_fare_age] == 6):
                     non_pack_fare = row['FARE']
-             
+            
+            # Compute package versions of fare 
             if (row['DVPACKAGE'] in (1,2)):
                 row['FARE'] = round(non_pack_fare * row['DISCNT_F2_PV'])
                 
             else:
-                row['FARE'] = round(non_pack_fare, 1)
-                
+                row['FARE'] = round(non_pack_fare, 0)
+        
+        # Test for Queen Mary fare        
         if (row['FARE'] == np.nan and row['QMFARE_PV'] != np.nan):
             row['FARE'] = row['QMFARE_PV']
         
+        # Compute spend per person per visit
+        # For package holidays, spend is imputed if the package cost is less
+        # than the cost of the fares. If all relevant fields are 0, participant
+        # is assumed to have spent no money.
         if (row['DVPACKAGE'] == 1):
             if (row['DVPACKCOST'] == 0 and row['DVEXPEND'] == 0 and row['BEFAF'] == 0):
-                row['SPEND'] == 0
+                row['SPEND'] = 0
             
             elif (row['DVPACKCOST'] == 999999 or row['DVPACKCOST'] == np.nan\
                   or row['DISCNT_PACKAGE_COST_PV'] == np.nan\
@@ -181,16 +172,17 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
                 
             elif(((row['DISCNT_PACKAGE_COST_PV'] + row['DVEXPEND'] + \
                   row['BEFAF']) / row['DVPERSONS']) < (row['FARE'] * 2)):
-                 row['SPEND'] = np.nan
-                 row['SPENDIMPREASON'] = 1
+                row['SPEND'] = np.nan
+                row['SPENDIMPREASON'] = 1
             
             else:
                 row['SPEND'] = ((row['DISCNT_PACKAGE_COST_PV'] + row['DVEXPEND']\
                                 + row['BEFAF']) / row['DVPERSONS']) - (row['FARE'] - 2)
         
+        # DVPackage is 0
         else:
             if (row['PACKAGE'] == 9):
-                row['SPEND'] == np.nan
+                row['SPEND'] = np.nan
             
             elif (row['DVEXPEND'] == 0 and row['BEFAF'] == 0):
                 row['SPEND'] = 0
@@ -199,17 +191,16 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
                   or row['BEFAF'] == 999999 or row['BEFAF'] == np.nan\
                   or row['DVPERSONS'] == np.nan):
                 row['SPEND'] = np.nan
+                
             else:
                 row['SPEND'] = (row['DVEXPEND'] + row['BEFAF']) / row['DVPERSONS']
         
         if (row['SPEND'] != np.nan):
             row['SPEND'] = row['SPEND'] + row['DUTY_FREE_PV']
         
-        #df_final_output[outputVar] =  df_final_output[outputVar].apply(lambda x: round(x, 0))
+        # Ensure the imputed and calculated values are integers
         row['SPEND'] = round(row['SPEND'], 0)
         row['FARE'] = round(row['FARE'], 0)
-        #row['SPEND'] = round(row['SPEND'])
-        #row['FARE'] = round(row['FARE'])
         
         return row
     
@@ -219,8 +210,7 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
     
     df_output = df_output[final_output_column_list]
     
-    df_output.to_csv('Final_Fares_output.csv')
-    print("Done")
+    print(df_output)
     sys.exit()
     
     return df_output
@@ -276,7 +266,7 @@ def ips_fares_imp(SurveyData, OutputData, ResponseTable, var_serial_num, varStem
     
     # This commented out to be changed when data is availabe for this step
     path_to_survey_data = root_data_path + r"\surveydata.sas7bdat"
-    
+
     # Create dataframe to store output
     global df_surveydata
     
@@ -316,8 +306,6 @@ def ips_fares_imp(SurveyData, OutputData, ResponseTable, var_serial_num, varStem
     # Log success message in SAS_RESPONSE and AUDIT_LOG
     cf.database_logger().info("SUCCESS - Completed Fares Imputation.")
     cf.commit_to_audit_log("Create", "FaresImputation", audit_message)
-    
-    
     
     print("Completed - Calculate Fares Imputation")
     
