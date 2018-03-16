@@ -5,18 +5,17 @@ Created on 15 Mar 2018
 '''
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
-from IPS_Test_Modules.calculate_ips_fares_imputation import ips_fares_imp
+from IPS_Stored_Procedures.ips_fares_imp import do_ips_fares_imputation
 
 def test_calculate():
     # This is an integration test as it runs the entire step
 
-    test_survey = pd.read_pickle(r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Rail Imputation\surveydata.pkl')
+    test_survey = pd.read_pickle('TestSuite/data/fares_imp_input.pkl')
 
-    result_data = ips_fares_imp(test_survey
-                                ,OutputData = 'SAS_FARES_IMP'
-                                , ResponseTable = 'SAS_RESPONSE'
-                                , var_serial_num = 'SERIAL', varStem = 'VARS'
-                                , threshStem = 'THRESH',num_levels = 9
+    result_data = do_ips_fares_imputation(test_survey
+                                ,output = 'SAS_FARES_IMP'
+                                , var_serial_num = 'SERIAL', var_stem = 'VARS'
+                                , thresh_stem = 'THRESH',num_levels = 9
                                 , donor_var = 'DVFARE',output_var = 'FARE'
                                 , measure = 'mean'
                                 , var_eligible_flag = 'FARES_IMP_ELIGIBLE_PV'
@@ -27,7 +26,7 @@ def test_calculate():
                                 , var_child_fare = 'CHILDFARE'
                                 , var_apd = 'APD_PV', var_package = 'DVPACKAGE'
                                 , var_fare_discount = 'DISCNT_F2_PV'
-                                , var_QM_fare = 'QMFARE_PV'
+                                , var_QMfare = 'QMFARE_PV'
                                 , var_package_cost = 'DVPACKCOST'
                                 , var_discounted_package_cost = 'DISCNT_PACKAGE_COST_PV'
                                 , var_persons = 'DVPERSONS', var_expenditure = 'DVEXPEND'
@@ -36,7 +35,7 @@ def test_calculate():
                                 , var_duty_free = 'DUTY_FREE_PV'
                                 , var_old_package = 'PACKAGE')
 
-    test_result_summary = pd.read_pickle(r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Fares Imputation\output_final_test.pkl')
+    test_result_summary = pd.read_pickle('TestSuite/data/fares_imp_output.pkl')
     test_result_summary.columns = test_result_summary.columns.str.upper()
     
     test_result_summary = test_result_summary.sort_values(by = 'SERIAL')
