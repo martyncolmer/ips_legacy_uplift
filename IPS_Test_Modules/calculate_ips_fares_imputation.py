@@ -1,4 +1,3 @@
-import inspect
 import numpy as np
 import pandas as pd
 import survey_support
@@ -132,9 +131,6 @@ def compute_additional_fare_vars(row):
                     
                 elif (row['FAGE_PV'] == 6):
                     non_pack_fare = row['FARE']
-                
-                else:
-                    non_pack_fare = ''
                     
             else:
                 if (row['FAGE_PV'] == 1):
@@ -285,20 +281,7 @@ def ips_fares_imp(SurveyData, OutputData, ResponseTable, var_serial_num, varStem
                                       , var_spend, var_spend_reason_key
                                       , var_duty_free, var_old_package)
     
-    # Append the generated data to output tables
-    cf.insert_into_table_many(OutputData, df_output)
-
-    # Retrieve current function name using inspect:
-    # 0 = frame object, 3 = function name.
-    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
-    function_name = str(inspect.stack()[0][3])
-    audit_message = "Load Fares Imputation calculation: %s()" %function_name
-    
-    # Log success message in SAS_RESPONSE and AUDIT_LOG
-    cf.database_logger().info("SUCCESS - Completed Fares Imputation.")
-    cf.commit_to_audit_log("Create", "FaresImputation", audit_message)
-    
-    print("Completed - Calculate Fares Imputation")
+    return df_output
     
     
 if __name__ == '__main__':
