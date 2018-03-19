@@ -111,12 +111,14 @@ def ips_impute_segment(df_input,level,strata,impute_var,function,var_value,
     df_input[strata] = df_input[strata].fillna(-1)
     
     # Impute values from donor variable
-    df_output = df_input.groupby(strata)[impute_var].agg({\
-            var_value + str(level) : str(function), var_count + str(level) : 'count'})
-    
-    # Flatten column structure back into one index
-    df_output.reset_index(inplace = True)
-    
+    df_output = (df_input.groupby(strata)[impute_var]
+                 # first perform aggregation
+                 .agg([str(function), 'count'])
+                 # rename output columns to something more meaningful
+                 .rename(columns={str(function): var_value + str(level), 'count': 'COUNT' + str(level)})
+                 # Flatten column structure back into one index
+                 .reset_index())
+
     # Change dataset missing values back to missing instead of -1
     df_output = df_output.replace(-1, np.NaN)
     
