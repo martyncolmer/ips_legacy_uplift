@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-def ips_impute(input,var_serial_num,strata_base_list,thresh_base_list,num_levels,
+def ips_impute(df_input,var_serial_num,strata_base_list,thresh_base_list,num_levels,
                impute_var,var_value,impute_function,var_impute_flag,var_impute_level):
     """
     Author       : James Burr
@@ -25,9 +25,7 @@ def ips_impute(input,var_serial_num,strata_base_list,thresh_base_list,num_levels
     Dependencies : NA
     """
     
-    # Create the donor set, in which the impute flag is false
-    df_input = input
-    
+    # Create the donor set, in which the impute flag is false    
     df_output = df_input
     
     df_to_impute = df_input.loc[df_input[var_impute_flag] == 1.0]
@@ -89,7 +87,7 @@ def ips_impute(input,var_serial_num,strata_base_list,thresh_base_list,num_levels
     return df_output
 
 
-def ips_impute_segment(input,level,strata,impute_var,function,var_value,
+def ips_impute_segment(df_input,level,strata,impute_var,function,var_value,
                        var_count,thresh):
     """
     Author       : James Burr
@@ -107,14 +105,10 @@ def ips_impute_segment(input,level,strata,impute_var,function,var_value,
     Requirements : NA
     Dependencies : NA
     """
-
-    df_input = input
-    
     df_input = df_input.sort_values(strata)
 
     # Ensure rows with missing data aren't excluded indiscriminately
-    for i in strata:
-        df_input[i].fillna(-1, inplace = True)
+    df_input[strata] = df_input[strata].fillna(-1)
     
     # Impute values from donor variable
     df_output = df_input.groupby(strata)[impute_var].agg({\
@@ -136,7 +130,7 @@ def ips_impute_segment(input,level,strata,impute_var,function,var_value,
     return df_output
     
     
-def ips_impute_match(remainder,input,output,strata,var_value,impute_var,level,
+def ips_impute_match(remainder, df_input,output,strata,var_value,impute_var,level,
                      var_level,var_impute_flag, var_count):
     """
     Author       : James Burr
@@ -159,8 +153,6 @@ def ips_impute_match(remainder,input,output,strata,var_value,impute_var,level,
     """
     
     # Create sorted dataframes from passed-in data
-    df_input = input
-    
     df_remainder = remainder
     
     df_remainder = df_remainder.sort_values(strata)
@@ -169,10 +161,12 @@ def ips_impute_match(remainder,input,output,strata,var_value,impute_var,level,
     
     # Merge all data and indicate where the data is found. Keep only rows that
     # are found in df_remainder
-    df_remainder = pd.merge(df_remainder, df_input, how = "outer"
-                            , indicator = True).query("_merge == 'left_only'")
+    #df_remainder = pd.merge(df_remainder, df_input, how = "outer"
+     #                       , indicator = True).query("_merge == 'left_only'")
+     
+    df_remainder = pd.merge(df_remainder, df_input, how = "left")
     
-    df_remainder = df_remainder.drop('_merge', axis = 1)
+    #df_remainder = df_remainder.drop('_merge', axis = 1)
     df_remainder = df_remainder.reset_index(drop = True)
     
     df_remainder.sort_values(strata, inplace = True)
