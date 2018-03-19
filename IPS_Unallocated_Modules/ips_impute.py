@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-def ips_impute(input,output,var_serial_num,strata_base_list,thresh_base_list,num_levels,
+def ips_impute(input,var_serial_num,strata_base_list,thresh_base_list,num_levels,
                impute_var,var_value,impute_function,var_impute_flag,var_impute_level):
     """
     Author       : James Burr
@@ -13,7 +13,8 @@ def ips_impute(input,output,var_serial_num,strata_base_list,thresh_base_list,num
                    var_serial_num - variable holding the serial number
                    strata_base_list - list containing lists of strata variable names
                    thresh_base_list - list containing threshold values
-                   num_levels - number of imputation levels (run from 0 to num-1)
+                   num_levels - number of imputation levels. Imputation will occur
+                                from 0 to this number-1.
                    impute_var - variable to be imputed
                    var_value - variable holding the name of the output value field
                    impute_function - imputation cluster measure function (e.g. mean)
@@ -47,7 +48,7 @@ def ips_impute(input,output,var_serial_num,strata_base_list,thresh_base_list,num
     df_output[count] = 0
     
     # Loop until no more records can be imputed or max number of iterations is reached
-    while((level < num_levels) & (df_to_impute.empty == False)):
+    while((level < num_levels) & (not df_to_impute.empty)):
         
         key_name = 'df_output_match_' + str(level)
         
@@ -112,8 +113,6 @@ def ips_impute_segment(input,level,strata,impute_var,function,var_value,
     df_input = df_input.sort_values(strata)
 
     # Ensure rows with missing data aren't excluded indiscriminately
-    #df_input[strata].replace(np.nan, -1) #= df_input[impute_var].fillna(value = 'No')
-    
     for i in strata:
         df_input[i].fillna(-1, inplace = True)
     
@@ -179,6 +178,8 @@ def ips_impute_match(remainder,input,output,strata,var_value,impute_var,level,
     df_remainder.sort_values(strata, inplace = True)
     
     # Merge current output data with donor dataframe
+    # Indicator = True creates a new column '_merge' which identifies which
+    # dataset contributed each column. This column is used further below.
     df_output = output
     df_output = df_output.merge(df_input, how = "left"
                             , on = strata, indicator = True)
@@ -197,9 +198,11 @@ def ips_impute_match(remainder,input,output,strata,var_value,impute_var,level,
     if (var_value not in df_output.columns):
         df_output[var_value] = 0
     
-    df_output[var_value] = np.where((df_output[var_level].isnull() == True) & (df_output[var_impute_flag] == 1.0) & (df_output['_merge'] == 'both'), df_output[value_level], df_output[var_value])
-    df_output[var_count] = np.where((df_output[var_level].isnull() == True) & (df_output[var_impute_flag] == 1.0) & (df_output['_merge'] == 'both'), df_output[count_level], df_output[var_count])
-    df_output[var_level] = np.where((df_output[var_level].isnull() == True) & (df_output[var_impute_flag] == 1.0) & (df_output['_merge'] == 'both'), level, df_output[var_level])
+    condition = (df_output[var_level].isnull()) & (df_output[var_impute_flag] == 1.0) & (df_output['_merge'] == 'both')
+    
+    df_output[var_value] = np.where(condition, df_output[value_level], df_output[var_value])
+    df_output[var_count] = np.where(condition, df_output[count_level], df_output[var_count])
+    df_output[var_level] = np.where(condition, level, df_output[var_level])
     
     # Remove merge origin tracking column from output
     df_output = df_output.drop('_merge', axis = 1)

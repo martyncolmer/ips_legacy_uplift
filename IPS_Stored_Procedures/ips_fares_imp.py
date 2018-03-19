@@ -6,7 +6,7 @@ from IPSTransformation import CommonFunctions as cf
 from IPS_Unallocated_Modules import ips_impute
 
 
-def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
+def do_ips_fares_imputation(df_input, output, var_serial_num, var_stem, thresh_stem
                             , num_levels, donor_var, output_var, measure
                             , var_eligible_flag, var_imp_flag,var_imp_level
                             , var_fare_age, var_baby_fare, var_child_fare, var_apd
@@ -50,7 +50,6 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
     Requirements : NA
     Dependencies : NA
     """
-    df_input = input
     
     # Setup thresh and strata base nested lists. These are used to group the data
     # differently at each iteration.
@@ -70,7 +69,7 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
     df_eligible = df_input.loc[df_input[var_eligible_flag] == 1.0]
     
     # Perform the imputation on eligible dataset
-    df_output = ips_impute.ips_impute(df_eligible, output, var_serial_num
+    df_output = ips_impute.ips_impute(df_eligible, var_serial_num
                                             , strata_base_list, thresh_base_list
                                             , num_levels, donor_var,output_var
                                             , measure, var_imp_flag
@@ -89,7 +88,7 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
     
     df_output.rename(index=str, columns={output_var + '_y' : output_var, var_imp_level + '_y' : var_imp_level}, inplace = True)
     
-    # Resort columns by column name in alphabetical order (may not be required)
+    # Re-sort columns by column name in alphabetical order (may not be required)
     df_output.sort_index(axis = 1, inplace = True)
     
     df_output = df_output.apply(compute_additional_fares, axis = 1)
@@ -212,7 +211,8 @@ def compute_additional_spend(row):
         
         # Ensure the spend values are integers
         row['SPEND'] = round(row['SPEND'], 0)
-
+        
+        return row
 
 def ips_fares_imp(SurveyData, OutputData, ResponseTable, var_serial_num, varStem
                   , threshStem, num_levels, donor_var, output_var, measure, var_eligible_flag
