@@ -92,7 +92,8 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
     # Resort columns by column name in alphabetical order (may not be required)
     df_output.sort_index(axis = 1, inplace = True)
     
-    df_output = df_output.apply(compute_additional_fare_vars, axis = 1)
+    df_output = df_output.apply(compute_additional_fares, axis = 1)
+    df_output = df_output.apply(compute_additional_spend, axis = 1)
     
     final_output_column_list = ['SERIAL', 'SPEND', 'SPENDIMPREASON', 'FARE', 'FAREK']
     
@@ -100,7 +101,7 @@ def do_ips_fares_imputation(input, output, var_serial_num, var_stem, thresh_stem
 
     return df_output
 
-def compute_additional_fare_vars(row):
+def compute_additional_fares(row):
         """
         Author       : James Burr
         Date         : 13 March 2018
@@ -110,6 +111,8 @@ def compute_additional_fare_vars(row):
         Requirements : NA
         Dependencies : NA
         """
+        
+        non_pack_fare = np.NaN
         
         # Sort out child/baby fares
         if (row['FARES_IMP_FLAG_PV'] == 0 or row['FARES_IMP_ELIGIBLE_PV'] == 0):
@@ -132,9 +135,6 @@ def compute_additional_fare_vars(row):
                     
                 elif (row['FAGE_PV'] == 6):
                     non_pack_fare = row['FARE']
-                
-                else:
-                    non_pack_fare = ''
                     
             else:
                 if (row['FAGE_PV'] == 1):
@@ -157,7 +157,14 @@ def compute_additional_fare_vars(row):
         if (row['FARE'] == np.nan and row['QMFARE_PV'] != np.nan):
             row['FARE'] = row['QMFARE_PV']
         
-        # Compute spend per person per visit
+        # Ensure the fare is rounded to nearest integer
+        row['FARE'] = round(row['FARE'], 0)
+        
+        return row
+
+def compute_additional_spend(row):
+    
+    # Compute spend per person per visit
         # For package holidays, spend is imputed if the package cost is less
         # than the cost of the fares. If all relevant fields are 0, participant
         # is assumed to have spent no money.
@@ -203,11 +210,8 @@ def compute_additional_fare_vars(row):
         if (row['SPEND'] != np.nan):
             row['SPEND'] = row['SPEND'] + row['DUTY_FREE_PV']
         
-        # Ensure the imputed and calculated values are integers
+        # Ensure the spend values are integers
         row['SPEND'] = round(row['SPEND'], 0)
-        row['FARE'] = round(row['FARE'], 0)
-        
-        return row
 
 
 def ips_fares_imp(SurveyData, OutputData, ResponseTable, var_serial_num, varStem
@@ -272,8 +276,6 @@ def ips_fares_imp(SurveyData, OutputData, ResponseTable, var_serial_num, varStem
     
     df_surveydata.columns = df_surveydata.columns.str.upper()
     
-    print("Start - Calculate Fares Imputation")
-    
     df_output = do_ips_fares_imputation(df_surveydata, OutputData, var_serial_num
                                       , varStem, threshStem, num_levels, donor_var
                                       , output_var, measure, var_eligible_flag
@@ -297,8 +299,6 @@ def ips_fares_imp(SurveyData, OutputData, ResponseTable, var_serial_num, varStem
     # Log success message in SAS_RESPONSE and AUDIT_LOG
     cf.database_logger().info("SUCCESS - Completed Fares Imputation.")
     cf.commit_to_audit_log("Create", "FaresImputation", audit_message)
-    
-    print("Completed - Calculate Fares Imputation")
     
     
 if __name__ == '__main__':
