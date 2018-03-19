@@ -159,7 +159,6 @@ def calculate(SurveyData, OutputData, ResponseTable, var_serial, var_flow,
     
     return output_dataframe
     
-    
 
 if __name__ == '__main__':
     calculate(SurveyData = 'SAS_SURVEY_SUBSAMPLE',
