@@ -55,7 +55,7 @@ def do_ips_spend_imputation(df_survey_data, OutputData, var_serialNum, varStem
     df_eligible = df_eligible.apply(selection, axis = 1)
 
     # Perform the imputation
-    df_output = imp.ips_impute(df_eligible, OutputData, var_serialNum
+    df_output = imp.ips_impute(df_eligible, var_serialNum
                                , varStem, threshStem, numLevels, "XPD"
                                , outputVar, measure, var_impFlag, var_impLevel)
     
@@ -63,8 +63,7 @@ def do_ips_spend_imputation(df_survey_data, OutputData, var_serialNum, varStem
     df_final_output = pd.merge(df_eligible, df_output, on=var_serialNum
                                , how = 'left')
     df_final_output.drop(var_impLevel + "_x", axis=1, inplace=True)
-    df_final_output.rename(columns={var_impLevel + "_y": var_impLevel
-                                    , "STAYDAYS_x":"STAYDAYS"}, inplace = True)
+    df_final_output.rename(columns={var_impLevel + "_y": var_impLevel}, inplace = True)
     
     # Create final output with required columns 
     df_final_output = df_final_output[[var_serialNum, outputVar, var_impLevel
