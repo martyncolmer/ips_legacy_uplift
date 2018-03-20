@@ -10,8 +10,8 @@ from collections import OrderedDict
 import survey_support
 from IPSTransformation import CommonFunctions as cf
 
-# TODO (if required):
-# 1. do_ips_ges_weighting() - plug-in solution once done
+# TODO:
+# 1. do_ips_ges_weighting() - plug-in real solution once done
                        
 def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum,
               var_shiftWeight, var_NRWeight, var_minWeight, StrataDef, PopTotals,
@@ -324,8 +324,7 @@ def generate_ips_tw_summary(df_survey, df_output_merge_final, summary, StrataDef
     # #####################################################
      
     df_survey_sorted = df_survey.sort_values(var_serialNum)
-    
-    # TODO: simplify the pandas code 
+
     # drop duplicate column (with 'None' values) across both tables before merging
     df_survey_sorted_dropped = df_survey_sorted.drop(var_trafficWeight, 1)
 

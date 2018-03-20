@@ -9,7 +9,7 @@ from pandas.util.testing import assert_frame_equal
 from IPS_Stored_Procedures.IPS_traffic_weight_calc import calculate, do_ips_ges_weighting, \
                                                           do_ips_trafweight_calculation, generate_ips_tw_summary
 
-path_to_data = r"C:\Git_projects\IPS_Legacy_Uplift\TestSuite\data\traffic_weight"
+path_to_data = r"..\data\traffic_weight"
 
 def test_calculate():
     print("Started testing IPS traffic weight - calculate()")
