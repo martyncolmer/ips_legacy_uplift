@@ -6,7 +6,7 @@ The current IPS system calculates weighting factors and imputes missing data for
 
 # Functionality
 This package supports the calculations within IPS System. This is also referred to as the "Main Run".
-Users select which steps should be executed and then generate reports from the results. These steps can be found under _calculations_ in the **main_run** folder.
+Users select which steps should be executed and then generate reports from the results. These steps can be found under _calculations_ in the **main** folder.
 
 All data resides in the database and code connecting to the database can be found in the _io_ folder. Finally any generic functions are located in the _utils_ folder.
 
