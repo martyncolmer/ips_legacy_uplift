@@ -1,20 +1,15 @@
 import sys
-import os
-import logging
 import inspect
-import numpy as np
 import pandas as pd
-from sas7bdat import SAS7BDAT
-from pandas.util.testing import assert_frame_equal
-from collections import OrderedDict
 import survey_support
 from IPSTransformation import CommonFunctions as cf
 from IPS_Unallocated_Modules import ips_impute
 
-
-def do_ips_stay_imputation(input, output, var_serialNum, varStem, threshStem,
-                            numLevels, donorVar, outputVar, measure,
-                            var_eligibleFlag, var_impFlag,var_impLevel):
+# Measure should be passed through in LOWER CASE. This variable should contain
+# a function name which can only be used in lower case.
+def do_ips_stay_imputation(df_input, output, var_serial_num, var_stem, thresh_stem,
+                            num_levels, donor_var, output_var, measure,
+                            var_eligible_flag, var_imp_flag,var_imp_level):
     """
     Author       : James Burr
     Date         : 12 Feb 2018
@@ -35,18 +30,20 @@ def do_ips_stay_imputation(input, output, var_serialNum, varStem, threshStem,
     Requirements : NA
     Dependencies : NA
     """
-    df_input = input
-    
     # Ensure imputation only occurs on eligible rows
-    df_eligible = df_input.where(df_input['var_eligibleFlag'] == True)
+    df_eligible = df_input.where(df_input[var_eligible_flag] == True)
     
-    df_output_final = ips_impute.ips_impute(df_eligible, output, var_serialNum
-                                            , varStem, threshStem, numLevels
-                                            , donorVar,outputVar, measure
-                                            , var_impFlag, var_impLevel)
+    strata_base_list = [['STAYIMPCTRYLEVEL4_PV', 'STAY_PURPOSE_GRP_PV']]
+    
+    thresh_base_list = [[1]]
+    
+    df_output_final = ips_impute.ips_impute(df_eligible, var_serial_num
+                                            , strata_base_list, thresh_base_list
+                                            , num_levels, donor_var,output_var
+                                            , measure, var_imp_flag, var_imp_level)
     
     # Round output column to nearest integer
-    df_output_final['output_var'] = df_output_final['output_var'].round()
+    df_output_final[output_var] = df_output_final[output_var].round()
     
     return df_output_final
 
@@ -79,25 +76,21 @@ def ips_stay_imp(SurveyData,OutputData,ResponseTable,var_serialNum,varStem
     survey_support.setup_logging('IPS_logging_config_debug.json')
     
     # Setup path to the base directory containing data files
-    root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_IPS_Shift_Weight"
+    root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Stay Imputation"
     
     # This commented out to be changed when data is availabe for this step
-    #path_to_survey_data = root_data_path + r"\surveydatasmall.sas7bdat"
+    path_to_survey_data = root_data_path + r"\surveydata.sas7bdat"
     
-    # Create dataframe to store output
-    global df_surveydata
-    
-    # Import data via SQL
-    df_surveydata = cf.get_table_values(SurveyData)
+    # Import data
+    df_surveydata = pd.read_sas(path_to_survey_data)
     
     df_surveydata.columns = df_surveydata.columns.str.upper()
-    
-    print("Start - Calculate Stay Imputation")
+
     df_output = do_ips_stay_imputation(df_surveydata, OutputData, var_serialNum
                                        , varStem, threshStem, numLevels, donorVar
                                        , outputVar, measure, var_eligibleFlag
                                        , var_impFlag, var_impLevel)
-    
+
     # Append the generated data to output tables
     cf.insert_into_table_many(OutputData, df_output)
 
@@ -111,14 +104,12 @@ def ips_stay_imp(SurveyData,OutputData,ResponseTable,var_serialNum,varStem
     cf.database_logger().info("SUCCESS - Completed Stay imputation.")
     cf.commit_to_audit_log("Create", "StayImputation", audit_message)
     
-    print("Completed - Calculate Stay Imputation")
-    
     
 if __name__ == '__main__':
     ips_stay_imp(SurveyData = 'SAS_SURVEY_SUBSAMPLE',OutputData = 'SAS_STAY_IMP'
                  ,ResponseTable = 'SAS_RESPONSE',var_serialNum = 'SERIAL'
                  ,varStem = 'VARS',threshStem = 'THRESH',numLevels = 1
-                 ,donorVar = 'NUMNIGHTS',outputVar = 'STAY',measure = 'MEAN'
+                 ,donorVar = 'NUMNIGHTS',outputVar = 'STAY',measure = 'mean'
                  ,var_eligibleFlag = 'STAY_IMP_ELIGIBLE_PV'
                  ,var_impFlag = 'STAY_IMP_FLAG_PV',var_impLevel = 'STAYK')
     
