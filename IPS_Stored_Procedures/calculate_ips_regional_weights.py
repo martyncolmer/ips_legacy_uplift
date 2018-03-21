@@ -371,10 +371,7 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
 
             # Calculate the revised weights
             def calculate_revised_weights(row):
-                
-                if row['SERIAL'] == 410049406155.00:
-                    print('at record')
-                
+                                
                 if row['KNOWN_FINAL_WEIGHTS'] != 0 and not math.isnan(row['KNOWN_FINAL_WEIGHTS']):
                     
                     if row[var_visit_wtk] == '':
@@ -400,8 +397,6 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
             impute_towns_ext = impute_towns_ext.drop(columns=['KNOWN_FINAL_WEIGHTS', 'KNOWN_STAY', 'KNOWN_EXPEND',
                                                               'UNKNOWN_FINAL_WEIGHT', 'UNKNOWN_STAY', 'UNKNOWN_EXPEND'])
             
-            
-
         # if record_count > 0
     # Loop end
     
@@ -411,7 +406,6 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
                                    'NIGHTS1', 'NIGHTS2', 'NIGHTS3', 'NIGHTS4', 'NIGHTS5', 'NIGHTS6', 'NIGHTS7', 'NIGHTS8',
                                    'STAY1K', 'STAY2K', 'STAY3K', 'STAY4K', 'STAY5K', 'STAY6K', 'STAY7K', 'STAY8K']]
     
-    
     def round_wts(row):
         row[var_visit_wt] = round(row[var_visit_wt], 3)
         row[var_stay_wt] = round(row[var_stay_wt], 3)
@@ -419,9 +413,15 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
         return row
     
     outputData = outputData.apply(round_wts,axis = 1)
-
+    
+    #Fills blanks in generated columns to be of type float (NIGHTS#) or string (STAY#K)
+    outputData[['NIGHTS1', 'NIGHTS2', 'NIGHTS3', 'NIGHTS4', 'NIGHTS5', 'NIGHTS6', 'NIGHTS7', 'NIGHTS8']] = \
+               outputData[['NIGHTS1', 'NIGHTS2', 'NIGHTS3', 'NIGHTS4', 'NIGHTS5', 'NIGHTS6', 'NIGHTS7', 'NIGHTS8']].fillna(np.NaN)
+    outputData[['STAY1K', 'STAY2K', 'STAY3K', 'STAY4K', 'STAY5K', 'STAY6K', 'STAY7K', 'STAY8K']] = \
+               outputData[['STAY1K', 'STAY2K', 'STAY3K', 'STAY4K', 'STAY5K', 'STAY6K', 'STAY7K', 'STAY8K']].fillna('')
+    
     outputData = outputData.sort_values(by = var_serial)
-        
+    
     # Return the generated data frame to be appended to oracle
     return (outputData)
 
@@ -479,8 +479,7 @@ def calculate(intabname, outtabname, responseTable, var_serial, maxLevel,
                                                           var_visit_wt, var_expenditure_wt, var_stay_wtk, 
                                                           var_visit_wtk, var_expenditure_wtk, var_eligible_flag,
                                                           strata_levels)
-    
-    # Append the generated data to output tables
+
     cf.insert_into_table_many(outtabname, output_dataframe)
      
     # Retrieve current function name using inspect:
