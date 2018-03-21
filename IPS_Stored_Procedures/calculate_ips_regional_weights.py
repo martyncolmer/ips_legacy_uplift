@@ -38,6 +38,9 @@ def compare_dfs(test_name, sas_file, df, col_list = False, save_index = False,dr
     
     print("TESTING " + test_name)
     
+    # Set all of the columns imported to uppercase
+    csv.columns = csv.columns.str.upper()
+    
     if drop_sas_col:
         if '_TYPE_' in csv.columns:
             csv = csv.drop(columns = ['_TYPE_'])
@@ -52,6 +55,7 @@ def compare_dfs(test_name, sas_file, df, col_list = False, save_index = False,dr
     else:
         csv[col_list].to_csv(fdir+"\\"+test_name+sas)
         df[col_list].to_csv(fdir+"\\"+test_name+py)
+    
     
     print(test_name + " COMPLETE")
     beep()
@@ -169,7 +173,7 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
 
     impute_towns = impute_towns.apply(check_info,axis = 1)
     
-    #compare_dfs('00_impute_towns', 'impute_towns.sas7bdat', impute_towns, save_index= False)                                            #Match
+    compare_dfs('00_impute_towns', 'impute_towns.sas7bdat', impute_towns, save_index= False)                                            #Match
         
     # Correct nights information so that it matches stay
     temp1 = ips_correct_regional_nights(impute_towns, var_stay)
@@ -187,7 +191,7 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
     
     impute_towns_ext.update(temp1)
 
-    #compare_dfs('01_impute_towns_ext', 'impute_towns_ext.sas7bdat', impute_towns_ext, save_index= False)                                #Match
+    compare_dfs('01_impute_towns_ext', 'impute_towns_ext.sas7bdat', impute_towns_ext, save_index= False)                                #Match
         
     seg = [0] * 4
     temp2 = [0] * 4
@@ -201,10 +205,18 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
         strata = strata_levels[level-1]
         
         # Look for records that have already been uplifted
-        impute_towns_ext.loc[impute_towns_ext[var_visit_wtk].isnull() , 'VISIT_WTK_NONMISS'] = 1
-        impute_towns_ext['VISIT_WTK_ALL'] = 1
+        def check_if_uplifted(row):
+            if row[var_visit_wtk] != '':
+                row['VISIT_WTK_NONMISS'] = 1
+            else:
+                row['VISIT_WTK_NONMISS'] = np.NaN
+            row['VISIT_WTK_ALL'] = 1
+            return row
         
-        compare_dfs('02_impute_towns_ext_' + str(level), 'impute_towns_ext_' + str(level) + '.sas7bdat', impute_towns_ext)
+        
+        impute_towns_ext = impute_towns_ext.apply(check_if_uplifted, axis = 1)
+        
+        compare_dfs('02_impute_towns_ext_' + str(level), 'impute_towns_ext_' + str(level) + '.sas7bdat', impute_towns_ext)              # Match loop: 1
         
         # Sort impute_towns_ext by strata
         impute_towns_ext = impute_towns_ext.sort_values(by = strata)
@@ -230,9 +242,10 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
                 
         # Replace the previously added -1 values with their original blank values  
         impute_towns_ext[strata] = impute_towns_ext[strata].replace(-1, np.NaN)
+        
         seg[level-1][strata] = seg[level-1][strata].replace(-1, np.NaN) 
         
-        compare_dfs('03_seg_'+str(level), 'seg_'+str(level)+'.sas7bdat', seg[level-1])              # Match Loop : 1
+        compare_dfs('03_seg_'+str(level), 'seg_'+str(level)+'.sas7bdat', seg[level-1])                                                  # Match loop: 1
                 
         # Calculate visit, stay and expenditure weights
         impute_towns_ext_mod = impute_towns_ext.copy()
@@ -251,21 +264,25 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
         # Replace blank values with -1 as python drops blanks during the aggregation process.  
         temp2[level-1][strata] = temp2[level-1][strata].fillna(-1)
         
+        temp2_count = temp2[level-1].groupby(strata)['FIN'].agg({
+            'TOWN_COUNT' : 'count'})
         temp2_fin = temp2[level-1].groupby(strata)['FIN'].agg({
-            'TOWN_COUNT' : 'count',
             'KNOWN_FINAL_WEIGHTS': 'sum'})
         temp2_sty = temp2[level-1].groupby(strata)['STY'].agg({
             'KNOWN_STAY': 'sum'})
         temp2_exp = temp2[level-1].groupby(strata)['EXP'].agg({
             'KNOWN_EXPEND': 'sum'})       
         
+        temp2_count = temp2_count.reset_index()
         temp2_fin = temp2_fin.reset_index()
         temp2_sty = temp2_sty.reset_index()
         temp2_exp = temp2_exp.reset_index()
         
-        
-        temp2[level-1] = pd.merge(temp2_fin,temp2_sty,on = strata, how = 'inner')
+        temp2[level-1] = pd.merge(temp2_count,temp2_fin,on = strata, how = 'inner')
+        temp2[level-1] = pd.merge(temp2[level-1],temp2_sty,on = strata, how = 'inner')
         temp2[level-1] = pd.merge(temp2[level-1],temp2_exp,on = strata, how = 'inner')
+        
+        temp2[level-1][strata] = temp2[level-1][strata].replace(-1, np.NaN)
         
         compare_dfs('05_temp2_'+str(level), 'temp2_'+str(level)+'.sas7bdat', temp2[level-1])              # Match Loop : 1
         
@@ -277,29 +294,28 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
         # Replace blank values with -1 as python drops blanks during the aggregation process.  
         temp3[level-1][strata] = temp3[level-1][strata].fillna(-1)
         
+        temp3_count = temp3[level-1].groupby(strata)['FIN'].agg({
+            'NO_TOWN_COUNT' : 'count'})
         temp3_fin = temp3[level-1].groupby(strata)['FIN'].agg({
-            'NO_TOWN_COUNT' : 'count',
             'UNKNOWN_FINAL_WEIGHT': 'sum'})
         temp3_sty = temp3[level-1].groupby(strata)['STY'].agg({
             'UNKNOWN_STAY': 'sum'})
         temp3_exp = temp3[level-1].groupby(strata)['EXP'].agg({
             'UNKNOWN_EXPEND': 'sum'})
         
+        temp3_count = temp3_count.reset_index()
         temp3_fin = temp3_fin.reset_index()
         temp3_sty = temp3_sty.reset_index()
         temp3_exp = temp3_exp.reset_index()
         
-        temp3[level-1] = pd.merge(temp3_fin,temp3_sty,on = strata, how = 'inner')
+        temp3[level-1] = pd.merge(temp3_count,temp3_fin,on = strata, how = 'inner')
+        temp3[level-1] = pd.merge(temp3[level-1],temp3_sty,on = strata, how = 'inner')
         temp3[level-1] = pd.merge(temp3[level-1],temp3_exp,on = strata, how = 'inner')
+        
+        temp3[level-1][strata] = temp3[level-1][strata].replace(-1, np.NaN)
         
         compare_dfs('06_temp3_'+str(level), 'temp3_'+str(level)+'.sas7bdat', temp3[level-1])              # Match Loop : 1
         
-        
-        
-        # Replace the previously added -1 values with their original blank values  
-        seg[level-1][strata] = seg[level-1][strata].replace(-1, np.NaN) 
-        temp2[level-1][strata] = temp2[level-1][strata].replace(-1, np.NaN)
-        temp3[level-1][strata] = temp3[level-1][strata].replace(-1, np.NaN)
         
         # Sort the generated data by strata before merging them together
         seg[level-1] = seg[level-1].sort_values(by = strata)
@@ -318,7 +334,11 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
         segment[level-1].loc[segment[level-1]['TOWN_COUNT'].isnull() , 'TOWN_COUNT'] = 0
         segment[level-1].loc[segment[level-1]['NO_TOWN_COUNT'].isnull() , 'NO_TOWN_COUNT'] = 0
         
-        compare_dfs('07_segment_'+str(level), 'segment_'+str(level)+'_merge.sas7bdat', segment[level-1])              # Match Loop : 1
+        segment[level-1][strata] = segment[level-1][strata].fillna(-1)
+        segment[level-1] = segment[level-1].sort_values(by = strata)
+        segment[level-1][strata] = segment[level-1][strata].replace(-1, np.NaN)
+        
+        compare_dfs('07_segment_'+str(level), 'segment_'+str(level)+'_merge.sas7bdat', segment[level-1])                                    # Match Loop : 1
         
         
         
@@ -327,7 +347,7 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
         # Look for records that still need to be uplifted
         cseg[level-1] = segment[level-1].loc[segment[level-1]['TOWN_COUNT'] != segment[level-1]['VISIT_WT_COUNT']]
         
-        compare_dfs('08_cseg_'+str(level), 'cseg_'+str(level)+'.sas7bdat', cseg[level-1])              # Match Loop : 1
+        compare_dfs('08_cseg_'+str(level), 'cseg_'+str(level)+'.sas7bdat', cseg[level-1])                                                   # Match Loop : 1
         
         
         
@@ -354,7 +374,7 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
                 
                 trunc_segment[level-1] = trunc_segment[level-1].loc[condition]
                 
-                compare_dfs('09_trunc_segment_'+str(level), 'trunc_segment_'+str(level)+'_lt4.sas7bdat', trunc_segment[level-1])              # Match Loop : 1
+                compare_dfs('09_trunc_segment_'+str(level), 'trunc_segment_'+str(level)+'_lt4.sas7bdat', trunc_segment[level-1])           # Match Loop : 1
                 pass
                 
             if level > 3:
@@ -367,7 +387,7 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
                 
                 trunc_segment[level-1] = trunc_segment[level-1].loc[condition]
                 
-                compare_dfs('09_trunc_segment_'+str(level), 'trunc_segment_'+str(level)+'_gt3.sas7bdat', trunc_segment[level-1])
+                compare_dfs('09_trunc_segment_'+str(level), 'trunc_segment_'+str(level)+'_gt3.sas7bdat', trunc_segment[level-1])           # Match Loop : 1
                 pass
             
             # Sort trunc_segment before merge
@@ -420,7 +440,7 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
                                                               'UNKNOWN_FINAL_WEIGHT', 'UNKNOWN_STAY', 'UNKNOWN_EXPEND'])
             
             
-            compare_dfs('11_impute_ext_revised_weights_' + str(level), 'impute_ext_revised_weights_' + str(level)+'.sas7bdat', impute_towns_ext)
+            compare_dfs('11_impute_ext_revised_weights_' + str(level), 'impute_ext_revised_weights_' + str(level)+'.sas7bdat', impute_towns_ext)      # Match Loop : 1
             pass
         # if record_count > 0
     # Loop end
@@ -444,12 +464,6 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
     
     compare_dfs('12_output_final', 'output_final.sas7bdat', outputData)
     sys.exit()
-
-
-
-    ##END OF CALCULATION LOGGING
-
-
     # Collect data outside of specified threshold
     threshold_string = ""
     for index, record in df_unsampled_thresholds_check.iterrows():
@@ -553,7 +567,7 @@ def calculate(intabname, outtabname, responseTable, var_serial, maxLevel,
 
 if __name__ == '__main__':
     calculate(intabname = 'SAS_SURVEY_SUBSAMPLE',
-              outtabname = 'SAS_UNSAMPLED_OOH_WT', 
+              outtabname = 'SAS_REGIONAL_IMP', 
               responseTable = 'SAS_RESPONSE', 
               var_serial = 'SERIAL', 
               maxLevel = 4,
