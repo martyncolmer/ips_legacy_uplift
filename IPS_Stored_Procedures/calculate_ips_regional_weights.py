@@ -464,22 +464,9 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
     
     compare_dfs('12_output_final', 'output_final.sas7bdat', outputData)
     sys.exit()
-    # Collect data outside of specified threshold
-    threshold_string = ""
-    for index, record in df_unsampled_thresholds_check.iterrows():
-        threshold_string += "___||___" \
-                         + str(df_unsampled_thresholds_check.columns[0]) + " : " + str(record[0]) + " | "\
-                         + str(df_unsampled_thresholds_check.columns[1]) + " : " + str(record[1]) + " | "\
-                         + str(df_unsampled_thresholds_check.columns[2]) + " : " + str(record[2]) + " | "\
-                         + str(df_unsampled_thresholds_check.columns[3]) + " : " + str(record[3])
-                         
-    # Output the values outside of the threshold to the logger - COMMENTED OUT DUE TO SIZE ISSUE?
-    if len(df_unsampled_thresholds_check) > 0:
-        cf.database_logger().warning('WARNING: Respondent count below minimum threshold for: ')# + str(threshold_string))
     
-    
-    # Return the generated data frames to be appended to oracle
-    return (df_output, df_summary)
+    # Return the generated data frame to be appended to oracle
+    return (outputData)
 
 
 def calculate(intabname, outtabname, responseTable, var_serial, maxLevel,
@@ -528,7 +515,6 @@ def calculate(intabname, outtabname, responseTable, var_serial, maxLevel,
     # Set up strata lists
     strata_levels = [strata1, strata2, strata3, strata4]
     
-
     # Calculate the unsampled weights of the imported dataset.
     print("Start - Calculate Regional Weights.")     
     output_dataframe = do_ips_regional_weight_calculation(df_surveydata, 'output', var_serial, maxLevel, strataBase, 
@@ -536,21 +522,8 @@ def calculate(intabname, outtabname, responseTable, var_serial, maxLevel,
                                                           var_visit_wt, var_expenditure_wt, var_stay_wtk, 
                                                           var_visit_wtk, var_expenditure_wtk, var_eligible_flag,
                                                           strata_levels)
-
-
-    print("4")
-    sys.exit()
-    # This was in unsampled, leaving here just incase I need it - @TM
-    def num_to_string(row):
-        row['UNSAMP_REGION_GRP_PV'] = str(row['UNSAMP_REGION_GRP_PV'])
-        if(row['UNSAMP_REGION_GRP_PV'] == 'nan'):
-            row['UNSAMP_REGION_GRP_PV'] = ' '
-        return row
-    
     
     # Append the generated data to output tables
-    
-    
     cf.insert_into_table_many(outtabname, output_dataframe)
      
     # Retrieve current function name using inspect:
