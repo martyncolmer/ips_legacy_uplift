@@ -3,7 +3,7 @@
 """
 import pandas
 import inspect
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 
 def import_data(filename):
     """

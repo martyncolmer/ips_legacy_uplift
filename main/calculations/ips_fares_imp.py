@@ -2,7 +2,7 @@ import inspect
 import numpy as np
 import pandas as pd
 import survey_support
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 from main.calculations import ips_impute
 
 

@@ -6,7 +6,7 @@ Created on 7 Feb 2018
 import pandas as pd
 import inspect
 import survey_support
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 
 
 def do_ips_imbweight_calculation(df_survey_data, OutputData, SummaryData, var_serialNum

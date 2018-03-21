@@ -9,7 +9,7 @@ from sas7bdat import SAS7BDAT
 from pandas.util.testing import assert_frame_equal
 from collections import OrderedDict
 import survey_support
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
     
 def do_ips_railex_imp(df_input, output, var_serial, var_eligible, var_fweight,
 					var_count, strata, var_railfare, var_spend, minCountThresh):

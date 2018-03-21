@@ -2,7 +2,7 @@ import sys
 import inspect
 import pandas as pd
 import survey_support
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 from main.calculations import ips_impute
 
 # Measure should be passed through in LOWER CASE. This variable should contain

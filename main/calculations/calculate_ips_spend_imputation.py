@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import survey_support
 
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 from main.calculations import ips_impute as imp
 
 def do_ips_spend_imputation(df_survey_data, OutputData, var_serialNum, varStem
