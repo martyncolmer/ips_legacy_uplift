@@ -6,11 +6,12 @@ Created on 12 March 2018
 
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
-from IPS_Stored_Procedures.IPS_traffic_weight_calc import calculate, do_ips_ges_weighting, \
+from main.calculations.IPS_traffic_weight_calc import calculate, do_ips_ges_weighting, \
                                                           do_ips_trafweight_calculation, generate_ips_tw_summary
+import pytest
 
-path_to_data = r"..\data\traffic_weight"
-
+path_to_data = r"data\traffic_weight"
+@pytest.mark.traffic
 def test_calculate():
     print("Started testing IPS traffic weight - calculate()")
     (df_output_merge_final_rounded, df_summary_merge_sum_traftot) = calculate(SurveyData='sas_survey_subsample'
