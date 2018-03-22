@@ -87,7 +87,7 @@ def populate_survey_data_for_fares_imputation(run_id, conn):
     move_survey_subsample_to_sas_table(conn)
 
 
-def copy_stay_imp_pvs_for_survey_data(run_id, conn):
+def copy_fares_imp_pvs_for_survey_data(run_id, conn):
     """
     Author       : James Burr
     Date         : 21/03/2018
@@ -135,88 +135,88 @@ def copy_stay_imp_pvs_for_survey_data(run_id, conn):
         AND UPPER(PV.PV_NAME) IN ('DISCNT_F2_PV'))"
 
     sas_process_variable_insert_query6 = "INSERT INTO " + sas_process_variable_table + " \
-            (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
-            (SELECT PV.PV_NAME, PV.PV_DEF, 6 \
-            FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
-            AND UPPER(PV.PV_NAME) IN ('FAGE_PV'))"
+        (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
+        (SELECT PV.PV_NAME, PV.PV_DEF, 6 \
+        FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
+        AND UPPER(PV.PV_NAME) IN ('FAGE_PV'))"
 
     sas_process_variable_insert_query7 = "INSERT INTO " + sas_process_variable_table + " \
-                (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
-                (SELECT PV.PV_NAME, PV.PV_DEF, 7 \
-                FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
-                AND UPPER(PV.PV_NAME) IN ('TYPE_PV'))"
+        (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
+        (SELECT PV.PV_NAME, PV.PV_DEF, 7 \
+        FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
+        AND UPPER(PV.PV_NAME) IN ('TYPE_PV'))"
 
     sas_process_variable_insert_query8 = "INSERT INTO " + sas_process_variable_table + " \
-                    (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
-                    (SELECT PV.PV_NAME, PV.PV_DEF, 8 \
-                    FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
-                    AND UPPER(PV.PV_NAME) IN ('OPERA_PV'))"
+        (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
+        (SELECT PV.PV_NAME, PV.PV_DEF, 8 \
+        FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
+        AND UPPER(PV.PV_NAME) IN ('OPERA_PV'))"
 
     sas_process_variable_insert_query9 = "INSERT INTO " + sas_process_variable_table + " \
-                        (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
-                        (SELECT PV.PV_NAME, PV.PV_DEF, 9 \
-                        FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
-                        AND UPPER(PV.PV_NAME) IN ('UKPORT1_PV'))"
+        (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
+        (SELECT PV.PV_NAME, PV.PV_DEF, 9 \
+        FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
+        AND UPPER(PV.PV_NAME) IN ('UKPORT1_PV'))"
 
     sas_process_variable_insert_query10 = "INSERT INTO " + sas_process_variable_table + " \
-                            (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
-                            (SELECT PV.PV_NAME, PV.PV_DEF, 10 \
-                            FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
-                            AND UPPER(PV.PV_NAME) IN ('UKPORT2_PV'))"
+        (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
+        (SELECT PV.PV_NAME, PV.PV_DEF, 10 \
+        FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
+        AND UPPER(PV.PV_NAME) IN ('UKPORT2_PV'))"
 
     sas_process_variable_insert_query11 = "INSERT INTO " + sas_process_variable_table + " \
-                            (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
-                            (SELECT PV.PV_NAME, PV.PV_DEF, 11 \
-                            FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
-                            AND UPPER(PV.PV_NAME) IN ('UKPORT3_PV'))"
+        (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
+        (SELECT PV.PV_NAME, PV.PV_DEF, 11 \
+        FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
+        AND UPPER(PV.PV_NAME) IN ('UKPORT3_PV'))"
 
     sas_process_variable_insert_query12 = "INSERT INTO " + sas_process_variable_table + " \
-                            (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
-                            (SELECT PV.PV_NAME, PV.PV_DEF, 12 \
-                            FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
-                            AND UPPER(PV.PV_NAME) IN ('UKPORT4_PV'))"
+        (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
+        (SELECT PV.PV_NAME, PV.PV_DEF, 12 \
+        FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
+        AND UPPER(PV.PV_NAME) IN ('UKPORT4_PV'))"
 
     sas_process_variable_insert_query13 = "INSERT INTO " + sas_process_variable_table + " \
-                            (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
-                            (SELECT PV.PV_NAME, PV.PV_DEF, 13 \
-                            FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
-                            AND UPPER(PV.PV_NAME) IN ('OSPORT1_PV'))"
+        (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
+        (SELECT PV.PV_NAME, PV.PV_DEF, 13 \
+        FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
+        AND UPPER(PV.PV_NAME) IN ('OSPORT1_PV'))"
 
     sas_process_variable_insert_query14 = "INSERT INTO " + sas_process_variable_table + " \
-                            (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
-                            (SELECT PV.PV_NAME, PV.PV_DEF, 14 \
-                            FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
-                            AND UPPER(PV.PV_NAME) IN ('OSPORT2_PV'))"
+        (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
+        (SELECT PV.PV_NAME, PV.PV_DEF, 14 \
+        FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
+        AND UPPER(PV.PV_NAME) IN ('OSPORT2_PV'))"
 
     sas_process_variable_insert_query15 = "INSERT INTO " + sas_process_variable_table + " \
-                            (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
-                            (SELECT PV.PV_NAME, PV.PV_DEF, 15 \
-                            FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
-                            AND UPPER(PV.PV_NAME) IN ('OSPORT3_PV'))"
+        (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
+        (SELECT PV.PV_NAME, PV.PV_DEF, 15 \
+        FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
+        AND UPPER(PV.PV_NAME) IN ('OSPORT3_PV'))"
 
     sas_process_variable_insert_query16 = "INSERT INTO " + sas_process_variable_table + " \
-                                (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
-                                (SELECT PV.PV_NAME, PV.PV_DEF, 16 \
-                                FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
-                                AND UPPER(PV.PV_NAME) IN ('OSPORT4_PV'))"
+        (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
+        (SELECT PV.PV_NAME, PV.PV_DEF, 16 \
+        FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
+        AND UPPER(PV.PV_NAME) IN ('OSPORT4_PV'))"
 
     sas_process_variable_insert_query17 = "INSERT INTO " + sas_process_variable_table + " \
-                                (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
-                                (SELECT PV.PV_NAME, PV.PV_DEF, 17 \
-                                FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
-                                AND UPPER(PV.PV_NAME) IN ('APD_PV'))"
+        (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
+        (SELECT PV.PV_NAME, PV.PV_DEF, 17 \
+        FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
+        AND UPPER(PV.PV_NAME) IN ('APD_PV'))"
 
     sas_process_variable_insert_query18 = "INSERT INTO " + sas_process_variable_table + " \
-                                (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
-                                (SELECT PV.PV_NAME, PV.PV_DEF, 18 \
-                                FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
-                                AND UPPER(PV.PV_NAME) IN ('QMFARE_PV'))"
+        (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
+        (SELECT PV.PV_NAME, PV.PV_DEF, 18 \
+        FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
+        AND UPPER(PV.PV_NAME) IN ('QMFARE_PV'))"
 
     sas_process_variable_insert_query19 = "INSERT INTO " + sas_process_variable_table + " \
-                                (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
-                                (SELECT PV.PV_NAME, PV.PV_DEF, 19 \
-                                FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
-                                AND UPPER(PV.PV_NAME) IN ('DUTY_FREE_PV'))"
+        (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
+        (SELECT PV.PV_NAME, PV.PV_DEF, 19 \
+        FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
+        AND UPPER(PV.PV_NAME) IN ('DUTY_FREE_PV'))"
 
     cur = conn.cursor()
     cur.execute(sas_process_variable_insert_query1)
@@ -358,7 +358,7 @@ def update_survey_data_with_fares_imp_results(conn):
     cur.execute(sql)
     conn.commit()
 
-    cf.delete_from_table("SAS_STAY_IMP")
+    cf.delete_from_table("SAS_FARES_IMP")
 
 
 def store_survey_data_with_fares_imp_results(run_id, conn):
