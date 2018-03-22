@@ -7,6 +7,8 @@
 *.o
 *.so
 *.pyc
+**.ipynb
+**workspace.xml
 
 # Packages #
 ############
@@ -36,6 +38,9 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+**.pytest_cache
+Python/
 
 # Setuptools distribution folder.
 /dist/

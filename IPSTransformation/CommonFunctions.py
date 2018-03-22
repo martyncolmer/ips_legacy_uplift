@@ -12,8 +12,12 @@ import logging
 import inspect
 import getpass
 import datetime
+import winsound          
+import time             
 
+from pprint import pprint
 from sas7bdat import SAS7BDAT   # pip install this
+from pandas.util.testing import assert_frame_equal
 
 import survey_support as ss
 
@@ -833,3 +837,62 @@ def commit_to_audit_log(action, process_object, audit_msg):
     # Execute SQL
     cur.execute(sql, params)
     conn.commit()
+
+
+def compare_datasets(test_name, sas_file, py_df):
+    """
+    Author        : thorne1
+    Date          : 22 Feb 2018
+    Purpose       : Compare SAS datasets with Python dataframes   
+    Parameters    : test_name - this name will be printed to console
+                    , sas_file - full dir path to sas7bdat file
+                    , py_df - your Python dataframe
+    Returns       : Nothing but useful print statements to console  
+    """
+    sas_df = pandas.read_sas(sas_file)
+    
+    print("TESTING " + test_name)
+    
+    try:
+        assert_frame_equal(sas_df, py_df, check_names = False, check_like = True)
+    except Exception as err:
+        print test_name + " failed.  Details below.."
+        print err
+    else:
+        print test_name + " SUCCESS"
+
+
+def compare_dfs(test_name, sas_file, df, serial_no = True, col_list = False):
+    sas_root = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Imbalance Weight"
+    print sas_root + "\\" + sas_file
+    csv = pandas.read_sas(sas_root + "\\" + sas_file)
+    
+    fdir = r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare"
+    sas = "_sas.csv"
+    py = "_py.csv"
+    
+    print("TESTING " + test_name)
+    
+    if col_list == False:
+        csv.to_csv(fdir+"\\"+test_name+sas)
+        df.to_csv(fdir+"\\"+test_name+py)
+    else:
+        csv[col_list].to_csv(fdir+"\\"+test_name+sas)
+        df[col_list].to_csv(fdir+"\\"+test_name+py)
+    
+    print(test_name + " COMPLETE")
+    print("")
+
+
+def beep():
+    winsound.Beep(440, 250) # frequency, duration
+    time.sleep(0.25)        # in seconds (0.25 is 250ms)
+    
+    winsound.Beep(600, 250)
+    time.sleep(0.25)
+
+
+if __name__ == "__main__":
+    print delete_from_table("SAS_IMBALANCE_WT")
+    print delete_from_table("SAS_PS_IMBALANCE")
+#    pprint(unload_parameters(279))
