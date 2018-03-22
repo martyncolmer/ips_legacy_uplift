@@ -1,68 +1,21 @@
-    
-import sys
-import os
-import logging
 import inspect
 import math
 import numpy as np
 import pandas as pd
-from sas7bdat import SAS7BDAT
-from pandas.util.testing import assert_frame_equal
-from collections import OrderedDict
 import survey_support
 from IPSTransformation import CommonFunctions as cf
-import IPS_Stored_Procedures.ips_ges_weighting
-
-output_counter = 0
- 
-def compare_dfs(test_name, sas_file, df, col_list = False, save_index = False,drop_sas_col = True):
     
-    global output_counter
-    test_name = str(output_counter) + '_' + test_name
-    output_counter += 1
-    
-    import winsound
-    
-    def beep():
-        frequency = 500  # Set Frequency To 2500 Hertz
-        duration = 200  # Set Duration To 1000 ms == 1 second
-        winsound.Beep(frequency, duration)
-    
-    sas_root = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Regional Weights"
-    print sas_root + "\\" + sas_file
-    csv = pd.read_sas(sas_root + "\\" + sas_file)
-    
-    fdir = r"\\NDATA12\mahont1$\My Documents\GIT_Repositories\Test_Drop"
-    sas = "_sas.csv"
-    py = "_py.csv"
-    
-    print("TESTING " + test_name)
-    
-    # Set all of the columns imported to uppercase
-    csv.columns = csv.columns.str.upper()
-    
-    if drop_sas_col:
-        if '_TYPE_' in csv.columns:
-            csv = csv.drop(columns = ['_TYPE_'])
-            
-        
-        if '_FREQ_' in csv.columns:
-            csv = csv.drop(columns = ['_FREQ_'])
-    
-    if col_list == False:
-        csv.to_csv(fdir+"\\"+test_name+sas, index = save_index)
-        df.to_csv(fdir+"\\"+test_name+py, index = save_index)
-    else:
-        csv[col_list].to_csv(fdir+"\\"+test_name+sas)
-        df[col_list].to_csv(fdir+"\\"+test_name+py)
-    
-    
-    print(test_name + " COMPLETE")
-    beep()
-    print("") 
-    
-    
-def ips_correct_regional_nights(input,stay):
+def ips_correct_regional_nights(df_input,stay):
+    """
+    Author       : Thomas Mahoney
+    Date         : 12 / 03 / 2018
+    Purpose      : Corrects the regional nights data.
+    Parameters   : df_input - the IPS survey records for the period.
+                   stay - the stay column name
+    Returns      : NA
+    Requirements : NA
+    Dependencies : NA
+    """
     
     # Adjust regional night figures so that they match overall stay
     def compute(row, stay):
@@ -93,7 +46,6 @@ def ips_correct_regional_nights(input,stay):
                 # If town has known code add stay to total nights_sum
                 # if town is null adds 1 to unknown
                 if nights_sum >= row[stay]:
-                    
                     for x in range(1,9):
                         if row['TOWNCODE' + str(x)] != 99999 and not math.isnan(row['TOWNCODE' + str(x)]) and math.isnan(row['NIGHTS' + str(x)]):
                             row['NIGHTS' + str(x)] = 1
@@ -116,12 +68,12 @@ def ips_correct_regional_nights(input,stay):
             
         return row
     
-    df_output = input.apply(compute,axis = 1,args = (stay,))
+    df_output = df_input.apply(compute,axis = 1,args = (stay,))
     
     return df_output
     
 
-def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLevel, strataBase, 
+def do_ips_regional_weight_calculation(df_input_data, var_serial, maxLevel, strataBase, 
                                var_stay, var_spend, var_final_wt, var_stay_wt, var_visit_wt, 
                                var_expenditure_wt, var_stay_wtk, var_visit_wtk, 
                                var_expenditure_wtk, var_eligible_flag, strata_levels):  
@@ -129,8 +81,7 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
     Author       : Thomas Mahoney
     Date         : 12 / 03 / 2018
     Purpose      : Calculates regional weights for IPS.
-    Parameters   : inputData - the IPS survey records for the period.
-                   outputData - dataset to hold output data
+    Parameters   : df_input_data - the IPS survey records for the period.
                    summary - dataset to hold summary output
                    var_serial - Variable holding the record serial number
                    maxLevel - the number of the last imputation level (1-up)
@@ -151,17 +102,18 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
     """
 
     # Do some pre-processing
-    impute_towns = inputData[inputData[var_eligible_flag] == 1]
+    df_impute_towns = df_input_data[df_input_data[var_eligible_flag] == 1]
     
-    impute_towns.loc[:,var_stay_wt] = 1
-    impute_towns.loc[:,var_stay_wtk] = ''
+    df_impute_towns.loc[:,var_stay_wt] = 1
+    df_impute_towns.loc[:,var_stay_wtk] = ''
     
-    impute_towns.loc[:,var_visit_wt] = 1
-    impute_towns.loc[:,var_visit_wtk] = ''
+    df_impute_towns.loc[:,var_visit_wt] = 1
+    df_impute_towns.loc[:,var_visit_wtk] = ''
     
-    impute_towns.loc[:,var_expenditure_wt] = 1
-    impute_towns.loc[:,var_expenditure_wtk] = ''
+    df_impute_towns.loc[:,var_expenditure_wt] = 1
+    df_impute_towns.loc[:,var_expenditure_wtk] = ''
 
+    # Check if towncode information is present for the input data
     def check_info(row):
         
         if row['TOWNCODE1'] == 99999  or math.isnan(row['TOWNCODE1']): 
@@ -171,27 +123,27 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
             
         return row
 
-    impute_towns = impute_towns.apply(check_info,axis = 1)
+    df_impute_towns = df_impute_towns.apply(check_info,axis = 1)
 
     # Correct nights information so that it matches stay
-    temp1 = ips_correct_regional_nights(impute_towns, var_stay)
+    df_temp1 = ips_correct_regional_nights(df_impute_towns, var_stay)
     
-    temp1 = temp1[['FLOW', 'SERIAL', 
+    # Extract the corrected data and sort
+    df_temp1 = df_temp1[['FLOW', 'SERIAL', 
               'NIGHTS1', 'NIGHTS2', 'NIGHTS3', 'NIGHTS4', 
               'NIGHTS5', 'NIGHTS6', 'NIGHTS7', 'NIGHTS8',
               'STAY1K', 'STAY2K', 'STAY3K', 'STAY4K', 
               'STAY5K', 'STAY6K', 'STAY7K', 'STAY8K']].sort_values(by = var_serial)
     
+    df_impute_towns_ext = df_impute_towns.sort_values(by = var_serial)
     
-    # Update towns info
-    impute_towns_ext = impute_towns.sort_values(by = var_serial)
-    #impute_towns_ext.index = range(0, len(impute_towns_ext))
-    
-    impute_towns_ext.update(temp1)
+    # Update df_impute_towns_ext info with the corrected data.
+    df_impute_towns_ext.update(df_temp1)
 
+    # Generate lists to hold the loop data frames
     seg = [0] * 4
-    temp2 = [0] * 4
-    temp3 = [0] * 4
+    df_temp2 = [0] * 4
+    df_temp3 = [0] * 4
     segment = [0] * 4
     cseg = [0] * 4
     trunc_segment = [0] * 4
@@ -200,7 +152,7 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
     for level in range(1,maxLevel+1):
         strata = strata_levels[level-1]
         
-        # Look for records that have already been uplifted
+        # Look for records that have already been uplifted and mark appropriately 
         def check_if_uplifted(row):
             if row[var_visit_wtk] != '':
                 row['VISIT_WTK_NONMISS'] = 1
@@ -209,103 +161,105 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
             row['VISIT_WTK_ALL'] = 1
             return row
         
-        
-        impute_towns_ext = impute_towns_ext.apply(check_if_uplifted, axis = 1)
+        df_impute_towns_ext = df_impute_towns_ext.apply(check_if_uplifted, axis = 1)
 
-        # Sort impute_towns_ext by strata
-        impute_towns_ext = impute_towns_ext.sort_values(by = strata)
-                
+        # Sort df_impute_towns_ext by strata
+        df_impute_towns_ext = df_impute_towns_ext.sort_values(by = strata)
         
-
         # Replace blank values with -1 as python drops blanks during the aggregation process.  
-        impute_towns_ext[strata] = impute_towns_ext[strata].fillna(-1)
+        df_impute_towns_ext[strata] = df_impute_towns_ext[strata].fillna(-1)
         
         # Calculate the number of records in each segment that have previously
         # been uplifted and the total number of records in each segment  
-        impute_towns_ext1 = impute_towns_ext.groupby(strata)['VISIT_WTK_NONMISS'].agg({
+        df_impute_towns_ext1 = df_impute_towns_ext.groupby(strata)['VISIT_WTK_NONMISS'].agg({
             'VISIT_WT_COUNT' : 'count'})
-        impute_towns_ext2 = impute_towns_ext.groupby(strata)['VISIT_WTK_ALL'].agg({
+        df_impute_towns_ext2 = df_impute_towns_ext.groupby(strata)['VISIT_WTK_ALL'].agg({
             'TOTAL_COUNT' : 'count'})
         
-        # Flattens the column structure after adding the new columns above
-        impute_towns_ext1 = impute_towns_ext1.reset_index()
-        impute_towns_ext2 = impute_towns_ext2.reset_index()
+        # Flatten the column structure after adding the new columns above
+        df_impute_towns_ext1 = df_impute_towns_ext1.reset_index()
+        df_impute_towns_ext2 = df_impute_towns_ext2.reset_index()
         
         # Merge the two data sets generated
-        seg[level-1] = pd.merge(impute_towns_ext1,impute_towns_ext2 ,on = strata, how = 'inner')
+        seg[level-1] = pd.merge(df_impute_towns_ext1,df_impute_towns_ext2 ,on = strata, how = 'inner')
                 
         # Replace the previously added -1 values with their original blank values  
-        impute_towns_ext[strata] = impute_towns_ext[strata].replace(-1, np.NaN)
-        
+        df_impute_towns_ext[strata] = df_impute_towns_ext[strata].replace(-1, np.NaN)
         seg[level-1][strata] = seg[level-1][strata].replace(-1, np.NaN) 
 
-        # Calculate visit, stay and expenditure weights
-        impute_towns_ext_mod = impute_towns_ext.copy()
+        # Copy the data and calculate the visit, stay and expenditure weights
+        df_impute_towns_ext_mod = df_impute_towns_ext.copy()
         
-        impute_towns_ext_mod['FIN'] = impute_towns_ext_mod[var_final_wt] * impute_towns_ext_mod[var_visit_wt]
-        impute_towns_ext_mod['STY'] = impute_towns_ext_mod[var_stay] * impute_towns_ext_mod[var_final_wt] * impute_towns_ext_mod[var_stay_wt]
-        impute_towns_ext_mod['EXP'] = impute_towns_ext_mod[var_spend] * impute_towns_ext_mod[var_final_wt] * impute_towns_ext_mod[var_expenditure_wt]
+        df_impute_towns_ext_mod['FIN'] = df_impute_towns_ext_mod[var_final_wt] * df_impute_towns_ext_mod[var_visit_wt]
+        df_impute_towns_ext_mod['STY'] = df_impute_towns_ext_mod[var_stay] * df_impute_towns_ext_mod[var_final_wt] * df_impute_towns_ext_mod[var_stay_wt]
+        df_impute_towns_ext_mod['EXP'] = df_impute_towns_ext_mod[var_spend] * df_impute_towns_ext_mod[var_final_wt] * df_impute_towns_ext_mod[var_expenditure_wt]
 
         # Compute weight totals over good records
-        temp2[level-1] = impute_towns_ext_mod.loc[impute_towns_ext_mod['INFO_PRESENT_MKR'] == 1]
+        df_temp2[level-1] = df_impute_towns_ext_mod.loc[df_impute_towns_ext_mod['INFO_PRESENT_MKR'] == 1]
         
         # Replace blank values with -1 as python drops blanks during the aggregation process.  
-        temp2[level-1][strata] = temp2[level-1][strata].fillna(-1)
+        df_temp2[level-1][strata] = df_temp2[level-1][strata].fillna(-1)
         
-        temp2_count = temp2[level-1].groupby(strata)['FIN'].agg({
+        df_temp2_count = df_temp2[level-1].groupby(strata)['FIN'].agg({
             'TOWN_COUNT' : 'count'})
-        temp2_fin = temp2[level-1].groupby(strata)['FIN'].agg({
+        df_temp2_fin = df_temp2[level-1].groupby(strata)['FIN'].agg({
             'KNOWN_FINAL_WEIGHTS': 'sum'})
-        temp2_sty = temp2[level-1].groupby(strata)['STY'].agg({
+        df_temp2_sty = df_temp2[level-1].groupby(strata)['STY'].agg({
             'KNOWN_STAY': 'sum'})
-        temp2_exp = temp2[level-1].groupby(strata)['EXP'].agg({
+        df_temp2_exp = df_temp2[level-1].groupby(strata)['EXP'].agg({
             'KNOWN_EXPEND': 'sum'})       
         
-        temp2_count = temp2_count.reset_index()
-        temp2_fin = temp2_fin.reset_index()
-        temp2_sty = temp2_sty.reset_index()
-        temp2_exp = temp2_exp.reset_index()
+        # Flatten the column structure after generating the new columns above
+        df_temp2_count = df_temp2_count.reset_index()
+        df_temp2_fin = df_temp2_fin.reset_index()
+        df_temp2_sty = df_temp2_sty.reset_index()
+        df_temp2_exp = df_temp2_exp.reset_index()
         
-        temp2[level-1] = pd.merge(temp2_count,temp2_fin,on = strata, how = 'inner')
-        temp2[level-1] = pd.merge(temp2[level-1],temp2_sty,on = strata, how = 'inner')
-        temp2[level-1] = pd.merge(temp2[level-1],temp2_exp,on = strata, how = 'inner')
+        # Merge the generated values into one data frame
+        df_temp2[level-1] = pd.merge(df_temp2_count,df_temp2_fin,on = strata, how = 'inner')
+        df_temp2[level-1] = pd.merge(df_temp2[level-1],df_temp2_sty,on = strata, how = 'inner')
+        df_temp2[level-1] = pd.merge(df_temp2[level-1],df_temp2_exp,on = strata, how = 'inner')
         
-        temp2[level-1][strata] = temp2[level-1][strata].replace(-1, np.NaN)
+        # Replace the previously added -1 values with their original blank values  
+        df_temp2[level-1][strata] = df_temp2[level-1][strata].replace(-1, np.NaN)
 
         # Compute weight totals over bad records
-        temp3[level-1] = impute_towns_ext_mod[impute_towns_ext_mod['INFO_PRESENT_MKR'] == 0]
+        df_temp3[level-1] = df_impute_towns_ext_mod[df_impute_towns_ext_mod['INFO_PRESENT_MKR'] == 0]
         
         # Replace blank values with -1 as python drops blanks during the aggregation process.  
-        temp3[level-1][strata] = temp3[level-1][strata].fillna(-1)
+        df_temp3[level-1][strata] = df_temp3[level-1][strata].fillna(-1)
         
-        temp3_count = temp3[level-1].groupby(strata)['FIN'].agg({
+        df_temp3_count = df_temp3[level-1].groupby(strata)['FIN'].agg({
             'NO_TOWN_COUNT' : 'count'})
-        temp3_fin = temp3[level-1].groupby(strata)['FIN'].agg({
+        df_temp3_fin = df_temp3[level-1].groupby(strata)['FIN'].agg({
             'UNKNOWN_FINAL_WEIGHT': 'sum'})
-        temp3_sty = temp3[level-1].groupby(strata)['STY'].agg({
+        df_temp3_sty = df_temp3[level-1].groupby(strata)['STY'].agg({
             'UNKNOWN_STAY': 'sum'})
-        temp3_exp = temp3[level-1].groupby(strata)['EXP'].agg({
+        df_temp3_exp = df_temp3[level-1].groupby(strata)['EXP'].agg({
             'UNKNOWN_EXPEND': 'sum'})
         
-        temp3_count = temp3_count.reset_index()
-        temp3_fin = temp3_fin.reset_index()
-        temp3_sty = temp3_sty.reset_index()
-        temp3_exp = temp3_exp.reset_index()
+        # Flatten the column structure after generating the new columns above
+        df_temp3_count = df_temp3_count.reset_index()
+        df_temp3_fin = df_temp3_fin.reset_index()
+        df_temp3_sty = df_temp3_sty.reset_index()
+        df_temp3_exp = df_temp3_exp.reset_index()
         
-        temp3[level-1] = pd.merge(temp3_count,temp3_fin,on = strata, how = 'inner')
-        temp3[level-1] = pd.merge(temp3[level-1],temp3_sty,on = strata, how = 'inner')
-        temp3[level-1] = pd.merge(temp3[level-1],temp3_exp,on = strata, how = 'inner')
+        # Merge the generated values into one data frame
+        df_temp3[level-1] = pd.merge(df_temp3_count,df_temp3_fin,on = strata, how = 'inner')
+        df_temp3[level-1] = pd.merge(df_temp3[level-1],df_temp3_sty,on = strata, how = 'inner')
+        df_temp3[level-1] = pd.merge(df_temp3[level-1],df_temp3_exp,on = strata, how = 'inner')
         
-        temp3[level-1][strata] = temp3[level-1][strata].replace(-1, np.NaN)
+        # Replace the previously added -1 values with their original blank values  
+        df_temp3[level-1][strata] = df_temp3[level-1][strata].replace(-1, np.NaN)
 
-        # Sort the generated data by strata before merging them together
+        # Sort the generated data frames by strata before merging them together
         seg[level-1] = seg[level-1].sort_values(by = strata)
-        temp2[level-1] = temp2[level-1].sort_values(by = strata)
-        temp3[level-1] = temp3[level-1].sort_values(by = strata)
+        df_temp2[level-1] = df_temp2[level-1].sort_values(by = strata)
+        df_temp3[level-1] = df_temp3[level-1].sort_values(by = strata)
          
-        # Merge good and bad totals onto data
-        segment[level-1] = pd.merge(seg[level-1],temp2[level-1],on = strata, how = 'left')
-        segment[level-1] = pd.merge(segment[level-1],temp3[level-1],on = strata, how = 'left')
+        # Merge good and bad totals into the data
+        segment[level-1] = pd.merge(seg[level-1],df_temp2[level-1],on = strata, how = 'left')
+        segment[level-1] = pd.merge(segment[level-1],df_temp3[level-1],on = strata, how = 'left')
         
         # Account for missing values by setting weights to zero
         segment[level-1].loc[segment[level-1]['UNKNOWN_FINAL_WEIGHT'].isnull() , 'UNKNOWN_FINAL_WEIGHT'] = 0
@@ -315,24 +269,27 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
         segment[level-1].loc[segment[level-1]['TOWN_COUNT'].isnull() , 'TOWN_COUNT'] = 0
         segment[level-1].loc[segment[level-1]['NO_TOWN_COUNT'].isnull() , 'NO_TOWN_COUNT'] = 0
         
+        # Replace blank values with -1 and sort the data by strata
         segment[level-1][strata] = segment[level-1][strata].fillna(-1)
         segment[level-1] = segment[level-1].sort_values(by = strata)
+        
+        # Replace the previously added -1 values with their original blank values  
         segment[level-1][strata] = segment[level-1][strata].replace(-1, np.NaN)
 
         # Look for records that still need to be uplifted
         cseg[level-1] = segment[level-1].loc[segment[level-1]['TOWN_COUNT'] != segment[level-1]['VISIT_WT_COUNT']]
-
+        
+        # Count the number of records found that still need uplifting
         record_count = len(cseg[level-1].index)
         
         if record_count > 0:
-            
             # Remove invalid groups from the imputation set
             
             # Check current level, as level 4 thresholds are different to 1-3
             if level < 4:
-                
                 trunc_segment[level-1] = segment[level-1].loc[(segment[level-1]['VISIT_WT_COUNT'] < segment[level-1]['TOTAL_COUNT'])]
-                       
+                
+                
                 condition = ((trunc_segment[level-1]['TOWN_COUNT'] >= 20)
                              & (trunc_segment[level-1]['NO_TOWN_COUNT'] < trunc_segment[level-1]['TOWN_COUNT'])
                              & (trunc_segment[level-1]['KNOWN_EXPEND'] != 0)
@@ -357,17 +314,18 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
                 trunc_segment[level-1] = trunc_segment[level-1].loc[condition]
 
             
-            # Sort trunc_segment before merge
+            # Sort trunc_segment before merging into the df_impute_towns_ext data frame
             trunc_segment[level-1] = trunc_segment[level-1].sort_values(by = strata)
+            
+            # Select data to be merged
             trunc_segment[level-1] = trunc_segment[level-1][strata + ['VISIT_WT_COUNT', 'TOTAL_COUNT', 'KNOWN_FINAL_WEIGHTS', 'KNOWN_STAY', 'KNOWN_EXPEND',
                                                            'UNKNOWN_FINAL_WEIGHT', 'UNKNOWN_STAY', 'UNKNOWN_EXPEND']]
             
-            # Sort impute_towns_ext before merge
-            impute_towns_ext = impute_towns_ext.sort_values(by = strata)
+            # Sort df_impute_towns_ext before merge
+            df_impute_towns_ext = df_impute_towns_ext.sort_values(by = strata)
             
             # Join the known and unknown weights onto the original data
-            #if(level == 1):
-            impute_towns_ext = pd.merge(impute_towns_ext,trunc_segment[level-1], on=strata, how = 'left')
+            df_impute_towns_ext = pd.merge(df_impute_towns_ext,trunc_segment[level-1], on=strata, how = 'left')
 
             # Calculate the revised weights
             def calculate_revised_weights(row):
@@ -393,37 +351,43 @@ def do_ips_regional_weight_calculation(inputData, outputData, var_serial, maxLev
                 
                 return row
             
-            impute_towns_ext = impute_towns_ext.apply(calculate_revised_weights, axis = 1)
-            impute_towns_ext = impute_towns_ext.drop(columns=['KNOWN_FINAL_WEIGHTS', 'KNOWN_STAY', 'KNOWN_EXPEND',
+            df_impute_towns_ext = df_impute_towns_ext.apply(calculate_revised_weights, axis = 1)
+            
+            # Drop the no longer needed columns
+            df_impute_towns_ext = df_impute_towns_ext.drop(columns=['KNOWN_FINAL_WEIGHTS', 'KNOWN_STAY', 'KNOWN_EXPEND',
                                                               'UNKNOWN_FINAL_WEIGHT', 'UNKNOWN_STAY', 'UNKNOWN_EXPEND'])
             
         # if record_count > 0
+        
     # Loop end
     
-    outputData = impute_towns_ext[[var_serial,
+    # Extract the required data from the looped dataset
+    df_output_data = df_impute_towns_ext[[var_serial,
                                    var_visit_wt, var_stay_wt, var_expenditure_wt,
                                    var_visit_wtk, var_stay_wtk, var_expenditure_wtk,
                                    'NIGHTS1', 'NIGHTS2', 'NIGHTS3', 'NIGHTS4', 'NIGHTS5', 'NIGHTS6', 'NIGHTS7', 'NIGHTS8',
                                    'STAY1K', 'STAY2K', 'STAY3K', 'STAY4K', 'STAY5K', 'STAY6K', 'STAY7K', 'STAY8K']]
     
+    # Round the generated weights
     def round_wts(row):
         row[var_visit_wt] = round(row[var_visit_wt], 3)
         row[var_stay_wt] = round(row[var_stay_wt], 3)
         row[var_expenditure_wt] = round(row[var_expenditure_wt], 3)
         return row
     
-    outputData = outputData.apply(round_wts,axis = 1)
+    df_output_data = df_output_data.apply(round_wts,axis = 1)
     
-    #Fills blanks in generated columns to be of type float (NIGHTS#) or string (STAY#K)
-    outputData[['NIGHTS1', 'NIGHTS2', 'NIGHTS3', 'NIGHTS4', 'NIGHTS5', 'NIGHTS6', 'NIGHTS7', 'NIGHTS8']] = \
-               outputData[['NIGHTS1', 'NIGHTS2', 'NIGHTS3', 'NIGHTS4', 'NIGHTS5', 'NIGHTS6', 'NIGHTS7', 'NIGHTS8']].fillna(np.NaN)
-    outputData[['STAY1K', 'STAY2K', 'STAY3K', 'STAY4K', 'STAY5K', 'STAY6K', 'STAY7K', 'STAY8K']] = \
-               outputData[['STAY1K', 'STAY2K', 'STAY3K', 'STAY4K', 'STAY5K', 'STAY6K', 'STAY7K', 'STAY8K']].fillna('')
+    # Fills blanks in the generated columns to be of type float (NIGHTS#) or string (STAY#K)
+    df_output_data[['NIGHTS1', 'NIGHTS2', 'NIGHTS3', 'NIGHTS4', 'NIGHTS5', 'NIGHTS6', 'NIGHTS7', 'NIGHTS8']] = \
+               df_output_data[['NIGHTS1', 'NIGHTS2', 'NIGHTS3', 'NIGHTS4', 'NIGHTS5', 'NIGHTS6', 'NIGHTS7', 'NIGHTS8']].fillna(np.NaN)
+    df_output_data[['STAY1K', 'STAY2K', 'STAY3K', 'STAY4K', 'STAY5K', 'STAY6K', 'STAY7K', 'STAY8K']] = \
+               df_output_data[['STAY1K', 'STAY2K', 'STAY3K', 'STAY4K', 'STAY5K', 'STAY6K', 'STAY7K', 'STAY8K']].fillna('')
     
-    outputData = outputData.sort_values(by = var_serial)
+    # Sort the output data frame
+    df_output_data = df_output_data.sort_values(by = var_serial)
     
     # Return the generated data frame to be appended to oracle
-    return (outputData)
+    return (df_output_data)
 
 
 def calculate(intabname, outtabname, responseTable, var_serial, maxLevel,
@@ -474,7 +438,7 @@ def calculate(intabname, outtabname, responseTable, var_serial, maxLevel,
     
     # Calculate the unsampled weights of the imported dataset.
     print("Start - Calculate Regional Weights.")     
-    output_dataframe = do_ips_regional_weight_calculation(df_surveydata, 'output', var_serial, maxLevel, strataBase, 
+    output_dataframe = do_ips_regional_weight_calculation(df_surveydata, var_serial, maxLevel, strataBase, 
                                                           var_stay, var_spend, var_final_wt, var_stay_wt, 
                                                           var_visit_wt, var_expenditure_wt, var_stay_wtk, 
                                                           var_visit_wtk, var_expenditure_wtk, var_eligible_flag,
