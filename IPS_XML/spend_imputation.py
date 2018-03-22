@@ -93,7 +93,7 @@ def copy_spend_imp_pvs_for_survey_data(run_id, conn):
     """
     Author       : James Burr
     Date         : 21/03/2018
-    Purpose      : Copies fares imputation process variables for survey data.
+    Purpose      : Copies spend imputation process variables for survey data.
     Parameters   : NA
     Returns      : NA
     Requirements : NA
@@ -101,7 +101,7 @@ def copy_spend_imp_pvs_for_survey_data(run_id, conn):
     """
 
     sas_process_variable_table = 'SAS_PROCESS_VARIABLE'
-    sas_shift_spv_table = 'SAS_FARES_SPV'
+    sas_shift_spv_table = 'SAS_SPEND_SPV'
 
     cf.delete_from_table(sas_process_variable_table)
     cf.delete_from_table(sas_shift_spv_table)
