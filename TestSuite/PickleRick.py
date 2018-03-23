@@ -6,8 +6,8 @@ Created on 5 Mar 2018
 import pandas as pd
 
 
-in_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Stay Imputation\surveydata.sas7bdat'
-out_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Stay Imputation\input.pkl'
+in_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Regional Weights\output_final.sas7bdat'
+out_path = r'../tests/data/regional_wt_output.pkl'
 
 df = pd.read_sas(in_path)
 
