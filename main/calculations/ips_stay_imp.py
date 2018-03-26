@@ -2,8 +2,8 @@ import sys
 import inspect
 import pandas as pd
 import survey_support
-from IPSTransformation import CommonFunctions as cf
-from IPS_Unallocated_Modules import ips_impute
+from main.io import CommonFunctions as cf
+from main.calculations import ips_impute
 
 # Measure should be passed through in LOWER CASE. This variable should contain
 # a function name which can only be used in lower case.

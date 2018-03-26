@@ -1,7 +1,6 @@
 import sys
 
-from IPSTransformation.CommonFunctions import get_oracle_connection
-from IPSTransformation.CommonFunctions import insert_list_into_table
+from main.io.CommonFunctions import get_oracle_connection, insert_list_into_table
 
 
 def get_column_and_version_data(cur, version):

@@ -7,7 +7,7 @@ import unittest
 import cx_Oracle
 
 import import_traffic_data
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 
 class TestCommonFunctions(unittest.TestCase):
     def setUp(self):

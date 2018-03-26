@@ -8,7 +8,7 @@ import os
 import json
 import inspect
 
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 
 import survey_support as ss
 

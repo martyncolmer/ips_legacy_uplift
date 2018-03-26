@@ -8,7 +8,7 @@ from sas7bdat import SAS7BDAT
 from pandas.util.testing import assert_frame_equal
 from collections import OrderedDict
 import survey_support
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 import IPS_Stored_Procedures.ips_ges_weighting
 
 # Place holder function. This is being used until the actual GES weighting function is complete.
