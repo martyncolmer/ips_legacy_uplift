@@ -86,7 +86,10 @@ def test_calculate():
     test_result_summary.index = range(0, len(test_result_summary))
     result_data = result_data.sort_values(by = 'SERIAL')
     result_data.index = range(0, len(result_data))
-    
+
+    str_columns = test_result_summary.dtypes[test_result_summary.dtypes == 'object'].index.tolist()
+    test_result_summary[str_columns] = test_result_summary[str_columns].replace(np.NaN, '')
+
     assert_frame_equal(result_data, test_result_summary,check_like=True)
 
 
