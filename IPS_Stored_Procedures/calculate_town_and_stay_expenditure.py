@@ -8,11 +8,8 @@ import numpy as np
 import pandas as pd
 import survey_support
 import math
-
 from IPSTransformation import CommonFunctions as cf
-
 import sys
-from pprint import pprint
 
 def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
                             , var_purpose_grp, var_country_grp, var_residence
@@ -37,7 +34,7 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     
 #    #===========================================================================
 #    #===========================================================================
-#    cf.compare_dfs("stay_towns", "stay_towns.sas7bdat", df_output_data, ["SERIAL",var_eligible_flag,"KNOWN_LONDON_NOT_VISIT", "KNOWN_LONDON_VISIT", "ADE1", "ADE2", "RATION_L_NL_ADES"])    
+#    cf.compare_dfs("stay_towns", "stay_towns.sas7bdat", df_output_data)    
 #    cf.beep()
 #    sys.exit()
 #    #===========================================================================
@@ -59,7 +56,9 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
                                   , "KNOWN_LONDON_VISIT"]].ix[(towncode_condition)]
                                   
     # Calculate
-    df_segment1["ADE1_TEMP1"] = pd.Series(df_output_data[var_final_wt] * (df_output_data[var_spend] / df_output_data[var_stay]))
+    df_segment1["ADE1_TEMP1"] = pd.Series(df_output_data[var_final_wt] 
+                                          * (df_output_data[var_spend] 
+                                             / df_output_data[var_stay]))
     df_segment1["ADE1_TEMP2"] = df_output_data[var_final_wt]
     
     # Group by and aggregate
@@ -90,7 +89,9 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
                                   , "KNOWN_LONDON_NOT_VISIT"]].ix[(towncode_condition)]
     
     # Calculate
-    df_segment2["ADE2_TEMP1"] = pd.Series(df_output_data[var_final_wt] * (df_output_data[var_spend] / df_output_data[var_stay]))
+    df_segment2["ADE2_TEMP1"] = pd.Series(df_output_data[var_final_wt] 
+                                          * (df_output_data[var_spend] 
+                                             / df_output_data[var_stay]))
     df_segment2["ADE2_TEMP2"] = df_output_data[var_final_wt]
     
     # Group by and aggregate
@@ -116,8 +117,7 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     # Merge the files containing ade1 and ade2
     df_segment_merge = pd.merge(df_segment1, df_segment2, on=[var_flow
                                                               , var_purpose_grp 
-                                                              ,var_country_grp]
-                                , how = 'left')
+                                                              ,var_country_grp], how = 'left')
 
     #===========================================================================
     #===========================================================================
@@ -143,7 +143,7 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
         
     #===========================================================================
     #===========================================================================
-#    cf.compare_dfs("stay_towns_update1", "stay_towns_update1.sas7bdat", df_extract_update, ["SERIAL", "KNOWN_LONDON_VISIT", "KNOWN_LONDON_NOT_VISIT", "ADE1", "ADE2"])    
+#    cf.compare_dfs("stay_towns_update1", "stay_towns_update1.sas7bdat", df_extract_update)    
 #    cf.beep()
 #    sys.exit()
     #===========================================================================
@@ -154,7 +154,9 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
                                   , var_country_grp]].ix[(towncode_condition)]
     
     # Calculate
-    df_temp_london["ADE1_TEMP1"] = pd.Series((df_output_data[var_final_wt] * df_output_data[var_spend]) / (df_output_data[var_stay]))
+    df_temp_london["ADE1_TEMP1"] = pd.Series((df_output_data[var_final_wt] 
+                                              * df_output_data[var_spend]) 
+                                             / (df_output_data[var_stay]))
     df_temp_london["ADE1_TEMP2"] = df_output_data[var_final_wt]
     
     # Group by and aggregate
@@ -207,8 +209,7 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     
     # Merge files containing ade1 ade2
     df_london = pd.merge(df_temp_london, df_temp_london2, on=[var_purpose_grp 
-                                                              ,var_country_grp]
-                                , how = 'left')
+                                                              ,var_country_grp], how = 'left')
     
     #===========================================================================
     #===========================================================================
@@ -229,8 +230,8 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     
     #===========================================================================
     #===========================================================================
-#    cf.compare_dfs("stay_towns_update2", "stay_towns_update2.sas7bdat", df_stay_towns2, ["SERIAL", "ADE1"]) 
-#    cf.compare_dfs("stay_towns_update3", "stay_towns_update3.sas7bdat", df_stay_towns2, ["SERIAL", "ADE2"])
+#    cf.compare_dfs("stay_towns_update2", "stay_towns_update2.sas7bdat", df_stay_towns2) 
+#    cf.compare_dfs("stay_towns_update3", "stay_towns_update3.sas7bdat", df_stay_towns2)
 #    cf.beep()
 #    sys.exit()
     #===========================================================================
@@ -244,14 +245,13 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
 
     #===========================================================================
     #===========================================================================
-#    cf.compare_dfs("stay_towns_update4", "stay_towns_update4.sas7bdat", df_stay_towns4, ["SERIAL", "RATION_L_NL_ADES"])    
+#    cf.compare_dfs("stay_towns_update4", "stay_towns_update4.sas7bdat", df_stay_towns4)    
 #    cf.beep()
 #    sys.exit()
     #===========================================================================
     #=========================================================================== 
     
     # Calculate number of nights in london and number of nights outside london
-#    df_stay_towns4.to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\df_stay_towns4_py.csv")
     df_stay_towns5 = df_stay_towns4.copy()
     df_stay_towns5["NIGHTS_IN_LONDON"] = 0
     df_stay_towns5["NIGHTS_NOT_LONDON"] = 0
@@ -276,13 +276,12 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
 #    cf.compare_dfs("stay_towns_update5", "stay_towns_update5.sas7bdat", df_stay_towns5)    
 #    cf.beep()
 #    sys.exit()
-#    grp_nights_in_london    grp_nights_not_london
     #===========================================================================
     #===========================================================================
     
     # Calculate spends
-    df_stay_towns6 = df_stay_towns5.ix[df_stay_towns5["SERIAL"] == 410238840039]
-
+    df_stay_towns6 = df_stay_towns5.copy()
+    
     def selection(row):
         nights = "NIGHTS"
         towncode = "TOWNCODE"
@@ -294,7 +293,8 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
                 if math.isnan(row[towncode+str(count)]):
                     if (((row["NIGHTS_NOT_LONDON"] != 0) & (not math.isnan(row["NIGHTS_NOT_LONDON"])))
                         & (not math.isnan(row[nights+str(count)]))):
-                        row[var_spend+str(count)] = (row[var_spend] * row[nights+str(count)]) / row["NIGHTS_NOT_LONDON"]
+                        row[var_spend+str(count)] = (row[var_spend] 
+                                                     * row[nights+str(count)]) / row["NIGHTS_NOT_LONDON"]
                     else:
                         row[var_spend+str(count)] = 0
                                                                                                 
@@ -303,9 +303,11 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
             for count in range(1,9):
                 if not math.isnan(row[towncode+str(count)]):
                     
-                    if (((row["NIGHTS_IN_LONDON"] != 0) & (not math.isnan(row["NIGHTS_IN_LONDON"])))
+                    if (((row["NIGHTS_IN_LONDON"] != 0) 
+                         & (not math.isnan(row["NIGHTS_IN_LONDON"])))
                         & (not math.isnan(row[nights+str(count)]))):
-                        row[var_spend+str(count)] = (row[var_spend] * row[nights+str(count)]) / row["NIGHTS_IN_LONDON"]
+                        row[var_spend+str(count)] = (row[var_spend] 
+                                                     * row[nights+str(count)]) / row["NIGHTS_IN_LONDON"]
                     else:
                         row[var_spend+str(count)] = 0
         
@@ -318,7 +320,7 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
                 row["H_K"] = (row["NIGHTS_IN_LONDON"] / row["NIGHTS_NOT_LONDON"]) * row["RATION_L_NL_ADES"]
             else:
                 row["H_K"] = 0
-                row["LONDON_SPEND"] = 0
+            row["LONDON_SPEND"] = 0
         
             for count in range(1,9):
                 if ((row[towncode+str(count)] >= 70000) & (row[towncode+str(count)] <= 79999)):
@@ -326,33 +328,32 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
                         & (not math.isnan(row[nights+str(count)])) 
                         & ((row["H_K"] != 0) & (not math.isnan(row["H_K"]))) 
                         & (row[var_spend] != 0)):
-                        
-                        row[var_spend+str(count)] = ((row[var_spend] * row["H_K"]) / ( 1 + row["H_K"])) * (row[nights+str(count)]/row["NIGHTS_IN_LONDON"])
+                        row[var_spend+str(count)] = (((row[var_spend] 
+                                                      * row["H_K"]) 
+                                                     / ( 1 + row["H_K"])) 
+                                                     * (row[nights+str(count)]
+                                                        /row["NIGHTS_IN_LONDON"]))
                     else:
                         row[var_spend+str(count)] = 0
-                        row["LONDON_SPEND"] = (row["LONDON_SPEND"] + row[var_spend+str(count)])  
+                    row["LONDON_SPEND"] = (row["LONDON_SPEND"] 
+                                           + row[var_spend+str(count)])  
         
         return row
     
     df_stay_towns6["H_K"] = np.NaN
     df_stay_towns6["LONDON_SPEND"] = 0
     df_stay_towns6 = df_stay_towns6.apply(selection, axis = 1)
-    df_stay_towns6[["SERIAL", "NIGHTS_IN_LONDON"]].to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\Legacy Uplift\Compare\df_stay_towns6.csv")
     
     #===========================================================================
     #===========================================================================
-#        
-#    cf.compare_dfs("stay_towns_update6", "stay_towns_update6.sas7bdat", df_stay_towns6, ["SERIAL", "NIGHTS_IN_LONDON", "TOWNCODE1"
-#                                                                                         , "TOWNCODE2", "TOWNCODE3", "TOWNCODE4"
-#                                                                                         , "TOWNCODE5", "TOWNCODE6", "TOWNCODE7"
-#                                                                                         , "TOWNCODE8", "NIGHTS_NOT_LONDON"
-#                                                                                         , "NIGHTS1", "NIGHTS2", "NIGHTS3"
-#                                                                                         , "NIGHTS4", "NIGHTS5", "NIGHTS6"
-#                                                                                         , "NIGHTS7", "NIGHTS8", "SPEND1"
-#                                                                                         , "SPEND2", "SPEND3", "SPEND4", "SPEND5"
-#                                                                                         , "SPEND6", "SPEND7", "SPEND8", "SPEND"
-#                                                                                         , "KNOWN_LONDON_VISIT", "KNOWN_LONDON_NOT_VISIT"
-#                                                                                         , "RATION_L_NL_ADES", "H_K", "LONDON_SPEND"])
+    column_order = list(df_survey_data.columns.values)
+    new_columns = ["KNOWN_LONDON_NOT_VISIT", "KNOWN_LONDON_VISIT", "ADE1", "ADE2"
+                   , "RATION_L_NL_ADES", "NIGHTS_IN_LONDON", "NIGHTS_NOT_LONDON"
+                   , "LONDON_SPEND", "GRP_NIGHTS_IN_LONDON", "GRP_NIGHTS_NOT_LONDON"
+                   , "HERE", "H_K"]
+    column_order.extend(new_columns)
+#    df_stay_towns6 = df_stay_towns6.reindex(columns=column_order)
+#    cf.compare_dfs("stay_towns_update6", "stay_towns_update6.sas7bdat", df_stay_towns6)
 #    cf.beep()
 #    sys.exit()
     #===========================================================================
@@ -366,14 +367,22 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
         towncode = "TOWNCODE"
         var_spend = "SPEND"
         
-#        if row["SERIAL"] == 410158777057:
-        if ((row["NIGHTS_IN_LONDON"] != 0) & ((row["NIGHTS_NOT_LONDON"] != 0) | (not math.isnan(row["NIGHTS_NOT_LONDON"])))):
+        if ((row["NIGHTS_IN_LONDON"] != 0) 
+            & ((row["NIGHTS_NOT_LONDON"] != 0) 
+               & (not math.isnan(row["NIGHTS_NOT_LONDON"])))):
             for count in range(1,9):
+                
                 if (math.isnan(row[towncode+str(count)])):
                     row[var_spend+str(count)] = 0
-                elif ((row[towncode+str(count)] > 70000) & (row[towncode+str(count)] < 79999)):
-                    if (((row["NIGHTS_NOT_LONDON"] != 0) & (not math.isnan(row["NIGHTS_NOT_LONDON"]))) & (not math.isnan(row[nights+str(count)]))):
-                        row[var_spend+str(count)] = (row[nights+str(count)] * ((row[var_spend] - row["LONDON_SPEND"]) / row["NIGHTS_NOT_LONDON"]))
+                elif ((row[towncode+str(count)] < 70000) 
+                      | (row[towncode+str(count)] > 79999)):
+                    if (((row["NIGHTS_NOT_LONDON"] != 0) 
+                         & (not math.isnan(row["NIGHTS_NOT_LONDON"])))
+                         & (not math.isnan(row[nights+str(count)]))):
+                        row[var_spend+str(count)] = (row[nights+str(count)] 
+                                                     * ((row[var_spend] 
+                                                         - row["LONDON_SPEND"]) 
+                                                        / row["NIGHTS_NOT_LONDON"]))
                     else:
                         row[var_spend+str(count)] = 0
             
@@ -383,14 +392,8 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     
     #===========================================================================
     #===========================================================================
-#    cf.compare_dfs("stay_towns_update7", "stay_towns_update7.sas7bdat", df_stay_towns7, ["SERIAL", "NIGHTS_IN_LONDON", "NIGHTS_NOT_LONDON"
-#                                                                                         , "TOWNCODE1", "TOWNCODE2", "TOWNCODE3", "TOWNCODE4"
-#                                                                                         , "TOWNCODE5", "TOWNCODE6", "TOWNCODE7", "TOWNCODE8"
-#                                                                                         , "SPEND1", "SPEND2", "SPEND3", "SPEND4"
-#                                                                                         , "SPEND5", "SPEND6", "SPEND7", "SPEND8"                                                                                         
-#                                                                                         , "NIGHTS1", "NIGHTS2", "NIGHTS3", "NIGHTS4"
-#                                                                                         , "NIGHTS5", "NIGHTS6", "NIGHTS7", "NIGHTS8"
-#                                                                                         , "SPEND", "LONDON_SPEND"])
+#    df_stay_towns7 = df_stay_towns7.reindex(columns=column_order)
+#    cf.compare_dfs("stay_towns_update7", "stay_towns_update7.sas7bdat", df_stay_towns7)
 #    cf.beep()
 #    sys.exit()
     #===========================================================================
@@ -427,6 +430,7 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
 
     #===========================================================================
     #===========================================================================
+#    df_stay_towns99 = df_stay_towns99.reindex(columns=column_order)
 #    cf.compare_dfs("stay_towns99", "stay_towns99.sas7bdat", df_stay_towns99)    
 #    cf.beep()
 #    sys.exit()
@@ -442,6 +446,9 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     
     #===========================================================================
     #===========================================================================
+    new_cols = ["TOWN1", "TOWN2", "TOWN3", "TOWN4", "TOWN5", "TOWN6", "TOWN7", "TOWN8", "LONDON", "EXPLON", "STYLON", "EXPOTH", "STYOTH"]
+    column_order.extend(new_cols)
+#    df_stay_towns98 = df_stay_towns98.reindex(columns=column_order)
 #    cf.compare_dfs("stay_towns98", "stay_towns98.sas7bdat", df_stay_towns98)    
 #    cf.beep()
 #    sys.exit()
@@ -452,7 +459,8 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     df_stay_totals = df_stay_towns98[[var_flow, var_residence, "EXPLON"
                                       , "EXPOTH", "STYLON", "STYOTH"]].copy()
     
-    df_stay_totals[[var_flow, var_residence]] = df_stay_totals[[var_flow, var_residence]].fillna(-1)
+    df_stay_totals[[var_flow, var_residence]] = df_stay_totals[[var_flow
+                                                                , var_residence]].fillna(-1)
     
     df_stay_totals = df_stay_totals.groupby([var_flow, var_residence])\
                                                  .agg({"EXPLON" : 'sum'
@@ -465,8 +473,7 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     
     #===========================================================================
     #===========================================================================
-#    cf.compare_dfs("stay_tot", "stay_tot.sas7bdat", df_stay_totals, [var_flow, var_residence, "EXPLON"
-#                                      , "EXPOTH", "STYLON", "STYOTH"])
+#    cf.compare_dfs("stay_tot", "stay_tot.sas7bdat", df_stay_totals)
 #    cf.compare_dfs("stay_tot", "stay_tot.sas7bdat", df_stay_totals)        
 #    cf.beep()
 #    sys.exit()
@@ -474,14 +481,19 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     #===========================================================================
     
     # Calculate uplift
-    
     df_stay_totals1 = df_stay_totals.copy()
     df_stay_totals1["UPLIFT"] = np.NaN
 
     def uplift(row):
         
-        if (row["EXPLON"] != 0) & (row["STYLON"] != 0) & (row["EXPOTH"] != 0) & (row["STYOTH"] != 0):
-            row["UPLIFT"] = float((row["EXPLON"]/row["STYLON"])/(row["EXPOTH"]/row["STYOTH"]))
+        if ((row["EXPLON"] != 0) 
+            & (row["STYLON"] != 0) 
+            & (row["EXPOTH"] != 0) 
+            & (row["STYOTH"] != 0)):
+            row["UPLIFT"] = float((row["EXPLON"]
+                                   /row["STYLON"])
+                                  /(row["EXPOTH"]
+                                    /row["STYOTH"]))
         else:
             row["UPLIFT"] = 1
             
@@ -491,9 +503,12 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     
     #===========================================================================
     #===========================================================================
+    # Two False values within data set for EXPOTH and UPLIFT
+    stay_tot_cols = ["FLOW", "RESIDENCE", "EXPLON", "EXPOTH", "STYLON", "STYOTH", "UPLIFT"]
+    df_stay_totals1 = df_stay_totals1.reindex(columns=stay_tot_cols)
     cf.compare_dfs("stay_tot_update1", "stay_tot_update1.sas7bdat", df_stay_totals1)    
-#    cf.beep()
-#    sys.exit()
+    cf.beep()
+    sys.exit()
     #===========================================================================
     #===========================================================================
     
@@ -559,7 +574,6 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     #===========================================================================
     
     # Apply uplift
-    
     df_stay_towns96 = df_stay_towns97.copy()
     
     def apply_uplift(row):
@@ -591,7 +605,6 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     #===========================================================================
     
     # Merge uplifted data
-    
     df_output_stay1 = pd.merge(df_survey_data, df_stay_towns96, on=[var_serialNum], how = "left")
     
     #===========================================================================
@@ -603,7 +616,6 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     #===========================================================================
     
     # Extract those records that need uplifting
-    
     condition = (((df_output_stay1["SPEND1"] != 0) & (df_output_stay1["SPEND1"] != np.NaN))
                  &
                  ((df_output_stay1["NIGHTS_IN_LONDON"] != 0) & (df_output_stay1["NIGHTS_IN_LONDON"] != np.NaN)))
@@ -618,9 +630,7 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     #===========================================================================
     #===========================================================================
     
-    # Update main file with uplifted data
     
-    df_stay_towns8 = df_stay_towns4.copy()
     
                                         
     
@@ -636,8 +646,8 @@ def calculate(processname, gparam_table_name, input, output, responseTable
     """
     
     # Call JSON configuration file for error logger setup
-#    survey_support.setup_logging('IPS_logging_config_debug.json')
-#    logger = cf.database_logger()
+    survey_support.setup_logging('IPS_logging_config_debug.json')
+    logger = cf.database_logger()
     
     # Import data via SAS
     path_to_survey_data = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Town and Stay Imputation\input_townspend.sas7bdat"
@@ -657,17 +667,17 @@ def calculate(processname, gparam_table_name, input, output, responseTable
                                                , var_eligible_flag) 
     
     # Append the generated data to output tables
-#    cf.insert_into_table_many(output, output_dataframe)
+    cf.insert_into_table_many(output, output_dataframe)
     
     # Retrieve current function name using inspect:
     # 0 = frame object, 3 = function name. 
     # See 28.13.4. in https://docs.python.org/2/library/inspect.html
-#    function_name = str(inspect.stack()[0][3])
-#    audit_message = "Load Town and Stay Imputation: %s()" % function_name
-#    
-#    # Log success message in SAS_RESPONSE and AUDIT_LOG
-#    logger.info("SUCCESS - Completed Town and Stay Imputation.")
-#    cf.commit_to_audit_log("Create", "Town and Stay Imputation", audit_message)
+    function_name = str(inspect.stack()[0][3])
+    audit_message = "Load Town and Stay Imputation: %s()" % function_name
+    
+    # Log success message in SAS_RESPONSE and AUDIT_LOG
+    logger.info("SUCCESS - Completed Town and Stay Imputation.")
+    cf.commit_to_audit_log("Create", "Town and Stay Imputation", audit_message)
     
 
 if __name__ == '__main__':
