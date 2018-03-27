@@ -119,11 +119,3 @@ def process(in_table_name, out_table_name, in_id, dataset):
 
     # Insert the dataframe to the output table
     cf.insert_into_table_many(out_table_name, df_out)
-
-
-if __name__ == '__main__':
-    # Run the process variables step
-    process(in_table_name='SAS_SURVEY_SUBSAMPLE',
-            out_table_name='SAS_SHIFT_SPV',
-            in_id='SERIAL',
-            dataset='survey')
