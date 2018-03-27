@@ -52,6 +52,7 @@ def write_pv_to_table(pv_name,value,conn = None):
     cur.execute(sql)
     conn.commit()
 
+
 def read_pv_table(pv_name = None,conn = None):
     
     if(conn == None):
