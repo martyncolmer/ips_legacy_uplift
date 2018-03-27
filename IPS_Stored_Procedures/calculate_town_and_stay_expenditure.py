@@ -1,9 +1,4 @@
 '''
-Created on 13 Mar 2018
-
-@author: thorne1
-'''
-'''
 Created on 7 Mar 2018
 
 @author: thorne1
@@ -12,9 +7,9 @@ import inspect
 import numpy as np
 import pandas as pd
 import survey_support
+import math
 
 from IPSTransformation import CommonFunctions as cf
-from IPS_Unallocated_Modules import ips_impute as imp
 
 import sys
 from pprint import pprint
@@ -32,7 +27,6 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
 
     # Do some initial setup and selection
     df_output_data = df_survey_data.copy()
-    
     df_output_data.drop(df_output_data[df_output_data[var_eligible_flag] 
                                        != 1.0].index, inplace=True)
     df_output_data["KNOWN_LONDON_NOT_VISIT"] = 0
@@ -43,16 +37,9 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     
 #    #===========================================================================
 #    #===========================================================================
-##    stay_towns = pd.read_sas(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Town and Stay Imputation\stay_towns.sas7bdat")
-##    stay_towns.to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\in.csv")
-##    seg1 = pd.read_sas(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Town and Stay Imputation\seg1.sas7bdat")
-##    seg1.to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\out.csv")
-##    cf.beep()
-##    sys.exit()
-#
 #    cf.compare_dfs("stay_towns", "stay_towns.sas7bdat", df_output_data, ["SERIAL",var_eligible_flag,"KNOWN_LONDON_NOT_VISIT", "KNOWN_LONDON_VISIT", "ADE1", "ADE2", "RATION_L_NL_ADES"])    
-##    cf.beep()
-##    sys.exit()
+#    cf.beep()
+#    sys.exit()
 #    #===========================================================================
 #    #===========================================================================
     
@@ -70,7 +57,7 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
                                   , var_purpose_grp
                                   , var_country_grp
                                   , "KNOWN_LONDON_VISIT"]].ix[(towncode_condition)]
-    
+                                  
     # Calculate
     df_segment1["ADE1_TEMP1"] = pd.Series(df_output_data[var_final_wt] * (df_output_data[var_spend] / df_output_data[var_stay]))
     df_segment1["ADE1_TEMP2"] = df_output_data[var_final_wt]
@@ -89,8 +76,6 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     
     #===========================================================================
     #===========================================================================
-#    sas = pd.read_sas(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Town and Stay Imputation\seg1.sas7bdat")
-#    sas.to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\seg1.csv")
 #    cf.compare_dfs("seg1", "seg1.sas7bdat", df_segment1)    
 #    cf.beep()
 #    sys.exit()
@@ -155,6 +140,7 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
                             ,"ADE1_x"
                             ,"ADE2_x"], axis=1, inplace=True)
     
+        
     #===========================================================================
     #===========================================================================
 #    cf.compare_dfs("stay_towns_update1", "stay_towns_update1.sas7bdat", df_extract_update, ["SERIAL", "KNOWN_LONDON_VISIT", "KNOWN_LONDON_NOT_VISIT", "ADE1", "ADE2"])    
@@ -240,11 +226,11 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
                                    ,"ADE2_x" : "ADE2"}, inplace=True)
     df_stay_towns2.drop(["ADE1_y"
                             ,"ADE2_y"], axis=1, inplace=True)
-
+    
     #===========================================================================
     #===========================================================================
 #    cf.compare_dfs("stay_towns_update2", "stay_towns_update2.sas7bdat", df_stay_towns2, ["SERIAL", "ADE1"]) 
-#    cf.compare_dfs("stay_towns_update3", "stay_towns_update3.sas7bdat", df_stay_towns2, ["SERIAL", "ADE2"])   
+#    cf.compare_dfs("stay_towns_update3", "stay_towns_update3.sas7bdat", df_stay_towns2, ["SERIAL", "ADE2"])
 #    cf.beep()
 #    sys.exit()
     #===========================================================================
@@ -252,9 +238,9 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     
     # Calculate ratio london to not london
     df_stay_towns4 = df_stay_towns2.copy()
-    
     df_stay_towns4.loc[((df_stay_towns4["ADE1"] != 0) & (df_stay_towns4["ADE2"] != 0)), 
                        "RATION_L_NL_ADES"] = (df_stay_towns4["ADE1"]/df_stay_towns4["ADE2"])
+    df_stay_towns4["RATION_L_NL_ADES"].fillna(0, inplace=True) 
 
     #===========================================================================
     #===========================================================================
@@ -270,206 +256,33 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     df_stay_towns5["NIGHTS_IN_LONDON"] = 0
     df_stay_towns5["NIGHTS_NOT_LONDON"] = 0
     
-    for count in range(1,9):  
+    def another_selection(row):
         nights = "NIGHTS"
         towncode = "TOWNCODE"
         
-        condition1 = ((df_stay_towns5[towncode+str(count)] >= 70000) & (df_stay_towns5[towncode+str(count)] <= 79999))
-        condition2 = ((df_stay_towns5[towncode+str(count)] <= 69999) | (df_stay_towns5[towncode+str(count)] >= 80000))
-
-        df_stay_towns5.loc[(condition1), "NIGHTS_IN_LONDON"] = (df_stay_towns5["NIGHTS_IN_LONDON"] 
-                                               + df_stay_towns5[nights+str(count)])
-        df_stay_towns5.loc[(condition2), "NIGHTS_NOT_LONDON"] = (df_stay_towns5["NIGHTS_NOT_LONDON"] 
-                                               + df_stay_towns5[nights+str(count)])
+        for count in range(1,9):
+            if not math.isnan(row[nights+str(count)]):
+                if ((row[towncode+str(count)] >= 70000) & (row[towncode+str(count)] <= 79999)):
+                    row["NIGHTS_IN_LONDON"] = row["NIGHTS_IN_LONDON"] + row[nights+str(count)]
+                else:
+                    row["NIGHTS_NOT_LONDON"] = row["NIGHTS_NOT_LONDON"] + row[nights+str(count)]
         
-#        df_stay_towns5["NOTCOUNT"] = np.where(df_stay_towns5["NIGHTS_NOT_LONDON"] != np.NaN
-#                                          , df_stay_towns5["NIGHTS_NOT_LONDON"], np.NaN)
-        
-
-#    df_stay_towns5["INCOUNT"] = 0
-#    df_stay_towns5["NOTCOUNT"] = 0
-#    nights = "NIGHTS"
-#    for count in range(1,9):
-#        df_stay_towns5[nights+str(count)].fillna(0, inplace=True)
-#    
-#    def another_selection(row):
-#        
-#        if (row["NIGHTS1"] != np.NaN):
-#            if ((row["TOWNCODE1"] >= 70000) & (row["TOWNCODE1"] <= 79999)):
-#                row["NIGHTS_IN_LONDON"] = row["NIGHTS_IN_LONDON"] + row["NIGHTS1"]
-#            else:
-#                row["NIGHTS_NOT_LONDON"] = row["NIGHTS_NOT_LONDON"] + row["NIGHTS1"]
-#            
-#        if (row["NIGHTS2"] != np.NaN):
-#            if ((row["TOWNCODE2"] >= 70000) & (row["TOWNCODE2"] <= 79999)):
-#                row["NIGHTS_IN_LONDON"] = row["NIGHTS_IN_LONDON"] + row["NIGHTS2"]
-#            else:
-#                row["NIGHTS_NOT_LONDON"] = row["NIGHTS_NOT_LONDON"] + row["NIGHTS2"]
-#        
-#        if (row["NIGHTS3"] != np.NaN):
-#            if ((row["TOWNCODE3"] >= 70000) & (row["TOWNCODE3"] <= 79999)):
-#                row["NIGHTS_IN_LONDON"] = row["NIGHTS_IN_LONDON"] + row["NIGHTS3"]
-#            else:
-#                row["NIGHTS_NOT_LONDON"] = row["NIGHTS_NOT_LONDON"] + row["NIGHTS3"]
-#        
-#        if (row["NIGHTS4"] != np.NaN):
-#            if ((row["TOWNCODE4"] >= 70000) & (row["TOWNCODE4"] <= 79999)):
-#                row["NIGHTS_IN_LONDON"] = row["NIGHTS_IN_LONDON"] + row["NIGHTS4"]
-#            else:
-#                row["NIGHTS_NOT_LONDON"] = row["NIGHTS_NOT_LONDON"] + row["NIGHTS4"]
-#        
-#        if (row["NIGHTS5"] != np.NaN):
-#            if ((row["TOWNCODE5"] >= 70000) & (row["TOWNCODE5"] <= 79999)):
-#                row["NIGHTS_IN_LONDON"] = row["NIGHTS_IN_LONDON"] + row["NIGHTS5"]
-#            else:
-#                row["NIGHTS_NOT_LONDON"] = row["NIGHTS_NOT_LONDON"] + row["NIGHTS5"]
-#        
-#        if (row["NIGHTS6"] != np.NaN):
-#            if ((row["TOWNCODE6"] >= 70000) & (row["TOWNCODE6"] <= 79999)):
-#                row["NIGHTS_IN_LONDON"] = row["NIGHTS_IN_LONDON"] + row["NIGHTS6"]
-#            else:
-#                row["NIGHTS_NOT_LONDON"] = row["NIGHTS_NOT_LONDON"] + row["NIGHTS6"]
-#        
-#        if (row["NIGHTS7"] != np.NaN):
-#            if ((row["TOWNCODE7"] >= 70000) & (row["TOWNCODE7"] <= 79999)):
-#                row["NIGHTS_IN_LONDON"] = row["NIGHTS_IN_LONDON"] + row["NIGHTS7"]
-#            else:
-#                row["NIGHTS_NOT_LONDON"] = row["NIGHTS_NOT_LONDON"] + row["NIGHTS7"]
-#        
-#        if (row["NIGHTS8"] != np.NaN):
-#            if ((row["TOWNCODE8"] >= 70000) & (row["TOWNCODE8"] <= 79999)):
-#                row["NIGHTS_IN_LONDON"] = row["NIGHTS_IN_LONDON"] + row["NIGHTS8"]
-#            else:
-#                row["NIGHTS_NOT_LONDON"] = row["NIGHTS_NOT_LONDON"] + row["NIGHTS8"]
-#             
-#        return row
-#
-#    def another_selection(row):
-#        nights = "NIGHTS"
-#        towncode = "TOWNCODE"
-#        
-#        for count in range(1,9):
-#            if row[nights+str(count)] != np.NaN:
-#                if ((row[towncode+str(count)] >= 70000) & (row[towncode+str(count)] <= 79999)):
-#                    row["NIGHTS_IN_LONDON"] = row["INCOUNT"] + row[nights+str(count)]
-#                else:
-#                    row["NIGHTS_NOT_LONDON"] = row["NOTCOUNT"] + row[nights+str(count)]
-#        
-#        return row
-#    
-#    df_stay_towns5 = df_stay_towns5.apply(another_selection, axis=1)
+        return row
+    
+    df_stay_towns5 = df_stay_towns5.apply(another_selection, axis=1)
 
     #===========================================================================
     #===========================================================================
-    cf.compare_dfs("stay_towns_update5", "stay_towns_update5.sas7bdat", df_stay_towns5
-                   ,["SERIAL"
-                     , "TOWNCODE1"
-                     , "TOWNCODE2"
-                     , "TOWNCODE3"
-                     , "TOWNCODE4"
-                     , "TOWNCODE5"
-                     , "TOWNCODE6"
-                     , "TOWNCODE7"
-                     , "TOWNCODE8"
-                     , "NIGHTS1"
-                     , "NIGHTS2"
-                     , "NIGHTS3"
-                     , "NIGHTS4"
-                     , "NIGHTS5"
-                     , "NIGHTS6"
-                     , "NIGHTS7"
-                     , "NIGHTS8"
-                   ,"NIGHTS_IN_LONDON"
-                   ,"NIGHTS_NOT_LONDON"
-#                   , "NOTCOUNT"
-                   ,"RATION_L_NL_ADES"])    
-    cf.beep()
-    sys.exit()
+#    cf.compare_dfs("stay_towns_update5", "stay_towns_update5.sas7bdat", df_stay_towns5)    
+#    cf.beep()
+#    sys.exit()
 #    grp_nights_in_london    grp_nights_not_london
     #===========================================================================
     #===========================================================================
     
-#    # Calculate spends
-#    df_stay_towns6 = df_stay_towns5.copy()
-##    print df_stay_towns6["RATION_L_NL_ADES"]
-##    cf.beep()
-##    sys.exit()
-##    df_stay_towns6[]
-#    
-#    def selection(row):
-#        nights = "NIGHTS"
-#        towncode = "TOWNCODE"
-#        var_spend = "SPEND"
-#        
-#        for count in range(1,9):
-#            if (row["NIGHTS_IN_LONDON"] == 0) | (row["NIGHTS_IN_LONDON"] == np.NaN):
-#                if row[towncode+str(count)] == np.NaN:
-#                    row[var_spend+str(count)] = 1
-#                    if (((row["NIGHTS_NOT_LONDON"] != 0) 
-#                      | (row["NIGHTS_NOT_LONDON"] != np.NaN)) 
-#                      & (row[nights+str(count)] != np.NaN)):
-#                        row[var_spend+str(count)] = ((row[var_spend] 
-#                                                      * row[nights+str(count)])
-#                                                     /row["NIGHTS_NOT_LONDON"])
-#                    else:
-#                        row[var_spend+str(count)] = 0
-#                else:
-#                    row[var_spend+str(count)] = 9999
-#            elif ((row["NIGHTS_NOT_LONDON"] == 0) | (row["NIGHTS_NOT_LONDON"] == np.NaN)):
-#                if row[towncode+str(count)] == np.NaN:
-#                    if (((row["NIGHTS_IN_LONDON"] != 0) 
-#                      | (row["NIGHTS_IN_LONDON"] != np.NaN))
-#                        & (row[nights+str(count)] != np.NaN)):
-#                        row[var_spend+str(count)] = ((row[var_spend] 
-#                                                      * row[nights+str(count)])
-#                                                     /row["NIGHTS_IN_LONDON"])
-#                    else:
-#                        row[var_spend+str(count)] = 0
-#                else:
-#                    row[var_spend+str(count)] = 9999
-#            else:
-#                row["HERE"] = 3
-#                if (((row["KNOWN_LONDON_VISIT"] != 0) 
-#                   | (row["KNOWN_LONDON_VISIT"] != np.NaN))
-#                    & ((row["KNOWN_LONDON_NOT_VISIT"] != 0) 
-#                   | (row["KNOWN_LONDON_NOT_VISIT"] != np.NaN)) 
-#                     & ((row["RATION_L_NL_ADES"] != 0) 
-#                   | (row["RATION_L_NL_ADES"] != np.NaN))):
-#                    row["H_K"] = ((row["NIGHTS_IN_LONDON"] 
-#                                   / row["NIGHTS_NOT_LONDON"]) 
-#                                  * row["RATION_L_NL_ADES"])
-#                else:
-#                    row["H_K"] = 0
-#                    row["LONDON_SPEND"] = 0
-#                    if ((row[towncode+str(count)] >= 70000)
-#                      & (row[towncode+str(count)] <= 79999)):
-#                        if (((row["NIGHTS_IN_LONDON"] != 0) 
-#                          | (row["NIGHTS_IN_LONDON"] != np.NaN))
-#                          & (row[nights+str(count)] != np.NaN) 
-#                          & ((row["H_K"] != 0) | (row["H_K"] != np.NaN)) 
-#                          & (row[var_spend] != 0)):
-#                            row[var_spend+str(count)] = (((row[var_spend] * row["H_K"]) / ( 1 + row["H_K"])) * (row[nights+str(count)]/row["NIGHTS_IN_LONDON"]))
-#                        else:
-#                            row[var_spend+str(count)] = 0
-#                            row["LONDON_SPEND"] = (row["LONDON_SPEND"] 
-#                                                   + row[var_spend+str(count)])  
-#                    else:
-#                        row[var_spend+str(count)] = 9999
-#        return row
-#    
-#    
-##    df_stay_towns6["H_K"] = np.NaN
-#    df_stay_towns6["LONDON_SPEND"] = np.NaN
-#    df_stay_towns6["HERE"] = np.NaN
-#    df_stay_towns6 = df_stay_towns6.apply(selection, axis = 1)
-
-
     # Calculate spends
-    df_stay_towns6 = df_stay_towns5.copy()
-#    df_stay_towns6.to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\df_stay_towns6.csv")
-#    cf.beep()
-#    sys.exit()
-        
+    df_stay_towns6 = df_stay_towns5.ix[df_stay_towns5["SERIAL"] == 410238840039]
+
     def selection(row):
         nights = "NIGHTS"
         towncode = "TOWNCODE"
@@ -478,17 +291,20 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
         #FIRST LOOP
         if (row["NIGHTS_IN_LONDON"] == 0):
             for count in range(1,9):
-                if row[towncode+str(count)] == np.NaN:
-                    if (((row["NIGHTS_NOT_LONDON"] != 0) & (row["NIGHTS_NOT_LONDON"] != np.NaN)) & row[nights+str(count)] != np.NaN):
+                if math.isnan(row[towncode+str(count)]):
+                    if (((row["NIGHTS_NOT_LONDON"] != 0) & (not math.isnan(row["NIGHTS_NOT_LONDON"])))
+                        & (not math.isnan(row[nights+str(count)]))):
                         row[var_spend+str(count)] = (row[var_spend] * row[nights+str(count)]) / row["NIGHTS_NOT_LONDON"]
                     else:
                         row[var_spend+str(count)] = 0
                                                                                                 
         #SECOND LOOP
-        elif (row["NIGHTS_NOT_LONDON"] != 0) & (row["NIGHTS_NOT_LONDON"] != np.NaN):
+        elif (row["NIGHTS_NOT_LONDON"] == 0) | (math.isnan(row["NIGHTS_NOT_LONDON"])):
             for count in range(1,9):
-                if row[towncode+str(count)] != np.NaN:
-                    if (((row["NIGHTS_IN_LONDON"] != 0) & (row["NIGHTS_IN_LONDON"] != np.NaN)) & (row[nights+str(count)] != np.NaN)):
+                if not math.isnan(row[towncode+str(count)]):
+                    
+                    if (((row["NIGHTS_IN_LONDON"] != 0) & (not math.isnan(row["NIGHTS_IN_LONDON"])))
+                        & (not math.isnan(row[nights+str(count)]))):
                         row[var_spend+str(count)] = (row[var_spend] * row[nights+str(count)]) / row["NIGHTS_IN_LONDON"]
                     else:
                         row[var_spend+str(count)] = 0
@@ -496,70 +312,85 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
         #THIRD LOOP
         else:
             row["HERE"] = 3
-            if (((row["KNOWN_LONDON_VISIT"] != 0) & (row["KNOWN_LONDON_VISIT"] != np.NaN)) 
-                & ((row["KNOWN_LONDON_NOT_VISIT"] != 0) & (row["KNOWN_LONDON_NOT_VISIT"] != np.NaN)) 
-                & ((row["RATION_L_NL_ADES"] != 0) & (row["RATION_L_NL_ADES"] != np.NaN))):
+            if (((row["KNOWN_LONDON_VISIT"] != 0) & (not math.isnan(row["KNOWN_LONDON_VISIT"]))) 
+                & ((row["KNOWN_LONDON_NOT_VISIT"] != 0) & (not math.isnan(row["KNOWN_LONDON_NOT_VISIT"]))) 
+                & ((row["RATION_L_NL_ADES"] != 0) & (not math.isnan(row["RATION_L_NL_ADES"])))):
                 row["H_K"] = (row["NIGHTS_IN_LONDON"] / row["NIGHTS_NOT_LONDON"]) * row["RATION_L_NL_ADES"]
             else:
                 row["H_K"] = 0
                 row["LONDON_SPEND"] = 0
-                for count in range(1,9):
-                    if ((row[towncode+str(count)] >= 70000) & (row[towncode+str(count)] <= 79999)):
-                        if (((row["NIGHTS_IN_LONDON"] != 0) & (row["NIGHTS_IN_LONDON"] != np.NaN)) 
-                            & (row[nights+str(count)] != np.NaN) 
-                            & ((row["H_K"] != 0) & (row["H_K"] != np.NaN)) 
-                            & (row[var_spend] != 0)):
-                            row[var_spend+str(count)] = ((row[var_spend] * row["H_K"]) / ( 1 + row["H_K"])) * (row[nights+str(count)]/row["NIGHTS_IN_LONDON"])
-                        else:
-                            row[var_spend+str(count)] = 0
-                            row["LONDON_SPEND"] = (row["LONDON_SPEND"] + row[var_spend+str(count)])  
+        
+            for count in range(1,9):
+                if ((row[towncode+str(count)] >= 70000) & (row[towncode+str(count)] <= 79999)):
+                    if (((row["NIGHTS_IN_LONDON"] != 0) & (not math.isnan(row["NIGHTS_IN_LONDON"]))) 
+                        & (not math.isnan(row[nights+str(count)])) 
+                        & ((row["H_K"] != 0) & (not math.isnan(row["H_K"]))) 
+                        & (row[var_spend] != 0)):
+                        
+                        row[var_spend+str(count)] = ((row[var_spend] * row["H_K"]) / ( 1 + row["H_K"])) * (row[nights+str(count)]/row["NIGHTS_IN_LONDON"])
+                    else:
+                        row[var_spend+str(count)] = 0
+                        row["LONDON_SPEND"] = (row["LONDON_SPEND"] + row[var_spend+str(count)])  
+        
         return row
     
-#    df_stay_towns6["H_K"] = np.NaN
-#    df_stay_towns6["LONDON_SPEND"] = np.NaN
-#    df_stay_towns6["HERE"] = np.NaN
+    df_stay_towns6["H_K"] = np.NaN
+    df_stay_towns6["LONDON_SPEND"] = 0
     df_stay_towns6 = df_stay_towns6.apply(selection, axis = 1)
-
+    df_stay_towns6[["SERIAL", "NIGHTS_IN_LONDON"]].to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\Legacy Uplift\Compare\df_stay_towns6.csv")
     
     #===========================================================================
     #===========================================================================
-    cf.compare_dfs("stay_towns_update6", "stay_towns_update6.sas7bdat", df_stay_towns6, ["SERIAL", "SPEND1", "SPEND2", "SPEND3", "SPEND4", "SPEND5", "SPEND6", "SPEND7", "SPEND8", "H_K", "LONDON_SPEND"])
-#    cf.compare_dfs("stay_towns_update6_full", "stay_towns_update6.sas7bdat", df_stay_towns6)    
-    cf.beep()
-    sys.exit()
+#        
+#    cf.compare_dfs("stay_towns_update6", "stay_towns_update6.sas7bdat", df_stay_towns6, ["SERIAL", "NIGHTS_IN_LONDON", "TOWNCODE1"
+#                                                                                         , "TOWNCODE2", "TOWNCODE3", "TOWNCODE4"
+#                                                                                         , "TOWNCODE5", "TOWNCODE6", "TOWNCODE7"
+#                                                                                         , "TOWNCODE8", "NIGHTS_NOT_LONDON"
+#                                                                                         , "NIGHTS1", "NIGHTS2", "NIGHTS3"
+#                                                                                         , "NIGHTS4", "NIGHTS5", "NIGHTS6"
+#                                                                                         , "NIGHTS7", "NIGHTS8", "SPEND1"
+#                                                                                         , "SPEND2", "SPEND3", "SPEND4", "SPEND5"
+#                                                                                         , "SPEND6", "SPEND7", "SPEND8", "SPEND"
+#                                                                                         , "KNOWN_LONDON_VISIT", "KNOWN_LONDON_NOT_VISIT"
+#                                                                                         , "RATION_L_NL_ADES", "H_K", "LONDON_SPEND"])
+#    cf.beep()
+#    sys.exit()
     #===========================================================================
     #===========================================================================
     
     # Finish calculating spends
-#    df_stay_towns7 = df_stay_towns6.copy()
-    df_stay_towns7 = pd.read_sas(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Town and Stay Imputation\stay_towns_update6.sas7bdat")
-    df_stay_towns7.columns = df_stay_towns7.columns.str.upper()
-#    df_stay_towns7.to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\df_stay_towns7.csv")
-#    cf.beep()
-#    sys.exit()
+    df_stay_towns7 = df_stay_towns6.copy()
     
     def calculate_spends(row):
         nights = "NIGHTS"
         towncode = "TOWNCODE"
         var_spend = "SPEND"
         
-        for count in range(1,9):
-            if ((row["NIGHTS_IN_LONDON"] != 0) & ((row["NIGHTS_NOT_LONDON"] != 0) | (row["NIGHTS_NOT_LONDON"] != np.NaN))):
-                if row[towncode+str(count)] == np.NaN:
+#        if row["SERIAL"] == 410158777057:
+        if ((row["NIGHTS_IN_LONDON"] != 0) & ((row["NIGHTS_NOT_LONDON"] != 0) | (not math.isnan(row["NIGHTS_NOT_LONDON"])))):
+            for count in range(1,9):
+                if (math.isnan(row[towncode+str(count)])):
                     row[var_spend+str(count)] = 0
-                elif (row[towncode+str(count)] <= 70000) | (row[towncode+str(count)] >= 79999):
-                    if ((row["NIGHTS_NOT_LONDON"] != 0) & (row["NIGHTS_NOT_LONDON"] != np.NaN)):
-                        row[var_spend+str(count)] = row[nights+str(count)] * (( row[var_spend] - row["LONDON_SPEND"])/ row["NIGHTS_NOT_LONDON"])
+                elif ((row[towncode+str(count)] > 70000) & (row[towncode+str(count)] < 79999)):
+                    if (((row["NIGHTS_NOT_LONDON"] != 0) & (not math.isnan(row["NIGHTS_NOT_LONDON"]))) & (not math.isnan(row[nights+str(count)]))):
+                        row[var_spend+str(count)] = (row[nights+str(count)] * ((row[var_spend] - row["LONDON_SPEND"]) / row["NIGHTS_NOT_LONDON"]))
                     else:
                         row[var_spend+str(count)] = 0
-        
+            
         return row
     
     df_stay_towns7 = df_stay_towns7.apply(calculate_spends, axis=1) 
     
     #===========================================================================
     #===========================================================================
-#    cf.compare_dfs("stay_towns_update7", "stay_towns_update7.sas7bdat", df_stay_towns7, ["SERIAL", "SPEND1", "SPEND2", "SPEND3", "SPEND4", "SPEND5", "SPEND6", "SPEND7", "SPEND8"])    
+#    cf.compare_dfs("stay_towns_update7", "stay_towns_update7.sas7bdat", df_stay_towns7, ["SERIAL", "NIGHTS_IN_LONDON", "NIGHTS_NOT_LONDON"
+#                                                                                         , "TOWNCODE1", "TOWNCODE2", "TOWNCODE3", "TOWNCODE4"
+#                                                                                         , "TOWNCODE5", "TOWNCODE6", "TOWNCODE7", "TOWNCODE8"
+#                                                                                         , "SPEND1", "SPEND2", "SPEND3", "SPEND4"
+#                                                                                         , "SPEND5", "SPEND6", "SPEND7", "SPEND8"                                                                                         
+#                                                                                         , "NIGHTS1", "NIGHTS2", "NIGHTS3", "NIGHTS4"
+#                                                                                         , "NIGHTS5", "NIGHTS6", "NIGHTS7", "NIGHTS8"
+#                                                                                         , "SPEND", "LONDON_SPEND"])
 #    cf.beep()
 #    sys.exit()
     #===========================================================================
@@ -567,11 +398,6 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     
     # Set markers to indicate london visits or outside
     df_stay_towns99 = df_stay_towns7.ix[df_stay_towns7["TOWNCODE1"] != 99999]
-#    df_stay_towns99.to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\df_stay_towns99_py.csv")
-#    sas = pd.read_sas(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Town and Stay Imputation\stay_towns99.sas7bdat")
-#    sas.to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\df_stay_towns99_sas.csv")
-#    cf.beep()
-#    sys.exit()
     
     def set_markers(row):
         towncode = "TOWNCODE"
@@ -587,20 +413,21 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
             else:
                 row[town+str(count)] = 9
             
-        for count in range(1,9):
-            if (row[town+str(count)] == 1):
-                row["LONDON"] = 1
-            else:
-                row["LONDON"] = 0
+        if ((row["TOWN1"] == 1) | (row["TOWN2"] == 1) 
+            | (row["TOWN3"] == 1) | (row["TOWN4"] == 1) 
+            | (row["TOWN5"] == 1) | (row["TOWN6"] == 1) 
+            | (row["TOWN7"] == 1) | (row["TOWN8"] == 1)):
+            row["LONDON"] = 1
+        else:
+            row["LONDON"] = 0
                  
         return row
     
     df_stay_towns99 = df_stay_towns99.apply(set_markers, axis=1)
-    
 
     #===========================================================================
     #===========================================================================
-#    cf.compare_dfs("stay_towns99", "stay_towns99.sas7bdat", df_stay_towns99, ["SERIAL", "TOWN1", "TOWN2", "TOWN3", "TOWN4", "TOWN5", "TOWN6", "TOWN7", "TOWN8"])    
+#    cf.compare_dfs("stay_towns99", "stay_towns99.sas7bdat", df_stay_towns99)    
 #    cf.beep()
 #    sys.exit()
     #===========================================================================
@@ -615,7 +442,7 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     
     #===========================================================================
     #===========================================================================
-#    cf.compare_dfs("stay_towns98", "stay_towns98.sas7bdat", df_stay_towns98, ["EXPLON", "STYLON", "EXPOTH", "STYOTH"])    
+#    cf.compare_dfs("stay_towns98", "stay_towns98.sas7bdat", df_stay_towns98)    
 #    cf.beep()
 #    sys.exit()
     #===========================================================================
@@ -625,6 +452,8 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     df_stay_totals = df_stay_towns98[[var_flow, var_residence, "EXPLON"
                                       , "EXPOTH", "STYLON", "STYOTH"]].copy()
     
+    df_stay_totals[[var_flow, var_residence]] = df_stay_totals[[var_flow, var_residence]].fillna(-1)
+    
     df_stay_totals = df_stay_totals.groupby([var_flow, var_residence])\
                                                  .agg({"EXPLON" : 'sum'
                                                        ,"EXPOTH" : 'sum'
@@ -632,9 +461,13 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
                                                        , "STYOTH" : 'sum'})
     df_stay_totals = df_stay_totals.reset_index()
     
+    df_stay_totals[[var_flow, var_residence]] = df_stay_totals[[var_flow, var_residence]].replace(-1,np.NaN)
+    
     #===========================================================================
     #===========================================================================
-#    cf.compare_dfs("stay_tot", "stay_tot.sas7bdat", df_stay_totals)    
+#    cf.compare_dfs("stay_tot", "stay_tot.sas7bdat", df_stay_totals, [var_flow, var_residence, "EXPLON"
+#                                      , "EXPOTH", "STYLON", "STYOTH"])
+#    cf.compare_dfs("stay_tot", "stay_tot.sas7bdat", df_stay_totals)        
 #    cf.beep()
 #    sys.exit()
     #===========================================================================
@@ -643,60 +476,152 @@ def do_ips_spend_imputation(df_survey_data, output, var_serialNum, var_flow
     # Calculate uplift
     
     df_stay_totals1 = df_stay_totals.copy()
-    df_stay_totals1["UPLIFT"] = 1
-    df_stay_totals1.loc[(df_stay_totals1["EXPLON"] != 0) 
-                        & (df_stay_totals1["STYLON"] != 0) 
-                        & (df_stay_totals1["EXPOTH"] != 0) 
-                        & (df_stay_totals1["STYOTH"] != 0)
-                        , "UPLIFT"] = ((df_stay_totals1["EXPLON"] / df_stay_totals1["STYLON"]) 
-                                       / (df_stay_totals1["EXPOTH"] / df_stay_totals1["STYOTH"]))
+    df_stay_totals1["UPLIFT"] = np.NaN
+
+    def uplift(row):
+        
+        if (row["EXPLON"] != 0) & (row["STYLON"] != 0) & (row["EXPOTH"] != 0) & (row["STYOTH"] != 0):
+            row["UPLIFT"] = float((row["EXPLON"]/row["STYLON"])/(row["EXPOTH"]/row["STYOTH"]))
+        else:
+            row["UPLIFT"] = 1
+            
+        return row
     
+    df_stay_totals1 = df_stay_totals1.apply(uplift, axis=1)
     
     #===========================================================================
     #===========================================================================
-#    cf.compare_dfs("stay_tot1", "stay_tot_update1.sas7bdat", df_stay_totals1)    
+    cf.compare_dfs("stay_tot_update1", "stay_tot_update1.sas7bdat", df_stay_totals1)    
 #    cf.beep()
 #    sys.exit()
     #===========================================================================
     #===========================================================================
     
     # Mark records where uplift needed
+    df_stay_towns98b = df_stay_towns98.ix[df_stay_towns98["LONDON"] == 1]
+
+    df_stay_towns98b["SPENDD"] = np.NaN
+    df_stay_towns98b["SPENDT"] = np.NaN
+    df_stay_towns98b["MARK"] = np.NaN
     
-    df_stay_downs98b = df_stay_towns98.copy()
-#    df_stay_towns98.to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare\df_stay_towns98.csv")
+    def mark_records(row):
+        
+        if ((not math.isnan(row["SPEND1"])) 
+            | (not math.isnan(row["SPEND2"])) 
+            | (not math.isnan(row["SPEND3"])) 
+            | (not math.isnan(row["SPEND4"])) 
+            | (not math.isnan(row["SPEND5"]))):
+            row["SPENDT"] = float(row["SPEND1"] 
+                                 + row["SPEND2"] 
+                                 + row["SPEND3"] 
+                                 + row["SPEND4"] 
+                                 + row["SPEND5"])
+        
+        if (not math.isnan(row["SPENDT"])):
+            row["SPENDD"] = float(row[var_spend] - row["SPENDT"])
+        
+        if (row["SPENDD"] > 0.01) | (row["SPENDD"] < -0.1) | (math.isnan(row["SPENDD"])):
+            row["MARK"] = 1  
+        return row
+
+    df_stay_towns98b = df_stay_towns98b.apply(mark_records, axis=1)
+    
+    #===========================================================================
+    #===========================================================================
+#    cf.compare_dfs("stay_towns98b", "stay_towns98b.sas7bdat", df_stay_towns98b, ["SERIAL"
+#                                                                                 , "SPENDT"
+#                                                                                 , "SPEND1"  
+#                                                                                 , "SPEND2" 
+#                                                                                 , "SPEND3" 
+#                                                                                 , "SPEND4" 
+#                                                                                 , "SPEND5"
+#                                                                                 , "SPENDD"
+#                                                                                 , "MARK"
+#                                                                                 , "SPEND"])    
 #    cf.beep()
 #    sys.exit()
-    
-    df_stay_downs98b["SPENDT"] = np.where(df_stay_downs98b["SERIAL"] == 410148777027
-                                          , (df_stay_downs98b["SPEND1"]
-                                             + df_stay_downs98b["SPEND2"]
-                                             + df_stay_downs98b["SPEND3"]
-                                             + df_stay_downs98b["SPEND4"]
-                                             + df_stay_downs98b["SPEND5"]), np.NaN)
-    
-#    df_stay_downs98b.loc[df_stay_downs98b["LONDON"] == 1, df_stay_downs98b["SPENDT"]] = pd.Series("HELLO?") #pd.Series(df_stay_downs98b["SPEND1"]
-#                                                                       + df_stay_downs98b["SPEND2"]
-#                                                                       + df_stay_downs98b["SPEND3"]
-#                                                                       + df_stay_downs98b["SPEND4"]
-#                                                                       + df_stay_downs98b["SPEND5"])
-    cf.compare_dfs("stay_towns98b", "stay_towns98b.sas7bdat", df_stay_downs98b, ["SERIAL", "SPENDT"])    
-    cf.beep()
-    sys.exit()
+    #===========================================================================
+    #===========================================================================
+     
+    # Merge totals onto file with markers
+    df_stay_towns97 = pd.merge(df_stay_towns98, df_stay_totals1, on=[var_flow
+                                                                ,var_residence], how = "left")   
     
     
-    df_stay_downs98b.loc[df_stay_downs98b["LONDON"] == 1, "SPENDD"] = pd.Series(df_stay_downs98b[var_spend] 
-                                                                       - df_stay_downs98b["SPENDT"])
-    df_stay_downs98b.loc[(df_stay_downs98b["SPENDD"] > 0.01) | (df_stay_downs98b["SPENDD"] < -0.01)
-                                                                                , "MARK"] = 1
     
     #===========================================================================
     #===========================================================================
-    cf.compare_dfs("stay_towns98b", "stay_towns98b.sas7bdat", df_stay_downs98b, ["SERIAL", "SPENDT", "SPENDD", "MARK"])    
-    cf.beep()
-    sys.exit()
+#    cf.compare_dfs("df_stay_towns97", "stay_towns97.sas7bdat", df_stay_towns97)
+#    df_stay_towns97[["SERIAL", "EXPLON_x", "EXPLON_y", "EXPOTH_x", "EXPOTH_y", "STYLON_x", "STYLON_y", "STYOTH_x", "STYOTH_y"]].to_csv(r"H:\My Documents\Documents\Git Repo\Misc and Admin\Legacy Uplift\Compare\df_stay_towns97.csv")  
+#    cf.beep()
+#    sys.exit()
     #===========================================================================
     #===========================================================================
-                                           
+    
+    # Apply uplift
+    
+    df_stay_towns96 = df_stay_towns97.copy()
+    
+    def apply_uplift(row):
+        towncode = "TOWNCODE"
+        stay = "STAY"
+        nights = "NIGHTS"
+        var_spend = "SPEND"
+        
+        if row["MARK"] == 1:
+            for count in range(1,9):
+                if (row[towncode+str(count)] > 70000) & (row[towncode+str(count)] < 79999):
+                    row[stay+str(count)+"X"] = row[nights+str(count)] * row["UPLIFT"]
+                else:
+                    row[stay+str(count)+"X"] = row[nights+str(count)]
+            
+            row["STAY0X"] = row["STAY1X"] + row["STAY2X"] + row["STAY3X"] + row["STAY4X"] + row["STAY5X"]
+            row[var_spend+str(count)] = row[var_spend] / row["STAY0X"] * row[stay+str(count)+"X"]
+        
+        return row
+    
+    df_stay_towns96.apply(apply_uplift, axis=1)
+
+    #===========================================================================
+    #===========================================================================
+#    cf.compare_dfs("df_stay_towns96", "df_stay_towns96.sas7bdat", df_stay_towns96)
+#    cf.beep()
+#    sys.exit()
+    #===========================================================================
+    #===========================================================================
+    
+    # Merge uplifted data
+    
+    df_output_stay1 = pd.merge(df_survey_data, df_stay_towns96, on=[var_serialNum], how = "left")
+    
+    #===========================================================================
+    #===========================================================================
+#    cf.compare_dfs("output_stay1", "output_stay1.sas7bdat", df_output_stay1)
+#    cf.beep()
+#    sys.exit()
+    #===========================================================================
+    #===========================================================================
+    
+    # Extract those records that need uplifting
+    
+    condition = (((df_output_stay1["SPEND1"] != 0) & (df_output_stay1["SPEND1"] != np.NaN))
+                 &
+                 ((df_output_stay1["NIGHTS_IN_LONDON"] != 0) & (df_output_stay1["NIGHTS_IN_LONDON"] != np.NaN)))
+     
+    df_output_stay2 = df_output_stay1.ix[(condition)]
+
+    #===========================================================================
+    #===========================================================================
+#    cf.compare_dfs("output_stay2", "output_stay1_update1.sas7bdat", df_output_stay2)
+#    cf.beep()
+#    sys.exit()
+    #===========================================================================
+    #===========================================================================
+    
+    # Update main file with uplifted data
+    
+    df_stay_towns8 = df_stay_towns4.copy()
+    
                                         
     
 def calculate(processname, gparam_table_name, input, output, responseTable
