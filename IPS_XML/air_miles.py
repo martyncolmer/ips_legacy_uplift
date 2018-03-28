@@ -3,7 +3,7 @@ Created on 27 March 2018
 
 @author: Nassir Mohammad
 '''
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 import pandas as pd
 
 

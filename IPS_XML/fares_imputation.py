@@ -3,7 +3,7 @@ Created on 21 March 2018
 
 @author: burrj
 '''
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 import pandas as pd
 
 
@@ -18,6 +18,8 @@ def populate_survey_data_for_fares_imputation(run_id, conn):
     Requirements : NA
     Dependencies : NA
     """
+
+    cf.delete_from_table("SAS_FARES_IMP")
 
     def nullify_survey_subsample_pv_values(conn):
         # SQL that sets survey_subsample's PV values to null
@@ -219,44 +221,51 @@ def copy_fares_imp_pvs_for_survey_data(run_id, conn):
         AND UPPER(PV.PV_NAME) IN ('DUTY_FREE_PV'))"
 
     cur = conn.cursor()
-    cur.execute(sas_process_variable_insert_query1)
-    conn.commit()
-    cur.execute(sas_process_variable_insert_query2)
-    conn.commit()
-    cur.execute(sas_process_variable_insert_query3)
-    conn.commit()
-    cur.execute(sas_process_variable_insert_query4)
-    conn.commit()
-    cur.execute(sas_process_variable_insert_query5)
-    conn.commit()
-    cur.execute(sas_process_variable_insert_query6)
-    conn.commit()
-    cur.execute(sas_process_variable_insert_query7)
-    conn.commit()
-    cur.execute(sas_process_variable_insert_query8)
-    conn.commit()
-    cur.execute(sas_process_variable_insert_query9)
-    conn.commit()
-    cur.execute(sas_process_variable_insert_query10)
-    conn.commit()
-    cur.execute(sas_process_variable_insert_query11)
-    conn.commit()
-    cur.execute(sas_process_variable_insert_query12)
-    conn.commit()
-    cur.execute(sas_process_variable_insert_query13)
-    conn.commit()
-    cur.execute(sas_process_variable_insert_query14)
-    conn.commit()
-    cur.execute(sas_process_variable_insert_query15)
-    conn.commit()
-    cur.execute(sas_process_variable_insert_query16)
-    conn.commit()
-    cur.execute(sas_process_variable_insert_query17)
-    conn.commit()
-    cur.execute(sas_process_variable_insert_query18)
-    conn.commit()
-    cur.execute(sas_process_variable_insert_query19)
-    conn.commit()
+
+    for i in range(1, 20):
+        query_iteration = "sas_process_variable_insert_query" + i
+        cur.execute(sas_process_variable_insert_query1)
+        conn.commit()
+
+    # cur = conn.cursor()
+    # cur.execute(sas_process_variable_insert_query1)
+    # conn.commit()
+    # cur.execute(sas_process_variable_insert_query2)
+    # conn.commit()
+    # cur.execute(sas_process_variable_insert_query3)
+    # conn.commit()
+    # cur.execute(sas_process_variable_insert_query4)
+    # conn.commit()
+    # cur.execute(sas_process_variable_insert_query5)
+    # conn.commit()
+    # cur.execute(sas_process_variable_insert_query6)
+    # conn.commit()
+    # cur.execute(sas_process_variable_insert_query7)
+    # conn.commit()
+    # cur.execute(sas_process_variable_insert_query8)
+    # conn.commit()
+    # cur.execute(sas_process_variable_insert_query9)
+    # conn.commit()
+    # cur.execute(sas_process_variable_insert_query10)
+    # conn.commit()
+    # cur.execute(sas_process_variable_insert_query11)
+    # conn.commit()
+    # cur.execute(sas_process_variable_insert_query12)
+    # conn.commit()
+    # cur.execute(sas_process_variable_insert_query13)
+    # conn.commit()
+    # cur.execute(sas_process_variable_insert_query14)
+    # conn.commit()
+    # cur.execute(sas_process_variable_insert_query15)
+    # conn.commit()
+    # cur.execute(sas_process_variable_insert_query16)
+    # conn.commit()
+    # cur.execute(sas_process_variable_insert_query17)
+    # conn.commit()
+    # cur.execute(sas_process_variable_insert_query18)
+    # conn.commit()
+    # cur.execute(sas_process_variable_insert_query19)
+    # conn.commit()
 
 
 def update_survey_data_with_fares_imp_pv_output(conn):

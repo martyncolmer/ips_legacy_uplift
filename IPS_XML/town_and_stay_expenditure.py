@@ -3,15 +3,15 @@ Created on 9 Jan 2018
 
 @author: mahont1
 '''
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 import pandas as pd
 
 
-def populate_survey_data_for_TSE_imputation(run_id,conn):
+def populate_survey_data_for_TSE_imputation(run_id, conn):
     """
     Author       : Thomas Mahoney
     Date         : 20/03/2018
-    Purpose      : Populates survey_data in preperation for the town and stay 
+    Purpose      : Populates survey_data in preparation for the town and stay
                  : imputation calculation.
     Parameters   : conn - connection object pointing at the database.
     Returns      : NA
@@ -85,8 +85,7 @@ def populate_survey_data_for_TSE_imputation(run_id,conn):
             STAY9K, STAYTLY, STAY_WT, STAY_WTK, UKLEG, VISIT_WT, VISIT_WTK, 
             SHIFT_WT, NON_RESPONSE_WT, MINS_WT, TRAFFIC_WT, UNSAMP_TRAFFIC_WT, 
             IMBAL_WT, FINAL_WT, FAREKEY, TYPEINTERVIEW"""
-    
-        
+
         sql = "select " + column_string + """ 
                     from 
                         survey_subsample ss 
@@ -99,7 +98,7 @@ def populate_survey_data_for_TSE_imputation(run_id,conn):
                     
                 """
         
-        df_content = pd.read_sql(sql,conn)
+        df_content = pd.read_sql(sql, conn)
         
         cf.insert_into_table_many('SAS_SURVEY_SUBSAMPLE', df_content, conn)
     
@@ -110,7 +109,7 @@ def populate_survey_data_for_TSE_imputation(run_id,conn):
     move_survey_subsample_to_sas_table(conn)
 
 
-def copy_TSE_imputationt_pvs_for_survey_data(run_id,conn): 
+def copy_TSE_imputationt_pvs_for_survey_data(run_id, conn):
     """
     Author       : Richmond Rice
     Date         : 20/03/2018
@@ -126,7 +125,6 @@ def copy_TSE_imputationt_pvs_for_survey_data(run_id,conn):
     
     cf.delete_from_table(sas_process_variable_table)
     cf.delete_from_table(sas_shift_spv_table)
-    
 
     sas_process_variable_insert_query1 = "INSERT INTO " + sas_process_variable_table + " \
         (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
@@ -163,7 +161,6 @@ def copy_TSE_imputationt_pvs_for_survey_data(run_id,conn):
         (SELECT PV.PV_NAME, PV.PV_DEF, 6 \
         FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
         AND UPPER(PV.PV_NAME) IN ('TOWN_IMP_ELIGIBLE_PV'))"
-
 
     cur = conn.cursor()
     cur.execute(sas_process_variable_insert_query1)
@@ -264,7 +261,7 @@ def update_survey_data_with_TSE_imputation_results(conn):
     cf.delete_from_table("SAS_TOWN_STAY_IMP")    
 
 
-def store_survey_data_with_TSE_imputation_results(run_id,conn):
+def store_survey_data_with_TSE_imputation_results(run_id, conn):
     """
     Author       : Thomas Mahoney
     Date         : 20/03/2018
@@ -320,4 +317,3 @@ def store_survey_data_with_TSE_imputation_results(run_id,conn):
 
 if __name__ == '__main__':
     pass
-

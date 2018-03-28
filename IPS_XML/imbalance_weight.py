@@ -3,7 +3,8 @@ Created on 20 Mar 2018
 
 @author: thorne1
 '''
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
+
 
 def populate_survey_data_for_imbalance_wt(run_id, conn):
     """
@@ -338,13 +339,13 @@ def run_all(run_id,conn):
     """
     
     populate_survey_data_for_imbalance_wt(conn)
-    copy_imbalance_wt_pvs_for_survey_data(run_id,conn)
+    copy_imbalance_wt_pvs_for_survey_data(run_id, conn)
     apply_imbalance_wt_pvs_on_survey_data(conn)
     update_survey_data_with_imbalance_wt_pvs_output(conn)                                                     
-    calculate_imbalance_weight(run_id,conn)
+    calculate_imbalance_weight(run_id, conn)
     update_survey_data_with_imbalance_wt_results(conn)
-    store_survey_data_with_imbalance_wt_results(run_id,conn)                                                              
-    store_imbalance_weight_summary(run_id,conn)
+    store_survey_data_with_imbalance_wt_results(run_id, conn)
+    store_imbalance_weight_summary(run_id, conn)
 
 
 if __name__ == "__main__":

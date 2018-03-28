@@ -3,9 +3,10 @@ Created on 9 Jan 2018
 
 @author: mahont1
 '''
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 
-def populate_survey_data_for_unsampled_wt(run_id,conn):
+
+def populate_survey_data_for_unsampled_wt(run_id, conn):
     """
     Author       : Elinor Thorne
     Date         : March 2018
@@ -127,7 +128,7 @@ def populate_survey_data_for_unsampled_wt(run_id,conn):
     conn.commit()
 
 
-def populate_unsampled_data(run_id,conn):
+def populate_unsampled_data(run_id, conn):
     """
     Author       : Elinor Thorne
     Date         : March 2018
@@ -155,7 +156,7 @@ def populate_unsampled_data(run_id,conn):
     conn.commit()
 
     
-def copy_unsampled_wt_pvs_for_survey_data(run_id,conn): 
+def copy_unsampled_wt_pvs_for_survey_data(run_id, conn):
     """
     Author       : Elinor Thorne
     Date         : March 2018
@@ -176,7 +177,6 @@ def copy_unsampled_wt_pvs_for_survey_data(run_id,conn):
                                                 FROM """ + process_variable_table + """ pspv
                                                 WHERE pspv.RUN_ID = '""" + run_id + """'
                                                 AND UPPER(pspv.PV_NAME) IN ('UNSAMP_PORT_GRP_PV'))"""          
-
 
     sas_process_variable_2_insert_query = """INSERT INTO """ + sas_process_variable_table + """
                                                     (PROCVAR_NAME, PROCVAR_RULE
@@ -223,7 +223,7 @@ def update_survey_data_with_unsampled_wt_pv_output(conn):
     cf.delete_from_table(sas_unsampled_ooh_spv_table)            
 
 
-def copy_unsampled_wt_pvs_for_unsampled_data(run_id,conn):
+def copy_unsampled_wt_pvs_for_unsampled_data(run_id, conn):
     """
     Author       : Elinor Thorne
     Date         : March 2018
@@ -317,7 +317,7 @@ def update_survey_data_with_unsampled_wt_results(conn):
     cf.delete_from_table(sas_unsampled_ooh_wt_table)    
 
 
-def store_survey_data_with_unsampled_wt_results(run_id,conn):
+def store_survey_data_with_unsampled_wt_results(run_id, conn):
     """
     Author       : Elinor Thorne
     Date         : March 2018
@@ -348,7 +348,7 @@ def store_survey_data_with_unsampled_wt_results(run_id,conn):
     cf.delete_from_table(sas_survey_subsample_table)  
 
 
-def store_unsampled_wt_summary(run_id,conn):
+def store_unsampled_wt_summary(run_id, conn):
     """
     Author       : Elinor Thorne
     Date         : March 2018
@@ -363,7 +363,6 @@ def store_unsampled_wt_summary(run_id,conn):
     
     cf.delete_from_table(ps_unsampled_ooh_table, 'RUN_ID', '=', run_id)
 
-    
     sql = """INSERT INTO """ + ps_unsampled_ooh_table + """(RUN_ID, UNSAMP_PORT_GRP_PV
                 , ARRIVEDEPART, UNSAMP_REGION_GRP_PV, CASES, SUM_PRIOR_WT
                 , SUM_UNSAMP_TRAFFIC_WT, UNSAMP_TRAFFIC_WT)(SELECT '""" + run_id + """'
@@ -378,7 +377,7 @@ def store_unsampled_wt_summary(run_id,conn):
     cf.delete_from_table(sas_ps_unsampled_ooh_table)
 
 
-def run_all(run_id,conn):
+def run_all(run_id, conn):
     """
     Author        : Elinor Thorne
     Date          : Mar 2018
@@ -389,19 +388,18 @@ def run_all(run_id,conn):
     Returns       : N/A   
     """
 
-    populate_survey_data_for_unsampled_wt(run_id,conn)
-    populate_unsampled_data(run_id,conn)
-    copy_unsampled_wt_pvs_for_survey_data(run_id,conn)
-    update_survey_data_with_unsampled_wt_pv_output(run_id,conn)
-    copy_unsampled_wt_pvs_for_unsampled_data(run_id,conn)
+    populate_survey_data_for_unsampled_wt(run_id, conn)
+    populate_unsampled_data(run_id, conn)
+    copy_unsampled_wt_pvs_for_survey_data(run_id, conn)
+    update_survey_data_with_unsampled_wt_pv_output(run_id, conn)
+    copy_unsampled_wt_pvs_for_unsampled_data(run_id, conn)
     update_unsampled_data_with_pv_output()
-    update_survey_data_with_unsampled_wt_results(run_id,conn)
-    store_survey_data_with_unsampled_wt_results(run_id,conn)
-    store_unsampled_wt_summary(run_id,conn)
+    update_survey_data_with_unsampled_wt_results(run_id, conn)
+    store_survey_data_with_unsampled_wt_results(run_id, conn)
+    store_unsampled_wt_summary(run_id, conn)
 
 
 if __name__ == '__main__':
     run_id = ""
     conn = cf.get_oracle_connection()
     update_survey_data_with_unsampled_wt_pv_output(conn)
-

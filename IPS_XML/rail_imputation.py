@@ -3,7 +3,7 @@ Created on 9 Jan 2018
 
 @author: mahont1
 '''
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 import pandas as pd
 
 
@@ -74,8 +74,7 @@ def populate_survey_data_for_rail_imputation(run_id,conn):
             STAY9K, STAYTLY, STAY_WT, STAY_WTK, UKLEG, VISIT_WT, VISIT_WTK, 
             SHIFT_WT, NON_RESPONSE_WT, MINS_WT, TRAFFIC_WT, UNSAMP_TRAFFIC_WT, 
             IMBAL_WT, FINAL_WT, FAREKEY, TYPEINTERVIEW"""
-    
-        
+
         sql = "select " + column_string + """ 
                     from 
                         survey_subsample ss 
@@ -88,7 +87,7 @@ def populate_survey_data_for_rail_imputation(run_id,conn):
                     
                 """
         
-        df_content = pd.read_sql(sql,conn)
+        df_content = pd.read_sql(sql, conn)
         
         cf.insert_into_table_many('SAS_SURVEY_SUBSAMPLE', df_content, conn)
     
@@ -99,7 +98,7 @@ def populate_survey_data_for_rail_imputation(run_id,conn):
     move_survey_subsample_to_sas_table(conn)
     
    
-def copy_rail_imp_pvs_for_survey_data(run_id,conn): 
+def copy_rail_imp_pvs_for_survey_data(run_id, conn):
     """
     Author       : Thomas Mahoney
     Date         : 20/03/2018
@@ -115,7 +114,6 @@ def copy_rail_imp_pvs_for_survey_data(run_id,conn):
     
     cf.delete_from_table(sas_process_variable_table)
     cf.delete_from_table(sas_shift_spv_table)
-
 
     sas_process_variable_insert_query1 = "INSERT INTO " + sas_process_variable_table + " \
         (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER) \
@@ -204,7 +202,6 @@ def update_survey_data_with_rail_imp_results(conn):
                 (select sri2.serial from sas_rail_imp sri2 where sri2.spend >= 0)  
             """
 
-
     cur = conn.cursor()
     cur.execute(sql)
     conn.commit()  
@@ -212,7 +209,7 @@ def update_survey_data_with_rail_imp_results(conn):
     cf.delete_from_table("SAS_RAIL_IMP")    
 
 
-def store_survey_data_with_rail_imp_results(run_id,conn):
+def store_survey_data_with_rail_imp_results(run_id, conn):
     """
     Author       : Thomas Mahoney
     Date         : 20/03/2018

@@ -3,7 +3,8 @@ Created on 20 Mar 2018
 
 @author: thorne1
 '''
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
+
 
 def populate_survey_data_for_final_wt(run_id, conn):
     """
