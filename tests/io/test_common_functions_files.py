@@ -6,7 +6,7 @@ Created on 5 Dec 2017
 import unittest
 import os
 
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 
 class TestCommonFunctions(unittest.TestCase):
     def test_extract_zip_true(self):

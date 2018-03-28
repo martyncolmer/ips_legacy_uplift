@@ -1,6 +1,6 @@
 import os
 import cx_Oracle
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 
 
 """ Write BLOB (to oracle) from table"""

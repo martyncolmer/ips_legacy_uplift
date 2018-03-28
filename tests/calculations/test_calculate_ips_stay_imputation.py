@@ -5,12 +5,12 @@ Created on 15 Mar 2018
 '''
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
-from IPS_Stored_Procedures.ips_stay_imp import do_ips_stay_imputation
+from main.calculations.ips_stay_imp import do_ips_stay_imputation
 
 def test_calculate():
     # This is an integration test as it runs the entire step
 
-    test_survey = pd.read_pickle(r'..\data\stay_imp_input.pkl')
+    test_survey = pd.read_pickle(r'data\stay_imp_input.pkl')
 
     result_data = do_ips_stay_imputation(test_survey
                                 , output = 'SAS_STAY_IMP'
@@ -22,7 +22,7 @@ def test_calculate():
                                 , var_imp_flag = 'STAY_IMP_FLAG_PV'
                                 , var_imp_level = 'STAYK')
 
-    test_result_summary = pd.read_pickle(r'../data/stay_imp_output.pkl')
+    test_result_summary = pd.read_pickle(r'data/stay_imp_output.pkl')
     test_result_summary.columns = test_result_summary.columns.str.upper()
     
     test_result_summary = test_result_summary.sort_values(by = 'SERIAL')
@@ -33,5 +33,3 @@ def test_calculate():
     # The dataframes have different column orders; check_like is True which will
     # ignore that fact when checking if the data is the same.
     assert_frame_equal(result_data, test_result_summary, check_like = True)
-
-test_calculate()

@@ -1,5 +1,5 @@
 from sas7bdat import SAS7BDAT
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 import pandas as pd
 import pandas.util.testing as tm; tm.N = 3
 import numpy as np   

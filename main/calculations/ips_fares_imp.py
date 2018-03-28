@@ -2,8 +2,8 @@ import inspect
 import numpy as np
 import pandas as pd
 import survey_support
-from IPSTransformation import CommonFunctions as cf
-from IPS_Unallocated_Modules import ips_impute
+from main.io import CommonFunctions as cf
+from main.calculations import ips_impute
 
 
 def do_ips_fares_imputation(df_input, output, var_serial_num, var_stem, thresh_stem

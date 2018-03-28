@@ -2,7 +2,7 @@ import logging
 import cx_Oracle
 import datetime
 import traceback
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 
 class IPS_Log_Handler(logging.Handler):
     def __init__(self, **kwargs):

@@ -8,7 +8,7 @@ from sas7bdat import SAS7BDAT
 from pandas.util.testing import assert_frame_equal
 from collections import OrderedDict
 import survey_support
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 
 # TODO:
 # 1. do_ips_ges_weighting() - plug-in real solution once done

@@ -3,7 +3,7 @@ Created on 9 Jan 2018
 
 @author: mahont1
 '''
-from IPSTransformation import CommonFunctions as cf
+from CommonFunctions import CommonFunctions as cf
 import pandas as pd
 import sys
 from IPS_Stored_Procedures import process_variables
