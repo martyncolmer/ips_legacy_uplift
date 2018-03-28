@@ -30,7 +30,7 @@ def test_calculate():
     
     test_survey = pd.read_pickle('../data/regional_wt_input.pkl')
     
-    result_data = do_ips_regional_weight_calculation(test_survey, 'SERIAL', 4, 'STRATA', 
+    result_data = do_ips_regional_weight_calculation(test_survey, 'SERIAL', 4,
                                                      'STAY', 'SPEND', 'FINAL_WT', 'STAY_WT',
                                                      'VISIT_WT', 'EXPENDITURE_WT', 'STAY_WTK',
                                                      'VISIT_WTK', 'EXPENDITURE_WTK', 'REG_IMP_ELIGIBLE_PV',
