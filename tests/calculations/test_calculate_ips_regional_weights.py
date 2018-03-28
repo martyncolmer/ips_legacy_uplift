@@ -47,7 +47,7 @@ def test_calculate():
     str_columns = test_result_summary.dtypes[test_result_summary.dtypes == 'object'].index.tolist()
     test_result_summary[str_columns] = test_result_summary[str_columns].replace(np.NaN, '')
 
-    assert_frame_equal(result_data, test_result_summary,check_like=True)
+    assert_frame_equal(result_data, test_result_summary, check_like=True)
 
 
 test_calculate()

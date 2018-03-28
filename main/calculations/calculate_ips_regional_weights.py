@@ -3,7 +3,7 @@ import math
 import numpy as np
 import pandas as pd
 import survey_support
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 
 
 def ips_correct_regional_nights(df_input, stay):
@@ -99,9 +99,10 @@ def do_ips_regional_weight_calculation(df_input_data, var_serial, max_level,
     Dependencies : NA
     """
 
-    # Do some pre-processing
+    # Extract only eligible rows
     df_impute_towns = df_input_data[df_input_data[var_eligible_flag] == 1]
-    
+
+    # Set initial values for wt and wkt columns
     df_impute_towns.loc[:, var_stay_wt] = 1
     df_impute_towns.loc[:, var_stay_wtk] = ''
     
