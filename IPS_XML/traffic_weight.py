@@ -1,13 +1,13 @@
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 import pandas as pd
 from IPS_Stored_Procedures import process_variables
 
 
-def populate_survey_data_for_non_response_wt(run_id, conn):
+def populate_survey_data_for_traffic_wt(run_id, conn):
     """
     Author       : David Powell
-    Date         : 21 Mar 2018
-    Purpose      : Populates survey_data in preparation for non response
+    Date         : 22 Mar 2018
+    Purpose      : Populates survey_data in preparation for traffic
                  : calculation.
     Parameters   : conn - connection object pointing at the database.
     Returns      : NA
@@ -19,9 +19,9 @@ def populate_survey_data_for_non_response_wt(run_id, conn):
         # SQL that sets survey_subsample's PV values to null
         sql = """
                 update survey_subsample ss 
-                    set ss.NR_PORT_GRP_PV = null, 
-                    ss.MIG_FLAG_PV = null, 
-                    ss.NR_FLAG_PV = null,        
+                    set ss.SAMP_PORT_GRP_PV = null, 
+                    ss.FOOT_OR_VEHICLE_PV = null, 
+                    ss.HAUL_PV = null,        
                 where ss.RUN_ID = '""" + run_id + "'"
 
         # Executes and commits the SQL command
@@ -86,44 +86,44 @@ def populate_survey_data_for_non_response_wt(run_id, conn):
         cf.insert_into_table_many('SAS_SURVEY_SUBSAMPLE', df_content, conn)
 
     cf.delete_from_table("SAS_SURVEY_SUBSAMPLE")
-    cf.delete_from_table("SAS_NON_RESPONSE_WT")
-    cf.delete_from_table("SAS_PS_NON_RESPONSE")
+    cf.delete_from_table("SAS_TRAFFIC_WT")
+    cf.delete_from_table("SAS_PS_TRAFFIC")
 
     nullify_survey_subsample_pv_values(conn)
     move_survey_subsample_to_sas_table(conn)
 
 
-def populate_non_response_data(run_id, conn):
+def populate_traffic_data(run_id, conn):
     """
     Author       : David Powell
     Date         : Mar 2018
-    Purpose      : Populate non response data
+    Purpose      : Populate traffic data
     Parameters   : NA
     Returns      : NA
     Requirements : IPSTransformation
     Dependencies :
     """
 
-    sas_response_data_table = 'sas_non_response_data'
+    sas_traffic_data_table = 'sas_traffic_data'
 
-    sas_response_data_insert_query = "INSERT INTO " + sas_response_data_table + " \
-        (REC_ID, PORTROUTE, WEEKDAY, ARRIVEDEPART, AM_PM_NIGHT, SAMPINTERVAL, MIGTOTAL, ORDTOTAL) \
-        (SELECT REC_ID_S.NEXTVAL, NR.PORTROUTE, NR.WEEKDAY, NR.ARRIVEDEPART, \
-        NR.AM_PM_NIGHT, NR.SAMPINTERVAL, NR.MIGTOTAL, NR.ORDTOTAL \
-        FROM NON_RESPONSE_DATA NR WHERE SD.RUN_ID = '" + run_id + "')"
+    sas_traffic_data_insert_query = "INSERT INTO " + sas_traffic_data_table + " \
+        (REC_ID, PORTROUTE, ARRIVEDEPART, TRAFFICTOTAL, PERIODSTART, PERIODEND,  AM_PM_NIGHT,    HAUL, VEHICLE) \
+        (SELECT REC_ID_S.NEXTVAL, tr.PORTROUTE, tr.ARRIVEDEPART, tr.TRAFFICTOTAL, \
+        tr.PERIODSTART, tr.PERIODEND, tr.AM_PM_NIGHT, tr.HAUL, tr.VEHICLE\
+        FROM TRAFFIC_DATA tr WHERE SD.RUN_ID = '" + run_id + "')"
 
-    cf.delete_from_table(sas_response_data_table)
+    cf.delete_from_table(sas_traffic_data_table)
 
     cur = conn.cursor()
-    cur.execute(sas_response_data_insert_query)
+    cur.execute(sas_traffic_data_insert_query)
     conn.commit()
 
 
-def copy_non_response_wt_pvs_for_survey_data(run_id, conn):
+def copy_traffic_wt_pvs_for_survey_data(run_id, conn):
     """
     Author       : David Powell
     Date         : Mar 2018
-    Purpose      : Copy non response process variable data
+    Purpose      : Copy traffic process variable data
     Parameters   : NA
     Returns      : NA
     Requirements : IPSTransformation
@@ -131,27 +131,27 @@ def copy_non_response_wt_pvs_for_survey_data(run_id, conn):
     """
 
     sas_process_variable_table = 'SAS_PROCESS_VARIABLE'
-    sas_non_response_spv_table = 'SAS_NON_RESPONSE_SPV'
+    sas_traffic_spv_table = 'SAS_TRAFFIC_SPV'
 
     sas_process_variable_insert_query = "INSERT INTO " + sas_process_variable_table + " \
         (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, 0 \
         FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
-        AND UPPER(PV.PV_NAME) IN ('NR_PORT_GRP_PV', 'MIG_FLAG_PV', \
-        'NR_FLAG_PV'))"
+        AND UPPER(PV.PV_NAME) IN ('SAMP_PORT_GRP_PV', 'FOOT_OR_VEHICLE_PV', \
+        'HAUL_PV'))"
 
     cf.delete_from_table(sas_process_variable_table)
-    cf.delete_from_table(sas_non_response_spv_table)
+    cf.delete_from_table(sas_traffic_spv_table)
 
     cur = conn.cursor()
     cur.execute(sas_process_variable_insert_query)
     conn.commit()
 
 
-def update_survey_data_with_non_response_wt_pv_output(conn):
+def update_survey_data_with_traffic_wt_pv_output(conn):
         """
         Author       : David Powell
-        Date         : 21 Mar 2018
-        Purpose      : Updates survey_data with the non response weight process variable
+        Date         : 22 Mar 2018
+        Purpose      : Updates survey_data with the traffic weight process variable
                      : output.
         Parameters   : conn - connection object pointing at the database.
         Returns      : NA
@@ -160,34 +160,34 @@ def update_survey_data_with_non_response_wt_pv_output(conn):
         """
 
         sql = """update sas_survey_subsample sss       
-                    set (sss.MIG_FLAG_PV, 
-                        sss.NR_PORT_GRP_PV, 
-                        sss.NR_FLAG_PV ) =
-                    (select snr.MIG_FLAG_PV, 
-                        snr.NR_PORT_GRP_PV, 
-                        snr.NR_FLAG_PV, 
+                    set (sss.sss.SAMP_PORT_GRP_PV, 
+                        sss.sss.FOOT_OR_VEHICLE_PV, 
+                        sss.sss.HAUL_PV ) =
+                    (select sts.SAMP_PORT_GRP_PV, 
+                        sts.FOOT_OR_VEHICLE_PV, 
+                        sts.sss.HAUL_PV, 
                     from 
-                        sas_non_response_spv snr
+                        sas_traffic_spv sts
                     where 
-                        sss.SERIAL = snr.SERIAL)
+                        sss.SERIAL = sts.SERIAL)
                     """
 
         sas_process_variable_table = 'SAS_PROCESS_VARIABLE'
-        sas_non_response_table = 'SAS_NON_RESPONSE_SPV'
+        sas_traffic_table = 'SAS_TRAFFIC_SPV'
 
         cf.delete_from_table(sas_process_variable_table)
-        cf.delete_from_table(sas_non_response_table)
+        cf.delete_from_table(sas_traffic_table)
 
         cur = conn.cursor()
         cur.execute(sql)
         conn.commit()
 
 
-def copy_non_response_wt_pvs_for_non_response_data(run_id, conn):
+def copy_traffic_wt_pvs_for_traffic_data(run_id, conn):
     """
     Author       : David Powell
     Date         : 22 Mar 2018
-    Purpose      : Copies the non response weight process variables for shift_data
+    Purpose      : Copies the traffic weight process variables for traffic
     Parameters   : conn - connection object pointing at the database.
     Returns      : NA
     Requirements : NA
@@ -195,57 +195,57 @@ def copy_non_response_wt_pvs_for_non_response_data(run_id, conn):
     """
 
     sas_process_variable_table = 'SAS_PROCESS_VARIABLE'
-    sas_non_response_pv_table = 'SAS_NON_RESPONSE_PV'
+    sas_traffic_pv_table = 'SAS_TRAFFIC_PV'
 
     sas_process_variable_insert_query = "INSERT INTO " + sas_process_variable_table + " \
         (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, 0 \
         FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
-        AND UPPER(PV.PV_NAME) IN ('NR_PORT_GRP_PV', 'WEEKDAY_END_PV' ))"
+        AND UPPER(PV.PV_NAME) IN ('SAMP_PORT_GRP_PV', 'FOOT_OR_VEHICLE_PV', 'HAUL_PV' ))"
 
     cur = conn.cursor()
     cur.execute(sas_process_variable_insert_query)
     conn.commit()
 
     cf.delete_from_table(sas_process_variable_table)
-    cf.delete_from_table(sas_non_response_pv_table)
+    cf.delete_from_table(sas_traffic_pv_table)
 
 
-def update_non_response_data_with_pvs_output(conn):
+def update_traffic_data_with_pvs_output(conn):
     """
     Author       : David Powell
     Date         : Mar 2018
-    Purpose      : Update non response data with process variables
+    Purpose      : Update traffic data with process variables
     Parameters   : NA
     Returns      : NA
     Requirements : IPSTransformation
     Dependencies :
     """
 
-    sas_non_response_pv_table = 'SAS_NON_RESPONSE_PV'
-    sas_non_response_wt_table = 'SAS_NON_RESPONSE_WT'
+    sas_traffic_pv_table = 'SAS_TRAFFIC_PV'
+    sas_traffic_wt_table = 'SAS_TRAFFIC_WT'
     sas_process_variable_table = 'SAS_PROCESS_VARIABLE'
-    sas_ps_non_response_data_table = 'SAS_PS_NON_RESPONSE'
+    sas_ps_traffic_table = 'SAS_PS_TRAFFIC'
 
-    sas_non_response_data_update_query = "UPDATE SAS_NON_RESPONSE_DATA SSD SET (SSD.MIG_FLAG_PV, \
-        SSD.NR_PORT_GRP_PV, SSD.NR_FLAG_PV) = (SELECT SSP.MIG_FLAG_PV, \
-        SSP.NR_PORT_GRP_PV,SSP.NR_FLAG_PV FROM " + sas_non_response_pv_table + " SSP \
+    sas_traffic_data_update_query = "UPDATE SAS_TRAFFIC_DATA SSD SET (SSD.SAMP_PORT_GRP_PV, \
+        SSD.FOOT_OR_VEHICLE_PV, SSD.HAUL_PV) = (SELECT SSP.SAMP_PORT_GRP_PV, \
+        SSP.FOOT_OR_VEHICLE_PV,SSP.HAUL_PV FROM " + sas_traffic_pv_table + " SSP \
         WHERE SSD.REC_ID = SSP.REC_ID)"
 
     cur = conn.cursor()
-    cur.execute(sas_non_response_data_update_query)
+    cur.execute(sas_traffic_data_update_query)
     conn.commit()
 
-    cf.delete_from_table(sas_non_response_pv_table)
-    cf.delete_from_table(sas_non_response_wt_table)
+    cf.delete_from_table(sas_traffic_pv_table)
+    cf.delete_from_table(sas_traffic_wt_table)
     cf.delete_from_table(sas_process_variable_table)
-    cf.delete_from_table(sas_ps_non_response_data_table)
+    cf.delete_from_table(sas_ps_traffic_table)
 
 
-def update_survey_data_with_non_response_wt_results(conn):
+def update_survey_data_with_traffic_wt_results(conn):
         """
         Author       : David Powell
-        Date         : 21 Mar 2018
-        Purpose      : Updates survey_data with the non response weight results.
+        Date         : 22 Mar 2018
+        Purpose      : Updates survey_data with the traffic weight results.
         Parameters   : conn - connection object pointing at the database.
         Returns      : NA
         Requirements : NA
@@ -253,11 +253,11 @@ def update_survey_data_with_non_response_wt_results(conn):
         """
 
         sql = """update sas_survey_subsample sss
-                set (sss.NON_RESPONSE_WT ) =
+                set (sss.TRAFFIC_WT ) =
                 (select 
-                    snr.NON_RESPONSE_WT        
+                    snr.TRAFFIC_WT        
                 from 
-                    sas_non_response_wt snr        
+                    sas_traffic_wt snr        
                 where 
                     sss.SERIAL = snr.SERIAL)
                 """
@@ -266,14 +266,14 @@ def update_survey_data_with_non_response_wt_results(conn):
         cur.execute(sql)
         conn.commit()
 
-        cf.delete_from_table("SAS_NON_RESPONSE_WT")
+        cf.delete_from_table("SAS_TRAFFIC_WT")
 
 
-def store_survey_data_with_non_response_wt_results(run_id, conn):
+def store_survey_data_with_traffic_wt_results(run_id, conn):
     """
     Author       : David Powell
-    Date         : 21 Mar 2018
-    Purpose      : Stores the survey data with the non response weight results
+    Date         : 22 Mar 2018
+    Purpose      : Stores the survey data with the traffic weight results
     Parameters   : conn - connection object pointing at the database.
     Returns      : NA
     Requirements : NA
@@ -281,14 +281,14 @@ def store_survey_data_with_non_response_wt_results(run_id, conn):
     """
 
     sql = """update survey_subsample ss
-            set (ss.MIG_FLAG_PV,
-                ss.NR_PORT_GRP_PV, 
-                ss.NR_FLAG_PV,
-                ss.NON_RESPONSE_WT ) = 
-            (select sss.MIG_FLAG_PV, 
-                sss.NR_PORT_GRP_PV, 
-                sss.NR_FLAG_PV,
-                sss.NON_RESPONSE_WT, 
+            set (ss.SAMP_PORT_GRP_PV,
+                ss.FOOT_OR_VEHICLE_PV, 
+                ss.HAUL_PV,
+                ss.TRAFFIC_WT ) = 
+            (select sss.SAMP_PORT_GRP_PV, 
+                sss.FOOT_OR_VEHICLE_PV, 
+                sss.HAUL_PV,
+                sss.TRAFFIC_WT, 
             from 
                 sas_survey_subsample sss         
             where 
@@ -300,16 +300,16 @@ def store_survey_data_with_non_response_wt_results(run_id, conn):
     cur.execute(sql)
     conn.commit()
 
-    cf.delete_from_table('PS_NON_RESPONSE', 'RUN_ID', '=', run_id)
+    cf.delete_from_table('PS_TRAFFIC', 'RUN_ID', '=', run_id)
 
     cf.delete_from_table("SAS_SURVEY_SUBSAMPLE")
 
 
-def store_non_response_wt_summary(run_id, conn):
+def store_traffic_wt_summary(run_id, conn):
     """
     Author       : David Powell
-    Date         : 21 Mar 2018
-    Purpose      : Stores the non response weight summary
+    Date         : 22 Mar 2018
+    Purpose      : Stores the traffic weight summary
     Parameters   : conn - connection object pointing at the database.
     Returns      : NA
     Requirements : NA
@@ -319,17 +319,17 @@ def store_non_response_wt_summary(run_id, conn):
     cf.delete_from_table('PS_NON_RESPONSE', 'RUN_ID', '=', run_id)
 
     sql = """
-     insert into ps_non_response 
-     (RUN_ID, NR_PORT_GRP_PV, ARRIVEDEPART, WEEKDAY_END_PV, MEAN_RESPS_SH_WT, COUNT_RESPS, PRIOR_SUM, GROSS_RESP, GNR, MEAN_NR_WT)
-     (select '""" + run_id + """', NR_PORT_GRP_PV, ARRIVEDEPART, WEEKDAY_END_PV, MEAN_RESPS_SH_WT, COUNT_RESPS, PRIOR_SUM, GROSS_RESP, GNR, MEAN_NR_WT        
-     from sas_ps_non_response)
+     insert into ps_traffic 
+     (RUN_ID, SAMP_PORT_GRP_PV, ARRIVEDEPART, FOOT_OR_VEHICLE_PV, CASES,          TRAFFICTOTAL, SUM_TRAFFIC_WT, TRAFFIC_WT)
+     (select '""" + run_id + """', SAMP_PORT_GRP_PV, ARRIVEDEPART, FOOT_OR_VEHICLE_PV, CASES, TRAFFICTOTAL, SUM_TRAFFIC_WT, TRAFFIC_WT        
+     from sas_ps_traffic)
     """
 
     cur = conn.cursor()
     cur.execute(sql)
     conn.commit()
 
-    cf.delete_from_table('SAS_PS_NON_RESPONSE')
+    cf.delete_from_table('SAS_PS_TRAFFIC')
 
 
 def run_all(run_id, conn):
@@ -337,40 +337,40 @@ def run_all(run_id, conn):
     # Hard Coded for now, this will be generated
     # run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
 
-    #  Populate Survey Data For Non Response Wt                   TM
-    populate_survey_data_for_non_response_wt(run_id, conn)
+    #  Populate Survey Data For Traffic Wt                   TM
+    populate_survey_data_for_traffic_wt(run_id, conn)
 
-    # Populate Non Response Data                                  RR
-    populate_non_response_data(run_id, conn)
+    # Populate Traffic Data                                  RR
+    populate_traffic_data(run_id, conn)
 
-    # Copy Non Response Wt PVs For Survey Data                    RR
-    copy_non_response_wt_pvs_for_survey_data(run_id, conn)
+    # Copy Traffic Wt PVs For Survey Data                    RR
+    copy_traffic_wt_pvs_for_survey_data(run_id, conn)
 
-    # Apply Non Response Wt PVs On Survey Data                    X
+    # Apply Traffic Wt PVs On Survey Data                    X
     process_variables.process()  ##############
 
-    # Update Survey Data with Non Response Wt PV Output           TM
-    update_survey_data_with_non_response_wt_pv_output(run_id, conn)
+    # Update Survey Data with Traffic Wt PV Output           TM
+    update_survey_data_with_traffic_wt_pv_output(run_id, conn)
 
-    # Copy Non Response Wt PVs For Non Response Data                     TM
-    copy_non_response_wt_pvs_for_non_response_data(run_id, conn)
+    # Copy Traffic Wt PVs For Traffic Data                     TM
+    copy_traffic_wt_pvs_for_traffic_data(run_id, conn)
 
-    # Apply Non Response Wt PVs On Shift Data                     X
+    # Apply Traffic Wt PVs On Shift Data                     X
     process_variables  ##############
 
-    # Update Non Response Data with PVs Output                    RR
-    update_non_response_data_with_pvs_output()
+    # Update Traffic Data with PVs Output                    RR
+    update_traffic_data_with_pvs_output()
 
-    # Calculate Non Response Weight                               X
+    # Calculate Traffic Weight                               X
 
-    # Update Survey Data With Non Response Wt Results             TM
-    update_survey_data_with_non_response_wt_results(run_id, conn)
+    # Update Survey Data With Traffic Wt Results             TM
+    update_survey_data_with_traffic_wt_results(run_id, conn)
 
-    # Store Survey Data With Non Response Wt Results              TM
-    store_survey_data_with_non_response_wt_results(run_id, conn)
+    # Store Survey Data With Traffic Wt Results              TM
+    store_survey_data_with_traffic_wt_results(run_id, conn)
 
-    # Store Non Response Wt Summary                               TM
-    store_non_response_wt_summary(run_id, conn)
+    # Store Traffic Wt Summary                               TM
+    store_traffic_wt_summary(run_id, conn)
 
     pass
 

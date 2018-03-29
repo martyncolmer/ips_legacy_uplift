@@ -3,13 +3,12 @@ Created on 9 Jan 2018
 
 @author: mahont1
 '''
-from CommonFunctions import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 import pandas as pd
-import sys
 from IPS_Stored_Procedures import process_variables
 
 
-def populate_survey_data_for_shift_wt(run_id,conn):
+def populate_survey_data_for_shift_wt(run_id, conn):
     """
     Author       : Thomas Mahoney
     Date         : 10 Jan 2017
@@ -22,7 +21,6 @@ def populate_survey_data_for_shift_wt(run_id,conn):
     """
 
     def nullify_survey_subsample_pv_values(conn):
-        
         # SQL that sets survey_subsample's PV values to null
         sql = """
                 update survey_subsample ss 
@@ -33,14 +31,13 @@ def populate_survey_data_for_shift_wt(run_id,conn):
                     ss.CROSSINGS_FLAG_PV = null, 
                     ss.SHIFT_WT = null        
                 where ss.RUN_ID = '""" + run_id + "'"
-        
+
         # Executes and commits the SQL command
         cur = conn.cursor()
         cur.execute(sql)
         conn.commit()
-    
+
     def move_survey_subsample_to_sas_table(conn):
-    
         column_string = """SERIAL, AGE, AM_PM_NIGHT, ANYUNDER16, APORTLATDEG, APORTLATMIN, 
             APORTLATSEC, APORTLATNS, APORTLONDEG, APORTLONMIN, APORTLONSEC,
             APORTLONEW, ARRIVEDEPART, BABYFARE, BEFAF, CHANGECODE, CHILDFARE,
@@ -79,8 +76,7 @@ def populate_survey_data_for_shift_wt(run_id,conn):
             STAY9K, STAYTLY, STAY_WT, STAY_WTK, UKLEG, VISIT_WT, VISIT_WTK, 
             SHIFT_WT, NON_RESPONSE_WT, MINS_WT, TRAFFIC_WT, UNSAMP_TRAFFIC_WT, 
             IMBAL_WT, FINAL_WT, FAREKEY, TYPEINTERVIEW"""
-    
-        
+
         sql = "select " + column_string + """ 
                     from 
                         survey_subsample ss 
@@ -92,20 +88,20 @@ def populate_survey_data_for_shift_wt(run_id,conn):
                         ss.RESPNSE between 1 and 6
                     
                 """
-        
-        df_content = pd.read_sql(sql,conn)
-        
+
+        df_content = pd.read_sql(sql, conn)
+
         cf.insert_into_table_many('SAS_SURVEY_SUBSAMPLE', df_content, conn)
-    
+
     cf.delete_from_table("SAS_SURVEY_SUBSAMPLE")
     cf.delete_from_table("SAS_SHIFT_WT")
     cf.delete_from_table("SAS_PS_SHIFT_DATA")
-    
+
     nullify_survey_subsample_pv_values(conn)
     move_survey_subsample_to_sas_table(conn)
 
 
-def populate_shift_data(run_id,conn):
+def populate_shift_data(run_id, conn):
     """
     Author       : Richmond Rice
     Date         : Jan 2018
@@ -131,7 +127,7 @@ def populate_shift_data(run_id,conn):
     conn.commit()
 
 
-def copy_shift_wt_pvs_for_survey_data(run_id,conn): 
+def copy_shift_wt_pvs_for_survey_data(run_id, conn):
     """
     Author       : Richmond Rice
     Date         : Jan 2018
@@ -156,10 +152,10 @@ def copy_shift_wt_pvs_for_survey_data(run_id,conn):
 
     cur = conn.cursor()
     cur.execute(sas_process_variable_insert_query)
-    conn.commit()  
+    conn.commit()
 
 
-def update_survey_data_with_shift_wt_pv_output(conn): 
+def update_survey_data_with_shift_wt_pv_output(conn):
     """
     Author       : Thomas Mahoney
     Date         : 10 Jan 2017
@@ -170,7 +166,7 @@ def update_survey_data_with_shift_wt_pv_output(conn):
     Requirements : NA
     Dependencies : NA
     """
-    
+
     sql = """update sas_survey_subsample sss       
                 set (sss.SHIFT_PORT_GRP_PV, 
                     sss.WEEKDAY_END_PV, 
@@ -187,13 +183,13 @@ def update_survey_data_with_shift_wt_pv_output(conn):
                 where 
                     sss.SERIAL = sssp.SERIAL)
                 """
-    
+
     cur = conn.cursor()
     cur.execute(sql)
-    conn.commit()            
+    conn.commit()
 
 
-def copy_shift_wt_pvs_for_shift_data(run_id,conn):
+def copy_shift_wt_pvs_for_shift_data(run_id, conn):
     """
     Author       : Thomas Mahoney
     Date         : 10 Jan 2017
@@ -203,23 +199,24 @@ def copy_shift_wt_pvs_for_shift_data(run_id,conn):
     Requirements : NA
     Dependencies : NA
     """
-    
+
     sas_process_variable_table = 'SAS_PROCESS_VARIABLE'
     sas_shift_pv_table = 'SAS_SHIFT_PV'
-    
+
     sas_process_variable_insert_query = "INSERT INTO " + sas_process_variable_table + " \
         (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, 0 \
         FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
         AND UPPER(PV.PV_NAME) IN ('SHIFT_PORT_GRP_PV', 'WEEKDAY_END_PV', \
         'AM_PM_NIGHT_PV'))"
-    
+
     cf.delete_from_table(sas_process_variable_table)
     cf.delete_from_table(sas_shift_pv_table)
-    
+
     cur = conn.cursor()
     cur.execute(sas_process_variable_insert_query)
-    conn.commit()  
-    
+    conn.commit()
+
+
 #     OLD sql
 #     sql ="""select 
 #                 pv.PV_NAME, pv.PV_DEF, 0 
@@ -249,7 +246,7 @@ def copy_shift_wt_pvs_for_shift_data(run_id,conn):
 #         """
 
 
-def update_shift_data_with_pvs_output(conn): 
+def update_shift_data_with_pvs_output(conn):
     """
     Author       : Richmond Rice
     Date         : Jan 2018
@@ -274,13 +271,13 @@ def update_shift_data_with_pvs_output(conn):
 
     cur = conn.cursor()
     cur.execute(sas_shift_data_update_query)
-    conn.commit()  
+    conn.commit()
 
     cf.delete_from_table(sas_shift_pv_table)
     cf.delete_from_table(sas_shift_wt_table)
     cf.delete_from_table(sas_process_variable_table)
     cf.delete_from_table(sas_ps_shift_data_table)
-    
+
 
 def update_survey_data_with_shift_wt_results(conn):
     """
@@ -292,7 +289,7 @@ def update_survey_data_with_shift_wt_results(conn):
     Requirements : NA
     Dependencies : NA
     """
-    
+
     sql = """update sas_survey_subsample sss
             set (sss.SHIFT_WT ) =
             (select 
@@ -305,12 +302,12 @@ def update_survey_data_with_shift_wt_results(conn):
 
     cur = conn.cursor()
     cur.execute(sql)
-    conn.commit()  
-        
-    cf.delete_from_table("SAS_SHIFT_WT")    
+    conn.commit()
+
+    cf.delete_from_table("SAS_SHIFT_WT")
 
 
-def store_survey_data_with_shift_wt_results(run_id,conn):
+def store_survey_data_with_shift_wt_results(run_id, conn):
     """
     Author       : Thomas Mahoney
     Date         : 10 Jan 2017
@@ -320,7 +317,7 @@ def store_survey_data_with_shift_wt_results(run_id,conn):
     Requirements : NA
     Dependencies : NA
     """
-    
+
     sql = """update survey_subsample ss
             set (ss.SHIFT_PORT_GRP_PV,
                 ss.WEEKDAY_END_PV, 
@@ -339,18 +336,18 @@ def store_survey_data_with_shift_wt_results(run_id,conn):
             where 
                 sss.SERIAL = ss.SERIAL)        
             where 
-                ss.RUN_ID = '""" + run_id + "'"    
+                ss.RUN_ID = '""" + run_id + "'"
 
     cur = conn.cursor()
     cur.execute(sql)
-    conn.commit()  
+    conn.commit()
 
     cf.delete_from_table('PS_SHIFT_DATA', 'RUN_ID', '=', run_id)
-    
-    cf.delete_from_table("SAS_SURVEY_SUBSAMPLE")  
+
+    cf.delete_from_table("SAS_SURVEY_SUBSAMPLE")
 
 
-def store_shift_wt_summary(run_id,conn):
+def store_shift_wt_summary(run_id, conn):
     """
     Author       : Thomas Mahoney
     Date         : 10 Jan 2017
@@ -360,87 +357,85 @@ def store_shift_wt_summary(run_id,conn):
     Requirements : NA
     Dependencies : NA
     """
-    
+
     cf.delete_from_table('PS_SHIFT_DATA', 'RUN_ID', '=', run_id)
 
-#     column_string = "'"+ run_id+"""', 
-#                     SHIFT_PORT_GRP_PV, 
-#                     ARRIVEDEPART, 
-#                     WEEKDAY_END_PV, 
-#                     AM_PM_NIGHT_PV, 
-#                     MIGSI, 
-#                     POSS_SHIFT_CROSS, 
-#                     SAMP_SHIFT_CROSS, 
-#                     MIN_SH_WT, 
-#                     MEAN_SH_WT, 
-#                     MAX_SH_WT, 
-#                     COUNT_RESPS, 
-#                     SUM_SH_WT """     
-#     
-    #sql = "select "+column_string+" from sas_ps_shift_data"
-    #df_content = pd.read_sql(sql,conn)
-    #df_content.to_csv("sas_ps_shift_data.csv")
-    #df_content.columns.values[0] = 'RUN_ID'
-    
-    #cf.insert_into_table_many('PS_SHIFT_DATA', df_content, conn)
-    
+    #     column_string = "'"+ run_id+"""',
+    #                     SHIFT_PORT_GRP_PV,
+    #                     ARRIVEDEPART,
+    #                     WEEKDAY_END_PV,
+    #                     AM_PM_NIGHT_PV,
+    #                     MIGSI,
+    #                     POSS_SHIFT_CROSS,
+    #                     SAMP_SHIFT_CROSS,
+    #                     MIN_SH_WT,
+    #                     MEAN_SH_WT,
+    #                     MAX_SH_WT,
+    #                     COUNT_RESPS,
+    #                     SUM_SH_WT """
+    #
+    # sql = "select "+column_string+" from sas_ps_shift_data"
+    # df_content = pd.read_sql(sql,conn)
+    # df_content.to_csv("sas_ps_shift_data.csv")
+    # df_content.columns.values[0] = 'RUN_ID'
+
+    # cf.insert_into_table_many('PS_SHIFT_DATA', df_content, conn)
+
     sql = """
      insert into ps_shift_data 
      (RUN_ID, SHIFT_PORT_GRP_PV, ARRIVEDEPART, WEEKDAY_END_PV, AM_PM_NIGHT_PV, MIGSI, POSS_SHIFT_CROSS, SAMP_SHIFT_CROSS, MIN_SH_WT, MEAN_SH_WT, MAX_SH_WT, COUNT_RESPS, SUM_SH_WT)
-     (select '"""+run_id+"""', SHIFT_PORT_GRP_PV, ARRIVEDEPART, WEEKDAY_END_PV, AM_PM_NIGHT_PV, MIGSI, POSS_SHIFT_CROSS, SAMP_SHIFT_CROSS, MIN_SH_WT, MEAN_SH_WT, MAX_SH_WT, COUNT_RESPS, SUM_SH_WT        
+     (select '""" + run_id + """', SHIFT_PORT_GRP_PV, ARRIVEDEPART, WEEKDAY_END_PV, AM_PM_NIGHT_PV, MIGSI, POSS_SHIFT_CROSS, SAMP_SHIFT_CROSS, MIN_SH_WT, MEAN_SH_WT, MAX_SH_WT, COUNT_RESPS, SUM_SH_WT        
      from sas_ps_shift_data)
     """
-    
+
     cur = conn.cursor()
     cur.execute(sql)
-    conn.commit()  
-    
-    
+    conn.commit()
+
     cf.delete_from_table('SAS_PS_SHIFT_DATA')
 
 
-def run_all(run_id,conn):
+def run_all(run_id, conn):
     # Hard Coded for now, this will be generated
-    #run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
-        
+    # run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
+
     #  Populate Survey Data For Shift Wt                   TM
-    populate_survey_data_for_shift_wt(run_id,conn)
-    
+    populate_survey_data_for_shift_wt(run_id, conn)
+
     # Populate Shift Data                                  RR
-    populate_shift_data(run_id,conn)
-    
+    populate_shift_data(run_id, conn)
+
     # Copy Shift Wt PVs For Survey Data                    RR
-    copy_shift_wt_pvs_for_survey_data(run_id,conn)
-    
+    copy_shift_wt_pvs_for_survey_data(run_id, conn)
+
     # Apply Shift Wt PVs On Survey Data                    X
-    process_variables.process()                                                     ##############
-    
+    process_variables.process()  ##############
+
     # Update Survey Data with Shift Wt PV Output           TM
-    update_survey_data_with_shift_wt_pv_output(run_id,conn)
-    
+    update_survey_data_with_shift_wt_pv_output(run_id, conn)
+
     # Copy Shift Wt PVs For Shift Data                     TM
-    copy_shift_wt_pvs_for_shift_data(run_id,conn)
-    
+    copy_shift_wt_pvs_for_shift_data(run_id, conn)
+
     # Apply Shift Wt PVs On Shift Data                     X
-    process_variables                                                               ##############
-    
+    process_variables  ##############
+
     # Update Shift Data with PVs Output                    RR
     update_shift_data_with_pvs_output()
-    
+
     # Calculate Shift Weight                               X 
-    
+
     # Update Survey Data With Shift Wt Results             TM
-    update_survey_data_with_shift_wt_results(run_id,conn)
-    
+    update_survey_data_with_shift_wt_results(run_id, conn)
+
     # Store Survey Data With Shift Wt Results              TM
-    store_survey_data_with_shift_wt_results(run_id,conn)
-    
+    store_survey_data_with_shift_wt_results(run_id, conn)
+
     # Store Shift Wt Summary                               TM 
-    store_shift_wt_summary(run_id,conn)
+    store_shift_wt_summary(run_id, conn)
 
     pass
 
 
 if __name__ == '__main__':
     run_all()
-

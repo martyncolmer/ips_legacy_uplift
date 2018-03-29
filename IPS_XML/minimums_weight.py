@@ -1,4 +1,4 @@
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 import pandas as pd
 from IPS_Stored_Procedures import process_variables
 
@@ -274,15 +274,15 @@ def run_all(run_id, conn):
     copy_min_wt_pvs_for_survey_data(run_id, conn)
 
     # Apply Minimums Wt PVs On Survey Data           X
-    process_variables.process()  ##############
+    process_variables.process()
 
     # Update Survey Data with Min Wt PV Output           TM
-    update_survey_data_with_min_wt_pv_output(run_id, conn)
+    update_survey_data_with_min_wt_pv_output(conn)
 
     # Calculate Minimums Weight                      X
 
     # Update Survey Data With Min Wt Results             TM
-    update_survey_data_with_min_wt_results(run_id, conn)
+    update_survey_data_with_min_wt_results(conn)
 
     # Store Survey Data With Min Wt Results              TM
     store_survey_data_with_min_wt_results(run_id, conn)
