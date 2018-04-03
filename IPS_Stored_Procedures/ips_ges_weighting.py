@@ -160,7 +160,7 @@ def ips_setup_ges_auxvars(df_poptotals, StrataDef, AuxVar, TotVar,
     return df_cv_set, df_model_definition, AuxVar, TotVar, AuxVarCount, AuxNumFormat 
     
 
-def ips_assign_ges_auxiliaries(df_survey, ModelDefinition, MaxRuleLength, 
+def ips_assign_ges_auxiliaries(df_survey, ModelDefinition, MaxRuleLength,
                                   AuxVarPrefix, AuxCount, StrataDef):
     """
     Author       : Thomas Mahoney

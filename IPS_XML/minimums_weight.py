@@ -294,4 +294,5 @@ def run_all(run_id, conn):
 
 
 if __name__ == '__main__':
+        conn = cf.get_oracle_connection()
         run_all()

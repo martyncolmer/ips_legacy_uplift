@@ -4,14 +4,14 @@ Created on 8 Jan 2018
 @author: Thomas Mahoney
 '''
 import sys
-from IPSTransformation import CommonFunctions as cf
-from IPS_Unallocated_Modules import transpose_survey_data
-from IPS_Unallocated_Modules import populate_survey_subsample
-from IPS_Unallocated_Modules import prepare_survey_data
-from IPS_Unallocated_Modules import import_traffic_data
+from main.io import CommonFunctions as cf
+from main.io import transpose_survey_data
+from main.io import populate_survey_subsample
+from IPS_XML import shift_weight
+from main.io import import_traffic_data
 from IPS_Stored_Procedures import process_variables
-from IPS_Stored_Procedures import calculate_ips_shift_weight
-from IPS_Stored_Procedures import calculate_ips_nonresponse_weight
+from main.calculations import calculate_ips_shift_weight
+from main.calculations import calculate_ips_nonresponse_weight
 
 root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\TestInputFiles"
 path_to_test_data = root_data_path + r"\testdata.sas7bdat"
@@ -19,7 +19,6 @@ path_to_test_data = root_data_path + r"\testdata.sas7bdat"
 path_to_shift_data = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Possible shifts Q1 2017.csv'
 
 run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
-
 
 connection = cf.get_oracle_connection()
 
@@ -39,13 +38,13 @@ import_traffic_data.import_traffic_data(run_id,path_to_shift_data)
 # 2 - Process
 
 print("Start - populate_survey_data_for_shift_wt")
-prepare_survey_data.populate_survey_data_for_shift_wt(run_id, connection)
+shift_weight.populate_survey_data_for_shift_wt(run_id, connection)
 
 print("Start - populate_shift_data")
-prepare_survey_data.populate_shift_data(run_id, connection)
+shift_weight.populate_shift_data(run_id, connection)
 
 print("Start - copy_shift_wt_pvs_for_survey_data")
-prepare_survey_data.copy_shift_wt_pvs_for_survey_data(run_id, connection)
+shift_weight.copy_shift_wt_pvs_for_survey_data(run_id, connection)
 
 print("Start - Apply PVs On survey Data")
 process_variables.process(in_dataset = 'survey',
@@ -54,10 +53,10 @@ process_variables.process(in_dataset = 'survey',
                           in_id = 'serial')
 
 print("Start - update_survey_data_with_shift_wt_pv_output")
-prepare_survey_data.update_survey_data_with_shift_wt_pv_output(connection)
+shift_weight.update_survey_data_with_shift_wt_pv_output(connection)
 
 print("Start - copy_shift_wt_pvs_for_shift_data")
-prepare_survey_data.copy_shift_wt_pvs_for_shift_data(run_id, connection)
+shift_weight.copy_shift_wt_pvs_for_shift_data(run_id, connection)
 
 print("Start - Apply Shift Wt PVs On Shift Data")
 process_variables.process(in_dataset = 'shift',
@@ -66,7 +65,7 @@ process_variables.process(in_dataset = 'shift',
                           in_id = 'REC_ID')
 
 print("Start - update_shift_data_with_pvs_output")
-prepare_survey_data.update_shift_data_with_pvs_output(connection)
+shift_weight.update_shift_data_with_pvs_output(connection)
 
 print("Start - Calculate Shift Weight")
 calculate_ips_shift_weight.calculate(SurveyData = 'SAS_SURVEY_SUBSAMPLE',

@@ -688,9 +688,9 @@ def insert_into_table_many(table_name,dataframe,connection = False):
     ")"
     print(sql)
     
-    # Debugging
-#     for rec in rows:
-#         print (rec)
+    #Debugging
+    #for rec in rows:
+    #    print (rec)
     
     cur.executemany("INSERT into " + table_name + 
          "(" 
