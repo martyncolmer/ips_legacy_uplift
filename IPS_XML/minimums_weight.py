@@ -1,6 +1,6 @@
 from main.io import CommonFunctions as cf
 import pandas as pd
-from IPS_Stored_Procedures import process_variables
+from main.utils import process_variables
 
 
 def populate_survey_data_for_min_wt(run_id, conn):
@@ -135,21 +135,21 @@ def update_survey_data_with_min_wt_pv_output(conn):
         Dependencies : NA
         """
 
-        sql = """update sas_survey_subsample sss       
-                    set (sss.MINS_FLAG_PV, 
-                        sss.MINS_PORT_GRP_PV, 
-                        sss.MINS_CTRY_GRP_PV
-                        sss.MINS_NAT_GRP_PV
-                        sss.MINS_CTRY_PORT_GRP_PV ) =
-                    (select smr.MINS_FLAG_PV, 
-                        smr.MINS_PORT_GRP_PV, 
-                        smr.MINS_CTRY_GRP_PV, 
-                        smr.MINS_NAT_GRP_PV,
-                        smr.MINS_CTRY_PORT_GRP_PV, 
-                    from 
-                        sas_minimums_spv smr
-                    where 
-                        sss.SERIAL = smr.SERIAL)
+        sql = """ update sas_survey_subsample sss       
+                    set (sss.MINS_FLAG_PV
+                        , sss.MINS_PORT_GRP_PV
+                        , sss.MINS_CTRY_GRP_PV
+                        , sss.MINS_NAT_GRP_PV
+                        , sss.MINS_CTRY_PORT_GRP_PV) =
+                        (select smr.MINS_FLAG_PV, 
+                            smr.MINS_PORT_GRP_PV, 
+                            smr.MINS_CTRY_GRP_PV, 
+                            smr.MINS_NAT_GRP_PV,
+                            smr.MINS_CTRY_PORT_GRP_PV
+                        from 
+                            sas_minimums_spv smr
+                        where 
+                            sss.SERIAL = smr.SERIAL)
                     """
 
         sas_process_variable_table = 'SAS_PROCESS_VARIABLE'
@@ -206,15 +206,15 @@ def store_survey_data_with_min_wt_results(run_id, conn):
             set (ss.MINS_FLAG_PV,
                 ss.MINS_PORT_GRP_PV, 
                 ss.MINS_CTRY_GRP_PV,
-                ss.MINS_NAT_GRP_PV
-                ss.MINS_CTRY_PORT_GRP_PV
+                ss.MINS_NAT_GRP_PV,
+                ss.MINS_CTRY_PORT_GRP_PV,
                 ss.MINS_WT ) = 
             (select sss.MINS_FLAG_PV, 
                 sss.MINS_PORT_GRP_PV, 
                 sss.MINS_CTRY_GRP_PV,
                 sss.MINS_NAT_GRP_PV, 
                 sss.MINS_CTRY_PORT_GRP_PV,
-                sss.MINS_WT,
+                sss.MINS_WT
             from 
                 sas_survey_subsample sss         
             where 
@@ -244,6 +244,7 @@ def store_min_wt_summary(run_id, conn):
 
     cf.delete_from_table('PS_MINIMUMS', 'RUN_ID', '=', run_id)
 
+
     sql = """
      insert into ps_minimums 
      (RUN_ID, MINS_PORT_GRP_PV, ARRIVEDEPART, MINS_CTRY_GRP_PV, MINS_NAT_GRP_PV,  \
@@ -260,6 +261,7 @@ def store_min_wt_summary(run_id, conn):
     conn.commit()
 
     cf.delete_from_table('SAS_PS_MINIMUMS')
+    conn.commit()
 
 
 def run_all(run_id, conn):

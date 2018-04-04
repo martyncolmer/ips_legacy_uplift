@@ -1,6 +1,6 @@
 from main.io import CommonFunctions as cf
 import pandas as pd
-from IPS_Stored_Procedures import process_variables
+from main.utils import process_variables
 
 
 def populate_survey_data_for_traffic_wt(run_id, conn):
