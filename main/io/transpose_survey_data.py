@@ -53,7 +53,7 @@ def process_column_dataframe(df,conn):
     surColDF = pd.DataFrame(data, columns=['VERSION_ID','COLUMN_NO','COLUMN_DESC','COLUMN_TYPE','COLUMN_LENGTH'])  
     
     # Write the transposed data to the oracle database
-    cf.insert_into_table_many('SURVEY_COLUMN', surColDF, conn)
+    cf.insert_dataframe_into_table('SURVEY_COLUMN', surColDF, conn)
     
     return
 
@@ -81,7 +81,7 @@ def process_value_dataframe(df,conn):
     surValDF.dropna(subset=['COLUMN_VALUE'], inplace=True)
     
     # Write the transposed data to the oracle database
-    cf.insert_into_table_many('SURVEY_VALUE', surValDF, conn)
+    cf.insert_dataframe_into_table('SURVEY_VALUE', surValDF, conn)
       
 
 def transpose(file_to_transpose):

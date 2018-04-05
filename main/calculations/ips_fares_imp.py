@@ -288,7 +288,7 @@ def ips_fares_imp(SurveyData, OutputData, ResponseTable, var_serial_num, varStem
                                       , var_duty_free, var_old_package)
     
     # Append the generated data to output tables
-    cf.insert_into_table_many(OutputData, df_output)
+    cf.insert_dataframe_into_table(OutputData, df_output)
 
     # Retrieve current function name using inspect:
     # 0 = frame object, 3 = function name.

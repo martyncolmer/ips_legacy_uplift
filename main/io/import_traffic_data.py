@@ -6,7 +6,8 @@ import inspect
 import survey_support as ss
 from main.io import CommonFunctions as cf
 
-def import_traffic_data(run_id,filename):
+
+def import_traffic_data(run_id, filename):
     """
     Author        : Elinor Thorne
     Date          : 27 Nov 2017
@@ -117,7 +118,7 @@ def import_traffic_data(run_id,filename):
         dataframe["VEHICLE"] = pandas.Series("", index = dataframe.index) 
    
     # Insert dataframe to table
-    cf.insert_into_table_many(table_name, dataframe)
+    cf.insert_dataframe_into_table(table_name, dataframe)
     
     # Commit to audit log
     action = "Upload"

@@ -4,7 +4,6 @@ import sys
 import random
 import numpy as np
 import math
-from sas7bdat import SAS7BDAT
 random.seed(123456)
 
 input_file = r'Z:\CASPA\IPS\Testing\ProcessVariables\PythonOutputs\data_00.sas7bdat'
@@ -118,4 +117,4 @@ def process(in_table_name, out_table_name, in_id, dataset):
     df_out = df_data[columns]
 
     # Insert the dataframe to the output table
-    cf.insert_into_table_many(out_table_name, df_out)
+    cf.insert_dataframe_into_table(out_table_name, df_out)

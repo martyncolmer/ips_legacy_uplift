@@ -4,7 +4,6 @@ import logging
 import inspect
 import numpy as np
 import pandas as pd
-from sas7bdat import SAS7BDAT
 from pandas.util.testing import assert_frame_equal
 from collections import OrderedDict
 import survey_support
@@ -121,8 +120,8 @@ def calculate(SurveyData,OutputData,SummaryData,ResponseTable,var_serialNum
     summary_dataframe = weight_calculated_dataframes[1]
 
     # Append the generated data to output tables
-    cf.insert_into_table_many(OutputData, surveydata_dataframe)
-    cf.insert_into_table_many(SummaryData, summary_dataframe)
+    cf.insert_dataframe_into_table(OutputData, surveydata_dataframe)
+    cf.insert_dataframe_into_table(SummaryData, summary_dataframe)
 
     # Retrieve current function name using inspect:
     # 0 = frame object, 3 = function name.
