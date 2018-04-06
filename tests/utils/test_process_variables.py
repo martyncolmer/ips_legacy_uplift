@@ -24,9 +24,6 @@ class pv_test(unittest.TestCase):
         shift_weight.copy_shift_wt_pvs_for_survey_data('IPSSeedRunFR02', conn)
 
         df_input = pd.read_csv(r'../data/traffic_wt_pv_test_data_modified.csv')
-        #df_input = df_input.head(2)
-
-        #cf.insert_dataframe_into_table_rbr('SAS_SURVEY_SUBSAMPLE', df_input)
         cf.insert_dataframe_into_table('SAS_SURVEY_SUBSAMPLE', df_input)
 
         process_variables.process(in_table_name='SAS_SURVEY_SUBSAMPLE',
