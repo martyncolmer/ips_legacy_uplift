@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 import pandas as pd
-from IPSTransformation import CommonFunctions as cf
+from main.io import CommonFunctions as cf
 import math
 
     
@@ -160,7 +160,7 @@ def ips_setup_ges_auxvars(df_poptotals, StrataDef, AuxVar, TotVar,
     return df_cv_set, df_model_definition, AuxVar, TotVar, AuxVarCount, AuxNumFormat 
     
 
-def ips_assign_ges_auxiliaries(df_survey, ModelDefinition, MaxRuleLength, 
+def ips_assign_ges_auxiliaries(df_survey, ModelDefinition, MaxRuleLength,
                                   AuxVarPrefix, AuxCount, StrataDef):
     """
     Author       : Thomas Mahoney
