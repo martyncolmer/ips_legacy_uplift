@@ -228,9 +228,8 @@ def calculate_imbalance_weight(surveyData, OutputData, SummaryData, var_serialNu
     df_summary_data = df_imbalance_calculated[1]
     
     # Append the generated data to output tables
-    cf.insert_into_table_many(OutputData
-                              , df_survey_data[[var_serialNum, var_imbalanceWeight]])
-    cf.insert_into_table_many(SummaryData, df_summary_data)
+    cf.insert_dataframe_into_table(OutputData, df_survey_data[[var_serialNum, var_imbalanceWeight]])
+    cf.insert_dataframe_into_table(SummaryData, df_summary_data)
     
     # Retrieve current function name using inspect:
     # 0 = frame object, 3 = function name.

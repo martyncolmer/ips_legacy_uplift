@@ -50,4 +50,5 @@ def test_calculate():
     assert_frame_equal(result_data, test_result_summary, check_like=True)
 
 
-test_calculate()
+if __name__ == '__main__':
+    test_calculate()

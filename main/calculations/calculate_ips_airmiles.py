@@ -272,7 +272,8 @@ def calculate(input_table_name, output_table_name, response_table, key_id, dist1
     output_dataframe = do_ips_airmiles_calculation(df_surveydata, key_id, dist1, dist2, dist3)
     
     # Append the generated data to output tables
-    cf.insert_into_table_many(output_table_name, output_dataframe)
+    #cf.insert_into_table_many(output_table_name, output_dataframe)
+    cf.insert_dataframe_into_table(output_table_name, output_dataframe)
     
     # Retrieve current function name using inspect:
     # 0 = frame object, 3 = function name. 

@@ -310,8 +310,8 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum,
     summary_dataframe = summary_dataframe.apply(num_to_string, axis = 1)
     
     # Append the generated data to output tables
-    cf.insert_into_table_many(OutputData, output_dataframe)
-    cf.insert_into_table_many(SummaryData, summary_dataframe)
+    cf.insert_dataframe_into_table(OutputData, output_dataframe)
+    cf.insert_dataframe_into_table(SummaryData, summary_dataframe)
      
     # Retrieve current function name using inspect:
     # 0 = frame object, 3 = function name. 

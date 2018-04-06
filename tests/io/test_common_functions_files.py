@@ -49,7 +49,7 @@ class TestCommonFunctions(unittest.TestCase):
         real_filename = root_dir_path + "\Sea Traffic Q1 2017.csv" 
         empty_csv_file = root_dir_path + "\EmptyFile.csv"            
         fake_csv_file = root_dir_path + "\FakeFile.csv"              
-        non_existent_csv_file = root_dir_path + "\NEFile.csv"        
+        non_existent_csv_file = root_dir_path + r"\NEFile.csv"
         
         # Create empty and fake CSV files
         empty_file = open(empty_csv_file, "w")
@@ -85,7 +85,7 @@ class TestCommonFunctions(unittest.TestCase):
         root_dir_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing"
         real_sas_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\testdata.sas7bdat" 
         empty_sas_file = root_dir_path + "\EmptyFile.sas"            
-        non_existent_sas_file = root_dir_path + "\NEFile.sas"        
+        non_existent_sas_file = root_dir_path + r"\NEFile.sas"
         
         # Create empty and fake SAS files
         empty_file = open(empty_sas_file, "w")

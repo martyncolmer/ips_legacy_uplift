@@ -3,23 +3,23 @@ Created on 24 Nov 2017
 
 @author: Elinor Thorne
 '''
-import os
-import zipfile
-import cx_Oracle            # pip install this
-import pandas as pandas     # pip install this
+import datetime
+import getpass
+import inspect
 import json
 import logging
-import inspect
-import getpass
-import datetime
-import winsound          
-import time             
+import numpy as np
+import os
+import pandas as pandas     # pip install this
+import pyodbc
+import time
+import winsound
+import zipfile
 
-from pprint import pprint
-from sas7bdat import SAS7BDAT   # pip install this
 from pandas.util.testing import assert_frame_equal
 
 import survey_support as ss
+from sqlalchemy.dialects.oracle import cx_oracle
 
 
 def database_logger():
@@ -100,50 +100,82 @@ def validate_file(xfile, current_working_file, function_name):
         return True         
 
 
-def get_oracle_connection(credentials_file = 
-                          r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials.json"):
-    """
-    Author     : thorne1
-    Date       : 27 Nov 2017
-    Purpose    : Generic function to connect to Oracle 
-               : database and return connection object
-    Returns    : Connection (Object) 
-                 (cannot return cursor object as DDL 
-                 statements are implicitly committed
-                 whereas DML statements are not)
-    Params     : credentials_file is set to default location 
-               : unless user needs to point elsewhere
-    REQS       : pip install cx_Oracle 
-                 32-bit Oracle Client required
-    DEPS       : get_credentials()
-    """
-    
-    # 0 = frame object, 1 = filename, 3 = function name. 
-    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
-    current_working_file = str(inspect.stack()[0][1])
-    function_name = str(inspect.stack()[0][3])
-    
-    # Validate file
-    if validate_file(credentials_file
-                     , current_working_file
-                     , function_name) == False:
-        return False
-    
-    # Get credentials and decrypt              
-    user = ss.get_keyvalue_from_json("User", credentials_file, True)
-    password = ss.get_keyvalue_from_json("Password", credentials_file, True)
-    database = ss.get_keyvalue_from_json('Database', credentials_file)
+# def get_oracle_connection(credentials_file =
+#                           r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials.json"):
+#     """
+#     Author     : thorne1
+#     Date       : 27 Nov 2017
+#     Purpose    : Generic function to connect to Oracle
+#                : database and return connection object
+#     Returns    : Connection (Object)
+#                  (cannot return cursor object as DDL
+#                  statements are implicitly committed
+#                  whereas DML statements are not)
+#     Params     : credentials_file is set to default location
+#                : unless user needs to point elsewhere
+#     REQS       : pip install cx_Oracle
+#                  32-bit Oracle Client required
+#     DEPS       : get_credentials()
+#     """
+#
+#     # 0 = frame object, 1 = filename, 3 = function name.
+#     # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+#     current_working_file = str(inspect.stack()[0][1])
+#     function_name = str(inspect.stack()[0][3])
+#
+#     # Validate file
+#     if validate_file(credentials_file
+#                      , current_working_file
+#                      , function_name) == False:
+#         return False
+#
+#     # Get credentials and decrypt
+#     user = ss.get_keyvalue_from_json("User", credentials_file, True)
+#     password = ss.get_keyvalue_from_json("Password", credentials_file, True)
+#     database = ss.get_keyvalue_from_json('Database', credentials_file)
+#
+#     try:
+#         # Connect
+#         conn = cx_Oracle.connect(user, password, database)
+#     except Exception as err:
+#         database_logger().error(err, exc_info = True)
+#         return False
+#     else:
+#         return conn
 
+
+def get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials_SQLServer.json"):
+    """
+    Author       : Thomas Mahoney
+    Date         : 03 / 04 / 2018
+    Purpose      : Establishes a connection to the SQL Server database and returns the connection object.
+    Parameters   : in_table_name - the IPS survey records for the period.
+                   credentials_file  - file containing the server and login credentials used for connection.
+    Returns      : a pyodbc connection object.
+    Requirements : NA
+    Dependencies : NA
+    """
+
+    # Check if file exists or is empty
+    if not validate_file(credentials_file, str(inspect.stack()[0][1]), str(inspect.stack()[0][3])):
+        return False
+
+    # Get credentials and decrypt
+    username = ss.get_keyvalue_from_json("User", credentials_file)
+    password = ss.get_keyvalue_from_json("Password", credentials_file)
+    database = ss.get_keyvalue_from_json('Database', credentials_file)
+    server = ss.get_keyvalue_from_json('Server', credentials_file)
+
+    # Attempt to connect to the database
     try:
-        # Connect
-        conn = cx_Oracle.connect(user, password, database)
+        conn = pyodbc.connect(driver="{SQL Server}", server=server, database=database, uid=username, pwd=password, autocommit=True)
     except Exception as err:
         database_logger().error(err, exc_info = True)
-        return False        
+        return False
     else:
         return conn
-        
-    
+
+
 def get_credentials(credentials_file):
     """
     Author        : Elinor Thorne
@@ -306,31 +338,30 @@ def create_table(table_name, column_list):
     
     # Re-format column_list as string
     columns = str(column_list).replace("'","") 
-    
+
+    #table_name = 'dbo.' + table_name
+
     # Create and execute SQL query 
-    sql = "CREATE TABLE " + table_name + " " + columns 
-    
+    sql = "CREATE TABLE " + table_name + " " + columns
+
     try:
         cur.execute(sql)
     except Exception as err:
-        database_logger().error(err, exc_info = True)
+        #database_logger().error(err, exc_info = True)
         return False
     else:
         conn.commit()
 
-    # 0 = frame object, 1 = filename, 3 = function name. 
-    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
     current_working_file = str(inspect.stack()[0][1])
     function_name = str(inspect.stack()[0][3])    
     
     # Confirm table was created
     if check_table(table_name) == True:
+        conn.commit()
         return True
     else:
         err_msg = "ERROR: %s was not created" %table_name
-        database_logger().error(standard_log_message(err_msg
-                                                     , current_working_file
-                                                     , function_name))
+        #database_logger().error(standard_log_message(err_msg, current_working_file, function_name))
         return False
 
 
@@ -351,18 +382,20 @@ def check_table(table_name):
     cur = conn.cursor()
      
     # Create and execute SQL query
-    sql = "SELECT * from USER_TABLES where table_name = '" + table_name + "'"
-    
+    sql = "SELECT * from INFORMATION_SCHEMA.TABLES where table_name = '" + table_name + "'"
+
     try:
         cur.execute(sql)
         result = cur.fetchone()
     except Exception as err:
+        print("9")
         # Raise (unit testing purposes) and return False to indicate table does not exist
-        database_logger().error(err, exc_info = True)
+        #database_logger().error(err, exc_info = True)
         return False
     else:
         if result != None:
             # return True to indicate table exists
+            conn.commit()
             return True
         else:
             return False
@@ -380,12 +413,12 @@ def drop_table(table_name):
                   : get_oracle_connection()
                   : database_logger()
     """
-    
-    # 0 = frame object, 1 = filename, 3 = function name. 
+
+    # 0 = frame object, 1 = filename, 3 = function name.
     # See 28.13.4. in https://docs.python.org/2/library/inspect.html
     current_working_file = str(inspect.stack()[0][1])
-    function_name = str(inspect.stack()[0][3]) 
-    
+    function_name = str(inspect.stack()[0][3])
+
     # Oracle connection variables
     conn = get_oracle_connection()
     cur = conn.cursor()
@@ -397,23 +430,21 @@ def drop_table(table_name):
         cur.execute(sql)
     except Exception as err:
         # Raise (unit testing purposes) and return False to indicate table does not exist
-        database_logger().error(err, exc_info = True)
+        #database_logger().error(err, exc_info = True)
         return False
     else:
         if check_table(table_name) == True:
             # return False to indicate table still exists
             err_msg = "ERROR: %s was not dropped" %table_name
-            database_logger().error(standard_log_message(err_msg
-                                                     , current_working_file
-                                                     , function_name))
+            #database_logger().error(standard_log_message(err_msg, current_working_file, function_name))
             return False
         else:
             conn.commit()
             return True
     
     
-def delete_from_table(table_name, condition1 = None, operator = None
-                      , condition2 = None, condition3 = None):
+def delete_from_table(table_name, condition1=None, operator=None
+                      , condition2=None, condition3=None):
     """
     Author         : Elinor Thorne
     Date           : 7 Dec 2017
@@ -461,10 +492,9 @@ def delete_from_table(table_name, condition1 = None, operator = None
     try:
         cur.execute(sql)
     except Exception as err:
-        database_logger().error(err, exc_info = True)
+        #database_logger().error(err, exc_info = True)
         return False
-    else:   
-        conn.commit()
+    else:
         return True
         
 
@@ -496,18 +526,22 @@ def select_data(column_name, table_name, condition1, condition2):
         cur.execute(sql)
     except Exception as err:
         # Return False to indicate error
-        database_logger().error(err, exc_info = True)
+        #database_logger().error(err, exc_info = True)
         return False
     else:
-        val = cur.fetchone()
-        result = str(val).strip("(,)")
+        #val = cur.fetchall()
+        row = cur.fetchone()
+        if row:
+            result = row[0]
+        else:
+            result = row
         
     # 0 = frame object, 1 = filename, 3 = function name. 
     # See 28.13.4. in https://docs.python.org/2/library/inspect.html
     current_working_file = str(inspect.stack()[0][1])
     function_name = str(inspect.stack()[0][3]) 
     
-    if result == 'None':
+    if row == 'None':
         err_msg = "ERROR: SQL query failed to return result."
         database_logger().error(standard_log_message(err_msg
                                                      , current_working_file
@@ -587,12 +621,9 @@ def get_table_values(table_name):
     """
     Author       : Thomas Mahoney
     Date         : 02 Jan 2018
-    Purpose      : Inserts a single row dataframe into an SQL table 
+    Purpose      : Extracts a full table into a pandas dataframe
     Params       : table_name - the name of the target table in the sql database.
-                   columns - the column headers for the fields being added.
-                   values - the fields being added to the database.
-                   connection - the database connection object
-    Returns      : true or false depending on success.
+    Returns      : Dataframe containing the extracted table data.
     Requirements : NA
     Dependencies : NA
     """
@@ -675,7 +706,7 @@ def insert_into_table_many(table_name,dataframe,connection = False):
     parameter_holder = []
     # Create parameter holder string for SQL
     for x in range(0,len(dataframe.columns.tolist())):
-        parameter_holder.append(":p"+str(x))
+        parameter_holder.append("?")
     
     parameter_string = str(parameter_holder)
     parameter_string = parameter_string.replace(']', "").replace('[', "").replace("'","")#.replace(',', "")
@@ -805,13 +836,16 @@ def commit_to_audit_log(action, process_object, audit_msg):
     
     # Assign 'log_date and time'
     # Add date and time details to instance params dict
-    py_now = datetime.datetime.now()        
-    params['log_date'] = cx_Oracle.Timestamp(py_now.year
-                                             , py_now.month
-                                             , py_now.day
-                                             , int(py_now.hour)
-                                             , int(py_now.minute)
-                                             , int(py_now.second))
+    py_now = datetime.datetime.now()
+
+    params['log_date'] = datetime.datetime.now()
+
+    # params['log_date'] = cx_Oracle.Timestamp(py_now.year
+    #                                          , py_now.month
+    #                                          , py_now.day
+    #                                          , int(py_now.hour)
+    #                                          , int(py_now.minute)
+    #                                          , int(py_now.second))
     
     # Assign 'audit_log_details' 
     params['audit_log_details'] = audit_msg
@@ -832,7 +866,7 @@ def commit_to_audit_log(action, process_object, audit_msg):
            , OBJECT
            , LOG_DATE
            , AUDIT_LOG_DETAILS) 
-           VALUES(:a, :b, :c, :d, :e, :f)""")
+           VALUES(?, ?, ?, ?, ?, ?)""")
     
     # Execute SQL
     cur.execute(sql, params)
@@ -873,7 +907,7 @@ def compare_dfs(test_name, sas_file, df, serial_no = True, col_list = False):
     
     print("TESTING " + test_name)
     
-    if col_list == False:
+    if not col_list:
         csv.to_csv(fdir+"\\"+test_name+sas)
         df.to_csv(fdir+"\\"+test_name+py)
     else:
@@ -882,6 +916,71 @@ def compare_dfs(test_name, sas_file, df, serial_no = True, col_list = False):
     
     print(test_name + " COMPLETE")
     print("")
+
+
+def insert_dataframe_into_table(table_name, dataframe, connection=False):
+    """
+    Author       : Thomas Mahoney
+    Date         : 02 Jan 2018
+    Purpose      : Inserts a full dataframe into an SQL table
+    Params       : table_name - the name of the target table in the sql database.
+                   dataframe - the dataframe to be added to the selected table.
+    Returns      : The number of rows added to the database.
+    Requirements : NA
+    Dependencies : NA
+    """
+
+    # Check if connection to database exists and creates one if necessary.
+    if not connection:
+        print("Getting Connection")
+        connection = get_oracle_connection()
+
+    cur = connection.cursor()
+
+    dataframe = dataframe.where((pandas.notnull(dataframe)), None)
+
+    # Extract the dataframe values into a collection of rows
+    rows = [tuple(x) for x in dataframe.values]
+
+    # Force the dataframe columns to be uppercase
+    dataframe.columns = dataframe.columns.astype(str)
+
+    # Generate a list of columns from the dataframe column collection
+    columns_list = dataframe.columns.tolist()
+
+    # Create the column header string by stripping the unneeded syntax from the column list+63
+
+    columns_string = str(columns_list)
+    columns_string = columns_string.replace(']', "").replace('[', "").replace("'", "")
+
+    # Create a value string to hold the SQL query's parameter placeholders.
+    value_string = ""
+
+    # Populate the string for each column in the dataframe.
+    for x in range(0, len(dataframe.columns.tolist())):
+        if x is 0:
+            value_string += "?"
+        else:
+            value_string += ", ?"
+
+    # Use the strings created above to build the sql query.
+    sql = "INSERT into " + table_name + \
+          "(" + columns_string + ") VALUES (" + value_string + ")"
+
+    print(sql)
+    print("Rows to insert - " + str(len(rows)))
+
+    # Debugging
+    # for rec in rows:
+    #    print (rec)
+
+    cur.executemany(sql, rows)
+
+    print("Records added to " + table_name + " table - " + str(len(rows)))
+    #connection.commit()
+
+    # Returns number of rows added to table for validation
+    return len(rows)
 
 
 def beep():
@@ -893,6 +992,6 @@ def beep():
 
 
 if __name__ == "__main__":
-    print delete_from_table("SAS_IMBALANCE_WT")
-    print delete_from_table("SAS_PS_IMBALANCE")
+    print (delete_from_table("SAS_IMBALANCE_WT"))
+    print (delete_from_table("SAS_PS_IMBALANCE"))
 #    pprint(unload_parameters(279))
