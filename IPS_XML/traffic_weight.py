@@ -21,8 +21,10 @@ def populate_survey_data_for_traffic_wt(run_id, conn):
                 update survey_subsample ss 
                     set ss.SAMP_PORT_GRP_PV = null, 
                     ss.FOOT_OR_VEHICLE_PV = null, 
-                    ss.HAUL_PV = null,        
-                where ss.RUN_ID = '""" + run_id + "'"
+                    ss.HAUL_PV = null,
+                    ss.TRAFFIC_WT = null    
+                where ss.RUN_ID = '""" + run_id + """"'
+              """
 
         # Executes and commits the SQL command
         cur = conn.cursor()
@@ -110,7 +112,7 @@ def populate_traffic_data(run_id, conn):
         (REC_ID, PORTROUTE, ARRIVEDEPART, TRAFFICTOTAL, PERIODSTART, PERIODEND,  AM_PM_NIGHT,    HAUL, VEHICLE) \
         (SELECT REC_ID_S.NEXTVAL, tr.PORTROUTE, tr.ARRIVEDEPART, tr.TRAFFICTOTAL, \
         tr.PERIODSTART, tr.PERIODEND, tr.AM_PM_NIGHT, tr.HAUL, tr.VEHICLE\
-        FROM TRAFFIC_DATA tr WHERE SD.RUN_ID = '" + run_id + "')"
+        FROM TRAFFIC_DATA tr WHERE TR.RUN_ID = '" + run_id + "')"
 
     cf.delete_from_table(sas_traffic_data_table)
 
@@ -135,7 +137,7 @@ def copy_traffic_wt_pvs_for_survey_data(run_id, conn):
 
     sas_process_variable_insert_query = "INSERT INTO " + sas_process_variable_table + " \
         (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, 0 \
-        FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
+        FROM PROCESS_VARIABLE_PY PV WHERE PV.RUN_ID = '" + run_id + "' \
         AND UPPER(PV.PV_NAME) IN ('SAMP_PORT_GRP_PV', 'FOOT_OR_VEHICLE_PV', \
         'HAUL_PV'))"
 
@@ -160,12 +162,12 @@ def update_survey_data_with_traffic_wt_pv_output(conn):
         """
 
         sql = """update sas_survey_subsample sss       
-                    set (sss.sss.SAMP_PORT_GRP_PV, 
-                        sss.sss.FOOT_OR_VEHICLE_PV, 
-                        sss.sss.HAUL_PV ) =
+                    set (sss.SAMP_PORT_GRP_PV, 
+                        sss.FOOT_OR_VEHICLE_PV, 
+                        sss.HAUL_PV ) =
                     (select sts.SAMP_PORT_GRP_PV, 
                         sts.FOOT_OR_VEHICLE_PV, 
-                        sts.sss.HAUL_PV, 
+                        sts.HAUL_PV
                     from 
                         sas_traffic_spv sts
                     where 
@@ -199,7 +201,7 @@ def copy_traffic_wt_pvs_for_traffic_data(run_id, conn):
 
     sas_process_variable_insert_query = "INSERT INTO " + sas_process_variable_table + " \
         (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, 0 \
-        FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
+        FROM PROCESS_VARIABLE_PY PV WHERE PV.RUN_ID = '" + run_id + "' \
         AND UPPER(PV.PV_NAME) IN ('SAMP_PORT_GRP_PV', 'FOOT_OR_VEHICLE_PV', 'HAUL_PV' ))"
 
     cur = conn.cursor()

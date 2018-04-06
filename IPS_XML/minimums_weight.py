@@ -244,7 +244,6 @@ def store_min_wt_summary(run_id, conn):
 
     cf.delete_from_table('PS_MINIMUMS', 'RUN_ID', '=', run_id)
 
-
     sql = """
      insert into ps_minimums 
      (RUN_ID, MINS_PORT_GRP_PV, ARRIVEDEPART, MINS_CTRY_GRP_PV, MINS_NAT_GRP_PV,  \
