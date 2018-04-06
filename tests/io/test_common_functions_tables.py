@@ -4,10 +4,11 @@ Created on 5 Dec 2017
 @author: thorne1
 '''
 import unittest
-import cx_Oracle
+import pyodbc
 
-import import_traffic_data
+from main.io import import_traffic_data
 from main.io import CommonFunctions as cf
+
 
 class TestCommonFunctions(unittest.TestCase):
     def setUp(self):
@@ -24,8 +25,7 @@ class TestCommonFunctions(unittest.TestCase):
         self.empty_table_name = "EMPTY_TEST_TABLE"       # Empty
         self.fake_table_name = "THIS_IS_FAKE"            # Fake/Non-existent        
         self.create_table_name = "ELS_TEST_TABLE"        # Generic
-        
-      
+
     def test_create_table(self):
         """
         Author          : thorne1
@@ -39,15 +39,14 @@ class TestCommonFunctions(unittest.TestCase):
         Dependencies    : CommonFunctions.create_table()
         """
         
-        self.assertTrue(cf.create_table(self.create_table_name, 
-                                        ("test1 varchar2(40)"
-                                           , "test2 number(4)"
-                                           , "test3 number(2)")))
-        self.assertFalse(cf.create_table(self.create_table_name, 
-                                         ("test1 varchar2(40)"
-                                          , "test2 number(4)"
-                                          , "test3 number(2)")))
-    
+        self.assertTrue(cf.create_table(self.create_table_name,
+                                        ("test1 varchar(40)"
+                                           , "test2 int"
+                                           , "test3 int")))
+        self.assertFalse(cf.create_table(self.create_table_name,
+                                         ("test1 varchar(40)"
+                                          , "test2 int"
+                                          , "test3 int")))
 
     def test_check_table(self):
         """
@@ -63,7 +62,6 @@ class TestCommonFunctions(unittest.TestCase):
         self.assertTrue(cf.check_table(self.real_table_name))
         self.assertFalse(cf.check_table(self.fake_table_name))            
 
-
     def test_drop_table(self):
         """
         Author          : thorne1
@@ -76,11 +74,10 @@ class TestCommonFunctions(unittest.TestCase):
         """
         
         # Creates table and then run tests with real and fake tables
-        cf.create_table(self.create_table_name, ("test1 varchar2(40)", "test2 number(4)", "test3 number(2)"))        
+        cf.create_table(self.create_table_name, ("test1 varchar(40)", "test2 int", "test3 int"))
         self.assertTrue(cf.drop_table(self.create_table_name))        
         self.assertFalse(cf.drop_table(self.fake_table_name))
-    
-    
+
     def test_delete_from_table(self):
         """
         Author          : thorne1
@@ -93,10 +90,10 @@ class TestCommonFunctions(unittest.TestCase):
         """
         
         # Creates real table with real data
-        import_traffic_data.import_data(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Sea Traffic Q1 2017.csv")
+        import_traffic_data.import_traffic_data(run_id='', filename="\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Sea Traffic Q1 2017.csv")
         
         # Creates empty table
-        cols = ("Test_Name_One varchar2(40)", "Test_Name_Two number(4)")
+        cols = ("Test_Name_One varchar(40)", "Test_Name_Two int")
         cf.create_table(self.empty_table_name, cols)
         
         # Runs test with real, empty and fake tables
@@ -111,8 +108,7 @@ class TestCommonFunctions(unittest.TestCase):
         self.assertTrue(cf.delete_from_table(self.real_table_name, "TRAFFICTOTAL", "BETWEEN", "631", "731"))  
         self.assertFalse(cf.delete_from_table(self.real_table_name, "TRAFFICTOTAL", "", "631", "731"))           
         self.assertFalse(cf.delete_from_table(self.real_table_name, "FAKE_CONDITION", "BETWEEN", "631", "731"))
-            
-    
+
     def test_select_data(self):
         """
         Author          : thorne1
@@ -125,32 +121,13 @@ class TestCommonFunctions(unittest.TestCase):
         """
         
         # Runs test with real tables and incorrect parameters
-        self.assertEqual(cf.select_data("DATA_SOURCE_ID"
-                                        , "DATA_SOURCE"
-                                        , "DATA_SOURCE_NAME"
-                                        , "Sea"), "1")          
-        self.assertEqual(cf.select_data("DISPLAY_VALUE"
-                                , "COLUMN_LOOKUP"
-                                , "LOOKUP_KEY"
-                                , "3"), "'Deleted'")            
-        self.assertFalse(cf.select_data("x"
-                           , "DATA_SOURCE"
-                           , "DATA_SOURCE_NAME"
-                           , "SEA"))
-        self.assertFalse(cf.select_data("DATA_SOURCE_ID"
-                                , "x"
-                                , "DATA_SOURCE_NAME"
-                                , "SEA"))
-        self.assertFalse(cf.select_data("DATA_SOURCE_ID"
-                                , "DATA_SOURCE"
-                                , "x"
-                                , "SEA"))                                    
-        self.assertFalse(cf.select_data("DATA_SOURCE_ID"
-                                , "DATA_SOURCE"
-                                , "DATA_SOURCE_NAME"
-                                , "x"))                                
-    
-  
+        self.assertEqual(cf.select_data("DATA_SOURCE_ID", "DATA_SOURCE", "DATA_SOURCE_NAME", "Sea"), 1)
+        self.assertEqual(cf.select_data("DISPLAY_VALUE", "COLUMN_LOOKUP", "LOOKUP_KEY", "3"), "Deleted")
+        self.assertFalse(cf.select_data("x", "DATA_SOURCE", "DATA_SOURCE_NAME", "SEA"))
+        self.assertFalse(cf.select_data("DATA_SOURCE_ID", "x", "DATA_SOURCE_NAME", "SEA"))
+        self.assertFalse(cf.select_data("DATA_SOURCE_ID", "DATA_SOURCE", "x", "SEA"))
+        self.assertFalse(cf.select_data("DATA_SOURCE_ID", "DATA_SOURCE", "DATA_SOURCE_NAME", "x"))
+
     @unittest.expectedFailure
     def test_unload_parameters(self):
         """
@@ -190,18 +167,16 @@ class TestCommonFunctions(unittest.TestCase):
                             , 'PROCESS_NAME': 'Foundation/ips/calculate_ips_shift_weight_sp'
                             , 'OUTPUTDATA': 'sas_shift_wt'
                             , 'VAR_SHIFTFACTOR': 'shift_factor'}
-        
-        
+
         # Runs tests with real, non-existent and wrong IDs
         self.assertEqual(cf.unload_parameters(), expected_dict )    
         self.assertEqual(cf.unload_parameters(52), expected_dict)   
         self.assertFalse(cf.unload_parameters(990))                 
-        with self.assertRaises(cx_Oracle.DatabaseError):
-            cf.unload_parameters("Hello World")                     
-        with self.assertRaises(cx_Oracle.DatabaseError):
+        with self.assertRaises(pyodbc.DatabaseError):
+            cf.unload_parameters("Hello World")
+        with self.assertRaises(pyodbc.DatabaseError):
             cf.unload_parameters(True)                              
 
-    
     def tearDown(self):
         """
         Author          : thorne1

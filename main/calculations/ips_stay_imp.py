@@ -92,7 +92,7 @@ def ips_stay_imp(SurveyData,OutputData,ResponseTable,var_serialNum,varStem
                                        , var_impFlag, var_impLevel)
 
     # Append the generated data to output tables
-    cf.insert_into_table_many(OutputData, df_output)
+    cf.insert_dataframe_into_table(OutputData, df_output)
 
     # Retrieve current function name using inspect:
     # 0 = frame object, 3 = function name.

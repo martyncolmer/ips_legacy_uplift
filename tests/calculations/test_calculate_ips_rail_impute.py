@@ -11,7 +11,7 @@ from main.calculations.calculate_ips_rail_impute import do_ips_railex_imp
 def test_calculate():
     # This is an integration test as it runs the entire step
 
-    test_survey = pd.read_pickle('data/rail_imp_input.pkl')
+    test_survey = pd.read_pickle('../data/rail_imp_input.pkl')
 
     result_data = do_ips_railex_imp(test_survey,
                             output = 'SAS_RAIL_IMP',
@@ -25,7 +25,7 @@ def test_calculate():
                             var_spend = 'SPEND',
                             minCountThresh = 30)
 
-    test_result_summary = pd.read_pickle('data/rail_imp_output.pkl')
+    test_result_summary = pd.read_pickle('../data/rail_imp_output.pkl')
     test_result_summary.columns = test_result_summary.columns.str.upper()
     
     test_result_summary = test_result_summary.sort_values(by = 'SERIAL')
@@ -34,3 +34,6 @@ def test_calculate():
     result_data.index = range(0, len(result_data))
         
     assert_frame_equal(result_data, test_result_summary,)
+
+if __name__ == '__main__':
+    test_calculate()

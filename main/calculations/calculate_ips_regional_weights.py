@@ -443,11 +443,8 @@ def calculate(in_table_name, out_table_name, response_table, var_serial, max_lev
                                                           var_visit_wtk, var_expenditure_wtk, var_eligible_flag,
                                                           strata_levels)
 
-    cf.insert_into_table_many(out_table_name, output_dataframe)
-     
-    # Retrieve current function name using inspect:
-    # 0 = frame object, 3 = function name. 
-    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
+    cf.insert_dataframe_into_table(out_table_name, output_dataframe)
+
     function_name = str(inspect.stack()[0][3])
     audit_message = "Load Regional Weights calculation: %s()" % function_name
      

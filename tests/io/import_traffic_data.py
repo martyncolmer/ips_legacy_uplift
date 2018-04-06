@@ -62,7 +62,7 @@ def import_data(filename):
     # Get datasource id i.e 1, 2, 3, etc as per DATA_SOURCE table
     # and replace current datasource values with new datasource_id
     datasource_id = cf.select_data("DATA_SOURCE_ID", "DATA_SOURCE", "DATA_SOURCE_NAME", datasource)
-    print datasource_id
+    print(datasource_id)
     dataframe['DATA_SOURCE_ID'].replace([datasource],datasource_id,inplace=True)
         
     # Oracle connection variables
@@ -95,7 +95,7 @@ def import_data(filename):
         dataframe["VEHICLE"] = pandas.Series("", index = dataframe.index) 
    
     # Insert dataframe to table
-    cf.insert_into_table_many(table_name, dataframe)
+    cf.insert_dataframe_into_table(table_name, dataframe)
        
 
 if __name__ == "__main__":

@@ -5,7 +5,6 @@ import inspect
 import math
 import numpy as np
 import pandas as pd
-from sas7bdat import SAS7BDAT
 from pandas.util.testing import assert_frame_equal
 from collections import OrderedDict
 import survey_support
@@ -100,10 +99,11 @@ def do_ips_railex_imp(df_input, output, var_serial, var_eligible, var_fweight,
     # Calculate the spend of the output data set
     def calculate_spend(row):
         if not math.isnan(row['RAIL_FACTOR']):
-            row[var_spend] = round(row[var_spend]* row['RAIL_FACTOR'])
+            if not math.isnan(row[var_spend]):
+                row[var_spend] = round(row[var_spend] * row['RAIL_FACTOR'])
         return row
 
-    df_output = df_output.apply(calculate_spend,axis = 1)
+    df_output = df_output.apply(calculate_spend, axis=1)
         
     # Keep only the 'SERIAL' and 'SPEND' columns
     df_output = df_output[[var_serial,var_spend]]
@@ -159,7 +159,8 @@ def calculate(SurveyData, OutputData, ResponseTable, var_serial, var_flow,
     										var_count, strata , var_railexercise, var_spend, minCountThresh)
     
     # Append the generated data to output table
-    cf.insert_into_table_many(OutputData, output_dataframe)
+    #cf.insert_into_table_many(OutputData, output_dataframe)
+    cf.insert_dataframe_into_table(OutputData, output_dataframe)
      
     # Retrieve current function name using inspect:
     # 0 = frame object, 3 = function name. 

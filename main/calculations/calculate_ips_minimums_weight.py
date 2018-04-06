@@ -204,8 +204,8 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, MinStratumDef,
     summary_dataframe = weight_calculated_dataframes[1]
 
     # Append the generated data to output tables
-    cf.insert_into_table_many(OutputData, surveydata_dataframe)
-    cf.insert_into_table_many(SummaryData, summary_dataframe)
+    cf.insert_dataframe_into_table(OutputData, surveydata_dataframe)
+    cf.insert_dataframe_into_table(SummaryData, summary_dataframe)
 
     # Retrieve current function name using inspect:
     # 0 = frame object, 3 = function name.
