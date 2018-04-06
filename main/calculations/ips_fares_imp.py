@@ -85,7 +85,7 @@ def do_ips_fares_imputation(df_input, output, var_serial_num, var_stem, thresh_s
 
     # Above merge creates fares_x and fares_y column; this line removes the empty
     # fares_x column and keeps then renames the imputed fares_y column 
-    df_output = df_output.drop(columns=[output_var + '_x', var_imp_level + '_x'])
+    df_output = df_output.drop([output_var + '_x', var_imp_level + '_x'], axis=1)
 
     df_output.rename(index=str, columns={output_var + '_y': output_var, var_imp_level + '_y': var_imp_level},
                      inplace=True)
