@@ -531,7 +531,6 @@ def select_data(column_name, table_name, condition1, condition2):
     else:
         #val = cur.fetchall()
         row = cur.fetchone()
-        print(row)
         if row:
             result = row[0]
         else:
