@@ -24,13 +24,14 @@ class pv_test(unittest.TestCase):
         shift_weight.copy_shift_wt_pvs_for_survey_data('IPSSeedRunFR02', conn)
 
         df_input = pd.read_csv(r'../data/traffic_wt_pv_test_data.csv')
-        df_input = df_input.replace("", " ")
-        df_input = df_input.fillna(np.NaN)
-        cf.insert_into_table_many('SAS_SURVEY_SUBSAMPLE', df_input)
+        df_input = df_input.head(2)
+
+        cf.insert_dataframe_into_table_rbr('SAS_SURVEY_SUBSAMPLE', df_input)
+        #cf.insert_dataframe_into_table('SAS_SURVEY_SUBSAMPLE', df_input)
 
         process_variables.process(in_table_name='SAS_SURVEY_SUBSAMPLE',
                                   out_table_name='SAS_SHIFT_SPV',
-                                  in_id='serial',
+                                  in_id='SERIAL',
                                   dataset='survey',)
 
         df_out = cf.get_table_values('SAS_SHIFT_SPV')

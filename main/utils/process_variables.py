@@ -22,7 +22,7 @@ def modify_values(row, pvs, dataset):
     for pv in pvs:
         code = str(pv[1])
         try:
-            exec code
+            exec(code)
         except KeyError:
             print("Key Not Found")
     
