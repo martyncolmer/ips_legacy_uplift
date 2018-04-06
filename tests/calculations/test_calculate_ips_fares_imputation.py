@@ -46,5 +46,3 @@ def test_calculate():
     # The dataframes have different column orders; check_like is True which will
     # ignore that fact when checking if the data is the same.
     assert_frame_equal(result_data, test_result_summary, check_like = True)
-
-test_calculate()

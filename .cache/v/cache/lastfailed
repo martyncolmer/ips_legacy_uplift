@@ -1,0 +1,9 @@
+{
+  "tests/calculations/test_calculate_ips_fares_imputation.py": true,
+  "tests/calculations/test_calculate_ips_imb_weights.py": true,
+  "tests/calculations/test_calculate_ips_rail_impute.py": true,
+  "tests/calculations/test_calculate_ips_regional_weights.py": true,
+  "tests/calculations/test_calculate_ips_spend_imputation.py": true,
+  "tests/calculations/test_calculate_ips_stay_imputation.py": true,
+  "tests/calculations/test_calculate_ips_traffic_weight.py": true
+}

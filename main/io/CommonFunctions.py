@@ -856,15 +856,15 @@ def compare_datasets(test_name, sas_file, py_df):
     try:
         assert_frame_equal(sas_df, py_df, check_names = False, check_like = True)
     except Exception as err:
-        print test_name + " failed.  Details below.."
-        print err
+        print(test_name + " failed.  Details below..")
+        print(err)
     else:
-        print test_name + " SUCCESS"
+        print(test_name + " SUCCESS")
 
 
 def compare_dfs(test_name, sas_file, df, serial_no = True, col_list = False):
     sas_root = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Imbalance Weight"
-    print sas_root + "\\" + sas_file
+    print(sas_root + "\\" + sas_file)
     csv = pandas.read_sas(sas_root + "\\" + sas_file)
     
     fdir = r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare"

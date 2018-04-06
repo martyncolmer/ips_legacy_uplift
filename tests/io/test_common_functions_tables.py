@@ -9,6 +9,7 @@ import cx_Oracle
 import import_traffic_data
 from main.io import CommonFunctions as cf
 
+
 class TestCommonFunctions(unittest.TestCase):
     def setUp(self):
         """
