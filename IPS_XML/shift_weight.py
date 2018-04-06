@@ -217,35 +217,6 @@ def copy_shift_wt_pvs_for_shift_data(run_id, conn):
     conn.commit()
 
 
-#     OLD sql
-#     sql ="""select 
-#                 pv.PV_NAME, pv.PV_DEF, 0 
-#             from 
-#                 process_variable pv 
-#             where 
-#                 pv.RUN_ID = '""" + run_id + """' 
-#             and 
-#                 upper(pv.PV_NAME) in ('SHIFT_PORT_GRP_PV','WEEKDAY_END_PV','AM_PM_NIGHT_PV')
-#             """
-#     
-#     df_content = pd.read_sql(sql,conn)
-#     
-#     cf.insert_into_table_many("SAS_PROCESS_VARIABLE", df_content, co
-#         """            
-#         insert into sas_process_variable ( PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER ) 
-#         (
-#         select 
-#             pv.PV_NAME, pv.PV_DEF, 0                  
-#         from 
-#             process_variable pv 
-#         where 
-#             pv.RUN_ID = '{RID}'
-#         and 
-#             upper(pv.PV_NAME) in ('SHIFT_PORT_GRP_PV','WEEKDAY_END_PV','AM_PM_NIGHT_PV')
-#         ) 
-#         """
-
-
 def update_shift_data_with_pvs_output(conn):
     """
     Author       : Richmond Rice
@@ -359,27 +330,6 @@ def store_shift_wt_summary(run_id, conn):
     """
 
     cf.delete_from_table('PS_SHIFT_DATA', 'RUN_ID', '=', run_id)
-
-    #     column_string = "'"+ run_id+"""',
-    #                     SHIFT_PORT_GRP_PV,
-    #                     ARRIVEDEPART,
-    #                     WEEKDAY_END_PV,
-    #                     AM_PM_NIGHT_PV,
-    #                     MIGSI,
-    #                     POSS_SHIFT_CROSS,
-    #                     SAMP_SHIFT_CROSS,
-    #                     MIN_SH_WT,
-    #                     MEAN_SH_WT,
-    #                     MAX_SH_WT,
-    #                     COUNT_RESPS,
-    #                     SUM_SH_WT """
-    #
-    # sql = "select "+column_string+" from sas_ps_shift_data"
-    # df_content = pd.read_sql(sql,conn)
-    # df_content.to_csv("sas_ps_shift_data.csv")
-    # df_content.columns.values[0] = 'RUN_ID'
-
-    # cf.insert_into_table_many('PS_SHIFT_DATA', df_content, conn)
 
     sql = """
      insert into ps_shift_data 

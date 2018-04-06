@@ -322,7 +322,7 @@ def store_traffic_wt_summary(run_id, conn):
 
     sql = """
      insert into ps_traffic 
-     (RUN_ID, SAMP_PORT_GRP_PV, ARRIVEDEPART, FOOT_OR_VEHICLE_PV, CASES,          TRAFFICTOTAL, SUM_TRAFFIC_WT, TRAFFIC_WT)
+     (RUN_ID, SAMP_PORT_GRP_PV, ARRIVEDEPART, FOOT_OR_VEHICLE_PV, CASES, TRAFFICTOTAL, SUM_TRAFFIC_WT, TRAFFIC_WT)
      (select '""" + run_id + """', SAMP_PORT_GRP_PV, ARRIVEDEPART, FOOT_OR_VEHICLE_PV, CASES, TRAFFICTOTAL, SUM_TRAFFIC_WT, TRAFFIC_WT        
      from sas_ps_traffic)
     """
