@@ -6,6 +6,7 @@ import numpy as np
 import math
 random.seed(123456)
 
+count = 1
 def modify_values(row, pvs, dataset):
     """
     Author       : Thomas Mahoney
@@ -18,11 +19,10 @@ def modify_values(row, pvs, dataset):
     Requirements : this function must be called through a pandas apply statement.
     Dependencies : NA
     """
-
     for pv in pvs:
         code = str(pv[1])
         try:
-            exec code
+            exec(code)
         except KeyError:
             print("Key Not Found")
     

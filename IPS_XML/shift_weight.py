@@ -5,7 +5,7 @@ Created on 9 Jan 2018
 '''
 from main.io import CommonFunctions as cf
 import pandas as pd
-from IPS_Stored_Procedures import process_variables
+from main.utils import process_variables
 
 
 def populate_survey_data_for_shift_wt(run_id, conn):
@@ -143,7 +143,7 @@ def copy_shift_wt_pvs_for_survey_data(run_id, conn):
 
     sas_process_variable_insert_query = "INSERT INTO " + sas_process_variable_table + " \
         (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, 0 \
-        FROM PROCESS_VARIABLE PV WHERE PV.RUN_ID = '" + run_id + "' \
+        FROM PROCESS_VARIABLE_PY PV WHERE PV.RUN_ID = '" + run_id + "' \
         AND UPPER(PV.PV_NAME) IN ('SHIFT_PORT_GRP_PV', 'WEEKDAY_END_PV', \
         'AM_PM_NIGHT_PV', 'SHIFT_FLAG_PV', 'CROSSINGS_FLAG_PV'))"
 
