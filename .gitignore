@@ -42,6 +42,8 @@ Thumbs.db
 **.pytest_cache
 Python/
 
+.cache/
+
 # Setuptools distribution folder.
 /dist/
 

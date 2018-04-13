@@ -8,7 +8,7 @@ from pandas.util.testing import assert_frame_equal
 from collections import OrderedDict
 import survey_support
 from main.io import CommonFunctions as cf
-
+from sas7bdat import SAS7BDAT
 
 # TODO:
 # 1. do_ips_ges_weighting() - plug-in real solution once done
@@ -78,8 +78,8 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum,
     # ##########################################
 
     # Import data via SAS
-    # df_survey = SAS7BDAT(path_to_SurveyData).to_data_frame()
-    df_survey = pd.read_sas(path_to_SurveyData)
+    df_survey = SAS7BDAT(path_to_SurveyData).to_data_frame()
+    # df_survey = pd.read_sas(path_to_SurveyData)
 
     # Import data via SQL
     # df_surveydata = cf.get_table_values(SurveyData)
@@ -94,8 +94,8 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum,
     # ##############################################
 
     # Import data via SAS
-    # df_trtotals = SAS7BDAT(path_to_PopTotals).to_data_frame()
-    df_trtotals = pd.read_sas(path_to_PopTotals)
+    df_trtotals = SAS7BDAT(path_to_PopTotals).to_data_frame()
+    # df_trtotals = pd.read_sas(path_to_PopTotals)
 
     # Import data via SQL
     # df_trtotals = cf.get_table_values(PopTotals)
@@ -187,8 +187,8 @@ def do_ips_trafweight_calculation(df_survey, summary, var_serialNum, var_shiftWe
 
     # test code start
     root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Traffic_Weight"
-    # df_test = SAS7BDAT(root_data_path + r"\in_1.sas7bdat").to_data_frame()
-    df_test = pd.read_sas(root_data_path + r"\in_1.sas7bdat")
+    df_test = SAS7BDAT(root_data_path + r"\in_1.sas7bdat").to_data_frame()
+    #df_test = pd.read_sas(root_data_path + r"\in_1.sas7bdat")
     df_test.columns = df_test.columns.str.upper()
     assert_frame_equal(df_survey, df_test, check_column_type=False)
     # test code end
@@ -201,8 +201,8 @@ def do_ips_trafweight_calculation(df_survey, summary, var_serialNum, var_shiftWe
 
     # test code start
     root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Traffic_Weight"
-    # df_test = SAS7BDAT(root_data_path + r"\trtotals_stratadef_sort.sas7bdat" ).to_data_frame()
-    df_test = pd.read_sas(root_data_path + r"\trtotals_stratadef_sort.sas7bdat")
+    df_test = SAS7BDAT(root_data_path + r"\trtotals_stratadef_sort.sas7bdat" ).to_data_frame()
+    # df_test = pd.read_sas(root_data_path + r"\trtotals_stratadef_sort.sas7bdat")
     df_test.columns = df_test.columns.str.upper()
     assert_frame_equal(df_PopTotals, df_test, check_column_type=False)
     # test code end
@@ -213,8 +213,8 @@ def do_ips_trafweight_calculation(df_survey, summary, var_serialNum, var_shiftWe
 
     # test code start
     root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Traffic_Weight"
-    # df_test = SAS7BDAT(root_data_path + r"\poptotals_summary_1.sas7bdat" ).to_data_frame()
-    df_test = pd.read_sas(root_data_path + r"\poptotals_summary_1.sas7bdat")
+    df_test = SAS7BDAT(root_data_path + r"\poptotals_summary_1.sas7bdat" ).to_data_frame()
+    # df_test = pd.read_sas(root_data_path + r"\poptotals_summary_1.sas7bdat")
     df_test.columns = df_test.columns.str.upper()
     assert_frame_equal(df_popTotals, df_test, check_column_type=False)
     # test code end    
@@ -232,13 +232,13 @@ def do_ips_trafweight_calculation(df_survey, summary, var_serialNum, var_shiftWe
     # test start
     root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Traffic_Weight"
 
-    # df_test = SAS7BDAT(root_data_path + r"\output_merge_final.sas7bdat" ).to_data_frame()
-    df_test = pd.read_sas(root_data_path + r"\output_merge_final.sas7bdat")
+    df_test = SAS7BDAT(root_data_path + r"\output_merge_final.sas7bdat" ).to_data_frame()
+    # df_test = pd.read_sas(root_data_path + r"\output_merge_final.sas7bdat")
     df_test.columns = df_test.columns.str.upper()
     assert_frame_equal(df_output_merge_final, df_test, check_column_type=False)
 
-    # df_test = SAS7BDAT(root_data_path + r"\survey_serialNum_sort.sas7bdat" ).to_data_frame()
-    df_test = pd.read_sas(root_data_path + r"\survey_serialNum_sort.sas7bdat")
+    df_test = SAS7BDAT(root_data_path + r"\survey_serialNum_sort.sas7bdat" ).to_data_frame()
+    # df_test = pd.read_sas(root_data_path + r"\survey_serialNum_sort.sas7bdat")
     df_test.columns = df_test.columns.str.upper()
     assert_frame_equal(df_survey_serialNum_sort, df_test, check_column_type=False)
     # test end
@@ -251,8 +251,8 @@ def do_ips_trafweight_calculation(df_survey, summary, var_serialNum, var_shiftWe
 
     # test start
     root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Traffic_Weight"
-    # df_test = SAS7BDAT(root_data_path + r"\summary_merge_sum_traftot.sas7bdat" ).to_data_frame()
-    df_test = pd.read_sas(root_data_path + r"\summary_merge_sum_traftot.sas7bdat")
+    df_test = SAS7BDAT(root_data_path + r"\summary_merge_sum_traftot.sas7bdat" ).to_data_frame()
+    # df_test = pd.read_sas(root_data_path + r"\summary_merge_sum_traftot.sas7bdat")
     df_test.columns = df_test.columns.str.upper()
     assert_frame_equal(df_summary_merge_sum_traftot, df_test)
     # test end
@@ -264,8 +264,8 @@ def do_ips_trafweight_calculation(df_survey, summary, var_serialNum, var_shiftWe
 
     # test start
     root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Traffic_Weight"
-    # df_test = SAS7BDAT(root_data_path + r"\output_rounded.sas7bdat" ).to_data_frame()
-    df_test = pd.read_sas(root_data_path + r"\output_rounded.sas7bdat")
+    df_test = SAS7BDAT(root_data_path + r"\output_rounded.sas7bdat" ).to_data_frame()
+    # df_test = pd.read_sas(root_data_path + r"\output_rounded.sas7bdat")
     df_test.columns = df_test.columns.str.upper()
     assert_frame_equal(df_output_merge_final_rounded, df_test)
     # test end
@@ -308,12 +308,12 @@ def do_ips_ges_weighting(df_survey, var_serialNum, trafDesignWeight, StrataDef, 
     # for now we read the output dataset from disk and return the dataframe result
     root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Traffic_Weight"
 
-    # df_output_merge_final = SAS7BDAT(root_data_path + r"\output_merge_final.sas7bdat").to_data_frame()
-    df_output_merge_final = pd.read_sas(root_data_path + r"\output_merge_final.sas7bdat")
+    df_output_merge_final = SAS7BDAT(root_data_path + r"\output_merge_final.sas7bdat").to_data_frame()
+    #df_output_merge_final = pd.read_sas(root_data_path + r"\output_merge_final.sas7bdat")
     df_output_merge_final.columns = df_output_merge_final.columns.str.upper()
 
-    # df_survey_serialNum_sort = SAS7BDAT(root_data_path + r"\survey_serialnum_sort.sas7bdat").to_data_frame()
-    df_survey_serialNum_sort = pd.read_sas(root_data_path + r"\survey_serialnum_sort.sas7bdat")
+    df_survey_serialNum_sort = SAS7BDAT(root_data_path + r"\survey_serialnum_sort.sas7bdat").to_data_frame()
+    #df_survey_serialNum_sort = pd.read_sas(root_data_path + r"\survey_serialnum_sort.sas7bdat")
     df_survey_serialNum_sort.columns = df_survey_serialNum_sort.columns.str.upper()
 
     return (df_output_merge_final, df_survey_serialNum_sort)
@@ -375,8 +375,8 @@ def generate_ips_tw_summary(df_survey, df_output_merge_final, summary, StrataDef
 
     # # test code start - either change pandas column types or for the test just ignore the column type - prefer the latter
     root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Traffic_Weight"
-    #df_test = SAS7BDAT(root_data_path + r"\_summary.sas7bdat").to_data_frame()
-    df_test = pd.read_sas(root_data_path + r"\_summary.sas7bdat")
+    df_test = SAS7BDAT(root_data_path + r"\_summary.sas7bdat").to_data_frame()
+    #df_test = pd.read_sas(root_data_path + r"\_summary.sas7bdat")
     df_test.columns = df_test.columns.str.upper()
     assert_frame_equal(df_summary, df_test, check_column_type=False)
     # # test code end
@@ -389,8 +389,8 @@ def generate_ips_tw_summary(df_survey, df_output_merge_final, summary, StrataDef
 
     # test code start
     root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Traffic_Weight"
-    # df_test = SAS7BDAT(root_data_path + r"\_summary_stratadef_sort.sas7bdat" ).to_data_frame()
-    df_test = pd.read_sas(root_data_path + r"\_summary_stratadef_sort.sas7bdat")
+    df_test = SAS7BDAT(root_data_path + r"\_summary_stratadef_sort.sas7bdat" ).to_data_frame()
+    # df_test = pd.read_sas(root_data_path + r"\_summary_stratadef_sort.sas7bdat")
     df_test.columns = df_test.columns.str.upper()
     assert_frame_equal(df_summary_sorted, df_test, check_column_type=False)
     # test code end
@@ -414,8 +414,8 @@ def generate_ips_tw_summary(df_survey, df_output_merge_final, summary, StrataDef
 
     # test code start
     root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Traffic_Weight"
-    # df_test = SAS7BDAT(root_data_path + r"\summary_varpostweight.sas7bdat" ).to_data_frame()
-    df_test = pd.read_sas(root_data_path + r"\summary_varpostweight.sas7bdat")
+    df_test = SAS7BDAT(root_data_path + r"\summary_varpostweight.sas7bdat" ).to_data_frame()
+    # df_test = pd.read_sas(root_data_path + r"\summary_varpostweight.sas7bdat")
     df_test.columns = df_test.columns.str.upper()
     assert_frame_equal(df_summary_varpostweight, df_test, check_column_type=False, check_dtype=False)
     # test code end    
@@ -427,8 +427,8 @@ def generate_ips_tw_summary(df_survey, df_output_merge_final, summary, StrataDef
     df_popTotals_stratadef_sort.index = range(df_popTotals_stratadef_sort.shape[0])
 
     # test code start
-    # df_test = SAS7BDAT(root_data_path + r"\popTotals_stratadef_sort.sas7bdat" ).to_data_frame()
-    df_test = pd.read_sas(root_data_path + r"\popTotals_stratadef_sort.sas7bdat")
+    df_test = SAS7BDAT(root_data_path + r"\popTotals_stratadef_sort.sas7bdat" ).to_data_frame()
+    # df_test = pd.read_sas(root_data_path + r"\popTotals_stratadef_sort.sas7bdat")
     df_test.columns = df_test.columns.str.upper()
     assert_frame_equal(df_popTotals_stratadef_sort, df_test, check_column_type=False)
     # test code end
@@ -444,8 +444,8 @@ def generate_ips_tw_summary(df_survey, df_output_merge_final, summary, StrataDef
     # df_summary_merge_sum_traftot
 
     # test code start
-    # df_test = SAS7BDAT(root_data_path + r"\summary_merge_sum_traftot.sas7bdat" ).to_data_frame()
-    df_test = pd.read_sas(root_data_path + r"\summary_merge_sum_traftot.sas7bdat")
+    df_test = SAS7BDAT(root_data_path + r"\summary_merge_sum_traftot.sas7bdat" ).to_data_frame()
+    # df_test = pd.read_sas(root_data_path + r"\summary_merge_sum_traftot.sas7bdat")
     df_test.columns = df_test.columns.str.upper()
     assert_frame_equal(df_summary_merge_sum_traftot, df_test, check_column_type=False)
     # test code end

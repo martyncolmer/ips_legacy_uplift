@@ -12,7 +12,6 @@ import pytest
 
 path_to_data = r"../data/traffic_weight"
 
-
 @pytest.mark.traffic
 def test_calculate():
     print("Started testing IPS traffic weight - calculate()")
@@ -50,9 +49,8 @@ def test_calculate():
     path_to_test = path_to_data + r"/summary_merge_sum_traftot.pkl"
     test_summary_merge_sum_traftot = pd.read_pickle(path_to_test)
     test_summary_merge_sum_traftot.columns = test_summary_merge_sum_traftot.columns.str.upper()
-    assert_frame_equal(df_summary_merge_sum_traftot, test_summary_merge_sum_traftot, check_dtype=False,check_column_type=False)
+    assert_frame_equal(df_summary_merge_sum_traftot, test_summary_merge_sum_traftot)
     print("test_calculate did good")
-
 
 def test_do_ips_trafweight_calculation():
     print("Started testing IPS traffic weight - do_ips_trafweight_calculation()")
@@ -112,10 +110,9 @@ def test_do_ips_ges_weighting():
 
     (df_output_merge_final, df_survey_serialNum_sort) = do_ips_ges_weighting(df_survey
                                                                              , var_serialNum='serial'.upper()
-                                                                             ,
-                                                                             trafDesignWeight='trafDesignWeight'.upper()
-                                                                             , StrataDef=['samp_port_grp_pv'.upper()
-            , 'arrivedepart'.upper()]
+                                                                             , trafDesignWeight='trafDesignWeight'.upper()
+                                                                             , StrataDef=['samp_port_grp_pv'.upper(),
+                                                                                          'arrivedepart'.upper()]
                                                                              , df_popTotals="assign"
                                                                              , TotalVar='traffictotal'.upper()
                                                                              , MaxRuleLength='512'
@@ -175,7 +172,7 @@ def test_generate_ips_tw_summary():
     path_to_test = path_to_data + r"/summary_merge_sum_traftot.pkl"
     test_summary_merge_sum_traftot = pd.read_pickle(path_to_test)
     test_summary_merge_sum_traftot.columns = test_summary_merge_sum_traftot.columns.str.upper()
-    assert_frame_equal(df_summary_merge_sum_traftot, test_summary_merge_sum_traftot, check_column_type=False)
+    assert_frame_equal(df_summary_merge_sum_traftot, test_summary_merge_sum_traftot)
     print("test_generate_ips_tw_summary did good")
 
 
