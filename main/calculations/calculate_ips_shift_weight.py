@@ -10,7 +10,7 @@ from collections import OrderedDict
 import survey_support
 from main.io import CommonFunctions as cf
 
-
+# TODO: test this function and see if we need the exception by zero
 def calculate_factor(row, flag):
     """
     Author       : Thomas Mahoney
@@ -36,17 +36,22 @@ def calculate_factor(row, flag):
     else:
         return None
 
-
-def calculate_ips_shift_factor(var_shiftFlag,ShiftsStratumDef,var_shiftNumber,
-                               var_totals,var_shiftFactor,var_serialNum):
+def calculate_ips_shift_factor(df_shiftsdata, df_surveydata, ShiftsStratumDef, var_shiftFlag,
+                               var_shiftNumber, var_shiftFactor, var_totals):
     """
-    Author       : Thomas Mahoney
-    Date         : 28 Dec 2017
-    Purpose      : Uses the imported surveydata and shiftsdata to calculate the
-                   data sets records' shift factors. This calculated value is
-                   then appended to the original survey data set and used further
-                   in the process.
-    Parameters   : NA
+    Author       : Thomas Mahoney / Nassir Mohammad
+    Date         : 16 Apr 2018
+    Purpose      : Generates the shift factor by taking number of possible shifts over
+      			   sampled shifts by stratum.  Uses the imported surveydata and shiftsdata to calculate the
+                   data sets records' shift factors. This calculated value is then appended to the original
+                   survey data set and used further in the process.
+    Parameters   : df_shiftsdata = file holding number of total shifts (and crossings)
+				   df_surveydata = survey file
+				   StratumDef = variable holding the stratum definition
+				   shiftFlag = variable that indicates that this record is shift based
+				   shiftNumber = variable holding the name of the shift number field
+				   shiftFactor = variable holding the name of the shift factor field
+				   totals = variable that holds the total possible shifts information
     Returns      : Three data frames that are used to calculate the overall shift
                    weight and build the final output data set.
                        - df_totalsampledshifts
@@ -61,21 +66,34 @@ def calculate_ips_shift_factor(var_shiftFlag,ShiftsStratumDef,var_shiftNumber,
     # Get survey records that are shift based
     df_sampledshifts = df_surveydata[df_surveydata[var_shiftFlag] == 1]
     df_sampledshifts.dropna()
+    df_sampledshifts.index = range(df_sampledshifts.shape[0])
+
+    # test code start
+    root_data_path_test = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_IPS_Shift_Weight\UI"
+    df_test = SAS7BDAT(root_data_path_test + r"\sampledshifts_1.sas7bdat").to_data_frame()
+    df_test.columns = df_test.columns.str.upper()
+    assert_frame_equal(df_sampledshifts, df_test, check_dtype=False)
+    # test code end
 
     # Create a new data frame using the columns specified for the sampled shifts without duplicates
     df_sample_noduplicates = df_sampledshifts[ShiftsStratumDef
-                                               + [var_shiftNumber]]\
-                                               .drop_duplicates()
+                                              + [var_shiftNumber]] \
+        .drop_duplicates()
 
     # Sort the sample data by the 'ShiftsStratumDef' column list
     df_sample_sorted = df_sample_noduplicates.sort_values(ShiftsStratumDef)
 
     # Calculate the number of sampled shifts by strata
-    df_totalsampledshifts = df_sample_sorted.groupby(ShiftsStratumDef)\
-            [var_shiftNumber].agg({'DENOMINATOR' : 'count'})
+    df_totalsampledshifts = df_sample_sorted.groupby(ShiftsStratumDef)[var_shiftNumber] \
+                                            .agg([('DENOMINATOR', 'count')]) \
+                                            .reset_index()
 
-    # Flattens the column structure after adding the new denominator column
-    df_totalsampledshifts = df_totalsampledshifts.reset_index()
+    # test code start
+    root_data_path_test = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_IPS_Shift_Weight\UI"
+    df_test = SAS7BDAT(root_data_path_test + r"\totalsampledshifts.sas7bdat").to_data_frame()
+    df_test.columns = df_test.columns.str.upper()
+    assert_frame_equal(df_totalsampledshifts, df_test.drop(['_TYPE_', '_FREQ_'], axis=1), check_dtype=False)
+    # test code end
 
     # Sort the shifts data by the 'ShiftsStratumDef' column list
     df_possibleshifts_temp = df_shiftsdata.sort_values(ShiftsStratumDef)
@@ -87,16 +105,25 @@ def calculate_ips_shift_factor(var_shiftFlag,ShiftsStratumDef,var_shiftNumber,
     # Flattens the column structure after adding the new numerator column
     df_possibleshifts = df_possibleshifts.reset_index()
 
+    # test code start
+    root_data_path_test = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_IPS_Shift_Weight\UI"
+    df_test = SAS7BDAT(root_data_path_test + r"\possibleshifts.sas7bdat").to_data_frame()
+    df_test.columns = df_test.columns.str.upper()
+    assert_frame_equal(df_possibleshifts, df_test.drop(['_TYPE_', '_FREQ_'], axis=1), check_dtype=False)
+    # test code end
+
+    # TODO - get correct datasets for remaining steps
+
     # Sort the sampled shift data by the 'ShiftsStratumDef' column list
     df_sampledshifts_sorted = df_sampledshifts.sort_values(ShiftsStratumDef)
+    df_sampledshifts_sorted.index = range(df_sampledshifts_sorted.shape[0])
 
     # Merge the dataframes generated above into the sample, by the 'ShiftsStratumDef' column list
     mergedDF = pd.merge(df_sampledshifts_sorted,df_possibleshifts,on = ShiftsStratumDef, how = 'left')
     mergedDF = pd.merge(mergedDF,df_totalsampledshifts,on = ShiftsStratumDef, how = 'left')
 
     # Calculate the shift factor for each row of the merged dataframe    
-    mergedDF[var_shiftFactor] = \
-            mergedDF.apply(calculate_factor, axis=1,args = (var_shiftFlag,))
+    mergedDF[var_shiftFactor] = mergedDF.apply(calculate_factor, axis=1,args = (var_shiftFlag,))
 
     # Merge the sampled dataframe into the full survey dataframe
     df_surveydata_sf = pd.merge(df_surveydata,mergedDF,'outer')
@@ -111,16 +138,23 @@ def calculate_ips_shift_factor(var_shiftFlag,ShiftsStratumDef,var_shiftNumber,
     return (df_totalsampledshifts, df_possibleshifts, df_surveydata_sf)
 
 
-def calculate_ips_crossing_factor(df_surveydata_sf, ShiftsStratumDef, var_crossingFlag, 
+def calculate_ips_crossing_factor(df_shiftsdata, df_surveydata_sf, ShiftsStratumDef, var_crossingFlag,
                                   var_shiftNumber, var_crossingNumber, var_crossingsFactor, var_totals):
     """
     Author       : Nassir Mohammad
-    Date         : Dec 2017
-    Purpose      : Uses the imported surveydata and shiftsdata to calculate the
+    Date         : Apr 2018
+    Purpose      : Generates the crossings factor by taking total crossings over sampled
+    			   crossings by stratum Uses the imported surveydata and shiftsdata to calculate the
                    data sets records' crossings factors. This calculated value is
-                   then appended to the original survey data set and used further
-                   in the process.
-    Parameters   : NA
+                   then appended to the original survey data set and used further in the process.
+    Parameters   : df_shiftsdata = file holding number of total crossings (and poss shifts)
+				   df_surveydata_sf = survey file
+				   StratumDef = variable holding the stratum definition
+				   crossingFlag = variable that indicates that this record is crossing based
+				   shiftNumber = variable holding the name of the shift number field
+				   crossingNumber = variable holding the name of the crossing number field
+			       crossingsFactor = variable that will hold the crossings factor
+				   totals = variable that holds the total number of crossings
     Returns      : Data frames:
                        - df_totalSampledCrossings
                        - df_surveydata_merge
@@ -197,7 +231,7 @@ def calculate_ips_crossing_factor(df_surveydata_sf, ShiftsStratumDef, var_crossi
     return (df_totalSampledCrossings, df_surveydata_merge)
 
 
-def do_ips_shift_weight_calculation(SurveyData,ShiftsData,OutputData,SummaryData,ResponseTable,
+def do_ips_shift_weight_calculation(df_surveydata,df_shiftsdata,OutputData,SummaryData,
               ShiftsStratumDef,var_serialNum,var_shiftFlag,var_shiftFactor,
               var_totals,var_shiftNumber,var_crossingFlag,var_crossingsFactor,
               var_crossingNumber,var_SI,var_shiftWeight,var_count,
@@ -206,33 +240,66 @@ def do_ips_shift_weight_calculation(SurveyData,ShiftsData,OutputData,SummaryData
               minWeightThresh,maxWeightThresh):
     
     """
-    Author       : Richmond Rice
-    Date         : Dec 2017
-    Purpose      : Runs the shift factor and crossings factor functions.
+    Author       : Richmond Rice / Nassir Mohammad
+    Date         : Apr 2018
+    Purpose      : Generates shift weights (design weights/initial weights) for each type
+        		   of IPS traffic.  Runs the shift factor and crossings factor functions.
                    Uses the data frames they return to calculate the surveydata and summary data sets.
-    Parameters   : NA
-    Returns      : Data frame - df_surveydataData frame - df_summary
+    Parameters   : Parameters:	df_surveydata = the IPS survey records for the period.
+            					df_shiftsdata = SAS data set holding # of possible shifts / total crossings by stratum													|;
+            					out = Output data
+            					summary = Summary data
+					            ShiftsStratumDef = Variable holding the shift weight stratum definition
+					            var_serialNum = Variable holding the record serial number
+					            var_shiftFlag = Flag that identifies shift based records
+					            var_shiftFactor = Variable holding the name of the shift factor field
+					            var_totals = Variable holding the number of possible shifts / total	crossings
+					            var_shiftNumber = Variable holding the shift number
+					            var_crossingFlag = Flag that identifies crossing based records
+					            var_crossingsFactor = Variable holding the name of the  crossings factor field
+					            var_crossingNumber = Variable holding the crossing number
+					            var_SI = Variable holding the name of the sampling interval field
+					            var_shiftWeight = Variable holding the name of the shift weight field
+					            var_count = Variable holding the name of the case count field
+					            var_weightSum = Variable holding the name of the weight sum field
+					            var_minWeight = Variable holding the name of the minimum weight field
+					            var_avgWeight = Variable holding the name of the average weight field
+					            var_maxWeight = Variable holding the name of the maximum weight field
+					            var_summaryKey = Variable holding the name of the field used to sort the summary output
+					            subStrata = List of variables used to produce a high level summary of the output
+					            var_possibleCount = Variable holding the name of the possible shifts /
+										crossings count (used in the summary output)
+					            var_sampledCount = Variable holding the name of the sampled shifts /
+									   crossings count (used in the summary output)
+					            minWeightThresh = minimum weight threshold
+					            maxWeightThresh = maximum weight threshold
+    Returns      : Data frame: df_surveydata, Data frame: df_summary
     Requirements : logging
     Dependencies : Function - calculate_ips_shift_factor
                    Function - calculate_ips_crossing_factor
     """
 
     # Calculate the Shift Factor for the given data sets
-    shift_factor_dfs = calculate_ips_shift_factor(var_shiftFlag,ShiftsStratumDef,var_shiftNumber,
-                               var_totals,var_shiftFactor,var_serialNum)
+    shift_factor_dfs = calculate_ips_shift_factor(df_shiftsdata, df_surveydata, ShiftsStratumDef, var_shiftFlag,
+                                                  var_shiftNumber, var_shiftFactor,var_totals)
 
     # Extract the data frames returned by calculate_ips_shift_factor()
     df_totsampshifts = shift_factor_dfs[0]
     df_possshifts = shift_factor_dfs[1]
     df_surveydata_sf = shift_factor_dfs[2]
 
+    # TODO - test above 3 dataframes against sas
+
     # Calculate the Crossings Factor for the given data sets
-    crossings_factor_dfs = calculate_ips_crossing_factor(df_surveydata_sf, ShiftsStratumDef, var_crossingFlag, 
-    var_shiftNumber, var_crossingNumber, var_crossingsFactor, var_totals)
+    crossings_factor_dfs = calculate_ips_crossing_factor(df_shiftsdata, df_surveydata_sf, ShiftsStratumDef,
+                                                         var_crossingFlag, var_shiftNumber, var_crossingNumber,
+                                                         var_crossingsFactor, var_totals)
 
     # Extract the data frames returned by calculate_ips_crossing_factor()
     df_totsampcrossings = crossings_factor_dfs[0]
     df_surveydata_merge = crossings_factor_dfs[1]
+
+    # TODO - test above 2 dataframes against sas
 
     # The various column sets used for setting columns, sorting columns,
     # aggregating by, merging data frames.
@@ -409,7 +476,7 @@ def do_ips_shift_weight_calculation(SurveyData,ShiftsData,OutputData,SummaryData
     return (df_surveydata_merge, df_summary)
 
 
-def calculate(SurveyData,ShiftsData,OutputData,SummaryData,ResponseTable,
+def calculate(SurveyData,ShiftsData,OutputData,SummaryData,
               ShiftsStratumDef,var_serialNum,var_shiftFlag,var_shiftFactor,
               var_totals,var_shiftNumber,var_crossingFlag,var_crossingsFactor,
               var_crossingNumber,var_SI,var_shiftWeight,var_count,
@@ -417,43 +484,91 @@ def calculate(SurveyData,ShiftsData,OutputData,SummaryData,ResponseTable,
               var_summaryKey,subStrata,var_possibleCount,var_sampledCount,
               minWeightThresh,maxWeightThresh):
     """
-    Author       : Richmond Rice / Thomas Mahoney
-    Date         : Jan 2018
-    Purpose      :
-    Parameters   : 
-    Returns      : 
-    Requirements : 
-    Dependencies :
+    Author       : Richmond Rice / Thomas Mahoney / Nassir Mohammad
+    Date         : Apr 2018
+    Purpose      : Generates shift weights (design weights/initial weights) for each type of IPS traffic.
+    Parameters   : SurveyData = the IPS survey records for the period.
+                   ShiftsData = Oracle table holding # of possible shifts and sampled shifts by stratum
+                   OutputData = Oracle table to hold output data
+				   SummaryData = Oracle table to hold the summary output
+				   ResponseTable = Oracle table to hold response information (status etc.)
+				   ShiftsStratumDef = Variable holding the shifts stratum definition
+				   var_serialNum = Variable holding the record serial number
+				   var_shiftFlag = Variable holding the a flag indicating a shift record
+				   var_shiftFactor = Variable holding the name of the shift factor field
+				   var_totals = Variable holding the number of possible shifts/crossings
+				   var_shiftNumber = Variable holding the shift number/identifier field
+				   var_crossingFlag = Variable holding the a flag indicating a crossing	record.
+				   var_crossingsFactor = Variable holding the name of the crossings factor field.
+				   var_crossingNumber = Variable holding the crossing number field
+				   var_SI = Variable holding the name of the sampling interval field
+				   var_shiftWeight = Variable that will hold the shift weight values
+				   var_count = Variable holding the name of the case count field
+				   var_weightSum = Variable holding the name of the weight sum field
+				   var_minWeight = Variable holding the name of the minimum weight field
+				   var_avgWeight = Variable holding the name of the average weight field
+				   var_maxWeight = Variable holding the name of the maximum weight field
+				   var_summaryKey = Variable holding the name of the field used to sort the summary output
+				   subStrata = List of variables used to produce a high level summary of the output
+				   var_possibleCount = Variable holding the name of the possible shifts /
+										crossings count (used in the summary output)
+				   var_sampledCount = Variable holding the name of the sampled shifts /
+									   crossings count (used in the summary output)
+				   minWeightThresh = minimum weight threshold
+				   maxWeightThresh = maximum weight threshold
+    Returns      : dataframe tuple (df_surveydata_out, df_summary_out)
+    Requirements : TODO
+    Dependencies : N/A
     """
 
     # Call JSON configuration file for error logger setup
     survey_support.setup_logging('IPS_logging_config_debug.json')
 
-    # Setup path to the base directory containing data files
+    # Load SAS files into dataframes (this data will come from Oracle/SQL server in final version)
     root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_IPS_Shift_Weight"
-    path_to_survey_data = root_data_path + r"\surveydatasmall.sas7bdat"
-    path_to_shifts_data = root_data_path + r"\shiftsdatasmall.sas7bdat"
+    path_to_survey_data = root_data_path + r"\surveydata.sas7bdat"
+    path_to_shifts_data = root_data_path + r"\shiftsdata.sas7bdat"
 
-    global df_surveydata
-    global df_shiftsdata
+    # ##########################################
+    # create SAS datasets from the survey data
+    # and shifts data
+    # ##########################################
 
     # Import data via SAS
-    # This method works for all data sets but is slower
-    #df_surveydata = SAS7BDAT(path_to_survey_data).to_data_frame()
-    #df_shiftsdata = SAS7BDAT(path_to_shifts_data).to_data_frame()
-    # This method is untested with a range of data sets but is faster
-    #df_surveydata = pd.read_sas(path_to_survey_data)
-    #df_shiftsdata = pd.read_sas(path_to_shifts_data)
+    df_surveydata = SAS7BDAT(path_to_survey_data).to_data_frame()
+    df_shiftsdata = SAS7BDAT(path_to_shifts_data).to_data_frame()
+
+    # df_surveydata = pd.read_sas(path_to_survey_data)
+    # df_shiftsdata = pd.read_sas(path_to_shifts_data)
 
     # Import data via SQL
-    df_surveydata = cf.get_table_values(SurveyData)
-    df_shiftsdata = cf.get_table_values(ShiftsData)
+    # df_surveydata = cf.get_table_values(SurveyData)
+    # df_shiftsdata = cf.get_table_values(ShiftsData)
 
+    # uppercase all columns
     df_surveydata.columns = df_surveydata.columns.str.upper()
     df_shiftsdata.columns = df_shiftsdata.columns.str.upper()
 
+    # test code start
+    root_data_path_test = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_IPS_Shift_Weight"
+    df_test = SAS7BDAT(root_data_path + r"\surveydata.sas7bdat").to_data_frame()
+    df_test.columns = df_test.columns.str.upper()
+    assert_frame_equal(df_surveydata, df_test, check_column_type=False)
+    # test code end
+
+    # test code start
+    root_data_path_test = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_IPS_Shift_Weight"
+    df_test = SAS7BDAT(root_data_path + r"\shiftsdata.sas7bdat").to_data_frame()
+    df_test.columns = df_test.columns.str.upper()
+    assert_frame_equal(df_shiftsdata, df_test, check_column_type=False)
+    # test code end
+
+    # These variables are passed into SAS but not required, we also pass them in for now
+    outputData = None
+    summaryData = None
+
     print("Start - Calculate Shift Weight")
-    weight_calculated_dataframes = do_ips_shift_weight_calculation(SurveyData,ShiftsData,OutputData,SummaryData,ResponseTable,
+    weight_calculated_dataframes = do_ips_shift_weight_calculation(df_surveydata,df_shiftsdata,outputData,summaryData,
                                                                   ShiftsStratumDef,var_serialNum,var_shiftFlag,var_shiftFactor,
                                                                   var_totals,var_shiftNumber,var_crossingFlag,var_crossingsFactor,
                                                                   var_crossingNumber,var_SI,var_shiftWeight,var_count,
@@ -462,32 +577,42 @@ def calculate(SurveyData,ShiftsData,OutputData,SummaryData,ResponseTable,
                                                                   minWeightThresh,maxWeightThresh)
 
     # Extract the two data sets returned from do_ips_shift_weight_calculation
-    surveydata_dataframe = weight_calculated_dataframes[0]
-    summary_dataframe = weight_calculated_dataframes[1]
+    df_surveydata_out = weight_calculated_dataframes[0]
+    df_summary_out = weight_calculated_dataframes[1]
+
+    # TODO - test survey data
+    # TODO - test df_summary
+
+    return df_surveydata_out, df_summary_out
+
+    # Code to be re-factored when doing main() - Start
+    # ----------------------------------
 
     # Append the generated data to output tables
-    cf.insert_dataframe_into_table(OutputData, surveydata_dataframe)
-    cf.insert_dataframe_into_table(SummaryData, summary_dataframe)
+    #cf.insert_dataframe_into_table(OutputData, surveydata_dataframe)
+    #cf.insert_dataframe_into_table(SummaryData, summary_dataframe)
 
     # Retrieve current function name using inspect:
     # 0 = frame object, 3 = function name.
     # See 28.13.4. in https://docs.python.org/2/library/inspect.html
-    function_name = str(inspect.stack()[0][3])
-    audit_message = "Load Shift Weight calculation: %s()" %function_name
+    #function_name = str(inspect.stack()[0][3])
+    #audit_message = "Load Shift Weight calculation: %s()" %function_name
 
     # Log success message in SAS_RESPONSE and AUDIT_LOG
-    cf.database_logger().info("SUCCESS - Completed Shift weight calculation.")
-    cf.commit_to_audit_log("Create", "ShiftWeigh", audit_message)
-    print("Completed - Calculate Shift Weight")
+    #cf.database_logger().info("SUCCESS - Completed Shift weight calculation.")
+    #cf.commit_to_audit_log("Create", "ShiftWeigh", audit_message)
+    #print("Completed - Calculate Shift Weight")
+
+    # Code to be re-factored when doing main() - End
 
 
 if __name__ == '__main__':
-    calculate(SurveyData = 'SAS_SURVEY_SUBSAMPLE',
-             ShiftsData = 'SAS_SHIFT_DATA', 
-             OutputData = 'SAS_SHIFT_WT', 
-             SummaryData = 'SAS_PS_SHIFT_DATA', 
-             ResponseTable = 'SAS_RESPONSE', 
-             ShiftsStratumDef = ['SHIFT_PORT_GRP_PV', 
+    calculate(SurveyData = 'SAS_SURVEY_SUBSAMPLE'
+             , ShiftsData = 'SAS_SHIFT_DATA'
+             , OutputData = 'SAS_SHIFT_WT'
+             , SummaryData = 'SAS_PS_SHIFT_DATA'
+             , ResponseTable = 'SAS_RESPONSE'
+             , ShiftsStratumDef = ['SHIFT_PORT_GRP_PV',
                                  'ARRIVEDEPART',
                                  'WEEKDAY_END_PV',
                                  'AM_PM_NIGHT_PV'], 
