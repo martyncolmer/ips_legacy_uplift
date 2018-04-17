@@ -112,7 +112,7 @@ def compute_additional_fares(row):
     non_pack_fare = np.NaN
 
     # Sort out child/baby fares
-    if (row[IMPUTATION_FLAG_VARIABLE] == 0 or row[ELIGIBLE_FLAG_VARIABLE] == 0):
+    if row[IMPUTATION_FLAG_VARIABLE] == 0 or row[ELIGIBLE_FLAG_VARIABLE] == 0:
         row[OUTPUT_VARIABLE] = row[DONOR_VARIABLE]
 
     else:
@@ -123,28 +123,28 @@ def compute_additional_fares(row):
 
         # Ensure date is on or later than the 1st of May 2016
         # This is because APD for under 16's was removed from this date.
-        if (year >= 2016 and month >= 5 and day >= 1):
-            if (row[AGE_FARE_VARIABLE] == 1):
+        if year >= 2016 and month >= 5 and day >= 1:
+            if row[AGE_FARE_VARIABLE] == 1:
                 non_pack_fare = row[BABY_FARE_VARIABLE] * (row[OUTPUT_VARIABLE] - row[APD_VARIABLE])
 
-            elif (row[AGE_FARE_VARIABLE] == 2):
+            elif row[AGE_FARE_VARIABLE] == 2:
                 non_pack_fare = row[CHILD_FARE_VARIABLE] * (row[OUTPUT_VARIABLE] - row[APD_VARIABLE])
 
-            elif (row[AGE_FARE_VARIABLE] == 6):
+            elif row[AGE_FARE_VARIABLE] == 6:
                 non_pack_fare = row[OUTPUT_VARIABLE]
 
         else:
-            if (row[AGE_FARE_VARIABLE] == 1):
+            if row[AGE_FARE_VARIABLE] == 1:
                 non_pack_fare = row[BABY_FARE_VARIABLE] * (row[OUTPUT_VARIABLE] - row[APD_VARIABLE])
 
-            elif (row[AGE_FARE_VARIABLE] == 2):
+            elif row[AGE_FARE_VARIABLE] == 2:
                 non_pack_fare = (row[CHILD_FARE_VARIABLE] * (row[OUTPUT_VARIABLE] - row[APD_VARIABLE])) + row[APD_VARIABLE]
 
-            elif (row[AGE_FARE_VARIABLE] == 6):
+            elif row[AGE_FARE_VARIABLE] == 6:
                 non_pack_fare = row[OUTPUT_VARIABLE]
 
         # Compute package versions of fare
-        if (row[PACKAGE_VARIABLE] in (1, 2)):
+        if row[PACKAGE_VARIABLE] in (1, 2):
             if math.isnan(non_pack_fare) or math.isnan(row[FARE_DISCOUNT_VARIABLE]):
                 row[OUTPUT_VARIABLE] = np.NaN
             else:
@@ -154,7 +154,7 @@ def compute_additional_fares(row):
             row[OUTPUT_VARIABLE] = round(non_pack_fare, 0)
 
     # Test for Queen Mary fare
-    if (row[OUTPUT_VARIABLE] == np.nan and row[QM_FARE_VARIABLE] != np.nan):
+    if row[OUTPUT_VARIABLE] == np.nan and row[QM_FARE_VARIABLE] != np.nan:
         row[OUTPUT_VARIABLE] = row[QM_FARE_VARIABLE]
 
     # Ensure the fare is rounded to nearest integer
@@ -168,46 +168,46 @@ def compute_additional_spend(row):
     # For package holidays, spend is imputed if the package cost is less
     # than the cost of the fares. If all relevant fields are 0, participant
     # is assumed to have spent no money.
-    if (row[PACKAGE_VARIABLE] == 1):
-        if (row[PACKAGE_COST_VARIABLE] == 0 and row[EXPENDITURE_VARIABLE] == 0 and row[BEFAF_VARIABLE] == 0):
+    if row[PACKAGE_VARIABLE] == 1:
+        if row[PACKAGE_COST_VARIABLE] == 0 and row[EXPENDITURE_VARIABLE] == 0 and row[BEFAF_VARIABLE] == 0:
             row[SPEND_VARIABLE] = 0
 
-        elif (row[PACKAGE_COST_VARIABLE] == 999999 or row[PACKAGE_COST_VARIABLE] == np.nan \
-              or row[DISCOUNTED_PACKAGE_COST_VARIABLE] == np.nan \
-              or row[PERSONS_VARIABLE] == np.nan \
-              or row[OUTPUT_VARIABLE] == np.nan \
-              or row[EXPENDITURE_VARIABLE] == 999999 \
-              or row[EXPENDITURE_VARIABLE] == np.nan \
-              or row[BEFAF_VARIABLE] == np.nan \
+        elif (row[PACKAGE_COST_VARIABLE] == 999999 or row[PACKAGE_COST_VARIABLE] == np.nan
+              or row[DISCOUNTED_PACKAGE_COST_VARIABLE] == np.nan
+              or row[PERSONS_VARIABLE] == np.nan
+              or row[OUTPUT_VARIABLE] == np.nan
+              or row[EXPENDITURE_VARIABLE] == 999999
+              or row[EXPENDITURE_VARIABLE] == np.nan
+              or row[BEFAF_VARIABLE] == np.nan
               or row[BEFAF_VARIABLE] == 999999):
             row[SPEND_VARIABLE] = np.nan
 
-        elif (((row[DISCOUNTED_PACKAGE_COST_VARIABLE] + row[EXPENDITURE_VARIABLE] + \
+        elif (((row[DISCOUNTED_PACKAGE_COST_VARIABLE] + row[EXPENDITURE_VARIABLE] +
                 row[BEFAF_VARIABLE]) / row[PERSONS_VARIABLE]) < (row[OUTPUT_VARIABLE] * 2)):
             row[SPEND_VARIABLE] = np.nan
             row[SPEND_REASON_KEY_VARIABLE] = 1
 
         else:
-            row[SPEND_VARIABLE] = ((row[DISCOUNTED_PACKAGE_COST_VARIABLE] + row[EXPENDITURE_VARIABLE] \
+            row[SPEND_VARIABLE] = ((row[DISCOUNTED_PACKAGE_COST_VARIABLE] + row[EXPENDITURE_VARIABLE]
                              + row[BEFAF_VARIABLE]) / row[PERSONS_VARIABLE]) - (row[OUTPUT_VARIABLE] - 2)
 
     # DVPackage is 0
     else:
-        if (row[OLD_PACKAGE_VARIABLE] == 9):
+        if row[OLD_PACKAGE_VARIABLE] == 9:
             row[SPEND_VARIABLE] = np.nan
 
-        elif (row[EXPENDITURE_VARIABLE] == 0 and row[BEFAF_VARIABLE] == 0):
+        elif row[EXPENDITURE_VARIABLE] == 0 and row[BEFAF_VARIABLE] == 0:
             row[SPEND_VARIABLE] = 0
 
-        elif (row[EXPENDITURE_VARIABLE] == 999999 or row[EXPENDITURE_VARIABLE] == np.nan \
+        elif row[EXPENDITURE_VARIABLE] == 999999 or row[EXPENDITURE_VARIABLE] == np.nan \
               or row[BEFAF_VARIABLE] == 999999 or row[BEFAF_VARIABLE] == np.nan \
-              or row[PERSONS_VARIABLE] == np.nan):
+              or row[PERSONS_VARIABLE] == np.nan:
             row[SPEND_VARIABLE] = np.nan
 
         else:
             row[SPEND_VARIABLE] = (row[EXPENDITURE_VARIABLE] + row[BEFAF_VARIABLE]) / row[PERSONS_VARIABLE]
 
-    if (row[SPEND_VARIABLE] != np.nan):
+    if row[SPEND_VARIABLE] != np.nan:
         row[SPEND_VARIABLE] = row[SPEND_VARIABLE] + row[DUTY_FREE_VARIABLE]
 
     # Ensure the spend values are integers
