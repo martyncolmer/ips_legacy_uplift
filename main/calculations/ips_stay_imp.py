@@ -1,72 +1,58 @@
-import sys
 import inspect
+
 import pandas as pd
 import survey_support
-from main.io import CommonFunctions as cf
-from main.calculations import ips_impute
 
-# Measure should be passed through in LOWER CASE. This variable should contain
-# a function name which can only be used in lower case.
-def do_ips_stay_imputation(df_input, output, var_serial_num, var_stem, thresh_stem,
-                            num_levels, donor_var, output_var, measure,
-                            var_eligible_flag, var_imp_flag,var_imp_level):
+from main.calculations import ips_impute
+from main.io import CommonFunctions as cf
+
+OUTPUT_TABLE_NAME = 'SAS_STAY_IMP'
+DONOR_VARIABLE = 'NUMNIGHTS'
+OUTPUT_VARIABLE = 'STAY'
+ELIGIBLE_FLAG_VARIABLE = 'STAY_IMP_ELIGIBLE_PV'
+IMPUTATION_FLAG_VARIABLE = 'STAY_IMP_FLAG_PV'
+IMPUTATION_LEVEL_VARIABLE = 'STAYK'
+STRATA_BASE_LIST = [['STAYIMPCTRYLEVEL4_PV', 'STAY_PURPOSE_GRP_PV']]
+THRESHOLD_BASE_LIST = [[1]]
+
+
+def do_ips_stay_imputation(df_input, var_serial, num_levels, measure):
     """
     Author       : James Burr
     Date         : 12 Feb 2018
     Purpose      : Imputes stay for the IPS system.
-    Parameters   : input - the IPS survey dataset.
-                   output - dataframe holding imputed records
-                   var_serialNum - the serial number field name
-                   var_stem - stem of the imputation variables parameters
+    Parameters   : df_input - the IPS survey dataset.
+                   var_serial - the serial number field name
                    num_levels - number of imputation levels
-                   donor_var - name of the donor variable
-                   output_var - name of the output variable
-                   measure - measure function, such as mean
-                   var_eligible_flag - the imputation eligibility field name for
-                   both donor and recipient
-                   var_imp_flag - the imputation required trigger/flag field name
-                   var_imp_level - the imputation level field name
+                   measure - This variable should contain a function name which can only be used in lower case
     Returns      : Dataframe - df_output_final
     Requirements : NA
     Dependencies : NA
     """
     # Ensure imputation only occurs on eligible rows
-    df_eligible = df_input.where(df_input[var_eligible_flag] == True)
-    
-    strata_base_list = [['STAYIMPCTRYLEVEL4_PV', 'STAY_PURPOSE_GRP_PV']]
-    
-    thresh_base_list = [[1]]
-    
-    df_output_final = ips_impute.ips_impute(df_eligible, var_serial_num
-                                            , strata_base_list, thresh_base_list
-                                            , num_levels, donor_var,output_var
-                                            , measure, var_imp_flag, var_imp_level)
+    df_eligible = df_input.where(df_input[ELIGIBLE_FLAG_VARIABLE] == True)
+
+    df_output_final = ips_impute.ips_impute(df_eligible, var_serial,
+                                            STRATA_BASE_LIST, THRESHOLD_BASE_LIST,
+                                            num_levels, DONOR_VARIABLE, OUTPUT_VARIABLE,
+                                            measure, IMPUTATION_FLAG_VARIABLE,
+                                            IMPUTATION_LEVEL_VARIABLE)
     
     # Round output column to nearest integer
-    df_output_final[output_var] = df_output_final[output_var].round()
+    df_output_final[OUTPUT_VARIABLE] = df_output_final[OUTPUT_VARIABLE].round()
     
     return df_output_final
 
 
-def ips_stay_imp(SurveyData,OutputData,ResponseTable,var_serialNum,varStem
-                 ,threshStem,numLevels,donorVar,outputVar,measure
-                 ,var_eligibleFlag,var_impFlag,var_impLevel):
+def ips_stay_imp(survey_data, var_serial, num_levels, measure):
     """
     Author       : James Burr
     Date         : 12 Feb 2018
     Purpose      : Produces imputed values for step 8, stay_imputation
-    Parameters   : SurveyData - the IPS survey dataset
-                   OutputData - the output
-                   ResponseTable - the SAS response table
-                   var_serialNum - the serial number field name
-                   varStem - stem of the imputation variables parameters
-                   threshStem - stem of the imputation threshold parameters
-                   numLevels - number of imputation levels
-                   donorVar - Name of the donor variable
-                   outputVar - Name of the output variable    
-                   var_eligibleFlag - the imputation eligibility (donor+recipient) field name
-                   var_impFlag - the imputation required trigger/flag field name
-                   var_impLevel - the imputation level field name
+    Parameters   : survey_data - the IPS survey dataset
+                   var_serial - the serial number field name
+                   num_levels - number of imputation levels
+                   measure - This variable should contain a function name which can only be used in lower case
     Returns      : NA
     Requirements : NA
     Dependencies : NA
@@ -86,13 +72,11 @@ def ips_stay_imp(SurveyData,OutputData,ResponseTable,var_serialNum,varStem
     
     df_surveydata.columns = df_surveydata.columns.str.upper()
 
-    df_output = do_ips_stay_imputation(df_surveydata, OutputData, var_serialNum
-                                       , varStem, threshStem, numLevels, donorVar
-                                       , outputVar, measure, var_eligibleFlag
-                                       , var_impFlag, var_impLevel)
+    df_output = do_ips_stay_imputation(df_surveydata, var_serial
+                                       , num_levels, measure)
 
     # Append the generated data to output tables
-    cf.insert_dataframe_into_table(OutputData, df_output)
+    cf.insert_dataframe_into_table(OUTPUT_TABLE_NAME, df_output)
 
     # Retrieve current function name using inspect:
     # 0 = frame object, 3 = function name.
@@ -103,13 +87,3 @@ def ips_stay_imp(SurveyData,OutputData,ResponseTable,var_serialNum,varStem
     # Log success message in SAS_RESPONSE and AUDIT_LOG
     cf.database_logger().info("SUCCESS - Completed Stay imputation.")
     cf.commit_to_audit_log("Create", "StayImputation", audit_message)
-    
-    
-if __name__ == '__main__':
-    ips_stay_imp(SurveyData = 'SAS_SURVEY_SUBSAMPLE',OutputData = 'SAS_STAY_IMP'
-                 ,ResponseTable = 'SAS_RESPONSE',var_serialNum = 'SERIAL'
-                 ,varStem = 'VARS',threshStem = 'THRESH',numLevels = 1
-                 ,donorVar = 'NUMNIGHTS',outputVar = 'STAY',measure = 'mean'
-                 ,var_eligibleFlag = 'STAY_IMP_ELIGIBLE_PV'
-                 ,var_impFlag = 'STAY_IMP_FLAG_PV',var_impLevel = 'STAYK')
-    
