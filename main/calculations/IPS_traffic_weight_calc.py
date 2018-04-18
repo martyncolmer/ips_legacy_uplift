@@ -188,10 +188,10 @@ def do_ips_trafweight_calculation(df_survey, summary, var_serialNum, var_shiftWe
     trafDesignWeight = "trafDesignWeight".upper()
     df_survey[trafDesignWeight] = df_survey[var_shiftWeight] * df_survey[var_NRWeight] * df_survey[var_minWeight]
 
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"/in_1.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_survey, df_test, check_dtype=False)
+    # test code start - turn on when testing/refactoring intermediate steps
+    # df_test = pd.read_pickle(path_to_data + r"/in_1.pkl")
+    # df_test.columns = df_test.columns.str.upper()
+    # assert_frame_equal(df_survey, df_test, check_dtype=False)
     # test code end
 
     # Summarise the population totals over the strata
@@ -200,7 +200,7 @@ def do_ips_trafweight_calculation(df_survey, summary, var_serialNum, var_shiftWe
     # Re-index the data frame
     df_PopTotals.index = range(df_PopTotals.shape[0])
 
-    # test code start - dataframes not equal due to nan v empty
+    # test code start - dataframes not equal due to nan v empty - turn on when testing/refactoring intermediate steps
     # df_test = pd.read_pickle(path_to_data + r"\trtotals_stratadef_sort.pkl")
     # df_test.columns = df_test.columns.str.upper()
     # assert_frame_equal(df_PopTotals, df_test, check_dtype=False)
@@ -210,10 +210,10 @@ def do_ips_trafweight_calculation(df_survey, summary, var_serialNum, var_shiftWe
         .agg([(TotalVar, 'sum')]) \
         .reset_index()
 
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"/poptotals_summary_1.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_popTotals, df_test, check_column_type=False)
+    # test code start - turn on when testing/refactoring intermediate steps
+    # df_test = pd.read_pickle(path_to_data + r"/poptotals_summary_1.pkl")
+    # df_test.columns = df_test.columns.str.upper()
+    # assert_frame_equal(df_popTotals, df_test, check_column_type=False)
     # test code end    
 
     # Call the GES weighting macro        
@@ -226,14 +226,14 @@ def do_ips_trafweight_calculation(df_survey, summary, var_serialNum, var_shiftWe
                                                                              GESBoundType, GESUpperBound, GESLowerBound,
                                                                              GESMaxDiff,
                                                                              GESMaxIter, GESMaxDist)
-    # test start
-    df_test = pd.read_pickle(path_to_data + r"\output_merge_final.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_output_merge_final, df_test)
-
-    df_test = pd.read_pickle(path_to_data + r"\survey_serialNum_sort.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_survey_serialNum_sort, df_test)
+    # test start - turn on when testing/refactoring intermediate steps
+    # df_test = pd.read_pickle(path_to_data + r"\output_merge_final.pkl")
+    # df_test.columns = df_test.columns.str.upper()
+    # assert_frame_equal(df_output_merge_final, df_test)
+    #
+    # df_test = pd.read_pickle(path_to_data + r"\survey_serialNum_sort.pkl")
+    # df_test.columns = df_test.columns.str.upper()
+    # assert_frame_equal(df_survey_serialNum_sort, df_test)
     # test end
 
     # Generate the summary table    
@@ -242,10 +242,10 @@ def do_ips_trafweight_calculation(df_survey, summary, var_serialNum, var_shiftWe
                                                            var_serialNum, GWeightVar, trafDesignWeight,
                                                            var_trafficTotal, df_popTotals, var_postSum, minCountThresh)
 
-    # test start
-    df_test = pd.read_pickle(path_to_data + r"\summary_merge_sum_traftot.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_summary_merge_sum_traftot, df_test)
+    # test start - turn on when testing/refactoring intermediate steps
+    # df_test = pd.read_pickle(path_to_data + r"\summary_merge_sum_traftot.pkl")
+    # df_test.columns = df_test.columns.str.upper()
+    # assert_frame_equal(df_summary_merge_sum_traftot, df_test)
     # test end
 
     # Round the weights to 3dp    
@@ -253,10 +253,10 @@ def do_ips_trafweight_calculation(df_survey, summary, var_serialNum, var_shiftWe
 
     df_output_merge_final_rounded = df_output_merge_final
 
-    # test start
-    df_test = pd.read_pickle(path_to_data + r"\output_rounded.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_output_merge_final_rounded, df_test)
+    # test start - turn on when testing/refactoring intermediate steps
+    # df_test = pd.read_pickle(path_to_data + r"\output_rounded.pkl")
+    # df_test.columns = df_test.columns.str.upper()
+    # assert_frame_equal(df_output_merge_final_rounded, df_test)
     # test end
 
     return (df_output_merge_final_rounded, df_summary_merge_sum_traftot)
