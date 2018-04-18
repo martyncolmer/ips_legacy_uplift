@@ -9,47 +9,49 @@ from pandas.util.testing import assert_frame_equal
 from collections import OrderedDict
 import survey_support
 from main.io import CommonFunctions as cf
-    
-def do_ips_railex_imp(df_input, output, var_serial, var_eligible, var_fweight,
-					var_count, strata, var_railfare, var_spend, minCountThresh):
+
+OUTPUT_TABLE_NAME = 'SAS_RAIL_IMP'
+ELIGIBLE_VARIABLE = 'FLOW'  # direction of travel (use 5 out uk , 8 in )
+COUNT_VARIABLE = 'COUNT'
+STRATA = ['FLOW', 'RAIL_CNTRY_GRP_PV']
+RAIl_FARE_VARIABLE = 'RAIL_EXERCISE_PV'
+SPEND_VARIABLE = 'SPEND'
+
+
+def do_ips_railex_imp(df_input, var_serial, var_final_weight, minCountThresh):
     """
     Author       : Thomas Mahoney
     Date         : 28 / 02 / 2018
     Purpose      : Calculates the imputed values for rail expenditure for the IPS system.
     Parameters   : df_input - the IPS survey dataset         
                    output - the output dataset                                         
-                   var_serial - the serial number field name           
-                   var_eligible - flag for imputation eligibility (flow 5 or 8)  
-    			   var_fweight - previously estimated final weight
-    			   var_count - number in indvidual strata 
-    			   strata - List of classificatory variables 
-    			   var_railfare - value of total rail expenditure per country group
-    			   var_spend - previously imputed spend variable
-    			   minCountThresh - threshold for respondent count warning msg
+                   var_serial - the serial number field name
+                   var_final_weight - previously estimated final weight
+                   minCountThresh - threshold for respondent count warning msg
     Returns      : df_output(dataframe containing serial number and calculated spend value)
     Requirements : NA
     Dependencies : NA
     """
     
     # Sort the df_input data by flow and rail country
-    df_input = df_input.sort_values(by = strata)  
+    df_input = df_input.sort_values(by = STRATA)  
         
     # Create second data set containing records where flow is not null
-    input2 = df_input[np.isfinite(df_input[var_eligible])]
+    input2 = df_input[np.isfinite(df_input[ELIGIBLE_VARIABLE])]
 
-    # Calculate the 'PRESPEND' column value using the var_spend and var_fweight column values.
-    input2['PRESPEND'] = input2[var_spend] * input2[var_fweight]
+    # Calculate the 'PRESPEND' column value using the SPEND_VARIABLE and var_fweight column values.
+    input2['PRESPEND'] = input2[SPEND_VARIABLE] * input2[var_final_weight]
     
-    input2 = input2.sort_values(by = strata)  
+    input2 = input2.sort_values(by = STRATA)  
     
     # Replace blank values with zero as python drops blanks during the aggregation process.  
-    input2[strata] = input2[strata].fillna(0)
+    input2[STRATA] = input2[STRATA].fillna(0)
     
     
     # Generate the aggregated data 
-    gp_summin = input2.groupby(strata)['PRESPEND'].agg({'GROSSPRESPEND' : 'sum',
-                                                               var_count : 'count'})
-    railexp_summin = input2.groupby(strata)[var_railfare].agg({'RAILEXP' : 'mean'})
+    gp_summin = input2.groupby(STRATA)['PRESPEND'].agg({'GROSSPRESPEND' : 'sum',
+                                                               COUNT_VARIABLE : 'count'})
+    railexp_summin = input2.groupby(STRATA)[RAIl_FARE_VARIABLE].agg({'RAILEXP' : 'mean'})
     
     # Reset the data frames index to include the new columns generated
     gp_summin = gp_summin.reset_index()
@@ -59,13 +61,13 @@ def do_ips_railex_imp(df_input, output, var_serial, var_eligible, var_fweight,
     df_summin = pd.merge(gp_summin,railexp_summin,how = 'inner')
         
     # Replace the previously filled blanks with their original values
-    df_summin[strata] = df_summin[strata].replace(0,np.NaN)
+    df_summin[STRATA] = df_summin[STRATA].replace(0,np.NaN)
     
     # Report any cells with respondent counts below the minCountThreshold
     
     # Create data set for rows below the threshold
     df_summin_thresholds_check = \
-        df_summin[(df_summin[var_count] < minCountThresh)]
+        df_summin[(df_summin[COUNT_VARIABLE] < minCountThresh)]
     
     # Collect data below of specified threshold
     threshold_string = ""
@@ -90,46 +92,37 @@ def do_ips_railex_imp(df_input, output, var_serial, var_eligible, var_fweight,
     df_summinsum = df_summin.apply(calculate_rail_factor,axis = 1)
     
     
-    # Sort the calculated data frame by the strata ready to be merged
-    df_summinsum = df_summinsum.sort_values(by = strata)
+    # Sort the calculated data frame by the STRATA ready to be merged
+    df_summinsum = df_summinsum.sort_values(by = STRATA)
     
     # Append the calculated values to the input data set (generating our output)
-    df_output = pd.merge(df_input,df_summinsum, on = strata, how = 'left')
+    df_output = pd.merge(df_input,df_summinsum, on = STRATA, how = 'left')
     
     # Calculate the spend of the output data set
     def calculate_spend(row):
         if not math.isnan(row['RAIL_FACTOR']):
-            if not math.isnan(row[var_spend]):
-                row[var_spend] = round(row[var_spend] * row['RAIL_FACTOR'])
+            if not math.isnan(row[SPEND_VARIABLE]):
+                row[SPEND_VARIABLE] = round(row[SPEND_VARIABLE] * row['RAIL_FACTOR'])
         return row
 
     df_output = df_output.apply(calculate_spend, axis=1)
         
     # Keep only the 'SERIAL' and 'SPEND' columns
-    df_output = df_output[[var_serial,var_spend]]
+    df_output = df_output[[var_serial,SPEND_VARIABLE]]
     
     # Return the generated data frame to be appended to oracle
     return (df_output)
     
 
-def calculate(SurveyData, OutputData, ResponseTable, var_serial, var_flow,
-		  var_fweight, var_count, strata, var_railexercise, var_spend,
-		  minCountThresh):			  
+def calculate(survey_data, var_serial, var_final_weight, minCountThresh = 30):
     """
     Author       : Thomas Mahoney
     Date         : 28 / 02 / 2018
     Purpose      : Calculates the imputed values for rail expenditure for the IPS system.
-    Parameters   : SurveyData - the IPS survey dataset         
-                   OutputData - the output dataset                                         
-                   responseTable - Oracle table to hold response information (status etc.)    
-                   var_serialNum - the serial number field name           
-                   var_flow - irection of travel (use 5 out uk , 8 in )  
-    			   var_fweight - previously estimated final weight
-    			   var_count - number in indvidual strata 
-    			   strata - List of classificatory variables 
-    			   var_railfare - value of total rail expenditure per country group
-    			   var_spend - previously imputed spend variable
-    			   minCountThresh - threshold for respondent count warning msg                     
+    Parameters   : SurveyData - the IPS survey dataset             
+                   var_serialNum - the serial number field name
+                   var_final_weight - previously estimated final weight
+                   minCountThresh - threshold for respondent count warning msg                     
     Returns      : NA 
     Requirements : NA
     Dependencies : NA
@@ -155,12 +148,11 @@ def calculate(SurveyData, OutputData, ResponseTable, var_serial, var_flow,
     
     # Start the Calculate IPS Rail Impute function.
     print("Start - Calculate IPS Rail Impute.")     
-    output_dataframe = do_ips_railex_imp(df_surveydata, 'output', var_serial, var_flow, var_fweight,
-    										var_count, strata , var_railexercise, var_spend, minCountThresh)
+    output_dataframe = do_ips_railex_imp(df_surveydata, var_serial, var_final_weight, minCountThresh)
     
     # Append the generated data to output table
     #cf.insert_into_table_many(OutputData, output_dataframe)
-    cf.insert_dataframe_into_table(OutputData, output_dataframe)
+    cf.insert_dataframe_into_table(OUTPUT_TABLE_NAME, output_dataframe)
      
     # Retrieve current function name using inspect:
     # 0 = frame object, 3 = function name. 
@@ -172,18 +164,3 @@ def calculate(SurveyData, OutputData, ResponseTable, var_serial, var_flow,
     cf.database_logger().info("SUCCESS - Completed Rail Imputation.")
     cf.commit_to_audit_log("Create", "RailImputation", audit_message)
     print("Completed - Calculate IPS Rail Impute.")
-    
-    
-if __name__ == '__main__':
-    calculate(SurveyData = 'SAS_SURVEY_SUBSAMPLE',
-              OutputData = 'SAS_RAIL_IMP', 
-              ResponseTable = 'SAS_RESPONSE', 
-              var_serial = 'SERIAL', 
-              var_flow = 'FLOW', 
-              var_fweight = 'FINAL_WT', 
-              var_count = 'COUNT',
-              strata = ['FLOW', 
-                        'RAIL_CNTRY_GRP_PV'],
-              var_railexercise = 'RAIL_EXERCISE_PV',
-              var_spend = 'SPEND',
-              minCountThresh = 30)
