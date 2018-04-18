@@ -30,69 +30,63 @@ TOWN_CODE1_VARIABLE = 'TOWNCODE1'
 NUMBER_OF_NIGHTS = 9
 
 
-def ips_correct_regional_nights(df_input, stay):
+def ips_correct_regional_nights(row):
     """
     Author       : Thomas Mahoney
     Date         : 12 / 03 / 2018
     Purpose      : Corrects the regional nights data.
     Parameters   : df_input - the IPS survey records for the period.
-                   stay - the stay column name
     Returns      : NA
     Requirements : NA
     Dependencies : NA
     """
     
-    # Adjust regional night figures so that they match overall stay
-    def compute(row):
-        if row[INFO_PRESENT_MARKER] == 1:
-            known_town_nk_nights = 0
-            nights_sum = 0
-            
-            # Compute nights_sum and known_town_nk_nights for this record
-            for x in range(1, NUMBER_OF_NIGHTS):
-                if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]):
-                    if not math.isnan(row[NIGHTS_VARIABLE + str(x)]):
-                        nights_sum = nights_sum + row[NIGHTS_VARIABLE + str(x)]
-                    else:
-                        known_town_nk_nights = known_town_nk_nights + 1
+    # Adjust regional night figures so that they match overall STAY_VARIABLE
+    if row[INFO_PRESENT_MARKER] == 1:
+        known_town_nk_nights = 0
+        nights_sum = 0
 
-            if known_town_nk_nights == 0:
-                # Check if sum of nights is not equal to stay
-                if nights_sum != row[stay]:
-                    stay_sum = (row[stay]/nights_sum)
-                    
-                    for x in range(1, NUMBER_OF_NIGHTS):
-                        if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]):
-                            row[NIGHTS_VARIABLE + str(x)] = row[NIGHTS_VARIABLE + str(x)] * stay_sum
-                            row[STAY_VARIABLE + str(x) + 'K'] = 'K'
-            else:
-                # If town has known code add stay to total nights_sum
-                # if town is null adds 1 to unknown
-                if nights_sum >= row[stay]:
-                    for x in range(1, NUMBER_OF_NIGHTS):
-                        if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]) and math.isnan(row[NIGHTS_VARIABLE + str(x)]):
-                            row[NIGHTS_VARIABLE + str(x)] = 1
-                            nights_sum = nights_sum + row[NIGHTS_VARIABLE + str(x)]
-                    
-                    # Calculate nights uplift factor
-                    stay_sum = (row[stay]/nights_sum)
-            
-                    for x in range(1, NUMBER_OF_NIGHTS):
-                        if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]):
-                            row[NIGHTS_VARIABLE + str(x)] = row[NIGHTS_VARIABLE + str(x)] * stay_sum
-                            row[STAY_VARIABLE + str(x) + 'K'] = 'L'
-                            
+        # Compute nights_sum and known_town_nk_nights for this record
+        for x in range(1, NUMBER_OF_NIGHTS):
+            if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]):
+                if not math.isnan(row[NIGHTS_VARIABLE + str(x)]):
+                    nights_sum = nights_sum + row[NIGHTS_VARIABLE + str(x)]
                 else:
-                    for x in range(1, NUMBER_OF_NIGHTS):
-                        if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]) and math.isnan(row[NIGHTS_VARIABLE + str(x)]):
-                            row[NIGHTS_VARIABLE + str(x)] = (row[stay] - nights_sum) / known_town_nk_nights
-                            row[STAY_VARIABLE + str(x) + 'K'] = 'M'
+                    known_town_nk_nights = known_town_nk_nights + 1
 
-        return row
-    
-    df_output = df_input.apply(compute, axis=1)
-    
-    return df_output
+        if known_town_nk_nights == 0:
+            # Check if sum of nights is not equal to stay
+            if nights_sum != row[STAY_VARIABLE]:
+                stay_sum = (row[STAY_VARIABLE]/nights_sum)
+
+                for x in range(1, NUMBER_OF_NIGHTS):
+                    if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]):
+                        row[NIGHTS_VARIABLE + str(x)] = row[NIGHTS_VARIABLE + str(x)] * stay_sum
+                        row[STAY_VARIABLE + str(x) + 'K'] = 'K'
+        else:
+            # If town has known code add STAY_VARIABLE to total nights_sum
+            # if town is null adds 1 to unknown
+            if nights_sum >= row[STAY_VARIABLE]:
+                for x in range(1, NUMBER_OF_NIGHTS):
+                    if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]) and math.isnan(row[NIGHTS_VARIABLE + str(x)]):
+                        row[NIGHTS_VARIABLE + str(x)] = 1
+                        nights_sum = nights_sum + row[NIGHTS_VARIABLE + str(x)]
+
+                # Calculate nights uplift factor
+                stay_sum = (row[STAY_VARIABLE]/nights_sum)
+
+                for x in range(1, NUMBER_OF_NIGHTS):
+                    if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]):
+                        row[NIGHTS_VARIABLE + str(x)] = row[NIGHTS_VARIABLE + str(x)] * stay_sum
+                        row[STAY_VARIABLE + str(x) + 'K'] = 'L'
+
+            else:
+                for x in range(1, NUMBER_OF_NIGHTS):
+                    if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]) and math.isnan(row[NIGHTS_VARIABLE + str(x)]):
+                        row[NIGHTS_VARIABLE + str(x)] = (row[STAY_VARIABLE] - nights_sum) / known_town_nk_nights
+                        row[STAY_VARIABLE + str(x) + 'K'] = 'M'
+
+    return row
     
 
 def do_ips_regional_weight_calculation(df_input_data, var_serial,  var_final_weight):
@@ -137,7 +131,7 @@ def do_ips_regional_weight_calculation(df_input_data, var_serial,  var_final_wei
     df_impute_towns = df_impute_towns.apply(check_info, axis=1)
 
     # Correct nights information so that it matches stay
-    df_temp1 = ips_correct_regional_nights(df_impute_towns, STAY_VARIABLE)
+    df_temp1 = df_impute_towns.apply(ips_correct_regional_nights, axis=1)
     
     # Extract the corrected data and sort
     df_temp1 = df_temp1[[FLOW_VARIABLE, var_serial] + night_columns + stay_columns].sort_values(by=var_serial)
