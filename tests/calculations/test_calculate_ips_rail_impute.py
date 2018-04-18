@@ -8,8 +8,7 @@ import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_rail_impute import do_ips_railex_imp
 
-import pytest
-@pytest.mark.rail
+
 def test_calculate():
     # This is an integration test as it runs the entire step
 
