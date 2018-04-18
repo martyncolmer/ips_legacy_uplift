@@ -28,7 +28,3 @@ def test_calculate():
     test_result_summary[str_columns] = test_result_summary[str_columns].replace(np.NaN, '')
 
     assert_frame_equal(result_data, test_result_summary, check_like=True)
-
-
-if __name__ == '__main__':
-    test_calculate()
