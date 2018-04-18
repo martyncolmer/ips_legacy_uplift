@@ -1,15 +1,9 @@
-import sys
-import os
-import logging
 import inspect
 import numpy as np
 import pandas as pd
-from sas7bdat import SAS7BDAT
-from pandas.util.testing import assert_frame_equal
-from collections import OrderedDict
 import survey_support
 from main.io import CommonFunctions as cf
-import IPS_Stored_Procedures.ips_ges_weighting
+import tests.utils.ips_ges_weighting
 
 # Place holder function. This is being used until the actual GES weighting function is complete.
 # def do_ips_ges_weighting(input, SerialNumVarName, DesignWeightVarName, 
@@ -131,10 +125,10 @@ def do_ips_unsampled_weight_calculation(df_surveydata, summary, var_serialNum, v
     liftedTotals = liftedTotals[liftedTotals[var_totals] > 0]
             
     # Call the GES weighting macro
-    ges_dataframes = IPS_Stored_Procedures.ips_ges_weighting.do_ips_ges_weighting(df_surveydata, var_serialNum, OOHDesignWeight, 
-                                          OOHStrataDef, liftedTotals, var_totals, MaxRuleLength, 
-                                          var_modelGroup, output, var_OOHWeight, 'CalWeight', GESBoundType, 
-                                          GESUpperBound, GESLowerBound, GESMaxDiff, GESMaxIter, GESMaxDist)
+    ges_dataframes = tests.utils.ips_ges_weighting.do_ips_ges_weighting(df_surveydata, var_serialNum, OOHDesignWeight,
+                                                                        OOHStrataDef, liftedTotals, var_totals, MaxRuleLength,
+                                                                        var_modelGroup, output, var_OOHWeight, 'CalWeight', GESBoundType,
+                                                                        GESUpperBound, GESLowerBound, GESMaxDiff, GESMaxIter, GESMaxDist)
     
     df_survey = ges_dataframes[0]
     df_output = ges_dataframes[1]
