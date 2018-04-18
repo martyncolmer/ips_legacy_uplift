@@ -11,47 +11,6 @@ import survey_support
 from main.io import CommonFunctions as cf
 
 
-def compare_dfs(test_name, sas_file, df, col_list=False, save_index=False, drop_sas_col=True):
-    import winsound
-
-    def beep():
-        frequency = 500  # Set Frequency To 2500 Hertz
-        duration = 200  # Set Duration To 1000 ms == 1 second
-        winsound.Beep(frequency, duration)
-
-    sas_root = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Regional Weights"
-    print
-    sas_root + "\\" + sas_file
-    csv = pd.read_sas(sas_root + "\\" + sas_file)
-
-    fdir = r"\\NDATA12\mahont1$\My Documents\GIT_Repositories\Test_Drop"
-    sas = "_sas.csv"
-    py = "_py.csv"
-
-    print("TESTING " + test_name)
-
-    # Set all of the columns imported to uppercase
-    csv.columns = csv.columns.str.upper()
-
-    if drop_sas_col:
-        if '_TYPE_' in csv.columns:
-            csv = csv.drop(columns=['_TYPE_'])
-
-        if '_FREQ_' in csv.columns:
-            csv = csv.drop(columns=['_FREQ_'])
-
-    if col_list == False:
-        csv.to_csv(fdir + "\\" + test_name + sas, index=save_index)
-        df.to_csv(fdir + "\\" + test_name + py, index=save_index)
-    else:
-        csv[col_list].to_csv(fdir + "\\" + test_name + sas)
-        df[col_list].to_csv(fdir + "\\" + test_name + py)
-
-    print(test_name + " COMPLETE")
-    beep()
-    print("")
-
-
 def calculate_airmiles(df_air_ext):
     """
     Author       : Thomas Mahoney
@@ -77,10 +36,14 @@ def calculate_airmiles(df_air_ext):
     def get_airmiles(row):
 
         # Set seconds to zero if they are missing to allow calculation to proceed
-        if math.isnan(row['START_LAT_SEC']): row['START_LAT_SEC'] = 0
-        if math.isnan(row['END_LAT_SEC']): row['END_LAT_SEC'] = 0
-        if math.isnan(row['START_LON_SEC']): row['START_LON_SEC'] = 0
-        if math.isnan(row['END_LON_SEC']): row['END_LON_SEC'] = 0
+        if math.isnan(row['START_LAT_SEC']):
+            row['START_LAT_SEC'] = 0
+        if math.isnan(row['END_LAT_SEC']):
+            row['END_LAT_SEC'] = 0
+        if math.isnan(row['START_LON_SEC']):
+            row['START_LON_SEC'] = 0
+        if math.isnan(row['END_LON_SEC']):
+            row['END_LON_SEC'] = 0
 
         lat1 = row['START_LAT_DEGREE'] + (((row['START_LAT_MIN'] * sec_60) + row['START_LAT_SEC']) / sec_3600)
         lat2 = row['END_LAT_DEGREE'] + (((row['END_LAT_MIN'] * sec_60) + row['END_LAT_SEC']) / sec_3600)
