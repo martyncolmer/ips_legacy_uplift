@@ -20,20 +20,27 @@ AIR1_COLUMNS = ['PROUTELATDEG', 'PROUTELATMIN', 'PROUTELATSEC',
                  'PROUTELONDEG', 'PROUTELONMIN', 'PROUTELONSEC',
                  'APORTLATDEG', 'APORTLATMIN', 'APORTLATSEC',
                  'APORTLONDEG', 'APORTLONMIN', 'APORTLONSEC',
-                 'PROUTELATNS', 'PROUTELONEW',
-                 'APORTLATNS', 'APORTLONEW']
+                 'PROUTELATNS', 'APORTLATNS',
+                 'PROUTELONEW', 'APORTLONEW']
 AIR2_COLUMNS = ['CPORTLATDEG', 'CPORTLATMIN', 'CPORTLATSEC',
                  'CPORTLONDEG', 'CPORTLONMIN', 'CPORTLONSEC',
                  'APORTLATDEG', 'APORTLATMIN', 'APORTLATSEC',
                  'APORTLONDEG', 'APORTLONMIN', 'APORTLONSEC',
-                 'CPORTLATNS', 'CPORTLONEW',
-                 'APORTLATNS', 'APORTLONEW']
+                 'CPORTLATNS', 'APORTLATNS', 'CPORTLONEW',
+                  'APORTLONEW']
 AIR3_COLUMNS = ['PROUTELATDEG', 'PROUTELATMIN', 'PROUTELATSEC',
                  'PROUTELONDEG', 'PROUTELONMIN', 'PROUTELONSEC',
                  'CPORTLATDEG', 'CPORTLATMIN', 'CPORTLATSEC',
                  'CPORTLONDEG', 'CPORTLONMIN', 'CPORTLONSEC',
-                 'PROUTELATNS', 'PROUTELONEW',
-                 'CPORTLATNS', 'CPORTLONEW']
+                 'PROUTELATNS', 'CPORTLATNS', 'PROUTELONEW',
+                  'CPORTLONEW']
+AIRMILES_COLUMNS = ['START_LAT_DEGREE', 'START_LAT_MIN', 'START_LAT_SEC',
+                    'START_LON_DEGREE', 'START_LON_MIN', 'START_LON_SEC',
+                    'END_LAT_DEGREE', 'END_LAT_MIN', 'END_LAT_SEC',
+                    'END_LON_DEGREE', 'END_LON_MIN', 'END_LON_SEC',
+                    'START_LAT_DIR', 'END_LAT_DIR', 'START_LON_DIR',
+                    'END_LON_DIR']
+
 
 def calculate_airmiles(df_air_ext):
     """
@@ -134,9 +141,6 @@ def do_ips_airmiles_calculation(df_surveydata, var_serial):
                    beginning the calculation function. 
     Parameters   : df_surveydata - the imported survey sub-sample.                           
                    var_serial - variable holding the serial number column reference
-                   dist1 - variable holding the column reference for the first distance calculation
-                   dist2 - variable holding the column reference for the second distance calculation
-                   dist3 - variable holding the column reference for the third distance calculation
     Returns      : A data frame containing all three air miles calculations
     Requirements : NA
     Dependencies : NA
@@ -151,56 +155,9 @@ def do_ips_airmiles_calculation(df_surveydata, var_serial):
     df_air_ext3 = df_airmiles[[var_serial] + AIR3_COLUMNS]
 
     # Rename the dataframe's columns in preparation for the air miles calculation.
-    df_air_ext1 = df_air_ext1.rename(columns={'PROUTELATDEG': 'START_LAT_DEGREE',
-                                              'PROUTELATMIN': 'START_LAT_MIN',
-                                              'PROUTELATSEC': 'START_LAT_SEC',
-                                              'PROUTELONDEG': 'START_LON_DEGREE',
-                                              'PROUTELONMIN': 'START_LON_MIN',
-                                              'PROUTELONSEC': 'START_LON_SEC',
-                                              'APORTLATDEG': 'END_LAT_DEGREE',
-                                              'APORTLATMIN': 'END_LAT_MIN',
-                                              'APORTLATSEC': 'END_LAT_SEC',
-                                              'APORTLONDEG': 'END_LON_DEGREE',
-                                              'APORTLONMIN': 'END_LON_MIN',
-                                              'APORTLONSEC': 'END_LON_SEC',
-                                              'PROUTELATNS': 'START_LAT_DIR',
-                                              'APORTLATNS': 'END_LAT_DIR',
-                                              'PROUTELONEW': 'START_LON_DIR',
-                                              'APORTLONEW': 'END_LON_DIR'})
-
-    df_air_ext2 = df_air_ext2.rename(columns={'CPORTLATDEG': 'START_LAT_DEGREE',
-                                              'CPORTLATMIN': 'START_LAT_MIN',
-                                              'CPORTLATSEC': 'START_LAT_SEC',
-                                              'CPORTLONDEG': 'START_LON_DEGREE',
-                                              'CPORTLONMIN': 'START_LON_MIN',
-                                              'CPORTLONSEC': 'START_LON_SEC',
-                                              'APORTLATDEG': 'END_LAT_DEGREE',
-                                              'APORTLATMIN': 'END_LAT_MIN',
-                                              'APORTLATSEC': 'END_LAT_SEC',
-                                              'APORTLONDEG': 'END_LON_DEGREE',
-                                              'APORTLONMIN': 'END_LON_MIN',
-                                              'APORTLONSEC': 'END_LON_SEC',
-                                              'CPORTLATNS': 'START_LAT_DIR',
-                                              'APORTLATNS': 'END_LAT_DIR',
-                                              'CPORTLONEW': 'START_LON_DIR',
-                                              'APORTLONEW': 'END_LON_DIR'})
-
-    df_air_ext3 = df_air_ext3.rename(columns={'PROUTELATDEG': 'START_LAT_DEGREE',
-                                              'PROUTELATMIN': 'START_LAT_MIN',
-                                              'PROUTELATSEC': 'START_LAT_SEC',
-                                              'PROUTELONDEG': 'START_LON_DEGREE',
-                                              'PROUTELONMIN': 'START_LON_MIN',
-                                              'PROUTELONSEC': 'START_LON_SEC',
-                                              'CPORTLATDEG': 'END_LAT_DEGREE',
-                                              'CPORTLATMIN': 'END_LAT_MIN',
-                                              'CPORTLATSEC': 'END_LAT_SEC',
-                                              'CPORTLONDEG': 'END_LON_DEGREE',
-                                              'CPORTLONMIN': 'END_LON_MIN',
-                                              'CPORTLONSEC': 'END_LON_SEC',
-                                              'PROUTELATNS': 'START_LAT_DIR',
-                                              'CPORTLATNS': 'END_LAT_DIR',
-                                              'PROUTELONEW': 'START_LON_DIR',
-                                              'CPORTLONEW': 'END_LON_DIR'})
+    df_air_ext1 = df_air_ext1.rename(columns=dict(zip(AIR1_COLUMNS, AIRMILES_COLUMNS)))
+    df_air_ext2 = df_air_ext2.rename(columns=dict(zip(AIR2_COLUMNS, AIRMILES_COLUMNS)))
+    df_air_ext3 = df_air_ext3.rename(columns=dict(zip(AIR3_COLUMNS, AIRMILES_COLUMNS)))
 
     # Calculate the air miles values for all the data sets created    
     df_air1 = calculate_airmiles(df_air_ext1)
@@ -239,9 +196,6 @@ def calculate(input_table_name, var_serial):
                    appended to the specified oracle database table. 
     Parameters   : input_table_name - the name of the table containing the source data.                            
                    var_serial - variable holding the serial number column reference
-                   dist1 - variable holding the column reference for the first distance calculation
-                   dist2 - variable holding the column reference for the second distance calculation
-                   dist3 - variable holding the column reference for the third distance calculation
     Returns      : NA
     Requirements : NA
     Dependencies : NA

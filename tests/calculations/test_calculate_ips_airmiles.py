@@ -20,10 +20,7 @@ def test_calculate():
 
     # Run the test
     output_data = do_ips_airmiles_calculation(df_surveydata=test_survey,
-                                              key_id='SERIAL',
-                                              dist1='UKLEG',
-                                              dist2='OVLEG',
-                                              dist3='DIRECTLEG')
+                                              var_serial='SERIAL')
 
     # Import the expected result
     test_result = pd.read_pickle('../data/airmiles_output.pkl')
@@ -33,7 +30,3 @@ def test_calculate():
 
     # Check the results match
     assert_frame_equal(output_data, test_result)
-
-
-if __name__ == '__main__':
-    test_calculate()
