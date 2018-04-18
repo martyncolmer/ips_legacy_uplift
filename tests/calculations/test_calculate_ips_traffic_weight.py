@@ -12,7 +12,6 @@ import pytest
 
 path_to_data = r"../data/traffic_weight"
 
-
 @pytest.mark.traffic
 def test_calculate():
     print("Started testing IPS traffic weight - calculate()")
@@ -53,7 +52,7 @@ def test_calculate():
     assert_frame_equal(df_summary_merge_sum_traftot, test_summary_merge_sum_traftot, check_dtype=False,check_column_type=False)
     print("test_calculate did good")
 
-
+@pytest.mark.traffic
 def test_do_ips_trafweight_calculation():
     print("Started testing IPS traffic weight - do_ips_trafweight_calculation()")
 
@@ -102,7 +101,7 @@ def test_do_ips_trafweight_calculation():
 
     print("test_do_ips_trafweight_calculation did good")
 
-
+@pytest.mark.traffic
 def test_do_ips_ges_weighting():
     print("Started testing IPS traffic weight - test_do_ips_ges_weighting()")
 
@@ -142,7 +141,7 @@ def test_do_ips_ges_weighting():
 
     print("test_do_ips_ges_weighting did good")
 
-
+@pytest.mark.traffic
 def test_generate_ips_tw_summary():
     print("Started testing IPS traffic weight - test_generate_ips_tw_summary()")
 
@@ -177,10 +176,3 @@ def test_generate_ips_tw_summary():
     test_summary_merge_sum_traftot.columns = test_summary_merge_sum_traftot.columns.str.upper()
     assert_frame_equal(df_summary_merge_sum_traftot, test_summary_merge_sum_traftot, check_column_type=False)
     print("test_generate_ips_tw_summary did good")
-
-
-if __name__ == '__main__':
-    test_calculate()
-    test_do_ips_ges_weighting()
-    test_do_ips_trafweight_calculation()
-    test_generate_ips_tw_summary()
