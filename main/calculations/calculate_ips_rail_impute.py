@@ -1,13 +1,10 @@
-import sys
-import os
-import logging
 import inspect
 import math
+
 import numpy as np
 import pandas as pd
-from pandas.util.testing import assert_frame_equal
-from collections import OrderedDict
 import survey_support
+
 from main.io import CommonFunctions as cf
 
 OUTPUT_TABLE_NAME = 'SAS_RAIL_IMP'
@@ -16,6 +13,10 @@ COUNT_VARIABLE = 'COUNT'
 STRATA = ['FLOW', 'RAIL_CNTRY_GRP_PV']
 RAIl_FARE_VARIABLE = 'RAIL_EXERCISE_PV'
 SPEND_VARIABLE = 'SPEND'
+PRESPEND_VARIABLE = 'PRESPEND'
+GROSS_PRESPEND_VARIABLE = 'GROSSPRESPEND'
+RAIL_EXPENSE_VARIABLE = 'RAILEXP'
+RAIL_FACTOR_VARIABLE = 'RAIL_FACTOR'
 
 
 def do_ips_railex_imp(df_input, var_serial, var_final_weight, minCountThresh):
@@ -39,8 +40,8 @@ def do_ips_railex_imp(df_input, var_serial, var_final_weight, minCountThresh):
     # Create second data set containing records where flow is not null
     input2 = df_input[np.isfinite(df_input[ELIGIBLE_VARIABLE])]
 
-    # Calculate the 'PRESPEND' column value using the SPEND_VARIABLE and var_fweight column values.
-    input2['PRESPEND'] = input2[SPEND_VARIABLE] * input2[var_final_weight]
+    # Calculate the PRESPEND_VARIABLE column value using the SPEND_VARIABLE and var_fweight column values.
+    input2[PRESPEND_VARIABLE] = input2[SPEND_VARIABLE] * input2[var_final_weight]
     
     input2 = input2.sort_values(by = STRATA)  
     
@@ -49,9 +50,9 @@ def do_ips_railex_imp(df_input, var_serial, var_final_weight, minCountThresh):
     
     
     # Generate the aggregated data 
-    gp_summin = input2.groupby(STRATA)['PRESPEND'].agg({'GROSSPRESPEND' : 'sum',
+    gp_summin = input2.groupby(STRATA)[PRESPEND_VARIABLE].agg({GROSS_PRESPEND_VARIABLE : 'sum',
                                                                COUNT_VARIABLE : 'count'})
-    railexp_summin = input2.groupby(STRATA)[RAIl_FARE_VARIABLE].agg({'RAILEXP' : 'mean'})
+    railexp_summin = input2.groupby(STRATA)[RAIl_FARE_VARIABLE].agg({RAIL_EXPENSE_VARIABLE : 'mean'})
     
     # Reset the data frames index to include the new columns generated
     gp_summin = gp_summin.reset_index()
@@ -83,10 +84,11 @@ def do_ips_railex_imp(df_input, var_serial, var_final_weight, minCountThresh):
     
     # Calculate each row's rail factor
     def calculate_rail_factor(row):
-        if row['GROSSPRESPEND'] == 0:
-            row['RAIL_FACTOR'] = np.NaN
+        if row[GROSS_PRESPEND_VARIABLE] == 0:
+            row[RAIL_FACTOR_VARIABLE] = np.NaN
         else:
-            row['RAIL_FACTOR'] = (row['GROSSPRESPEND'] + row['RAILEXP']) / row['GROSSPRESPEND']
+            row[RAIL_FACTOR_VARIABLE] = (row[GROSS_PRESPEND_VARIABLE]
+                                  + row[RAIL_EXPENSE_VARIABLE]) / row[GROSS_PRESPEND_VARIABLE]
         return row
 
     df_summinsum = df_summin.apply(calculate_rail_factor,axis = 1)
@@ -100,9 +102,9 @@ def do_ips_railex_imp(df_input, var_serial, var_final_weight, minCountThresh):
     
     # Calculate the spend of the output data set
     def calculate_spend(row):
-        if not math.isnan(row['RAIL_FACTOR']):
+        if not math.isnan(row[RAIL_FACTOR_VARIABLE]):
             if not math.isnan(row[SPEND_VARIABLE]):
-                row[SPEND_VARIABLE] = round(row[SPEND_VARIABLE] * row['RAIL_FACTOR'])
+                row[SPEND_VARIABLE] = round(row[SPEND_VARIABLE] * row[RAIL_FACTOR_VARIABLE])
         return row
 
     df_output = df_output.apply(calculate_spend, axis=1)
