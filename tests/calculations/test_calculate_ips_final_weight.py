@@ -11,14 +11,11 @@ import pytest
 
 path_to_data = r"../data/final_weight"
 
-@pytest.mark.final_weight
+
 def test_calculate():
     print("Started testing IPS final weight - calculate()")
 
     (surveydata_dataframe, summary_dataframe) = calculate(SurveyData='SAS_SURVEY_SUBSAMPLE'
-                                                                      , OutputData='SAS_FINAL_WT'
-                                                                      , SummaryData='SAS_PS_FINAL'
-                                                                      , ResponseTable='SAS_RESPONSE'
                                                                       , var_serialNum='SERIAL'
                                                                       , var_shiftWeight='SHIFT_WT'
                                                                       , var_NRWeight='NON_RESPONSE_WT'
@@ -26,8 +23,7 @@ def test_calculate():
                                                                       , var_trafficWeight='TRAFFIC_WT'
                                                                       , var_unsampWeight='UNSAMP_TRAFFIC_WT'
                                                                       , var_imbWeight='IMBAL_WT'
-                                                                      , var_finalWeight='FINAL_WT'
-                                                                      , var_recordsDisplayed=20)
+                                                                      , var_finalWeight='FINAL_WT')
 
     path_to_test = path_to_data + r"/output_final.pkl"
     test_df_output_final = pd.read_pickle(path_to_test)
@@ -38,7 +34,7 @@ def test_calculate():
 
     print("test_calculate() finished successfully")
 
-@pytest.mark.final_weight
+
 def test_do_ips_final_wt_calculation():
 
     print("Started testing IPS final weight - do_ips_final_wt_calculation()")
@@ -48,9 +44,7 @@ def test_do_ips_final_wt_calculation():
     df_surveydata = pd.read_pickle(path_to_surveydata)
     df_surveydata.columns = df_surveydata.columns.str.upper()
 
-    (df_output, df_summary) = do_ips_final_wt_calculation(df_surveydata, OutputData = 'SAS_FINAL_WT'
-                                                            , SummaryData = 'SAS_PS_FINAL'
-                                                            , ResponseTable = 'SAS_RESPONSE'
+    (df_output, df_summary) = do_ips_final_wt_calculation(df_surveydata
                                                             , var_serialNum = 'SERIAL'
                                                             , var_shiftWeight = 'SHIFT_WT'
                                                             , var_NRWeight = 'NON_RESPONSE_WT'
@@ -58,8 +52,7 @@ def test_do_ips_final_wt_calculation():
                                                             , var_trafficWeight = 'TRAFFIC_WT'
                                                             , var_unsampWeight = 'UNSAMP_TRAFFIC_WT'
                                                             , var_imbWeight = 'IMBAL_WT'
-                                                            , var_finalWeight = 'FINAL_WT'
-                                                            , var_recordsDisplayed = 20)
+                                                            , var_finalWeight = 'FINAL_WT')
 
     path_to_test = path_to_data + r"/output_final.pkl"
     test_df_output_final = pd.read_pickle(path_to_test)
