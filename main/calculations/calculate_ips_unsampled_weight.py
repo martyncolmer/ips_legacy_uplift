@@ -1,8 +1,9 @@
+import inspect
 import numpy as np
 import pandas as pd
 import survey_support
 from main.io import CommonFunctions as cf
-import main.utils.ips_ges_weighting
+import tests.utils.ips_ges_weighting
 
 path_to_data = '../../tests/data/unsampled_weight'
 
@@ -120,12 +121,14 @@ def do_ips_unsampled_weight_calculation(df_surveydata, summary, var_serialNum, v
     # Remove any records where var_totals value is not greater than zero
     liftedTotals = liftedTotals[liftedTotals[var_totals] > 0]
             
-    # Call the GES weighting macro (main.utils.ips_ges_weighting)
-    (df_survey, df_output) = do_ips_ges_weighting(df_surveydata, var_serialNum, OOHDesignWeight,
-                                                                       OOHStrataDef, liftedTotals, var_totals, MaxRuleLength,
-                                                                       var_modelGroup, output, var_OOHWeight, 'CalWeight', GESBoundType,
-                                                                       GESUpperBound, GESLowerBound, GESMaxDiff, GESMaxIter, GESMaxDist)
-
+    # Call the GES weighting macro
+    ges_dataframes = tests.utils.ips_ges_weighting.do_ips_ges_weighting(df_surveydata, var_serialNum, OOHDesignWeight,
+                                                                        OOHStrataDef, liftedTotals, var_totals, MaxRuleLength,
+                                                                        var_modelGroup, output, var_OOHWeight, 'CalWeight', GESBoundType,
+                                                                        GESUpperBound, GESLowerBound, GESMaxDiff, GESMaxIter, GESMaxDist)
+    
+    df_survey = ges_dataframes[0]
+    df_output = ges_dataframes[1]
     # Sort df_surveydata dataframe before merge
     df_survey = df_survey.sort_values(by = var_serialNum)
     df_output = df_output.sort_values(by = var_serialNum)

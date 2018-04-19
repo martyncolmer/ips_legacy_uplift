@@ -19,7 +19,6 @@ import zipfile
 from pandas.util.testing import assert_frame_equal
 
 import survey_support as ss
-from sqlalchemy.dialects.oracle import cx_oracle
 
 
 def database_logger():
@@ -1048,6 +1047,11 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False):
 
     # Returns number of rows added to table for validation
     return len(rows)
+
+
+def round_half_up(f):
+    import math
+    return math.floor(f + 0.5)
 
 
 def beep():
