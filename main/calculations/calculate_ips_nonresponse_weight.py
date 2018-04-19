@@ -1,5 +1,3 @@
-import sys
-import logging
 import inspect
 import numpy as np
 import pandas as pd
@@ -259,19 +257,6 @@ def calculate(SurveyData, NonResponseData, OutputData, SummaryData, ResponseTabl
 
     # Call JSON configuration file for error logger setup
     survey_support.setup_logging('IPS_logging_config_debug.json')
-
-    # Setup path to the base directory containing data files
-    root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate_Non_Response_Weight"
-    path_to_survey_data = root_data_path + r"\surveydata_1.sas7bdat"
-    path_to_nonresponse_data = root_data_path + r"\nonresponsedata_1.sas7bdat"
-
-    # Import data via SAS
-    # This method works for all data sets but is slower
-    # df_surveydata = SAS7BDAT(path_to_survey_data).to_data_frame()
-    # df_nonresponsedata = SAS7BDAT(path_to_nonresponse_data).to_data_frame()
-    # This method is untested with a range of data sets but is faster
-    # df_surveydata = pd.read_sas(path_to_survey_data)
-    # df_nonresponsedata = pd.read_sas(path_to_nonresponse_data)
 
     # Import data via SQL
     df_surveydata = cf.get_table_values(SurveyData)
