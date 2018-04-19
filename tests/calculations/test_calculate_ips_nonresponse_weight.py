@@ -8,6 +8,8 @@ import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from main.calculations import calculate_ips_nonresponse_weight as non_resp
 
+from main.io import CommonFunctions as cf
+
 
 def test_calculate():
     # This is an integration test as it runs the entire step
@@ -63,5 +65,5 @@ def test_calculate():
     test_result_summary.index = range(0, len(test_result_summary))
 
     # Assert dfs are equal
-    assert_frame_equal(py_survey_data, test_result_survey, check_dtype=False)
-    assert_frame_equal(py_summary_data, test_result_summary, check_dtype=False)
+    assert_frame_equal(py_survey_data, test_result_survey, check_dtype=False, check_like=True)
+    assert_frame_equal(py_summary_data, test_result_summary, check_dtype=False, check_like=True)

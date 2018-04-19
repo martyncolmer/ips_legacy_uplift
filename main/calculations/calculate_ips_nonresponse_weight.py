@@ -16,8 +16,33 @@ def do_ips_nrweight_calculation(SurveyData, NonResponseData, OutputData, Summary
     Author       : James Burr
     Date         : Jan 2018
     Purpose      : Performs calculations to find the nonresponse weight.
-    Parameters   : NA
-    Returns      : Two dataframes
+    Parameters   : SurveyData = the IPS survey records for the period.
+                 : NonResponseData = SAS data set holding migrant non-response totals and
+                 : ineligible totals by strata
+                 : OutputData = Oracle table to hold output data
+                 : summaryData = Oracle table to hold the summary data
+                 : responseTable = Oracle table to hold response information (status etc.)
+                 : NRStratumDef = Variable holding the non-response weight strata
+                 : ShiftsStratumDef = Variable holding the shift weight strata
+                 : var_NRtotals = Variable holding the name of the mig non-response totals
+                 : var_NonMigTotals = Variable holding the name of the non-mig ineligible totals.
+                 : var_SI = Variable holding the name of the NR data samp. interval field
+                 : var_migSI = Variable holding the name of the mig sampling interval field
+                 : var_TandTSI = Variable holding the name of the T&T samp. interval field
+                 : var_PSW = Variable holding the primary shift weight
+                 : var_NRFlag = Variable holding the name of the non-response flag field
+                 : var_migFlag = Variable holding the name of the mig flag field
+                 : var_respCount = Variable holding the name of the response count field
+                 : var_NRWeight = Variable holding the name of the non-resp. weight field
+                 : var_meanSW = Variable holding the name of the mean shift weight field
+                 : var_priorSum = Variable holding the name of the prior weight sum field
+                 : var_meanNRW	= Variable holding the name of the mean NR weight field
+                 : var_grossResp = Variable holding the name of the gross response field
+                 : var_gnr = Variable holding the name of the gross non-response field
+                 : var_serialNum = Variable holding the name of the record number field
+                 : minCountThresh = The minimum cell count threshold
+    Returns      : df_out - dataframe containing calculated values for non_response_weight
+                 : df_summary - dataframe containing a list of various columns, including the calculated non_response_wt
     Requirements : 
     Dependencies : 
     """
@@ -34,8 +59,7 @@ def do_ips_nrweight_calculation(SurveyData, NonResponseData, OutputData, Summary
     df_psw = df_psw.reset_index()
 
     # Only keep rows that exist in df_nonresponsedata_sorted 
-    df_grossmignonresp = pd.merge(df_nonresponsedata_sorted, df_psw, on= \
-        ShiftsStratumDef, how='left')
+    df_grossmignonresp = pd.merge(df_nonresponsedata_sorted, df_psw, on=ShiftsStratumDef, how='left')
 
     # Add gross values using the primary sampling weight and add two new columns
     # to df_grossmignonresp
@@ -45,8 +69,7 @@ def do_ips_nrweight_calculation(SurveyData, NonResponseData, OutputData, Summary
     df_grossmignonresp['grossordnonresp'] = df_grossmignonresp[var_PSW] * \
                                             df_grossmignonresp[var_NonMigTotals]
 
-    # Validate that non-reponse totals can be grossed
-
+    # Validate that non-response totals can be grossed
     df_migtotal_not_zero = df_grossmignonresp[df_grossmignonresp['MIGTOTAL'] != 0]
 
     if (len(df_migtotal_not_zero[df_migtotal_not_zero['grossmignonresp'].isnull()]) > 0):
@@ -70,7 +93,7 @@ def do_ips_nrweight_calculation(SurveyData, NonResponseData, OutputData, Summary
     df_surveydata_sliced = df_surveydata_sliced.sort_values(by=NRStratumDef)
 
     # Create two new columns as aggregations of SHIFT_WT
-    df_sumresp = df_surveydata_sorted.groupby(NRStratumDef)\
+    df_sumresp = df_surveydata_sliced.groupby(NRStratumDef)\
         [var_PSW].agg({
         var_grossResp: 'sum',
         var_respCount: 'count'})
@@ -86,7 +109,7 @@ def do_ips_nrweight_calculation(SurveyData, NonResponseData, OutputData, Summary
     df_surveydata_sliced = df_surveydata_sliced.sort_values(by=NRStratumDef)
 
     # Create new column using the sum of ShiftWt
-    df_sumordnonresp = df_surveydata_sorted.groupby(NRStratumDef) \
+    df_sumordnonresp = df_surveydata_sliced.groupby(NRStratumDef) \
         [var_PSW].agg({ \
         'grossordnonresp': 'sum'})
 
@@ -117,6 +140,7 @@ def do_ips_nrweight_calculation(SurveyData, NonResponseData, OutputData, Summary
     # Add in two new columns with checks to prevent division by 0 
     df_gnr[var_gnr] = np.where(df_gnr[var_grossResp] != 0,
                                df_gnr['grossordnonresp'] + df_gnr['grossmignonresp'] + df_gnr['grossinelresp'], 0)
+
     df_gnr[var_NRWeight] = np.where(df_gnr[var_grossResp] != 0,
                                     (df_gnr[var_gnr] + df_gnr[var_grossResp]) / df_gnr[var_grossResp], np.NaN)
 
@@ -203,8 +227,32 @@ def calculate(SurveyData, NonResponseData, OutputData, SummaryData, ResponseTabl
     Author       : James Burr
     Date         : Jan 2018
     Purpose      : Function called to setup and initiate the calculation
-    Parameters   : NA
-    Returns      : NA
+   Parameters   : SurveyData = the IPS survey records for the period.
+                 : NonResponseData = SAS data set holding migrant non-response totals and
+                 : ineligible totals by strata
+                 : OutputData = Oracle table to hold output data
+                 : summaryData = Oracle table to hold the summary data
+                 : responseTable = Oracle table to hold response information (status etc.)
+                 : NRStratumDef = Variable holding the non-response weight strata
+                 : ShiftsStratumDef = Variable holding the shift weight strata
+                 : var_NRtotals = Variable holding the name of the mig non-response totals
+                 : var_NonMigTotals = Variable holding the name of the non-mig ineligible totals.
+                 : var_SI = Variable holding the name of the NR data samp. interval field
+                 : var_migSI = Variable holding the name of the mig sampling interval field
+                 : var_TandTSI = Variable holding the name of the T&T samp. interval field
+                 : var_PSW = Variable holding the primary shift weight
+                 : var_NRFlag = Variable holding the name of the non-response flag field
+                 : var_migFlag = Variable holding the name of the mig flag field
+                 : var_respCount = Variable holding the name of the response count field
+                 : var_NRWeight = Variable holding the name of the non-resp. weight field
+                 : var_meanSW = Variable holding the name of the mean shift weight field
+                 : var_priorSum = Variable holding the name of the prior weight sum field
+                 : var_meanNRW	= Variable holding the name of the mean NR weight field
+                 : var_grossResp = Variable holding the name of the gross response field
+                 : var_gnr = Variable holding the name of the gross non-response field
+                 : var_serialNum = Variable holding the name of the record number field
+                 : minCountThresh = The minimum cell count threshold
+    Returns      : N/A
     Requirements : 
     Dependencies : 
     """
@@ -217,9 +265,6 @@ def calculate(SurveyData, NonResponseData, OutputData, SummaryData, ResponseTabl
     path_to_survey_data = root_data_path + r"\surveydata_1.sas7bdat"
     path_to_nonresponse_data = root_data_path + r"\nonresponsedata_1.sas7bdat"
 
-    global df_surveydata
-    global df_nonresponsedata
-
     # Import data via SAS
     # This method works for all data sets but is slower
     # df_surveydata = SAS7BDAT(path_to_survey_data).to_data_frame()
@@ -229,16 +274,12 @@ def calculate(SurveyData, NonResponseData, OutputData, SummaryData, ResponseTabl
     # df_nonresponsedata = pd.read_sas(path_to_nonresponse_data)
 
     # Import data via SQL
-    #df_surveydata = cf.get_table_values(SurveyData)
-    #df_nonresponsedata = cf.get_table_values(NonResponseData)
-
-    df_surveydata = pd.read_pickle('../../tests/data/non_response_survey_data.pkl')
-    df_nonresponsedata = pd.read_pickle('../../tests/data/non_response_data.pkl')
+    df_surveydata = cf.get_table_values(SurveyData)
+    df_nonresponsedata = cf.get_table_values(NonResponseData)
 
     df_surveydata.columns = df_surveydata.columns.str.upper()
     df_nonresponsedata.columns = df_nonresponsedata.columns.str.upper()
 
-    print("Start - Calculate NonResponse Weight.")
     weight_calculated_dataframes = do_ips_nrweight_calculation(df_surveydata, df_nonresponsedata, OutputData, SummaryData,
                                                                ResponseTable,
                                                                NRStratumDef, ShiftsStratumDef, var_NRtotals,
@@ -266,7 +307,6 @@ def calculate(SurveyData, NonResponseData, OutputData, SummaryData, ResponseTabl
     # Log success message in SAS_RESPONSE and AUDIT_LOG
     cf.database_logger().info("SUCCESS - Completed NonResponse weight calculation.")
     cf.commit_to_audit_log("Create", "NonReponse", audit_message)
-    print("Completed - Calculate NonResponse Weight")
 
 
 if __name__ == '__main__':
