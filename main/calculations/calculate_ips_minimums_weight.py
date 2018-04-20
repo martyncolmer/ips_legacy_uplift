@@ -5,7 +5,7 @@ import survey_support
 from main.io import CommonFunctions as cf
 
 
-def do_ips_minweight_calculation(SurveyData, OutputData, SummaryData, ResponseTable, MinStratumDef,
+def do_ips_minweight_calculation(df_surveydata, OutputData, SummaryData, ResponseTable, MinStratumDef,
                                  var_serialNum, var_shiftWeight, var_NRWeight, var_minWeight,
                                  var_minCount, var_fullRespCount, var_minFlag, var_sumPriorWeightMin,
                                  var_sumPriorWeightFull, var_sumPriorWeightAll, var_sumPostWeight,
@@ -175,8 +175,6 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, MinStratumDef,
     root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate Minimums Weight"
     path_to_survey_data = root_data_path + r"\surveydata.sas7bdat"
 
-    global df_surveydata
-
     # Import data via SAS
     # This method works for all data sets but is slower
     # df_surveydata = SAS7BDAT(path_to_survey_data).to_data_frame()
@@ -189,7 +187,7 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, MinStratumDef,
     df_surveydata.columns = df_surveydata.columns.str.upper()
 
     print("Start - Calculate Minimums Weight")
-    weight_calculated_dataframes = do_ips_minweight_calculation(SurveyData, OutputData, SummaryData, ResponseTable,
+    weight_calculated_dataframes = do_ips_minweight_calculation(df_surveydata, OutputData, SummaryData, ResponseTable,
                                                                 MinStratumDef,
                                                                 var_serialNum, var_shiftWeight, var_NRWeight,
                                                                 var_minWeight,
