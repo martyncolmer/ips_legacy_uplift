@@ -17,7 +17,7 @@ def test_calculate():
     result_data = do_ips_railex_imp(test_survey,
                                     var_serial='SERIAL',
                                     var_final_weight='FINAL_WT',
-                                    minCountThresh=30)
+                                    minimum_count_threshold=30)
 
     test_result_summary = pd.read_pickle('../data/rail_imp_output.pkl')
     test_result_summary.columns = test_result_summary.columns.str.upper()
