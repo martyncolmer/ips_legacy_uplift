@@ -3,12 +3,11 @@ import numpy as np
 import pandas as pd
 import survey_support
 from main.io import CommonFunctions as cf
-import tests.utils.ips_ges_weighting
+#import tests.utils import ips_ges_weighting
 
 path_to_data = '../../tests/data/unsampled_weight'
 
 #TODO - replace ips_ges_weighting() with correct function once available
-
 #place holder function. This is being used until the actual GES weighting function is complete.
 def do_ips_ges_weighting(input, SerialNumVarName, DesignWeightVarName,
                       StrataDef, PopTotals, TotalVar, MaxRuleLength,
@@ -80,8 +79,11 @@ def do_ips_unsampled_weight_calculation(df_surveydata, summary, var_serialNum, v
         df_surveydata[var_shiftWeight] * df_surveydata[var_NRWeight] * df_surveydata[var_minWeight] * df_surveydata[var_trafficWeight];
 
     # Sort the unsampled data frame ready to be summarised
-    df_ustotals = df_ustotals.sort_values(by=OOHStrataDef)
-    
+    df_ustotals = df_ustotals.sort_values(OOHStrataDef)
+
+    # Re-index the data frame
+    df_ustotals.index = range(df_ustotals.shape[0])
+
     # Replace blank values with 'NOTHING' as python drops blanks during the aggregation process.  
     popTotals = df_ustotals.fillna('NOTHING')
 
@@ -122,7 +124,7 @@ def do_ips_unsampled_weight_calculation(df_surveydata, summary, var_serialNum, v
     liftedTotals = liftedTotals[liftedTotals[var_totals] > 0]
             
     # Call the GES weighting macro
-    ges_dataframes = tests.utils.ips_ges_weighting.do_ips_ges_weighting(df_surveydata, var_serialNum, OOHDesignWeight,
+    ges_dataframes = do_ips_ges_weighting(df_surveydata, var_serialNum, OOHDesignWeight,
                                                                         OOHStrataDef, liftedTotals, var_totals, MaxRuleLength,
                                                                         var_modelGroup, output, var_OOHWeight, 'CalWeight', GESBoundType,
                                                                         GESUpperBound, GESLowerBound, GESMaxDiff, GESMaxIter, GESMaxDist)
@@ -199,7 +201,6 @@ def do_ips_unsampled_weight_calculation(df_surveydata, summary, var_serialNum, v
     # Return the generated data frames to be appended to oracle
     return df_output, df_summary
 
-
 def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum, 
               var_shiftWeight, var_NRWeight, var_minWeight, var_trafficWeight,
               OOHStrataDef, PopTotals, var_totals, MaxRuleLength, ModelGroup,
@@ -269,22 +270,12 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum,
     Output = None
 
     print("Start - Calculate UnSampled Weight.")
-    (output_dataframe, summary_dataframe) = do_ips_unsampled_weight_calculation(df_surveydata, Summary, var_serialNum,
-                                                        var_shiftWeight, var_NRWeight,
-                                                        var_minWeight, var_trafficWeight, OOHStrataDef, df_ustotals,
-                                                        var_totals, MaxRuleLength, var_modelGroup, Output,
-                                                        var_OOHWeight, var_caseCount, var_priorWeightSum,
-                                                        var_OOHWeightSum, GESBoundType, GESUpperBound, GESLowerBound,
-                                                        GESMaxDiff, GESMaxIter, GESMaxDist, minCountThresh)
-    
-    # Ensure the 'UNSAMP_REGION_GRP_PV' values are read in as strings before appending to the database
-    def num_to_string(row):
-        row['UNSAMP_REGION_GRP_PV'] = str(row['UNSAMP_REGION_GRP_PV'])
-        if(row['UNSAMP_REGION_GRP_PV'] == 'nan'):
-            row['UNSAMP_REGION_GRP_PV'] = ' '
-        return row
-    
-    summary_dataframe = summary_dataframe.apply(num_to_string, axis = 1)
+    output_dataframe, summary_dataframe = do_ips_unsampled_weight_calculation(df_surveydata, Summary, var_serialNum, var_shiftWeight, var_NRWeight,
+                                        var_minWeight, var_trafficWeight, OOHStrataDef, df_ustotals,
+                                        var_totals, MaxRuleLength, var_modelGroup, Output,
+                                        var_OOHWeight, var_caseCount, var_priorWeightSum,
+                                        var_OOHWeightSum, GESBoundType, GESUpperBound, GESLowerBound,
+                                        GESMaxDiff, GESMaxIter, GESMaxDist, minCountThresh)
 
     # TODO - following code to be removed/refactored once IPS_main() done
     # Append the generated data to output tables
