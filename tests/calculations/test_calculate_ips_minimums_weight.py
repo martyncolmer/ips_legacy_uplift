@@ -47,7 +47,16 @@ def test_calculate():
     test_output.columns = test_output.columns.str.upper()
     test_summary.columns = test_summary.columns.str.upper()
     test_summary = test_summary[summary_data.columns.str.upper()]
-    test_summary.drop(['_TYPE_', '_FREQ_'], axis=1)
+
+    test_output = test_output.sort_values(by='SERIAL')
+    output_data = output_data.sort_values(by='SERIAL')
+
+    test_output.index = range(0, len(test_output))
+    output_data.index = range(0, len(output_data))
+
+    test_output.to_csv("out_mins_sas.csv")
+    output_data.to_csv("out_mins_james.csv")
+
 
     test_summary.index = range(0, len(test_summary))
     summary_data.index = range(0, len(summary_data))
