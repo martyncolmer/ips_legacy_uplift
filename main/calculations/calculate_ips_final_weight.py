@@ -1,24 +1,22 @@
-import sys
-import os
-import logging
-import inspect
-import numpy as np
 import pandas as pd
 import survey_support
-from main.io import CommonFunctions as cf
+
 path_to_data = r"../../tests/data/final_weight"
 
-def do_ips_final_wt_calculation(df_surveydata, OutputData, SummaryData, ResponseTable
-                                , var_serialNum, var_shiftWeight, var_NRWeight
+
+OUTPUT_TABLE_NAME = 'SAS_FINAL_WT'
+SUMMARY_TABLE_NAME = 'SAS_PS_FINAL'
+NUMBER_RECORDS_DISPLAYED = 20
+
+
+def do_ips_final_wt_calculation(df_surveydata, var_serialNum, var_shiftWeight, var_NRWeight
                                 , var_minWeight, var_trafficWeight, var_unsampWeight
-                                , var_imbWeight, var_finalWeight, var_recordsDisplayed):
+                                , var_imbWeight, var_finalWeight):
     """
     Author       : James Burr / Nassir Mohammad
     Date         : 17 Apr 2018
     Purpose      : Generates the IPS Final Weight value
     Parameters   : df_surveydata - the IPS survey records for the relevant period
-                   OutputData - Oracle table to hold the output data
-                   SummaryData - Oracle tale to hold the output summary
                    var_serialNum - Variable holding the serial number for the record
                    var_shiftWeight - Variable holding the name of the shift weight field
                    var_NRWeight - Variable holding the name of the nr weight field
@@ -52,7 +50,7 @@ def do_ips_final_wt_calculation(df_surveydata, OutputData, SummaryData, Response
 
     # Sort summary, then select var_recordsDisplayed number of random rows for
     # inclusion in the summary dataset
-    df_summary = df_summary.sample(var_recordsDisplayed)
+    df_summary = df_summary.sample(NUMBER_RECORDS_DISPLAYED)
 
     df_summary = df_summary.sort_values(var_serialNum)
 
@@ -62,17 +60,14 @@ def do_ips_final_wt_calculation(df_surveydata, OutputData, SummaryData, Response
     return (df_output, df_summary)
 
 
-def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum
-              , var_shiftWeight, var_NRWeight, var_minWeight, var_trafficWeight
-              , var_unsampWeight, var_imbWeight, var_finalWeight, var_recordsDisplayed):
+def calculate(SurveyData, var_serialNum, var_shiftWeight, var_NRWeight,
+              var_minWeight, var_trafficWeight, var_unsampWeight, var_imbWeight,
+              var_finalWeight):
     """
     Author       : James Burr / Nassir Mohammad
     Date         : 17 Apr 2018
     Purpose      : Calculates the IPS Final Weight
     Parameters   : SurveyData = the IPS survey records for the period
-				   OutputData = Oracle table to hold the output data
-				   SummaryData = Oracle table to hold the output summary
-				   ResponseTable = Oracle table to hold response information (status etc.)
 				   var_SerialNum = Variable holding the record serial number (UID)
 				   var_shiftWeight = Variable holding the name of the shift weight field
 				   var_NRWeight = Variable holding the name of the NR weight field
@@ -113,9 +108,6 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum
 
     print("Start - do_ips_final_wt_calculation()")
     weight_calculated_dataframes = do_ips_final_wt_calculation(df_surveydata
-                                                               , OutputData
-                                                               , SummaryData
-                                                               , ResponseTable
                                                                , var_serialNum
                                                                , var_shiftWeight
                                                                , var_NRWeight
@@ -123,8 +115,7 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum
                                                                , var_trafficWeight
                                                                , var_unsampWeight
                                                                , var_imbWeight
-                                                               , var_finalWeight
-                                                               , var_recordsDisplayed)
+                                                               , var_finalWeight)
 
     # Extract the two data sets returned from do_ips_shift_weight_calculation
     surveydata_dataframe = weight_calculated_dataframes[0]
@@ -153,18 +144,3 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, var_serialNum
 
     #print("Completed - Calculate Final Weight")
 
-
-if (__name__ == '__main__'):
-    calculate(SurveyData='SAS_SURVEY_SUBSAMPLE'
-              , OutputData='SAS_FINAL_WT'
-              , SummaryData='SAS_PS_FINAL'
-              , ResponseTable='SAS_RESPONSE'
-              , var_serialNum='SERIAL'
-              , var_shiftWeight='SHIFT_WT'
-              , var_NRWeight='NON_RESPONSE_WT'
-              , var_minWeight='MINS_WT'
-              , var_trafficWeight='TRAFFIC_WT'
-              , var_unsampWeight='UNSAMP_TRAFFIC_WT'
-              , var_imbWeight='IMBAL_WT'
-              , var_finalWeight='FINAL_WT'
-              , var_recordsDisplayed=20)

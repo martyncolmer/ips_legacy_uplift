@@ -11,30 +11,10 @@ import numpy as np
 
 
 def test_calculate():
-    # This is an integration test as it runs the entire step
 
-    strata1 = ['FLOW',
-               'PURPOSE_PV',
-               'STAYIMPCTRYLEVEL1_PV']
-    strata2 = ['FLOW',
-               'PURPOSE_PV',
-               'STAYIMPCTRYLEVEL2_PV']
-    strata3 = ['FLOW',
-               'PURPOSE_PV',
-               'STAYIMPCTRYLEVEL3_PV']
-    strata4 = ['FLOW',
-               'PURPOSE_PV',
-               'STAYIMPCTRYLEVEL4_PV']
-
-    strata_levels = [strata1, strata2, strata3, strata4]
-    
     test_survey = pd.read_pickle('../data/regional_wt_input.pkl')
     
-    result_data = do_ips_regional_weight_calculation(test_survey, 'SERIAL', 4,
-                                                     'STAY', 'SPEND', 'FINAL_WT', 'STAY_WT',
-                                                     'VISIT_WT', 'EXPENDITURE_WT', 'STAY_WTK',
-                                                     'VISIT_WTK', 'EXPENDITURE_WTK', 'REG_IMP_ELIGIBLE_PV',
-                                                     strata_levels)
+    result_data = do_ips_regional_weight_calculation(test_survey, 'SERIAL', 'FINAL_WT')
 
     test_result_summary = pd.read_pickle('../data/regional_wt_output.pkl')
     test_result_summary.columns = test_result_summary.columns.str.upper()
@@ -48,7 +28,3 @@ def test_calculate():
     test_result_summary[str_columns] = test_result_summary[str_columns].replace(np.NaN, '')
 
     assert_frame_equal(result_data, test_result_summary, check_like=True)
-
-
-if __name__ == '__main__':
-    test_calculate()
