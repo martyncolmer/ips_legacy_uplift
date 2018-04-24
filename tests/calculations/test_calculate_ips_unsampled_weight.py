@@ -11,6 +11,7 @@ import pytest
 
 path_to_data = '../../tests/data/unsampled_weight'
 
+
 @pytest.mark.unsampled
 def test_calculate():
     print("Started testing IPS unsampled weight - calculate()")
