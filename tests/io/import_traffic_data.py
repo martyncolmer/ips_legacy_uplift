@@ -1,103 +1,118 @@
-"""
-    Included in TestSuite purely for testing purposes
-"""
-import pandas
-import inspect
-from main.io import CommonFunctions as cf
+'''
+Created on 12 March 2018
 
-def import_data(filename):
-    """
-    Author        : thorne1
-    Date          : 27 Nov 2017
-    Purpose       : Imports CSV (Sea, CAA, Tunnel Traffic, Possible Shifts,
-                    Non Response or Unsampled) and inserts to Oracle   
-    Parameters    : filename - directory path to CSV
-    Returns       : True or False
-    Requirements  : pip install pandas
-    Dependencies  : cf.import_csv()
-                    cf.validate_csv() 
-                    cf.get_oracle_connection()                
-                    select_data()
-    """
-    
-    # run_id currently hard-coded due to
-    # primary-key constraint on TRAFFIC_DATA (see RUN table)
-    # THIS WILL NEED TO BE AMENDED ONCE run_id PROCESS IMPLEMENTED
-    run_id = "IPSSeedRun"
-    
-    # 0 = frame object, 1 = filename, 3 = function name. 
-    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
-    current_working_file = str(inspect.stack()[0][1])
-    function_name = str(inspect.stack()[0][3])
-    
-    # Import CSV and validate
-    if cf.validate_file(filename, current_working_file, function_name) == True:
-        try:
-            pandas.read_csv(filename)
-        except Exception as err:
-            # return False to indicate failure
-            print(err)
-            return False
-        else:
-            dataframe = cf.import_csv(filename)
-            if dataframe.empty:
-                return False
-    else:
-        print("File validation failed")
-        return False
-    
-    # Data cleansing
-    dataframe.columns = dataframe.columns.str.upper()                           # Change column names to upper case
-    dataframe.columns = dataframe.columns.str.replace(' ', '')                  # Remove whitespaces within column names
-    dataframe["RUN_ID"] = pandas.Series(run_id, index = dataframe.index)        # Insert "ROW_ID" column to dataframe
-    dataframe.rename(columns={"DATASOURCE":"DATA_SOURCE_ID"}, inplace = True)   # Replace "DATASOURCE" column name with "DATA_SOURCE_ID"
-    dataframe = dataframe.fillna('')                                            # Replace Nan values with empty string
-    if "REGION" in dataframe.columns:                                           # Replace "REGION" values with 0 if not an expected value                           
-        dataframe['REGION'].replace(['None',"",".",'nan'],0,inplace=True) 
-    
-    # Get datasource values i.e, "Sea", "Air", "Tunnel", etc
-    return_amount = 1
-    datasource = dataframe.at[return_amount, 'DATA_SOURCE_ID']  
-    
-    # Get datasource id i.e 1, 2, 3, etc as per DATA_SOURCE table
-    # and replace current datasource values with new datasource_id
-    datasource_id = cf.select_data("DATA_SOURCE_ID", "DATA_SOURCE", "DATA_SOURCE_NAME", datasource)
-    print(datasource_id)
-    dataframe['DATA_SOURCE_ID'].replace([datasource],datasource_id,inplace=True)
-        
-    # Oracle connection variables
-    conn = cf.get_oracle_connection()
-    cur = conn.cursor()
-    
-    # Key = datasource / Value = table name    
-    table_name_dict = {"Sea": "TRAFFIC_DATA"
-                  , "Air": "TRAFFIC_DATA"
-                  , "Tunnel": "TRAFFIC_DATA"
-                  , "Shift": "SHIFT_DATA"
-                  , "Non Response": "NON_RESPONSE_DATA"
-                  , "Unsampled": "UNSAMPLED_OOH_DATA"}    
-    table_name = table_name_dict[datasource]
-    
-    # If table is not empty...
-    sql = "SELECT * FROM " + table_name 
-    row_count = cur.execute(sql)
-    row_count = cur.fetchall()
-    row_count = cur.rowcount 
-    if  row_count != 0:
-        # ...check if run_id currently exists...
-        table_run_id = cf.select_data("RUN_ID", table_name, "RUN_ID", run_id)
-        #...and delete if it does
-        if ("'" + run_id + "'") == table_run_id:
-            cf.delete_from_table(table_name, "RUN_ID", "=", table_run_id)
-        
-    # If table_name == "TRAFFIC_DATA" insert "VEHICLE" column with empty values
-    if table_name == "TRAFFIC_DATA":
-        dataframe["VEHICLE"] = pandas.Series("", index = dataframe.index) 
-   
-    # Insert dataframe to table
-    cf.insert_dataframe_into_table(table_name, dataframe)
-       
+@author: Nassir Mohammad
+'''
 
-if __name__ == "__main__":
-    root_file_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing"
-    print(import_data(root_file_path + "\Sea Traffic Q1 2017.csv"))
+import pandas as pd
+from pandas.util.testing import assert_frame_equal
+
+from main.io import import_traffic_data
+
+path_to_data = r"../data/traffic_weight"
+
+
+def test_calculate():
+    run_id ='9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
+
+    air_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec Data\Traffic data\Air Sheet Dec 2017 VBA.csv'
+    nr_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec Data\Traffic data\Dec17_NR.csv'
+    shift_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec Data\Traffic data\Poss shifts Dec 2017.csv'
+    sea_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec Data\Traffic data\Sea Traffic Dec 2017.csv'
+    tunnel_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec Data\Traffic data\Tunnel Traffic Dec 2017.csv'
+    unsampled_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec Data\Traffic data\Unsampled Traffic Dec 2017.csv'
+
+    import_traffic_data.import_traffic_data(run_id, air_data_path)
+
+
+
+
+    path_to_test = path_to_data + r"/output_rounded.pkl"
+    test_df_output_merge_final_rounded = pd.read_pickle(path_to_test)
+    test_df_output_merge_final_rounded.columns = test_df_output_merge_final_rounded.columns.str.upper()
+    assert_frame_equal(df_output_merge_final_rounded, test_df_output_merge_final_rounded)
+
+    path_to_test = path_to_data + r"/summary_merge_sum_traftot.pkl"
+    test_summary_merge_sum_traftot = pd.read_pickle(path_to_test)
+    test_summary_merge_sum_traftot.columns = test_summary_merge_sum_traftot.columns.str.upper()
+    assert_frame_equal(df_summary_merge_sum_traftot, test_summary_merge_sum_traftot, check_dtype=False,check_column_type=False)
+
+
+def test_do_ips_trafweight_calculation():
+    path_to_test = path_to_data + r"/survey_input.pkl"
+    df_survey = pd.read_pickle(path_to_test)
+    df_survey.columns = df_survey.columns.str.upper()
+
+    path_to_test = path_to_data + r"/trtotals.pkl"
+    df_trtotals = pd.read_pickle(path_to_test)
+    df_trtotals.columns = df_trtotals.columns.str.upper()
+
+    (df_output_merge_final_rounded, df_summary_merge_sum_traftot) = do_ips_trafweight_calculation(
+        df_survey
+        , var_serialNum='serial'.upper()
+        , var_shiftWeight='shift_wt'.upper()
+        , var_NRWeight='non_response_wt'.upper()
+        , var_minWeight='mins_wt'.upper()
+        , PopTotals=df_trtotals
+        , GWeightVar='traffic_wt'.upper()
+        , minCountThresh=30)
+
+    path_to_test = path_to_data + r"/output_rounded.pkl"
+    test_df_output_merge_final_rounded = pd.read_pickle(path_to_test)
+    test_df_output_merge_final_rounded.columns = test_df_output_merge_final_rounded.columns.str.upper()
+    assert_frame_equal(df_output_merge_final_rounded, test_df_output_merge_final_rounded)
+
+    path_to_test = path_to_data + r"/summary_merge_sum_traftot.pkl"
+    test_summary_merge_sum_traftot = pd.read_pickle(path_to_test)
+    test_summary_merge_sum_traftot.columns = test_summary_merge_sum_traftot.columns.str.upper()
+    assert_frame_equal(df_summary_merge_sum_traftot, test_summary_merge_sum_traftot)
+
+
+def test_do_ips_ges_weighting():
+
+    path_to_test = path_to_data + r"/in_1.pkl"
+    df_survey = pd.read_pickle(path_to_test)
+    df_survey.columns = df_survey.columns.str.upper()
+
+    (df_output_merge_final, df_survey_serialNum_sort) = do_ips_ges_weighting(df_survey
+                                                                             , var_serialNum='serial'.upper()
+                                                                             , df_popTotals="assign"
+                                                                             , GWeightVar='traffic_wt'.upper()
+                                                                             , CalWeight="assign")
+
+    path_to_test = path_to_data + r"/output_merge_final.pkl"
+    test_df_output_merge_final = pd.read_pickle(path_to_test)
+    test_df_output_merge_final.columns = test_df_output_merge_final.columns.str.upper()
+    assert_frame_equal(df_output_merge_final, test_df_output_merge_final)
+
+    path_to_test = path_to_data + r"/survey_serialNum_sort.pkl"
+    test_df_survey_serialNum_sort = pd.read_pickle(path_to_test)
+    test_df_survey_serialNum_sort.columns = test_df_survey_serialNum_sort.columns.str.upper()
+    assert_frame_equal(df_survey_serialNum_sort, test_df_survey_serialNum_sort)
+
+
+def test_generate_ips_tw_summary():
+
+    path_to_test = path_to_data + r"/in_1.pkl"
+    df_survey = pd.read_pickle(path_to_test)
+    df_survey.columns = df_survey.columns.str.upper()
+
+    path_to_test = path_to_data + r"/output_merge_final.pkl"
+    df_output_merge_final = pd.read_pickle(path_to_test)
+    df_output_merge_final.columns = df_output_merge_final.columns.str.upper()
+
+    path_to_test = path_to_data + r"/poptotals_summary_1.pkl"
+    df_poptotals_summary_1 = pd.read_pickle(path_to_test)
+    df_poptotals_summary_1.columns = df_poptotals_summary_1.columns.str.upper()
+
+    df_summary_merge_sum_traftot = generate_ips_tw_summary(df_survey
+                                                           , df_output_merge_final
+                                                           , var_serialNum='serial'.upper()
+                                                           , var_trafficWeight='traffic_wt'.upper()
+                                                           , df_popTotals=df_poptotals_summary_1
+                                                           , minCountThresh=30)
+
+    path_to_test = path_to_data + r"/summary_merge_sum_traftot.pkl"
+    test_summary_merge_sum_traftot = pd.read_pickle(path_to_test)
+    test_summary_merge_sum_traftot.columns = test_summary_merge_sum_traftot.columns.str.upper()
+    assert_frame_equal(df_summary_merge_sum_traftot, test_summary_merge_sum_traftot, check_column_type=False)

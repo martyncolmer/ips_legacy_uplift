@@ -9,10 +9,7 @@ def get_column_and_version_data(cur, version):
                 SC.COLUMN_NO, 
                 SC.VERSION_ID, 
                 SC.COLUMN_DESC, 
-                SV.SERIAL_NO,
-                case when SC.COLUMN_TYPE != 'varchar2'
-                     then trim(SV.COLUMN_VALUE)
-                     else ''''||trim(SV.COLUMN_VALUE)||'''' end VALUE
+                SV.SERIAL_NO
             FROM
                 SURVEY_COLUMN SC, SURVEY_VALUE SV
             WHERE
@@ -53,7 +50,7 @@ def get_column_and_version_data(cur, version):
     return cur.fetchall()
 
 
-def populate_survey_subsample(run_id,conn):
+def populate_survey_subsample(run_id,conn,version):
 
     serial_sav = 0
     version_sav = 0
@@ -67,26 +64,26 @@ def populate_survey_subsample(run_id,conn):
     sql = "DELETE FROM SURVEY_SUBSAMPLE WHERE RUN_ID = '" + str(run_id) +"'"
     print(sql)
     cur.execute(sql)
-    conn.commit()
+    #conn.commit()
     
     # Commented out because we're using false details
     # Select the correct version_id for the current run, using the run_id
     #sql = "SELECT max(VERSION_ID) FROM RUN_DATA_MAP WHERE RUN_ID = '" + run_id + "' AND DATA_SOURCE = 'SURVEY DATA LOADING'"
     #version_id = cur.fetch()
         
-    version_id = '9999'
+    version_id = str(version)
     
     # Get sample data from SURVEY_COLUMN & SURVEY_VALUE tables using version_id
     # (((THIS WILL BE THE VERSION ID)))
-    sample = get_column_and_version_data(cur,version_id)
+    sample = get_column_and_version_data(cur, version_id)
         
     
     # Write the run information to the RUN_DATA_MAP table
     sql = "insert into RUN_DATA_MAP (RUN_ID,VERSION_ID,DATA_SOURCE) values ('" \
-            +run_id+"',"+version_id+",'SURVEY DATA LOADING')"
+          + run_id + "'," + version_id + ",'SURVEY DATA LOADING')"
             
     cur.execute(sql)
-    conn.commit()
+    #conn.commit()
         
     # Initialise a row counter for added records
     recCount = 1
@@ -135,15 +132,15 @@ def populate_survey_subsample(run_id,conn):
     print(recCount)
     
     sql = "UPDATE RUN_DATA_MAP SET DATA_SOURCE = 'SURVEY_DATA' WHERE RUN_ID = '" \
-            + run_id + "' AND VERSION_ID = '" + version_id +"'"
+          + run_id + "' AND VERSION_ID = '" + version_id + "'"
     cur.execute(sql)
-    conn.commit()
+    #conn.commit()
     print("populate_survey_subsample complete")
     
     
-def populate(run_id, conn):
+def populate(run_id, conn, version):
     
-    populate_survey_subsample(run_id,conn)
+    populate_survey_subsample(run_id,conn, version)
 
 
 if __name__ == '__main__':
