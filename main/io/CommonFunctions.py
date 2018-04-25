@@ -636,7 +636,7 @@ def get_table_values(table_name):
     # Execute the sql statement using the pandas.read_sql function and return
     # the result.
     return pandas.read_sql(sql, conn)
-    
+
 
 def insert_into_table(table_name, column_list, value_list):
     """
