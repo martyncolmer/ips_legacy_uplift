@@ -48,22 +48,26 @@ def test_calculate():
     test_summary.columns = test_summary.columns.str.upper()
     test_summary = test_summary[summary_data.columns.str.upper()]
 
+    test_summary["MINS_CTRY_GRP_PV"].fillna(0, inplace=True)
+
     test_output = test_output.sort_values(by='SERIAL')
     output_data = output_data.sort_values(by='SERIAL')
+
+    test_summary = test_summary.sort_values(by=['MINS_PORT_GRP_PV','MINS_CTRY_GRP_PV'])
+    summary_data = summary_data.sort_values(by=['MINS_PORT_GRP_PV', 'MINS_CTRY_GRP_PV'])
 
     test_output.index = range(0, len(test_output))
     output_data.index = range(0, len(output_data))
 
-    test_output.to_csv("out_mins_sas.csv")
-    output_data.to_csv("out_mins_james.csv")
-
+    #test_summary.to_csv("sas_summary_final.csv")
+    #summary_data.to_csv("python_summary_final.csv")
 
     test_summary.index = range(0, len(test_summary))
     summary_data.index = range(0, len(summary_data))
 
     # Check the results match
-    assert_frame_equal(output_data, test_output)
-    assert_frame_equal(summary_data, test_summary)
+    #assert_frame_equal(output_data, test_output)
+    assert_frame_equal(summary_data, test_summary, check_like=True)
 
 
 if __name__ == '__main__':
