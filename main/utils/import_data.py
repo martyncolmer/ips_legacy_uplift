@@ -1,9 +1,20 @@
 import pandas as pd
 from sas7bdat import SAS7BDAT
-from main.io.CommonFunctions import get_oracle_connection, insert_dataframe_into_table
+from main.io.CommonFunctions import insert_dataframe_into_table
 
 
 def extract_data(df):
+    """
+    Author       : Thomas Mahoney
+    Date         : 26 / 04 / 2018
+    Purpose      : Extracts the required columns from the import data.
+    Parameters   : df - the dataframe containing all of the import data.
+    Returns      : The extracted dataframe.
+    Requirements : NA
+    Dependencies : NA
+    """
+
+    # Generate a list of the required columns
     columns = ['SERIAL', 'AM_PM_NIGHT', 'AGE', 'ANYUNDER16', 'APORTLATDEG',
                'APORTLATMIN', 'APORTLATSEC', 'APORTLATNS', 'APORTLONDEG',
                'APORTLONMIN', 'APORTLONDSEC', 'APORTLONEW', 'ARRIVEDEPART',
@@ -26,34 +37,52 @@ def extract_data(df):
                'VEHICLE', 'VISITBEGAN', 'WELSHNIGHTS', 'WELSHTOWN', 'FAREKEY',
                'TYPEINTERVIEW']
 
+    # Set the imported columns to be uppercase
     df.columns = df.columns.str.upper()
 
+    # Sort the data by serial number
     df_new = df.sort_values(by='SERIAL')
 
+    # Recreate the dataframe using only the specified columns
     df_new = df_new.filter(columns, axis=1)
 
     return df_new
 
-def import_survey_data(survey_data_path, version_id):
 
+def import_survey_data(survey_data_path, run_id, version_id):
+    """
+    Author       : Thomas Mahoney
+    Date         : 26 / 04 / 2018
+    Purpose      : Loads the import data into a dataframe then appends the data to the 'SURVEY_SUBSAMPLE'
+                   table on the connected database.
+    Parameters   : survey_data_path - the dataframe containing all of the import data.
+                   run_id - the generated run_id for the current run.
+                   version_id - ID indicating the current version
+    Returns      : NA
+    Requirements : Datafile is of type '.csv', '.pkl' or '.sas7bdat'
+    Dependencies : NA
+    """
+
+    # Check the survey_data_path's suffix to see what it matches then extract using the appropriate method.
     if survey_data_path[-3:] == "csv":
         df = pd.read_csv(survey_data_path)
     elif survey_data_path[-3:] == 'pkl':
         df = pd.read_pickle(survey_data_path)
     else:
+        # Attempt the faster pandas based import, if not possible use the SAS7BDAT method.
         try:
             df = pd.read_sas(survey_data_path)
-            print("pdimport")
         except:
             df = SAS7BDAT(survey_data_path).to_data_frame()
-            print("sasimport")
 
+    # Call the extract data function to select only the needed columns.
     df_survey_data = extract_data(df)
-    df_survey_data['RUN_ID'] = pd.Series('TEST-RUN-ID', index=df_survey_data.index)
+
+    # Add the generated run id to the dataset.
+    df_survey_data['RUN_ID'] = pd.Series(run_id, index=df_survey_data.index)
+
+    # Insert the imported data into the survey_subsample table on the database.
     insert_dataframe_into_table('SURVEY_SUBSAMPLE', df_survey_data)
-
-
-
 
 
 if __name__ == '__main__':
