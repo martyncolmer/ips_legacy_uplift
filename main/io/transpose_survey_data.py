@@ -6,7 +6,7 @@ import numpy as np
 import sys
 
    
-def get_sas_column_properties(sasFile):
+def get_sas_column_properties(sas_file, version):
     
     global numbers
     global versionid
@@ -15,13 +15,13 @@ def get_sas_column_properties(sasFile):
     global formats
     global labels
     
-    columnProperties = [['Num', 'Name', 'Type', 'Length', 'Format', 'Label']]
+    column_properties = [['Num', 'Name', 'Type', 'Length', 'Format', 'Label']]
     
-    for i, col in enumerate(sasFile.columns, 1):
-        tmp = [i, col.name, col.type, col.length,col.format, col.label]
-        columnProperties.append(tmp)
+    for i, col in enumerate(sas_file.columns, 1):
+        tmp = [i, col.name, col.type, col.length, col.format, col.label]
+        column_properties.append(tmp)
     
-    for x in columnProperties:
+    for x in column_properties:
         numbers.append(x[0])
         types.append(x[2])
         lengths.append(x[3])
@@ -29,13 +29,13 @@ def get_sas_column_properties(sasFile):
         labels.append(x[5])
     
     numbers.pop(0)
-    vid = 9999
-    versionid = [float(vid)]* len(numbers)
+    vid = version
+    versionid = [float(vid)] * len(numbers)
     types.pop(0)
     lengths.pop(0)
     formats.pop(0)
     labels.pop(0)
-    return   
+    return
     
 
 def process_column_dataframe(df,conn):
@@ -72,30 +72,28 @@ def process_value_dataframe(df,conn):
             }
     
     # Create the survey_column data frame
-    surValDF = pd.DataFrame(data, columns=['VERSION_ID','SERIAL_NO','COLUMN_NO','COLUMN_VALUE'])  
+    df_survey_value = pd.DataFrame(data, columns=['VERSION_ID', 'SERIAL_NO', 'COLUMN_NO', 'COLUMN_VALUE'])
     
     # Replace unwanted data with np.nan values
-    surValDF['COLUMN_VALUE'].replace(['None',"",".",'nan'],np.nan,inplace=True)
+    df_survey_value['COLUMN_VALUE'].replace(['None',"",".",'nan'],np.nan,inplace=True)
     
     # Remove the records containing the unwanted data
-    surValDF.dropna(subset=['COLUMN_VALUE'], inplace=True)
+    df_survey_value.dropna(subset=['COLUMN_VALUE'], inplace=True)
     
     # Write the transposed data to the oracle database
-    cf.insert_dataframe_into_table('SURVEY_VALUE', surValDF, conn)
+    cf.insert_dataframe_into_table('SURVEY_VALUE', df_survey_value, conn)
       
 
-def transpose(file_to_transpose):
-        
-    # Setup a reference to the imported file (this will be done differently)
-    path_to_test_data = file_to_transpose
-    
+def transpose(survey_data_path,version_id=9999):
+
     # Read the SAS file into a variable as a SAS file data type
-    sasFile = SAS7BDAT(path_to_test_data)
-    
-    # Load the SAS file into a pandas data frame
+    sasFile = SAS7BDAT(survey_data_path)
+
+    # # Load the SAS file into a pandas data frame
     df = sasFile.to_data_frame()
     
-    
+    # df = pd.read_sas(survey_data_path)
+
     # Create a number of lists to hold the imported data's column properties.
     global numbers
     global versionid
@@ -104,23 +102,23 @@ def transpose(file_to_transpose):
     global formats
     global labels
     
-    numbers, versionid, types, lengths,formats, labels = ([] for i in range(6))
-    
+    numbers, versionid, types, lengths, formats, labels = ([] for i in range(6))
+
     # Extract the column properties from the imported data.
-    get_sas_column_properties(sasFile)
+    get_sas_column_properties(sasFile, version_id)
     
     # Establish a connection to the oracle database.
     connection = cf.get_oracle_connection()
     
     # Generate and export the value data
-    process_value_dataframe(df,connection)
+    process_value_dataframe(df, connection)
     
     # Generate and export the column data
-    process_column_dataframe(df,connection)
+    process_column_dataframe(df, connection)
      
     # Close the oracle connection
     connection.close()
-    
+
     
 if __name__ == '__main__':
     transpose()
