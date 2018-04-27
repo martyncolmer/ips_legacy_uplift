@@ -17,4 +17,5 @@ else:
     except:
         df = SAS7BDAT(in_path).to_data_frame()
 
+df = pd.read_sas(in_path)
 df.to_pickle(out_path)

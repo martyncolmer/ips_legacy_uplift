@@ -5,7 +5,7 @@ import survey_support
 from main.io import CommonFunctions as cf
 
 
-def do_ips_minweight_calculation(SurveyData, OutputData, SummaryData, ResponseTable, MinStratumDef,
+def do_ips_minweight_calculation(df_surveydata, OutputData, SummaryData, ResponseTable, MinStratumDef,
                                  var_serialNum, var_shiftWeight, var_NRWeight, var_minWeight,
                                  var_minCount, var_fullRespCount, var_minFlag, var_sumPriorWeightMin,
                                  var_sumPriorWeightFull, var_sumPriorWeightAll, var_sumPostWeight,
@@ -13,15 +13,40 @@ def do_ips_minweight_calculation(SurveyData, OutputData, SummaryData, ResponseTa
     """
     Author       : James Burr
     Date         : Jan 2018
-    Purpose      :
-    Parameters   : 
-    Returns      : 
+    Purpose      : Performs the calculation of minimums weights
+    Parameters   : df_surveydata - dataframe containing the survey data
+                 : OutputData - name of the table to push results to.
+                 : SummaryData - name of the table to push summary to.
+                 : ResponseTable - name of the table to push response to.
+                 : MinStratumDef - list containing the names of columns to sort by
+                 : var_serialNum - name of the column containing serial number
+                 : var_shiftWeight - name of the column containing calculated shift_wt values
+                 : var_NRWeight - name of the column containing calculated non_response_wt values
+                 : var_minWeight - name of the column to contain calculated min_wt values
+                 : var_minCount - name of the column containing minimum value to be included in minwt calculation
+                 : var_fullRespCount - name of the column containing number of full respondents
+                 : var_minFlag name of the column containing process variable values indicating how this row should be
+                   imputed
+                 : var_sumPriorWeightMin - name of the column containing the prior_gross_mins values
+                 : var_sumPriorWeightFull - name of the column containing the prior_gross_fulls values
+                 : var_sumPriorWeightAll - name of the column containing the prior_gross_all values
+                 : var_sumPostWeight - name of the column containing the postweight values
+                 : var_casesCarriedForward - name of the column containing the number of cases carried forward
+                 : minCountThresh - name of the column containing the minimum respondent count required for this step
+    Returns      : df_out, containing a list of serial numbers with the corresponding calculated mins_wt values
+                 : df_summary, containing a summary of supporting variables related to mins_wt.
     Requirements : 
     Dependencies :
     """
 
-    df_surveydata_new = df_surveydata[df_surveydata[var_shiftWeight].notnull() &
-                                      (df_surveydata[var_NRWeight].notnull())]
+    df_surveydata_new = df_surveydata[df_surveydata[var_shiftWeight].notnull()]
+
+    df_surveydata_new = df_surveydata_new[df_surveydata_new[var_NRWeight].notnull()]
+
+    df_surveydata_new["MINS_CTRY_GRP_PV"].fillna(0, inplace = True)
+
+    # df_surveydata_new = df_surveydata[df_surveydata[var_shiftWeight].notnull() &
+    #                                 (df_surveydata[var_NRWeight].notnull())]
 
     df_surveydata_new['SWNRwght'] = df_surveydata_new[var_shiftWeight] * df_surveydata_new[var_NRWeight]
 
@@ -29,6 +54,8 @@ def do_ips_minweight_calculation(SurveyData, OutputData, SummaryData, ResponseTa
 
     # Summarise the minimum responses by the strata
     df_mins = df_surveydata_sorted[df_surveydata_sorted[var_minFlag] == 1]
+
+    df_mins.reset_index(inplace = True)
 
     df_summin = df_mins.groupby(MinStratumDef) \
         ['SWNRwght'].agg({ \
@@ -52,7 +79,7 @@ def do_ips_minweight_calculation(SurveyData, OutputData, SummaryData, ResponseTa
 
     df_summig = df_migs.groupby(MinStratumDef) \
         ['SWNRwght'].agg({ \
-        var_sumPostWeight : 'sum'})
+        "sumPriorWeightMigs" : 'sum'})
 
     df_summig.reset_index(inplace=True)
 
@@ -69,7 +96,7 @@ def do_ips_minweight_calculation(SurveyData, OutputData, SummaryData, ResponseTa
 
     df_check_prior_gross_fulls = df_summary[df_summary[var_sumPriorWeightFull] <= 0]
 
-    if (df_check_prior_gross_fulls.empty == False & df_summin.empty == False):
+    if (df_check_prior_gross_fulls.empty == False & df_summig.empty == False):
         cf.database_logger().error('Error: No complete or partial responses')
     else:
         df_summary[var_minWeight] = np.where(df_summary[var_sumPriorWeightFull] > 0,
@@ -81,19 +108,20 @@ def do_ips_minweight_calculation(SurveyData, OutputData, SummaryData, ResponseTa
     # Replace missing values with 0
     df_summary[var_sumPriorWeightMin].fillna(0, inplace=True)
     df_summary[var_sumPriorWeightFull].fillna(0, inplace=True)
-    df_summary[var_sumPostWeight].fillna(0, inplace=True)
+    df_summary["sumPriorWeightMigs"].fillna(0, inplace=True)
 
     df_summary[var_sumPriorWeightAll] = df_summary[var_sumPriorWeightMin] + \
                                         df_summary[var_sumPriorWeightFull] + \
-                                        df_summary[var_sumPostWeight]
+                                        df_summary["sumPriorWeightMigs"]
 
     df_summary = df_summary.sort_values(MinStratumDef)
 
     df_summary[var_minWeight] = np.where(df_summary[var_sumPriorWeightFull] > 0,
-                                         (df_summary[var_sumPriorWeightMin] +
-                                          df_summary[var_sumPriorWeightFull]) /
-                                         df_summary[var_sumPriorWeightFull],
+                                         ((df_summary[var_sumPriorWeightMin] +
+                                          df_summary[var_sumPriorWeightFull]) / df_summary[var_sumPriorWeightFull]),
                                          df_summary[var_minWeight])
+
+    df_surveydata_sorted.fillna(0, inplace = True)
 
     # This merge creates two mins_wt columns, x and y/
     df_out = df_summary.merge(df_surveydata_sorted, on=MinStratumDef,
@@ -104,9 +132,31 @@ def do_ips_minweight_calculation(SurveyData, OutputData, SummaryData, ResponseTa
 
     df_out.rename(index=str, columns = {var_minWeight + '_x': var_minWeight},inplace=True)
 
+    df_out.sort_values(var_serialNum)
+
+    df_test_pre = pd.DataFrame(columns=[var_minWeight, var_minFlag])
+
+    df_test_post_1 = pd.DataFrame(columns=[var_minWeight, var_minFlag])
+
+    df_test_post_2 =pd.DataFrame(columns=[var_minWeight, var_minFlag])
+
+    df_test_pre[var_minWeight] = df_out[var_minWeight]
+
+    df_test_pre[var_minFlag] = df_out[var_minFlag]
+
     # Set mins_wt to either 0 or 1 conditionally, then calculate the postweight value
     df_out[var_minWeight] = np.where(df_out[var_minFlag] == 1.0, 0, df_out[var_minWeight])
+
+    df_test_post_1[var_minWeight] = df_out[var_minWeight]
+
+    df_test_post_1[var_minFlag] = df_out[var_minFlag]
+
     df_out[var_minWeight] = np.where(df_out[var_minFlag] == 2.0, 1, df_out[var_minWeight])
+
+    df_test_post_2[var_minWeight] = df_out[var_minWeight]
+
+    df_test_post_2[var_minFlag] = df_out[var_minFlag]
+
     df_out['SWNRMINwght'] = df_out[var_shiftWeight] * \
                             df_out[var_NRWeight] * \
                             df_out[var_minWeight]
@@ -124,10 +174,9 @@ def do_ips_minweight_calculation(SurveyData, OutputData, SummaryData, ResponseTa
     # Merge the updated dataframe with specific columns from GNR.
     df_summary = df_summary.merge(df_postsum, on=MinStratumDef, how='outer')
 
-    df_summary.drop(var_sumPostWeight + '_y', axis=1, inplace=True)
+    df_summary.drop(["sumPriorWeightMigs"], axis=1, inplace=True)
 
-    df_summary.rename(index=str, columns={var_sumPostWeight + '_x': var_sumPostWeight},
-                     inplace=True)
+    df_summary.sort_values(MinStratumDef, inplace = True)
 
     # Perform data validation
     df_fulls_below_threshold = df_summary[df_summary[var_fullRespCount] < 30]
@@ -149,6 +198,14 @@ def do_ips_minweight_calculation(SurveyData, OutputData, SummaryData, ResponseTa
 
     df_out = df_out[[var_serialNum, var_minWeight]]
 
+    # This block of rounding was largely used to test and to bring the results closer in line with the SAS results.
+    # They can be removed if desired in order to produce a new standard test set.
+    df_out[var_minWeight] = df_out[var_minWeight].round(3)
+    df_summary[[var_sumPriorWeightAll, var_sumPriorWeightFull, var_sumPriorWeightMin, var_minWeight, var_sumPostWeight]] = \
+    df_summary[[var_sumPriorWeightAll, var_sumPriorWeightFull, var_sumPriorWeightMin, var_minWeight, var_sumPostWeight]].round(3)
+
+    df_out = df_out.sort_values(var_serialNum)
+
     return (df_out, df_summary)
 
 
@@ -162,8 +219,26 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, MinStratumDef,
     Date         : Jan 2018
     Purpose      : Performs the setup required for the calculation function, then
                    calls the function
-    Parameters   : 
-    Returns      : 
+    Parameters   : SurveyData - name of the table to retrieve survey data from.
+                 : OutputData - name of the table to push results to.
+                 : SummaryData - name of the table to push summary to.
+                 : ResponseTable - name of the table to push response to.
+                 : MinStratumDef - list containing the names of columns to sort by
+                 : var_serialNum - name of the column containing serial number
+                 : var_shiftWeight - name of the column containing calculated shift_wt values
+                 : var_NRWeight - name of the column containing calculated non_response_wt values
+                 : var_minWeight - name of the column to contain calculated min_wt values
+                 : var_minCount - name of the column containing minimum value to be included in minwt calculation
+                 : var_fullRespCount - name of the column containing number of full respondents
+                 : var_minFlag name of the column containing process variable values indicating how this row should be
+                   imputed
+                 : var_sumPriorWeightMin - name of the column containing the prior_gross_mins values
+                 : var_sumPriorWeightFull - name of the column containing the prior_gross_fulls values
+                 : var_sumPriorWeightAll - name of the column containing the prior_gross_all values
+                 : var_sumPostWeight - name of the column containing the postweight values
+                 : var_casesCarriedForward - name of the column containing the number of cases carried forward
+                 : minCountThresh - name of the column containing the minimum respondent count required for this step
+    Returns      : N/A
     Requirements : 
     Dependencies :
     """
@@ -174,8 +249,6 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, MinStratumDef,
     # Setup path to the base directory containing data files
     root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate Minimums Weight"
     path_to_survey_data = root_data_path + r"\surveydata.sas7bdat"
-
-    global df_surveydata
 
     # Import data via SAS
     # This method works for all data sets but is slower
@@ -188,8 +261,7 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, MinStratumDef,
 
     df_surveydata.columns = df_surveydata.columns.str.upper()
 
-    print("Start - Calculate Minimums Weight")
-    weight_calculated_dataframes = do_ips_minweight_calculation(SurveyData, OutputData, SummaryData, ResponseTable,
+    weight_calculated_dataframes = do_ips_minweight_calculation(df_surveydata, OutputData, SummaryData, ResponseTable,
                                                                 MinStratumDef,
                                                                 var_serialNum, var_shiftWeight, var_NRWeight,
                                                                 var_minWeight,
@@ -216,8 +288,6 @@ def calculate(SurveyData, OutputData, SummaryData, ResponseTable, MinStratumDef,
     # Log success message in SAS_RESPONSE and AUDIT_LOG
     cf.database_logger().info("SUCCESS - Completed Minimums weight calculation.")
     cf.commit_to_audit_log("Create", "MinimumsWeight", audit_message)
-    print("Completed - Calculate Minimums Weight")
-
 
 if __name__ == '__main__':
     calculate(SurveyData='SAS_SURVEY_SUBSAMPLE',

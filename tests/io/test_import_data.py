@@ -4,6 +4,7 @@ from main.utils import import_data
 from main.io import CommonFunctions as cf
 
 
+#TODO test fails due to inability to access SQL server. Recheck test when SQL server is available again.
 def test_import_survey_data():
     # Read in the expected result
     result_data_path = r"../data/import/output/post_import_SURVEY_SUBSAMPLE.csv"
