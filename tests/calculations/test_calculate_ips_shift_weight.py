@@ -1,5 +1,5 @@
 '''
-Created on 13 april 2018
+Created on April 2018
 
 @author: Nassir Mohammad
 '''
@@ -7,7 +7,9 @@ Created on 13 april 2018
 import pandas as pd
 import pytest
 
-from main.calculations.calculate_ips_shift_weight import calculate_factor, calculate
+from main.calculations.calculate_ips_shift_weight import calculate_factor, calculate, \
+                                                         do_ips_shift_weight_calculation,calculate_ips_shift_factor, \
+                                                         calculate_ips_shift_factor
 
 @pytest.mark.shiftweight
 class TestCalculateFactor(object):
@@ -79,4 +81,17 @@ def test_calculate():
     # test_summary_merge_sum_traftot = pd.read_pickle(path_to_test)
     # test_summary_merge_sum_traftot.columns = test_summary_merge_sum_traftot.columns.str.upper()
     # assert_frame_equal(df_summary_merge_sum_traftot, test_summary_merge_sum_traftot)
+
     print("test_calculate finished successfully")
+
+@pytest.mark.shiftweight
+def test_calculate_ips_shift_factor():
+    pass
+
+@pytest.mark.shiftweight
+def test_calculate_ips_crossing_factor():
+    pass
+
+@pytest.mark.shiftweight
+def test_do_ips_shift_weight_calculation():
+    pass
