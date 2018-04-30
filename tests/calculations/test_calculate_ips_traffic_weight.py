@@ -7,7 +7,7 @@ Created on 12 March 2018
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 
-from main.calculations.IPS_traffic_weight_calc import calculate, do_ips_ges_weighting, \
+from main.calculations.calculate_ips_traffic_weight import calculate, do_ips_ges_weighting, \
     do_ips_trafweight_calculation, generate_ips_tw_summary
 
 path_to_data = r"../data/traffic_weight"
