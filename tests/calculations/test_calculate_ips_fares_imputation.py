@@ -5,7 +5,7 @@ Created on 15 Mar 2018
 '''
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
-from main.calculations.ips_fares_imp import do_ips_fares_imputation
+from main.calculations.calculate_ips_fares_imputation import do_ips_fares_imputation
 
 
 def test_calculate():
