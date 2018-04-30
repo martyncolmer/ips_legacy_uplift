@@ -8,7 +8,8 @@ import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_minimums_weight import do_ips_minweight_calculation
 
-
+import pytest
+@pytest.mark.testthis
 def test_calculate():
     # This is an integration test as it runs the entire step
 
@@ -20,24 +21,10 @@ def test_calculate():
 
     # Run the test
     output_dataframes = do_ips_minweight_calculation(df_surveydata=test_survey,
-                                               OutputData='SAS_MINIMUMS_WT',
-                                               SummaryData='SAS_PS_MINIMUMS',
-                                               ResponseTable='SAS_RESPONSE',
-                                               MinStratumDef=['MINS_PORT_GRP_PV',
-                                                              'MINS_CTRY_GRP_PV'],
-                                               var_serialNum='SERIAL',
-                                               var_shiftWeight='SHIFT_WT',
-                                               var_NRWeight='NON_RESPONSE_WT',
-                                               var_minWeight='MINS_WT',
-                                               var_minCount='MINS_CASES',
-                                               var_fullRespCount='FULLS_CASES',
-                                               var_minFlag='MINS_FLAG_PV',
-                                               var_sumPriorWeightMin='PRIOR_GROSS_MINS',
-                                               var_sumPriorWeightFull='PRIOR_GROSS_FULLS',
-                                               var_sumPriorWeightAll='PRIOR_GROSS_ALL',
-                                               var_sumPostWeight='POST_SUM',
-                                               var_casesCarriedForward='CASES_CARRIED_FWD',
-                                               minCountThresh='30')
+                                                     var_serialNum='SERIAL',
+                                                     var_shiftWeight='SHIFT_WT',
+                                                     var_NRWeight='NON_RESPONSE_WT',
+                                                     var_minWeight='MINS_WT')
     output_data = output_dataframes[0]
     summary_data = output_dataframes[1]
     # Import the expected result
@@ -77,7 +64,3 @@ def test_calculate():
     # This situation is the same as for other modules e.g. fares and spend imputation, test standard will be changed
     assert_frame_equal(output_data, test_output)
     assert_frame_equal(summary_data, test_summary, check_like=True)
-
-
-if __name__ == '__main__':
-    test_calculate()
