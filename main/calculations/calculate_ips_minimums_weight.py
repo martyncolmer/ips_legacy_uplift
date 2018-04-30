@@ -38,10 +38,7 @@ def do_ips_minweight_calculation(df_surveydata, var_serialNum, var_shiftWeight, 
 
     df_surveydata_new = df_surveydata_new[df_surveydata_new[var_NRWeight].notnull()]
 
-    df_surveydata_new["MINS_CTRY_GRP_PV"].fillna(0, inplace = True)
-
-    # df_surveydata_new = df_surveydata[df_surveydata[var_shiftWeight].notnull() &
-    #                                 (df_surveydata[var_NRWeight].notnull())]
+    df_surveydata_new["MINS_CTRY_GRP_PV"].fillna(0, inplace=True)
 
     df_surveydata_new['SWNRwght'] = df_surveydata_new[var_shiftWeight] * df_surveydata_new[var_NRWeight]
 
@@ -50,10 +47,9 @@ def do_ips_minweight_calculation(df_surveydata, var_serialNum, var_shiftWeight, 
     # Summarise the minimum responses by the strata
     df_mins = df_surveydata_sorted[df_surveydata_sorted[MINIMUM_FLAG_COLUMN] == 1]
 
-    df_mins.reset_index(inplace = True)
+    df_mins.reset_index(inplace=True)
 
-    df_summin = df_mins.groupby(STRATA) \
-        ['SWNRwght'].agg({ \
+    df_summin = df_mins.groupby(STRATA)['SWNRwght'].agg({
         PRIOR_WEIGHT_MINIMUM_COLUMN: 'sum',
         MINIMUM_COUNT_COLUMN: 'count'})
 
@@ -62,8 +58,7 @@ def do_ips_minweight_calculation(df_surveydata, var_serialNum, var_shiftWeight, 
     # Summarise only full responses by strata
     df_fulls = df_surveydata_sorted[df_surveydata_sorted[MINIMUM_FLAG_COLUMN] == 0]
 
-    df_sumfull = df_fulls.groupby(STRATA) \
-        ['SWNRwght'].agg({ \
+    df_sumfull = df_fulls.groupby(STRATA)['SWNRwght'].agg({
         PRIOR_WEIGHT_FULL_COLUMN: 'sum',
         FULL_RESPONSE_COUNT_COLUMN: 'count'})
 
@@ -72,9 +67,7 @@ def do_ips_minweight_calculation(df_surveydata, var_serialNum, var_shiftWeight, 
     # Summarise the mig slot interviews by the strata
     df_migs = df_surveydata_sorted[df_surveydata_sorted[MINIMUM_FLAG_COLUMN] == 2]
 
-    df_summig = df_migs.groupby(STRATA) \
-        ['SWNRwght'].agg({ \
-        "sumPriorWeightMigs" : 'sum'})
+    df_summig = df_migs.groupby(STRATA)['SWNRwght'].agg({"sumPriorWeightMigs": 'sum'})
 
     df_summig.reset_index(inplace=True)
 
@@ -83,15 +76,13 @@ def do_ips_minweight_calculation(df_surveydata, var_serialNum, var_shiftWeight, 
     df_sumfull.sort_values(STRATA)
     df_summig.sort_values(STRATA)
 
-    df_summary = pd.merge(df_sumfull, df_summig, on=STRATA,
-                          how='outer')
+    df_summary = pd.merge(df_sumfull, df_summig, on=STRATA, how='outer')
 
-    df_summary = df_summary.merge(df_summin, on=STRATA,
-                                  how='outer')
+    df_summary = df_summary.merge(df_summin, on=STRATA, how='outer')
 
     df_check_prior_gross_fulls = df_summary[df_summary[PRIOR_WEIGHT_FULL_COLUMN] <= 0]
 
-    if (df_check_prior_gross_fulls.empty == False & df_summig.empty == False):
+    if not df_check_prior_gross_fulls.empty and not df_summig.empty:
         cf.database_logger().error('Error: No complete or partial responses')
     else:
         df_summary[var_minWeight] = np.where(df_summary[PRIOR_WEIGHT_FULL_COLUMN] > 0,
@@ -116,16 +107,15 @@ def do_ips_minweight_calculation(df_surveydata, var_serialNum, var_shiftWeight, 
                                            df_summary[PRIOR_WEIGHT_FULL_COLUMN]) / df_summary[PRIOR_WEIGHT_FULL_COLUMN]),
                                          df_summary[var_minWeight])
 
-    df_surveydata_sorted.fillna(0, inplace = True)
+    df_surveydata_sorted.fillna(0, inplace=True)
 
     # This merge creates two mins_wt columns, x and y/
-    df_out = df_summary.merge(df_surveydata_sorted, on=STRATA,
-                              how='outer')
+    df_out = df_summary.merge(df_surveydata_sorted, on=STRATA, how='outer')
 
     # Remove empty mins_wt_y column and rename mins_wt_x to mins_wt
-    df_out = df_out.drop(var_minWeight + '_y', axis = 1)
+    df_out = df_out.drop(var_minWeight + '_y', axis=1)
 
-    df_out.rename(index=str, columns = {var_minWeight + '_x': var_minWeight},inplace=True)
+    df_out.rename(index=str, columns={var_minWeight + '_x': var_minWeight}, inplace=True)
 
     df_out.sort_values(var_serialNum)
 
@@ -133,7 +123,7 @@ def do_ips_minweight_calculation(df_surveydata, var_serialNum, var_shiftWeight, 
 
     df_test_post_1 = pd.DataFrame(columns=[var_minWeight, MINIMUM_FLAG_COLUMN])
 
-    df_test_post_2 =pd.DataFrame(columns=[var_minWeight, MINIMUM_FLAG_COLUMN])
+    df_test_post_2 = pd.DataFrame(columns=[var_minWeight, MINIMUM_FLAG_COLUMN])
 
     df_test_pre[var_minWeight] = df_out[var_minWeight]
 
@@ -157,8 +147,7 @@ def do_ips_minweight_calculation(df_surveydata, var_serialNum, var_shiftWeight, 
                             df_out[var_minWeight]
 
     df_out_sliced = df_out[df_out[MINIMUM_FLAG_COLUMN] != 1]
-    df_postsum = df_out_sliced.groupby(STRATA) \
-        ['SWNRMINwght'].agg({ \
+    df_postsum = df_out_sliced.groupby(STRATA)['SWNRMINwght'].agg({
         POST_WEIGHT_COLUMN: 'sum',
         CASES_CARRIED_FORWARD_COLUMN: 'count'})
 
@@ -171,14 +160,13 @@ def do_ips_minweight_calculation(df_surveydata, var_serialNum, var_shiftWeight, 
 
     df_summary.drop(["sumPriorWeightMigs"], axis=1, inplace=True)
 
-    df_summary.sort_values(STRATA, inplace = True)
+    df_summary.sort_values(STRATA, inplace=True)
 
     # Perform data validation
     df_fulls_below_threshold = df_summary[df_summary[FULL_RESPONSE_COUNT_COLUMN] < 30]
     df_mins_below_threshold = df_summary[df_summary[MINIMUM_COUNT_COLUMN] > 0]
 
-    df_merged_thresholds = df_fulls_below_threshold.merge(df_mins_below_threshold
-                                                          , how='inner')
+    df_merged_thresholds = df_fulls_below_threshold.merge(df_mins_below_threshold, how='inner')
     df_merged_thresholds = df_merged_thresholds[STRATA]
 
     # Collect data outside of specified threshold
@@ -196,12 +184,13 @@ def do_ips_minweight_calculation(df_surveydata, var_serialNum, var_shiftWeight, 
     # This block of rounding was largely used to test and to bring the results closer in line with the SAS results.
     # They can be removed if desired in order to produce a new standard test set.
     df_out[var_minWeight] = df_out[var_minWeight].round(3)
-    df_summary[[PRIOR_WEIGHT_ALL_COLUMN, PRIOR_WEIGHT_FULL_COLUMN, PRIOR_WEIGHT_MINIMUM_COLUMN, var_minWeight, POST_WEIGHT_COLUMN]] = \
-    df_summary[[PRIOR_WEIGHT_ALL_COLUMN, PRIOR_WEIGHT_FULL_COLUMN, PRIOR_WEIGHT_MINIMUM_COLUMN, var_minWeight, POST_WEIGHT_COLUMN]].round(3)
+    columns_to_round = [PRIOR_WEIGHT_ALL_COLUMN, PRIOR_WEIGHT_FULL_COLUMN, PRIOR_WEIGHT_MINIMUM_COLUMN, var_minWeight,
+                        POST_WEIGHT_COLUMN]
+    df_summary[columns_to_round] = df_summary[columns_to_round].round(3)
 
     df_out = df_out.sort_values(var_serialNum)
 
-    return (df_out, df_summary)
+    return df_out, df_summary
 
 
 def calculate(SurveyData, var_serialNum, var_shiftWeight, var_NRWeight, var_minWeight):

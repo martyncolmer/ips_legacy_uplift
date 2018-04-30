@@ -51,7 +51,7 @@ def test_calculate():
     summary_data.index = range(0, len(summary_data))
 
     # Conversion performed to match SAS results. Can be removed once SAS results are no longer the test standard
-    summary_data["CASES_CARRIED_FWD"] = summary_data["CASES_CARRIED_FWD"].astype(float,)
+    summary_data["CASES_CARRIED_FWD"] = summary_data["CASES_CARRIED_FWD"].astype(float)
     summary_data["FULLS_CASES"] = summary_data["FULLS_CASES"].astype(float)
 
     # Rounding here performed mostly for test purposes, could be removed
