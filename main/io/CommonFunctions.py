@@ -636,7 +636,7 @@ def get_table_values(table_name):
     # Execute the sql statement using the pandas.read_sql function and return
     # the result.
     return pandas.read_sql(sql, conn)
-    
+
 
 def insert_into_table(table_name, column_list, value_list):
     """
@@ -1040,7 +1040,13 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False):
     # for rec in rows:
     #    print (rec)
 
+    start_time = time.time()
+    print("Start - " + str(start_time))
     cur.executemany(sql, rows)
+
+    end_time = time.time()
+    print("End - " + str(end_time))
+    print("Elapsed - " + str(end_time - start_time))
 
     print("Records added to " + table_name + " table - " + str(len(rows)))
     #connection.commit()
