@@ -11,7 +11,7 @@ import inspect
 from main.io import CommonFunctions as cf
 
 import pytest
-@pytest.mark.skip
+@pytest.mark.skip('No longer relevant, can be removed when appropriate')
 class TestCommonFunctions(unittest.TestCase):
     def setUp(self):
         """
