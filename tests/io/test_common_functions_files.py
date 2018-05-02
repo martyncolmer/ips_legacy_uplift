@@ -8,8 +8,7 @@ import os
 
 from main.io import CommonFunctions as cf
 
-import pytest
-@pytest.mark.testthis
+
 class TestCommonFunctions(unittest.TestCase):
     root_dir_path = r"tests/data/common_functions"
 
