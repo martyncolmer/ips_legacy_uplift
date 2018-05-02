@@ -3,7 +3,7 @@ import math
 
 import numpy as np
 import pandas as pd
-import survey_support
+# import survey_support
 
 from main.io import CommonFunctions as cf
 
@@ -128,7 +128,7 @@ def calculate(survey_data, var_serial, var_final_weight, minimum_count_threshold
     """
     
     # Call JSON configuration file for error logger setup
-    survey_support.setup_logging('IPS_logging_config_debug.json')
+    # survey_support.setup_logging('IPS_logging_config_debug.json')
         
     # Import data via SAS
     # This method works for all data sets but is slower

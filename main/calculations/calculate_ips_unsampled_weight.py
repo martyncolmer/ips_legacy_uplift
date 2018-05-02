@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import survey_support
+# import survey_support
 from main.io import CommonFunctions as cf
 
 PATH_TO_DATA = '../../tests/data/unsampled_weight'
@@ -229,7 +229,7 @@ def calculate(SurveyData, var_serialNum, var_shiftWeight, var_NRWeight, var_minW
     """
 
     # Call JSON configuration file for error logger setup
-    survey_support.setup_logging('IPS_logging_config_debug.json')
+    # survey_support.setup_logging('IPS_logging_config_debug.json')
 
     # Import data
     df_surveydata = pd.read_pickle(PATH_TO_DATA + r"/survey_input.pkl")

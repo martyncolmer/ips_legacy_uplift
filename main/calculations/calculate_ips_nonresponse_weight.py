@@ -2,7 +2,7 @@ import inspect
 
 import numpy as np
 import pandas as pd
-import survey_support
+# import survey_support
 
 from main.io import CommonFunctions as cf
 
@@ -230,7 +230,7 @@ def calculate(survey_data, non_response_weight_column, var_serial):
     """
 
     # Call JSON configuration file for error logger setup
-    survey_support.setup_logging('IPS_logging_config_debug.json')
+    # survey_support.setup_logging('IPS_logging_config_debug.json')
 
     # Import data via SQL
     df_surveydata = cf.get_table_values(survey_data)

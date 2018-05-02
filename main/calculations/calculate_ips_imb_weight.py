@@ -5,7 +5,7 @@ Created on 7 Feb 2018
 '''
 import pandas as pd
 import inspect
-import survey_support
+# import survey_support
 from main.io import CommonFunctions as cf
 
 
@@ -202,7 +202,7 @@ def calculate(SurveyData, OutputData, SummaryData, var_serialNum
     """
 
     # Call JSON configuration file for error logger setup
-    survey_support.setup_logging('IPS_logging_config_debug.json')
+    # survey_support.setup_logging('IPS_logging_config_debug.json')
     logger = cf.database_logger()
 
     # Setup path to the base directory containing data files
