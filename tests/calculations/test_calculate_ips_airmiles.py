@@ -10,7 +10,6 @@ from main.calculations.calculate_ips_airmiles import do_ips_airmiles_calculation
 
 
 def test_calculate():
-    # This is an integration test as it runs the entire step
 
     # Import the test data
     test_survey = pd.read_pickle('tests/data/airmiles_input.pkl')
