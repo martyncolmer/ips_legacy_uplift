@@ -7,7 +7,7 @@ import inspect
 
 import numpy as np
 import pandas as pd
-import survey_support
+# import survey_support
 
 from main.calculations import ips_impute as imp
 from main.io import CommonFunctions as cf
@@ -101,7 +101,7 @@ def calculate(survey_data, var_serial, measure):
     """
     
     # Call JSON configuration file for error logger setup
-    survey_support.setup_logging('IPS_logging_config_debug.json')
+    # survey_support.setup_logging('IPS_logging_config_debug.json')
     logger = cf.database_logger()
     
     # Import data via SAS

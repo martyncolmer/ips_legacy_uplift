@@ -18,7 +18,7 @@ import zipfile
 
 from pandas.util.testing import assert_frame_equal
 
-import survey_support as ss
+# import survey_support as ss
 
 
 def database_logger():

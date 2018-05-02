@@ -11,10 +11,10 @@ SUMMARY_TABLE_NAME = 'SAS_PS_SHIFT_DATA'
 SHIFTS_STRATA = ['SHIFT_PORT_GRP_PV',
                  'ARRIVEDEPART',
                  'WEEKDAY_END_PV',
-                 'AM_PM_NIGHT_PV'] 
-FLAG_COLUMN = 'SHIFT_FLAG_PV' 
-FACTOR_COLUMN = 'SHIFT_FACTOR' 
-TOTALS_COLUMN = 'TOTAL' 
+                 'AM_PM_NIGHT_PV']
+FLAG_COLUMN = 'SHIFT_FLAG_PV'
+FACTOR_COLUMN = 'SHIFT_FACTOR'
+TOTALS_COLUMN = 'TOTAL'
 SHIFT_NUMBER_COLUMN = 'SHIFTNO'
 CROSSING_FLAG_COLUMN = 'CROSSINGS_FLAG_PV'
 CROSSING_FACTOR_COLUMN = 'CROSSINGS_FACTOR'
@@ -27,10 +27,10 @@ AVERAGE_WEIGHT_COLUMN = 'MEAN_SH_WT'
 MAX_WEIGHT_COLUMN = 'MAX_SH_WT'
 SUMMARY_KEY_COLUMN = 'SHIFT_PORT_GRP_PV'
 SHIFTS_SUB_STRATA = ['SHIFT_PORT_GRP_PV',
-                     'ARRIVEDEPART'] 
-POSSIBLE_COUNT_COLUMN = 'POSS_SHIFT_CROSS' 
-SAMPLED_COUNT_COLUMN = 'SAMP_SHIFT_CROSS' 
-MINIMUM_WEIGHT_THRESHOLD = '50' 
+                     'ARRIVEDEPART']
+POSSIBLE_COUNT_COLUMN = 'POSS_SHIFT_CROSS'
+SAMPLED_COUNT_COLUMN = 'SAMP_SHIFT_CROSS'
+MINIMUM_WEIGHT_THRESHOLD = '50'
 MAXIMUM_WEIGHT_THRESHOLD = '5000'
 
 
@@ -75,7 +75,6 @@ def calculate_ips_shift_factor(df_shiftsdata, df_surveydata):
     Dependencies : NA
     """
 
-    print("Started: Calculate IPS Shift Factor")
 
     # -----------------------------------------
     # Get survey records that are shift based
@@ -471,7 +470,7 @@ def calculate(SurveyData, ShiftsData, var_serialNum, var_shiftWeight):
     """
 
     # Call JSON configuration file for error logger setup
-    survey_support.setup_logging('IPS_logging_config_debug.json')
+    # survey_support.setup_logging('IPS_logging_config_debug.json')
 
     # Load SAS files into dataframes (this data will come from Oracle/SQL server in final version)
     df_surveydata = pd.read_pickle(PATH_TO_TEST_DATA + r"\surveydata.pkl")
@@ -494,7 +493,7 @@ def calculate(SurveyData, ShiftsData, var_serialNum, var_shiftWeight):
 
     df_surveydata_out, df_summary_out = do_ips_shift_weight_calculation(df_surveydata, df_shiftsdata, var_serialNum,
                                                                         var_shiftWeight)
-    
+
     return df_surveydata_out, df_summary_out
 
     # Code to be re-factored when doing main() - Start

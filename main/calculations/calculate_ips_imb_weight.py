@@ -8,6 +8,7 @@ import inspect
 import pandas as pd
 import survey_support
 
+# import survey_support
 from main.io import CommonFunctions as cf
 
 OUTPUT_TABLE_NAME = "SAS_IMBALANCE_WT"
@@ -182,7 +183,7 @@ def calculate(SurveyData, var_serialNum, var_shiftWeight, var_NRWeight, var_minW
     """
 
     # Call JSON configuration file for error logger setup
-    survey_support.setup_logging('IPS_logging_config_debug.json')
+    # survey_support.setup_logging('IPS_logging_config_debug.json')
     logger = cf.database_logger()
 
     # Setup path to the base directory containing data files

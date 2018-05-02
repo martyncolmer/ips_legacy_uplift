@@ -3,7 +3,7 @@ import math
 
 import numpy as np
 import pandas as pd
-import survey_support
+# import survey_support
 
 from main.io import CommonFunctions as cf
 
@@ -402,7 +402,7 @@ def calculate(in_table_name, var_serial, var_final_weight):
     """
     
     # Call JSON configuration file for error logger setup
-    survey_support.setup_logging('IPS_logging_config_debug.json')
+    # survey_support.setup_logging('IPS_logging_config_debug.json')
         
     # Import data via SAS
     path_to_survey_data = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Regional Weights\surveydata.sas7bdat"

@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from collections import OrderedDict
-import survey_support
+# import survey_support
 from main.io import CommonFunctions as cf
 
 FLOW_VARIABLE = 'FLOW'
@@ -202,7 +202,7 @@ def calculate(input_table_name, var_serial):
     """
 
     # Call JSON configuration file for error logger setup
-    survey_support.setup_logging('IPS_logging_config_debug.json')
+    # survey_support.setup_logging('IPS_logging_config_debug.json')
 
     # Import data
     df_surveydata = pd.read_pickle('../data/airmiles_input.pkl')
