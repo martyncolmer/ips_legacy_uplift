@@ -3,7 +3,7 @@ import math
 
 import numpy as np
 import pandas as pd
-import survey_support
+# import survey_support
 
 from main.calculations import ips_impute
 from main.io import CommonFunctions as cf
@@ -231,7 +231,7 @@ def ips_fares_imp(survey_data, var_serial, num_levels, measure):
     """
 
     # Call JSON configuration file for error logger setup
-    survey_support.setup_logging('IPS_logging_config_debug.json')
+    # survey_support.setup_logging('IPS_logging_config_debug.json')
 
     # Setup path to the base directory containing data files
     root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Fares Imputation"

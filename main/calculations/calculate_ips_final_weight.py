@@ -1,5 +1,5 @@
 import pandas as pd
-import survey_support
+# import survey_support
 
 path_to_data = r"../../tests/data/final_weight"
 
@@ -87,7 +87,7 @@ def calculate(SurveyData, var_serialNum, var_shiftWeight, var_NRWeight,
     # import data set
 
     # Call JSON configuration file for error logger setup
-    survey_support.setup_logging('IPS_logging_config_debug.json')
+    # survey_support.setup_logging('IPS_logging_config_debug.json')
 
     # Setup path to the base directory containing data files
     path_to_survey_data = path_to_data + r"/surveydata.pkl"
