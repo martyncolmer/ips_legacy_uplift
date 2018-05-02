@@ -5,8 +5,9 @@
       "pv_columns": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[SHIFT_FLAG_PV]", "[CROSSINGS_FLAG_PV]"],
       "pv_columns2": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]"],
       "ps_columns": ["[RUN_ID]", "[SHIFT_PORT_GRP_PV]", "[ARRIVEDEPART]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[MIGSI]", "[POSS_SHIFT_CROSS]", "[SAMP_SHIFT_CROSS]", "[MIN_SH_WT]", "[MEAN_SH_WT]", "[MAX_SH_WT]", "[COUNT_RESPS]", "[SUM_SH_WT]"],
-      "delete_tables": ["[dbo].[SAS_SHIFT_WT]", "[dbo].[SAS_PS_SHIFT_DATA]"],
       "results_columns": ["[SHIFT_WT]"],
+      "insert_to_populate": ["[REC_ID]", "[PORTROUTE]", "[WEEKDAY]", "[ARRIVEDEPART]", "[TOTAL]", "[AM_PM_NIGHT]"],
+      "delete_tables": ["[dbo].[SAS_SHIFT_WT]", "[dbo].[SAS_PS_SHIFT_DATA]"],
       "spv_table": "[dbo].[SAS_SHIFT_SPV]",
       "pv_table": "[dbo].[SAS_SHIFT_PV]",
       "data_table": "[dbo].[SAS_SHIFT_DATA]",
@@ -14,7 +15,6 @@
       "ps_table": "[dbo].[PS_SHIFT_DATA]",
       "weight_table": "[dbo].[SAS_SHIFT_WT]",
       "table_name": "[dbo].[SHIFT_DATA]",
-      "insert_to_populate": ["[REC_ID]", "[PORTROUTE]", "[WEEKDAY]", "[ARRIVEDEPART]", "[TOTAL]", "[AM_PM_NIGHT]"],
       "count": 0,
       "order": 0
     },
@@ -75,6 +75,7 @@
       "nullify_pvs": ["[UNSAMP_PORT_GRP_PV]", "[UNSAMP_REGION_GRP_PV]", "[UNSAMP_TRAFFIC_WT]"],
       "pv_columns": ["[UNSAMP_PORT_GRP_PV]", "[UNSAMP_REGION_GRP_PV]"],
       "pv_columns2": ["[UNSAMP_PORT_GRP_PV]", "[UNSAMP_REGION_GRP_PV]"],
+      "ps_columns": ["[RUN_ID]", "[UNSAMP_PORT_GRP_PV]", "[ARRIVEDEPART]", "[UNSAMP_REGION_GRP_PV]", "[CASES]", "[SUM_PRIOR_WT]", "[SUM_UNSAMP_TRAFFIC_WT]", "[UNSAMP_TRAFFIC_WT]"],
       "results_columns": ["[UNSAMP_TRAFFIC_WT]"],
       "delete_tables": ["[dbo].[SAS_SURVEY_SUBSAMPLE]", "[dbo].[SAS_UNSAMPLED_OOH_WT]", "[dbo].[SAS_PS_UNSAMPLED_OOH]"],
       "spv_table": "[dbo].[SAS_UNSAMPLED_OOH_SPV]",
@@ -110,8 +111,7 @@
       "delete_tables": ["[dbo].[SAS_FINAL_WT]", "[dbo].[SAS_PS_FINAL]", "[dbo].[SAS_SURVEY_SUBSAMPLE]"],
       "ps_table": "[dbo].[PS_FINAL]",
       "sas_ps_table": "[dbo].[SAS_PS_FINAL]",
-      "weight_table": "[dbo].[SAS_FINAL_WT]",
-      "count": null
+      "weight_table": "[dbo].[SAS_FINAL_WT]"
     },
   "STAY_IMPUTATION":
     {
@@ -202,7 +202,6 @@
       "results_columns": ["[DIRECTLEG]", "[OVLEG]", "[UKLEG]"],
       "delete_tables": ["[dbo].[SAS_AIR_MILES]"],
       "ps_table": "[dbo].[PS_AIR_MILES]",
-      "temp_table": "[dbo].[SAS_AIR_MILES]",
-      "count": null
+      "temp_table": "[dbo].[SAS_AIR_MILES]"
     }
 }
