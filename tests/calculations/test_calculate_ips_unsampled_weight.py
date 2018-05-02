@@ -9,7 +9,7 @@ from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_unsampled_weight import calculate, do_ips_unsampled_weight_calculation
 import pytest
 
-path_to_data = '../../tests/data/unsampled_weight'
+path_to_data = 'tests/data/unsampled_weight'
 
 
 @pytest.mark.unsampled

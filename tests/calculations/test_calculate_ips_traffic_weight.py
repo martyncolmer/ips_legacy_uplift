@@ -10,7 +10,7 @@ from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_traffic_weight import calculate, do_ips_ges_weighting, \
     do_ips_trafweight_calculation, generate_ips_tw_summary
 
-path_to_data = r"../data/traffic_weight"
+path_to_data = r"tests/data/traffic_weight"
 
 
 def test_calculate():

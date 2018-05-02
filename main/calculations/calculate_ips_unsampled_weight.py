@@ -3,7 +3,7 @@ import pandas as pd
 # import survey_support
 from main.io import CommonFunctions as cf
 
-PATH_TO_DATA = '../../tests/data/unsampled_weight'
+PATH_TO_DATA = 'tests/data/unsampled_weight'
 
 OUTPUT_TABLE_NAME = 'SAS_UNSAMPLED_OOH_WT'
 SUMMARY_TABLE_NAME = 'SAS_PS_UNSAMPLED_OOH'

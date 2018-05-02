@@ -10,7 +10,7 @@ from main.calculations import calculate_ips_imb_weight as imb
 
 def test_calculate():
     # This is an integration test as it runs the entire step
-    test_survey = pd.read_pickle('../data/imb_weight_input.pkl')
+    test_survey = pd.read_pickle('tests/data/imb_weight_input.pkl')
     # Retrieve Python output data
     result_py_data = imb.do_ips_imbweight_calculation(test_survey
                                                       , var_serialNum="SERIAL"
@@ -31,13 +31,13 @@ def test_calculate():
     py_summary_data.index = range(0, len(py_summary_data))
     
     # Retrieve SAS Survey Data output and cleanse
-    test_result_survey = pd.read_pickle('../data/imb_weight_surveydata_output.pkl')
+    test_result_survey = pd.read_pickle('tests/data/imb_weight_surveydata_output.pkl')
     test_result_survey.columns = test_result_survey.columns.str.upper()
     test_result_survey = test_result_survey.sort_values(by='SERIAL')
     test_result_survey.index = range(0, len(test_result_survey))
     
     # Retrieve SAS Summary Data output and cleanse
-    test_result_summary = pd.read_pickle('../data/imb_weight_summarydata_output.pkl')
+    test_result_summary = pd.read_pickle('tests/data/imb_weight_summarydata_output.pkl')
     test_result_summary.columns = test_result_summary.columns.str.upper()
     test_result_summary.index = range(0, len(test_result_summary))
     

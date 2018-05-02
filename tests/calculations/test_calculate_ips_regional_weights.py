@@ -12,11 +12,11 @@ import numpy as np
 
 def test_calculate():
 
-    test_survey = pd.read_pickle('../data/regional_wt_input.pkl')
+    test_survey = pd.read_pickle('tests/data/regional_wt_input.pkl')
     
     result_data = do_ips_regional_weight_calculation(test_survey, 'SERIAL', 'FINAL_WT')
 
-    test_result_summary = pd.read_pickle('../data/regional_wt_output.pkl')
+    test_result_summary = pd.read_pickle('tests/data/regional_wt_output.pkl')
     test_result_summary.columns = test_result_summary.columns.str.upper()
     
     test_result_summary = test_result_summary.sort_values(by='SERIAL')

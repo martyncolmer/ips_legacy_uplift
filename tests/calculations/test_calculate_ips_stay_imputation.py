@@ -11,14 +11,14 @@ from main.calculations.calculate_ips_stay_imputation import do_ips_stay_imputati
 def test_calculate():
     # This is an integration test as it runs the entire step
 
-    test_survey = pd.read_pickle(r'../data/stay_imp_input.pkl')
+    test_survey = pd.read_pickle(r'tests/data/stay_imp_input.pkl')
 
     result_data = do_ips_stay_imputation(test_survey
                                          , var_serial='SERIAL'
                                          , num_levels=1
                                          , measure='mean')
 
-    test_result_summary = pd.read_pickle(r'../data/stay_imp_output.pkl')
+    test_result_summary = pd.read_pickle(r'tests/data/stay_imp_output.pkl')
     test_result_summary.columns = test_result_summary.columns.str.upper()
 
     test_result_summary = test_result_summary.sort_values(by='SERIAL')

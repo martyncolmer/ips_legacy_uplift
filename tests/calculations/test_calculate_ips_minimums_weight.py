@@ -13,7 +13,7 @@ def test_calculate():
     # This is an integration test as it runs the entire step
 
     # Import the test data
-    test_survey = pd.read_pickle('../data/minimums_input.pkl')
+    test_survey = pd.read_pickle('tests/data/minimums_input.pkl')
 
     # Set the imported columns to be uppercase
     test_survey.columns = test_survey.columns.str.upper()
@@ -27,8 +27,8 @@ def test_calculate():
     output_data = output_dataframes[0]
     summary_data = output_dataframes[1]
     # Import the expected result
-    test_output = pd.read_pickle('../data/minimums_output.pkl')
-    test_summary = pd.read_pickle('../data/minimums_summary.pkl')
+    test_output = pd.read_pickle('tests/data/minimums_output.pkl')
+    test_summary = pd.read_pickle('tests/data/minimums_summary.pkl')
     # Set the imported columns to be uppercase
     test_output.columns = test_output.columns.str.upper()
     test_summary.columns = test_summary.columns.str.upper()
