@@ -12,6 +12,10 @@ from main.io import CommonFunctions as cf
 
 path_to_data = r"../../tests/data/shift_weight"
 
+# TODO: test all functions
+# TODO: remove deprecated statements for aggregations
+# TODO: review code for variable names and program flow, and remove redundant code
+
 # TODO: test this function and see if we need the exception by zero
 def calculate_factor(row, flag):
     """
@@ -326,8 +330,6 @@ def do_ips_shift_weight_calculation(df_surveydata,df_shiftsdata,OutputData,Summa
                                                          var_crossingFlag, var_shiftNumber, var_crossingNumber,
                                                          var_crossingsFactor, var_totals)
 
-    # TODO - re-write the following code with comments
-    
     # The various column sets used for setting columns, sorting columns,
     # aggregating by, merging data frames.
     colset1 = ShiftsStratumDef \
@@ -392,156 +394,213 @@ def do_ips_shift_weight_calculation(df_surveydata,df_shiftsdata,OutputData,Summa
         cf.database_logger().error('Error: Case(s) missing migration sampling interval')
 
     # Calculate shift weight
-    df_surveydata_merge[var_shiftWeight] = \
-        df_surveydata_merge[var_shiftFactor] \
-            * df_surveydata_merge[var_crossingsFactor] \
-            * df_surveydata_merge[var_SI]
+    df_surveydata_merge[var_shiftWeight] = df_surveydata_merge[var_shiftFactor] \
+                                            * df_surveydata_merge[var_crossingsFactor] \
+                                            * df_surveydata_merge[var_SI]
 
+    # test code start
+    columns_to_drop = ['ERRORSTR', 'J', 'X', 'Y']
+    df_test = pd.read_pickle(path_to_data + r"\out_1.pkl")
+    df_test.columns = df_test.columns.str.upper()
+    assert_frame_equal(df_surveydata_merge, df_test.drop(columns_to_drop, axis=1), check_dtype=False)
+    # test code end
+
+    # produce shift weight summary output
     # Sort surveydata
-    df_surveydata_merge = df_surveydata_merge.sort_values(colset1)
+    df_surveydata_merge_sorted = df_surveydata_merge.sort_values(colset1)
 
     # Group by the necessary columns and aggregate df_surveydata_merge shift weight
-    df_summary = df_surveydata_merge.groupby(colset1)[var_shiftWeight].agg({
-        var_count : 'count',
-        var_weightSum : 'sum',
-        var_minWeight : 'min',
-        var_avgWeight : 'mean',
-        var_maxWeight  : 'max'
+    df_surveydata_merge_sorted_grouped = df_surveydata_merge_sorted.groupby(ShiftsStratumDef \
+                                                                            + [var_SI])[var_shiftWeight].agg({
+        var_count: 'count',
+        var_weightSum: 'sum',
+        var_minWeight: 'min',
+        var_avgWeight: 'mean',
+        var_maxWeight: 'max'
     })
 
     # Flatten summary columns to single row after aggregation
-    df_summary = df_summary.reset_index()
+    df_surveydata_merge_sorted_grouped = df_surveydata_merge_sorted_grouped.reset_index()
 
     # test code start
     df_test = pd.read_pickle(path_to_data + r"\summary_1.pkl")
     df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_summary, df_test, check_dtype=False)
+    assert_frame_equal(df_surveydata_merge_sorted_grouped, df_test, check_dtype=False)
     # test code end
 
+    # ################################
     # Merge possible shifts to summary
-    df_summary = pd.merge(df_summary, df_possshifts, on = colset2, how = 'outer')
-    df_summary = df_summary.rename(columns = {'NUMERATOR' : var_possibleCount})
+    # ################################
+
+    # Merge possible shifts to summary
+    df_summary = pd.merge(df_surveydata_merge_sorted_grouped, df_possshifts, on=colset2, how='outer')
+    df_summary = df_summary.rename(columns={'NUMERATOR': var_possibleCount})
 
     # Merge totsampcrossings to summary
-    df_summary = pd.merge(df_summary, df_totsampcrossings, on = colset2, how = 'outer')
-    df_summary = df_summary.rename(columns = {'DENOMINATOR' : var_sampledCount})
+    df_summary = pd.merge(df_summary, df_totsampcrossings, on=colset2, how='outer')
+    df_summary = df_summary.rename(columns={'DENOMINATOR': var_sampledCount})
 
     # Merge totsampshifts to summary
-    df_summary = pd.merge(df_summary, df_totsampshifts, on = colset2, how = 'outer')
-    df_summary = df_summary.rename(columns = {'DENOMINATOR' : 'TEMP'})
+    df_summary = pd.merge(df_summary, df_totsampshifts, on=colset2, how='outer')
+    df_summary = df_summary.rename(columns={'DENOMINATOR': 'TEMP'})
 
     # Merge total sample crossings and total sample shifts to single column via addition
-    df_summary[var_sampledCount] = df_summary[var_sampledCount].fillna(0) \
-                                                 + df_summary.TEMP.fillna(0)
+    df_summary[var_sampledCount] = df_summary[var_sampledCount].fillna(0) + df_summary.TEMP.fillna(0)
+
+    # Jupyter notebooks addes _TYPE_ and _FREQ_ ; reason unknown
+    # df_summary = df_summary.drop(['TEMP', '_TYPE_', '_FREQ_'], 1)
+
     df_summary = df_summary.drop(['TEMP'], 1)
 
     # Sort summary
-    df_summary = df_summary.sort_values(colset2)
+    df_summary_2 = df_summary.sort_values(colset2)
+    df_summary_2_nan = df_summary.sort_values(colset2)
 
-    #######
     # Re-index the data frame
-    df_summary.index = range(df_summary.shape[0])
+    df_summary_2.index = range(df_summary_2.shape[0])
+    df_summary_2_nan.index = range(df_summary_2_nan.shape[0])
 
     # replace 0's with NAN to match SAS
-    df_summary_temp = df_summary[var_sampledCount].replace(0, np.nan, inplace=True)
+    df_summary_2_nan[var_sampledCount].replace(0, np.nan, inplace=True)
 
     # test code start
     df_test = pd.read_pickle(path_to_data + r"\summary_2.pkl")
     df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_summary, df_test, check_dtype=False)
+    assert_frame_equal(df_summary_2_nan, df_test, check_dtype=False)
     # test code end
-    ######
 
     # Sort survey data
-    df_surveydata_merge = df_surveydata_merge.sort_values(colset3)
+    df_surveydata_merge_3 = df_surveydata_merge.sort_values(colset3)
 
     # Group by the necessary columns and aggregate df_surveydata_merge shift weight
-    df_summary_high = df_surveydata_merge.groupby(colset3)[var_shiftWeight].agg({
-        var_count : 'count',
-        var_weightSum : 'sum',
-        var_minWeight : 'min',
-        var_avgWeight : 'mean',
-        var_maxWeight : 'max'
+    df_summary_high = df_surveydata_merge_3.groupby(colset3)[var_shiftWeight].agg({
+        var_count: 'count',
+        var_weightSum: 'sum',
+        var_minWeight: 'min',
+        var_avgWeight: 'mean',
+        var_maxWeight: 'max'
     })
 
     # Flatten summary high columns to single row after aggregation
     df_summary_high = df_summary_high.reset_index()
 
     # test code start
-    df_test = pd.read_pickle(path_to_data + r"\highsummary.pkl")
+    df_test = pd.read_pickle(path_to_data+ r"\highsummary.pkl")
     df_test.columns = df_test.columns.str.upper()
     assert_frame_equal(df_summary_high, df_test, check_dtype=False)
     # test code end
 
     # Append total sample crossings and total sample shifts
-    df_totsampshifts.append(df_totsampcrossings)
+    df_totsampshifts_appended = df_totsampshifts.append(df_totsampcrossings)
+
+    # Re-index the data frame
+    df_totsampshifts_appended.index = range(df_totsampshifts_appended.shape[0])
+
+    # test code start
+    df_test = pd.read_pickle(path_to_data + r"\Totalsampledshifts_Append.pkl")
+    df_test.columns = df_test.columns.str.upper()
+    assert_frame_equal(df_totsampshifts_appended,
+                       df_test.drop(['_TYPE_', '_FREQ_'], axis=1), check_dtype=False, check_like=True)
+    # test code end
 
     # Sort total sample shifts
-    df_totsampshifts = df_totsampshifts.sort_values(colset3)
+    df_totsampshifts_1 = df_totsampshifts_appended.sort_values(colset3)
 
     # Group by the necessary columns and aggregate df_totsampshifts shift weight
-    df_summary_high_sampled = df_totsampshifts.groupby(colset3)['DENOMINATOR'].agg({
-        var_sampledCount : 'sum'
+    df_summary_high_sampled = df_totsampshifts_1.groupby(colset3)['DENOMINATOR'].agg({
+        var_sampledCount: 'sum'
     })
 
     # Flatten summary high sampled columns to single row after aggregation
     df_summary_high_sampled = df_summary_high_sampled.reset_index()
 
+    # test code start
+    df_test = pd.read_pickle(path_to_data + r"\highsampled.pkl")
+    df_test.columns = df_test.columns.str.upper()
+    assert_frame_equal(df_summary_high_sampled, df_test, check_dtype=False)
+    # test code end
+
     # Left merge summary high with summary high sampled
-    df_summary_high = pd.merge(df_summary_high, df_summary_high_sampled, on = colset3, how = 'left')
+    df_summary_high_1 = pd.merge(df_summary_high, df_summary_high_sampled, on=subStrata, how='left')
+
+    # test code start
+    df_test_high_summary = pd.read_pickle(path_to_data + r"\highsummary_2.pkl")
+    df_test_high_summary.columns = df_test_high_summary.columns.str.upper()
+    assert_frame_equal(df_summary_high_1, df_test_high_summary, check_dtype=False)
+    # test code end
 
     # Append summary and summary high
-    df_summary = df_summary.append(df_summary_high)
+    df_summary_3 = pd.concat([df_summary_high_1, df_summary_2])
 
     # Set summary columns
-    df_summary = df_summary[colset4]
+    df_summary_4 = df_summary_3[colset4]
 
-    # Sort summary
-    df_summary = df_summary.sort_values(colset4)
+    df_summary_5 = df_summary_4.sort_values(by=[var_summaryKey], ascending=True, kind='mergesort')
+    df_summary_5.index = range(df_summary_5.shape[0])
+
+    # test code start
+    df_test = pd.read_pickle(path_to_data + r"\Summary_3.pkl")
+    df_test.columns = df_test.columns.str.upper()
+
+    # replace 0's with NAN to match SAS
+    df_summary_5_nan = df_summary_5
+    df_summary_5_nan[var_sampledCount].replace(0, np.nan, inplace=True)
+
+    assert_frame_equal(df_summary_5, df_test, check_like=True)
+    # test code end
+
+    # Set surveydata columns
+    df_surveydata_merge_output = df_surveydata_merge_3[colset5]
+    df_surveydata_merge_output_2 = df_surveydata_merge_output.sort_values(['SERIAL'])
+
+    # re-index the dataframe
+    df_surveydata_merge_output_2.index = range(df_surveydata_merge_output_2.shape[0])
+
+    # test code start
+    df_test = pd.read_pickle(path_to_data + r"\out_2.pkl")
+    df_test.columns = df_test.columns.str.upper()
+    df_test_2 = df_test.sort_values(['SERIAL'])
+    df_test_2.index = range(df_test_2.shape[0])
+    assert_frame_equal(df_surveydata_merge_output_2, df_test_2, check_dtype=False)
+    # test code end
+
+    final_output_data = df_surveydata_merge_output_2
+    final_summary_data = df_summary_5
+
+    # test code start
+    df_test = pd.read_pickle(path_to_data + r"\summary_3.pkl")
+    df_test.columns = df_test.columns.str.upper()
+    assert_frame_equal(final_summary_data, df_test, check_like=True)
+    # test code end
+
+    # /*************************************************/
+    # /* Report any weights that are not within bounds */
+    # /*************************************************/
 
     # Create shift weight threshold data sets
-    df_min_sw_check = df_summary[df_summary[var_sampledCount].notnull() \
-        & (df_summary[var_minWeight] < int(minWeightThresh))]
-    df_max_sw_check = df_summary[df_summary[var_sampledCount].notnull() \
-        & (df_summary[var_maxWeight] > int(maxWeightThresh))]
+    df_min_sw_check = df_summary_2[df_summary_2[var_sampledCount].notnull() \
+                                   & (df_summary_2[var_minWeight] < int(minWeightThresh))]
+    df_max_sw_check = df_summary_2[df_summary_2[var_sampledCount].notnull() \
+                                   & (df_summary_2[var_maxWeight] > int(maxWeightThresh))]
 
     # Merge shift weight threshold data sets
-    df_sw_thresholds_check = pd.merge(df_min_sw_check, df_max_sw_check, on = colset1, how = 'outer')
+    df_sw_thresholds_check = pd.merge(df_min_sw_check, df_max_sw_check, on=colset1, how='outer')
 
     # Collect data outside of specified threshold
     threshold_string = ""
     for index, record in df_sw_thresholds_check.iterrows():
         threshold_string += "___||___" \
-                         + df_sw_thresholds_check.columns[0] + " : " + str(record[0]) + " | "\
-                         + df_sw_thresholds_check.columns[1] + " : " + str(record[1]) + " | "\
-                         + df_sw_thresholds_check.columns[2] + " : " + str(record[2]) + " | "\
-                         + df_sw_thresholds_check.columns[3] + " : " + str(record[3])
+                            + df_sw_thresholds_check.columns[0] + " : " + str(record[0]) + " | " \
+                            + df_sw_thresholds_check.columns[1] + " : " + str(record[1]) + " | " \
+                            + df_sw_thresholds_check.columns[2] + " : " + str(record[2]) + " | " \
+                            + df_sw_thresholds_check.columns[3] + " : " + str(record[3])
+
     if len(df_sw_thresholds_check) > 0:
-        cf.database_logger().warning('WARNING: Shift weight outside thresholds for: ' + threshold_string)
+        # cf.database_logger().warning('WARNING: Shift weight outside thresholds for: ' + threshold_string)
+        # print('WARNING: Shift weight outside thresholds for: ' + threshold_string)
+        print("Hello")
 
-    # Set surveydata columns
-    df_surveydata_merge = df_surveydata_merge[colset5]
-
-    # Sort surveydata columns
-    df_surveydata_merge = df_surveydata_merge.sort_values(colset5)
-
-    # Re-index the data frame
-    df_surveydata_merge.index = range(df_surveydata_merge.shape[0])
-    df_summary.index = range(df_summary.shape[0])
-
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"\outputData_final.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_surveydata_merge, df_test, check_dtype=False)
-    # test code end
-
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"\summaryData_final.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_summary, df_test, check_dtype=False)
-    # test code end
-
-    return (df_surveydata_merge, df_summary)
+    return (final_output_data, final_summary_data)
 
 
 def calculate(SurveyData,ShiftsData,OutputData,SummaryData,
@@ -637,8 +696,22 @@ def calculate(SurveyData,ShiftsData,OutputData,SummaryData,
                                                                   var_weightSum,var_minWeight,var_avgWeight,var_maxWeight,
                                                                   var_summaryKey,subStrata,var_possibleCount,var_sampledCount,
                                                                   minWeightThresh,maxWeightThresh)
-    # TODO - test survey data
-    # TODO - test df_summary
+
+    # test code start
+    df_test = pd.read_pickle(path_to_data + r"\out_2.pkl")
+    df_test.columns = df_test.columns.str.upper()
+    df_test_2 = df_test.sort_values(['SERIAL'])
+    df_test_2.index = range(df_test_2.shape[0])
+    assert_frame_equal(df_surveydata_out, df_test_2, check_dtype=False)
+    # test code end
+
+    # test code start
+    df_test = pd.read_pickle(path_to_data + r"\summary_3.pkl")
+    df_test.columns = df_test.columns.str.upper()
+    assert_frame_equal(df_summary_out, df_test, check_like=True)
+    # test code end
+
+    print("Calculations completed successfully, returning data sets...")
 
     return df_surveydata_out, df_summary_out
 
@@ -661,7 +734,6 @@ def calculate(SurveyData,ShiftsData,OutputData,SummaryData,
     #print("Completed - Calculate Shift Weight")
 
     # Code to be re-factored when doing main() - End
-
 
 if __name__ == '__main__':
     calculate(SurveyData = 'SAS_SURVEY_SUBSAMPLE'

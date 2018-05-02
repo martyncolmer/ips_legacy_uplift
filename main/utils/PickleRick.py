@@ -6,18 +6,18 @@ Created on 5 Mar 2018
 import pandas as pd
 
 
-in_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec Data\shift_weight\shiftsdata.sas7bdat'
-out_path = r'C:\Git_projects\IPS_Legacy_Uplift\tests\data\shift_weight\shiftsdata.pkl'
-
-df = pd.read_sas(in_path)
-
-df.to_pickle(out_path)
+# in_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec Data\shift_weight\shiftsdata.sas7bdat'
+# out_path = r'C:\Git_projects\IPS_Legacy_Uplift\tests\data\shift_weight\shiftsdata.pkl'
+#
+# df = pd.read_sas(in_path)
+#
+# df.to_pickle(out_path)
 
 import glob
 import os
 
-sas_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec Data\shift_weight' + r'\*.sas7bdat'
-pkl_path = r'C:\Git_projects\IPS_Legacy_Uplift\tests\data\shift_weight'
+sas_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec_Data\shift_weight' + r'\*.sas7bdat'
+pkl_path = r'C:\Git_projects\IPS_Legacy_Uplift\tests\data\shift_weight_2'
 
 # collect all the sas7bdat files
 files = glob.glob(sas_path)
