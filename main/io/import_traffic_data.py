@@ -34,8 +34,8 @@ def import_traffic_data(run_id, filename):
     function_name = str(inspect.stack()[0][3])
     
     # Database logger setup
-    ss.setup_logging(os.path.dirname(os.getcwd()) 
-                     + "\\IPS_Logger\\IPS_logging_config_debug.json")   
+    # ss.setup_logging(os.path.dirname(os.getcwd())
+    #                  + "\\IPS_Logger\\IPS_logging_config_debug.json")
     logger = logging.getLogger(__name__)
     
     # Import CSV and validate
