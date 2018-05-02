@@ -30,7 +30,7 @@ def test_shift_wt_pvs():
     shift_weight.copy_shift_wt_pvs_for_survey_data('IPSSeedRunFR02', conn)
 
     # loads in the subsample and writes it to the table
-    df_input = pd.read_csv(r'../data/traffic_wt_pv_test_data.csv')
+    df_input = pd.read_csv(r'tests/data/traffic_wt_pv_test_data.csv')
     df_input = df_input.where((pd.notnull(df_input)), None)
     cf.insert_dataframe_into_table('SAS_SURVEY_SUBSAMPLE', df_input)
 

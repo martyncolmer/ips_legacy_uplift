@@ -1,7 +1,7 @@
 import pandas as pd
 # import survey_support
 
-path_to_data = r"../../tests/data/final_weight"
+path_to_data = r"tests/data/final_weight"
 
 
 OUTPUT_TABLE_NAME = 'SAS_FINAL_WT'

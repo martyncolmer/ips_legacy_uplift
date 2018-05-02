@@ -3,7 +3,7 @@ import pandas as pd
 
 from main.io import CommonFunctions as cf
 
-PATH_TO_DATA = r"../../tests/data/traffic_weight"
+PATH_TO_DATA = r"tests/data/traffic_weight"
 
 # TODO
 #  1. do_ips_ges_weighting() - plug-in real solution once done
