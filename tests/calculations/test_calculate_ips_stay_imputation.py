@@ -5,7 +5,7 @@ Created on 15 Mar 2018
 '''
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
-from main.calculations.ips_stay_imp import do_ips_stay_imputation
+from main.calculations.calculate_ips_stay_imputation import do_ips_stay_imputation
 
 
 def test_calculate():
@@ -14,14 +14,9 @@ def test_calculate():
     test_survey = pd.read_pickle(r'../data/stay_imp_input.pkl')
 
     result_data = do_ips_stay_imputation(test_survey
-                                         , output='SAS_STAY_IMP'
-                                         , var_serial_num='SERIAL', var_stem='VARS'
-                                         , thresh_stem='THRESH', num_levels=1
-                                         , donor_var='NUMNIGHTS', output_var='STAY'
-                                         , measure='mean'
-                                         , var_eligible_flag='STAY_IMP_ELIGIBLE_PV'
-                                         , var_imp_flag='STAY_IMP_FLAG_PV'
-                                         , var_imp_level='STAYK')
+                                         , var_serial='SERIAL'
+                                         , num_levels=1
+                                         , measure='mean')
 
     test_result_summary = pd.read_pickle(r'../data/stay_imp_output.pkl')
     test_result_summary.columns = test_result_summary.columns.str.upper()
@@ -34,7 +29,3 @@ def test_calculate():
     # The dataframes have different column orders; check_like is True which will
     # ignore that fact when checking if the data is the same.
     assert_frame_equal(result_data, test_result_summary, check_like=True)
-
-
-if __name__ == '__main__':
-    test_calculate()

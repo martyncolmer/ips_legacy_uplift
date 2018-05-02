@@ -1,138 +1,140 @@
 import inspect
 import math
+
 import numpy as np
 import pandas as pd
 import survey_support
+
 from main.io import CommonFunctions as cf
 
+OUTPUT_TABLE_NAME = 'SAS_REGIONAL_IMP'
+MAXIMUM_LEVEL = 4
+STAY_VARIABLE = 'STAY'
+SPEND_VARIABLE = 'SPEND'
+STAY_WEIGHT_VARIABLE = 'STAY_WT'
+VISIT_WEIGHT_VARIABLE = 'VISIT_WT'
+EXPENDITURE_WEIGHT_VARIABLE = 'EXPENDITURE_WT'
+STAY_WEIGHTK_VARIABLE = 'STAY_WTK'
+VISIT_WEIGHTK_VARIABLE = 'VISIT_WTK'
+EXPENDITURE_WEIGHTK_VARIABLE = 'EXPENDITURE_WTK'
+ELIGIBLE_FLAG_VARIABLE = 'REG_IMP_ELIGIBLE_PV'
+STRATA_LEVELS = [['FLOW', 'PURPOSE_PV', 'STAYIMPCTRYLEVEL1_PV'],
+                 ['FLOW', 'PURPOSE_PV', 'STAYIMPCTRYLEVEL2_PV'], 
+                 ['FLOW', 'PURPOSE_PV', 'STAYIMPCTRYLEVEL3_PV'], 
+                 ['FLOW', 'PURPOSE_PV', 'STAYIMPCTRYLEVEL4_PV']]
+TOWN_CODE_VARIABLE = 'TOWNCODE'
+NIGHTS_VARIABLE = 'NIGHTS'
+INFO_PRESENT_MARKER = 'INFO_PRESENT_MKR'
+FLOW_VARIABLE = 'FLOW'
+TOWN_CODE1_VARIABLE = 'TOWNCODE1'
+NUMBER_OF_NIGHTS = 9
 
-def ips_correct_regional_nights(df_input, stay):
+
+def ips_correct_regional_nights(row):
     """
     Author       : Thomas Mahoney
     Date         : 12 / 03 / 2018
     Purpose      : Corrects the regional nights data.
     Parameters   : df_input - the IPS survey records for the period.
-                   stay - the stay column name
     Returns      : NA
     Requirements : NA
     Dependencies : NA
     """
     
-    # Adjust regional night figures so that they match overall stay
-    def compute(row):
-        if row['INFO_PRESENT_MKR'] == 1:
-            known_town_nk_nights = 0
-            nights_sum = 0
-            stay_sum = 0
-            
-            # Compute nights_sum and known_town_nk_nights for this record
-            for x in range(1, 9):
-                if row['TOWNCODE' + str(x)] != 99999 and not math.isnan(row['TOWNCODE' + str(x)]):
-                    if not math.isnan(row['NIGHTS' + str(x)]):
-                        nights_sum = nights_sum + row['NIGHTS' + str(x)]
-                    else:
-                        known_town_nk_nights = known_town_nk_nights + 1
+    # Adjust regional night figures so that they match overall STAY_VARIABLE
+    if row[INFO_PRESENT_MARKER] == 1:
+        known_town_nk_nights = 0
+        nights_sum = 0
 
-            if known_town_nk_nights == 0:
-                # Check if sum of nights is not equal to stay
-                if nights_sum != row[stay]:
-                    stay_sum = (row[stay]/nights_sum)
-                    
-                    for x in range(1, 9):
-                        if row['TOWNCODE' + str(x)] != 99999 and not math.isnan(row['TOWNCODE' + str(x)]):
-                            row['NIGHTS' + str(x)] = row['NIGHTS' + str(x)] * stay_sum
-                            row['STAY' + str(x) + 'K'] = 'K'
-            else:
-                # If town has known code add stay to total nights_sum
-                # if town is null adds 1 to unknown
-                if nights_sum >= row[stay]:
-                    for x in range(1, 9):
-                        if row['TOWNCODE' + str(x)] != 99999 and not math.isnan(row['TOWNCODE' + str(x)]) and math.isnan(row['NIGHTS' + str(x)]):
-                            row['NIGHTS' + str(x)] = 1
-                            nights_sum = nights_sum + row['NIGHTS' + str(x)]
-                    
-                    # Calculate nights uplift factor
-                    stay_sum = (row[stay]/nights_sum)
-            
-                    for x in range(1, 9):
-                        if row['TOWNCODE' + str(x)] != 99999 and not math.isnan(row['TOWNCODE' + str(x)]):
-                            row['NIGHTS' + str(x)] = row['NIGHTS' + str(x)] * stay_sum
-                            row['STAY' + str(x) + 'K'] = 'L'
-                            
+        # Compute nights_sum and known_town_nk_nights for this record
+        for x in range(1, NUMBER_OF_NIGHTS):
+            if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]):
+                if not math.isnan(row[NIGHTS_VARIABLE + str(x)]):
+                    nights_sum = nights_sum + row[NIGHTS_VARIABLE + str(x)]
                 else:
-                    for x in range(1, 9):
-                        if row['TOWNCODE' + str(x)] != 99999 and not math.isnan(row['TOWNCODE' + str(x)]) and math.isnan(row['NIGHTS' + str(x)]):
-                            row['NIGHTS' + str(x)] = (row[stay] - nights_sum) / known_town_nk_nights
-                            row['STAY' + str(x) + 'K'] = 'M'
+                    known_town_nk_nights = known_town_nk_nights + 1
 
-        return row
-    
-    df_output = df_input.apply(compute, axis=1)
-    
-    return df_output
+        if known_town_nk_nights == 0:
+            # Check if sum of nights is not equal to stay
+            if nights_sum != row[STAY_VARIABLE]:
+                stay_sum = (row[STAY_VARIABLE]/nights_sum)
+
+                for x in range(1, NUMBER_OF_NIGHTS):
+                    if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]):
+                        row[NIGHTS_VARIABLE + str(x)] = row[NIGHTS_VARIABLE + str(x)] * stay_sum
+                        row[STAY_VARIABLE + str(x) + 'K'] = 'K'
+        else:
+            # If town has known code add STAY_VARIABLE to total nights_sum
+            # if town is null adds 1 to unknown
+            if nights_sum >= row[STAY_VARIABLE]:
+                for x in range(1, NUMBER_OF_NIGHTS):
+                    if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]) and math.isnan(row[NIGHTS_VARIABLE + str(x)]):
+                        row[NIGHTS_VARIABLE + str(x)] = 1
+                        nights_sum = nights_sum + row[NIGHTS_VARIABLE + str(x)]
+
+                # Calculate nights uplift factor
+                stay_sum = (row[STAY_VARIABLE]/nights_sum)
+
+                for x in range(1, NUMBER_OF_NIGHTS):
+                    if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]):
+                        row[NIGHTS_VARIABLE + str(x)] = row[NIGHTS_VARIABLE + str(x)] * stay_sum
+                        row[STAY_VARIABLE + str(x) + 'K'] = 'L'
+
+            else:
+                for x in range(1, NUMBER_OF_NIGHTS):
+                    if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]) and math.isnan(row[NIGHTS_VARIABLE + str(x)]):
+                        row[NIGHTS_VARIABLE + str(x)] = (row[STAY_VARIABLE] - nights_sum) / known_town_nk_nights
+                        row[STAY_VARIABLE + str(x) + 'K'] = 'M'
+
+    return row
     
 
-def do_ips_regional_weight_calculation(df_input_data, var_serial, max_level,
-                                       var_stay, var_spend, var_final_wt, var_stay_wt, var_visit_wt,
-                                       var_expenditure_wt, var_stay_wtk, var_visit_wtk,
-                                       var_expenditure_wtk, var_eligible_flag, strata_levels):
+def do_ips_regional_weight_calculation(df_input_data, var_serial,  var_final_weight):
     """
     Author       : Thomas Mahoney
     Date         : 12 / 03 / 2018
     Purpose      : Calculates regional weights for IPS.
-    Parameters   : df_input_data - the IPS survey records for the period.
-                   summary - dataset to hold summary output
+    Parameters   : df_input_data - the IPS survey records for the period
                    var_serial - Variable holding the record serial number
-                   maxLevel - the number of the last imputation level (1-up)
-                   var_stay - the name of the stay variable
-                   var_spend - the name of the spend variable
-                   var_final_wt - the name of the final weight variable
-                   var_stay_wt - the name of the stay weight output variable
-                   var_visit_wt - the name of the visit weight output variable
-                   var_expenditure_wt - the name of the spend weight output variable
-                   var_stay_wtk - the name of the stay weight key output variable
-                   var_visit_wtk - the name of the visit weight key output variable
-                   var_expenditure_wtk - the name of the spend weight key output variable
-                   var_eligible_flag - the name of the eligibility flag variable
+                   var_final_weight - the name of the final weight variable
     Returns      : NA
     Requirements : NA
     Dependencies : NA
     """
 
+    night_columns = [NIGHTS_VARIABLE + str(i) for i in range(1, NUMBER_OF_NIGHTS)]
+    stay_columns = [STAY_VARIABLE + str(i) + 'K' for i in range(1, NUMBER_OF_NIGHTS)]
+
     # Extract only eligible rows
-    df_impute_towns = df_input_data[df_input_data[var_eligible_flag] == 1]
+    df_impute_towns = df_input_data[df_input_data[ELIGIBLE_FLAG_VARIABLE] == 1]
 
     # Set initial values for wt and wkt columns
-    df_impute_towns.loc[:, var_stay_wt] = 1
-    df_impute_towns.loc[:, var_stay_wtk] = ''
+    df_impute_towns.loc[:, STAY_WEIGHT_VARIABLE] = 1
+    df_impute_towns.loc[:, STAY_WEIGHTK_VARIABLE] = ''
     
-    df_impute_towns.loc[:, var_visit_wt] = 1
-    df_impute_towns.loc[:, var_visit_wtk] = ''
+    df_impute_towns.loc[:, VISIT_WEIGHT_VARIABLE] = 1
+    df_impute_towns.loc[:, VISIT_WEIGHTK_VARIABLE] = ''
     
-    df_impute_towns.loc[:, var_expenditure_wt] = 1
-    df_impute_towns.loc[:, var_expenditure_wtk] = ''
+    df_impute_towns.loc[:, EXPENDITURE_WEIGHT_VARIABLE] = 1
+    df_impute_towns.loc[:, EXPENDITURE_WEIGHTK_VARIABLE] = ''
 
     # Check if towncode information is present for the input data
     def check_info(row):
         
-        if row['TOWNCODE1'] == 99999 or math.isnan(row['TOWNCODE1']):
-            row['INFO_PRESENT_MKR'] = 0
+        if row[TOWN_CODE1_VARIABLE] == 99999 or math.isnan(row[TOWN_CODE1_VARIABLE]):
+            row[INFO_PRESENT_MARKER] = 0
         else:
-            row['INFO_PRESENT_MKR'] = 1
+            row[INFO_PRESENT_MARKER] = 1
             
         return row
 
     df_impute_towns = df_impute_towns.apply(check_info, axis=1)
 
     # Correct nights information so that it matches stay
-    df_temp1 = ips_correct_regional_nights(df_impute_towns, var_stay)
+    df_temp1 = df_impute_towns.apply(ips_correct_regional_nights, axis=1)
     
     # Extract the corrected data and sort
-    df_temp1 = df_temp1[['FLOW', 'SERIAL', 
-                         'NIGHTS1', 'NIGHTS2', 'NIGHTS3', 'NIGHTS4',
-                         'NIGHTS5', 'NIGHTS6', 'NIGHTS7', 'NIGHTS8',
-                         'STAY1K', 'STAY2K', 'STAY3K', 'STAY4K',
-                         'STAY5K', 'STAY6K', 'STAY7K', 'STAY8K']].sort_values(by=var_serial)
+    df_temp1 = df_temp1[[FLOW_VARIABLE, var_serial] + night_columns + stay_columns].sort_values(by=var_serial)
     
     df_impute_towns_ext = df_impute_towns.sort_values(by=var_serial)
     
@@ -148,12 +150,12 @@ def do_ips_regional_weight_calculation(df_input_data, var_serial, max_level,
     trunc_segment = [0] * 4
     
     # Loop over imputation levels
-    for level in range(1, max_level + 1):
-        strata = strata_levels[level-1]
+    for level in range(1, MAXIMUM_LEVEL + 1):
+        strata = STRATA_LEVELS[level-1]
         
         # Look for records that have already been uplifted and mark appropriately 
         def check_if_uplifted(row):
-            if row[var_visit_wtk] != '':
+            if row[VISIT_WEIGHTK_VARIABLE] != '':
                 row['VISIT_WTK_NONMISS'] = 1
             else:
                 row['VISIT_WTK_NONMISS'] = np.NaN
@@ -189,12 +191,12 @@ def do_ips_regional_weight_calculation(df_input_data, var_serial, max_level,
         # Copy the data and calculate the visit, stay and expenditure weights
         df_impute_towns_ext_mod = df_impute_towns_ext.copy()
         
-        df_impute_towns_ext_mod['FIN'] = df_impute_towns_ext_mod[var_final_wt] * df_impute_towns_ext_mod[var_visit_wt]
-        df_impute_towns_ext_mod['STY'] = df_impute_towns_ext_mod[var_stay] * df_impute_towns_ext_mod[var_final_wt] * df_impute_towns_ext_mod[var_stay_wt]
-        df_impute_towns_ext_mod['EXP'] = df_impute_towns_ext_mod[var_spend] * df_impute_towns_ext_mod[var_final_wt] * df_impute_towns_ext_mod[var_expenditure_wt]
+        df_impute_towns_ext_mod['FIN'] = df_impute_towns_ext_mod[var_final_weight] * df_impute_towns_ext_mod[VISIT_WEIGHT_VARIABLE]
+        df_impute_towns_ext_mod['STY'] = df_impute_towns_ext_mod[STAY_VARIABLE] * df_impute_towns_ext_mod[var_final_weight] * df_impute_towns_ext_mod[STAY_WEIGHT_VARIABLE]
+        df_impute_towns_ext_mod['EXP'] = df_impute_towns_ext_mod[SPEND_VARIABLE] * df_impute_towns_ext_mod[var_final_weight] * df_impute_towns_ext_mod[EXPENDITURE_WEIGHT_VARIABLE]
 
         # Compute weight totals over good records
-        df_temp2[level-1] = df_impute_towns_ext_mod.loc[df_impute_towns_ext_mod['INFO_PRESENT_MKR'] == 1]
+        df_temp2[level-1] = df_impute_towns_ext_mod.loc[df_impute_towns_ext_mod[INFO_PRESENT_MARKER] == 1]
         
         # Replace blank values with -1 as python drops blanks during the aggregation process.  
         df_temp2[level-1][strata] = df_temp2[level-1][strata].fillna(-1)
@@ -223,7 +225,7 @@ def do_ips_regional_weight_calculation(df_input_data, var_serial, max_level,
         df_temp2[level-1][strata] = df_temp2[level-1][strata].replace(-1, np.NaN)
 
         # Compute weight totals over bad records
-        df_temp3[level-1] = df_impute_towns_ext_mod[df_impute_towns_ext_mod['INFO_PRESENT_MKR'] == 0]
+        df_temp3[level-1] = df_impute_towns_ext_mod[df_impute_towns_ext_mod[INFO_PRESENT_MARKER] == 0]
         
         # Replace blank values with -1 as python drops blanks during the aggregation process.  
         df_temp3[level-1][strata] = df_temp3[level-1][strata].fillna(-1)
@@ -329,20 +331,20 @@ def do_ips_regional_weight_calculation(df_input_data, var_serial, max_level,
                                 
                 if row['KNOWN_FINAL_WEIGHTS'] != 0 and not math.isnan(row['KNOWN_FINAL_WEIGHTS']):
                     
-                    if row[var_visit_wtk] == '':
-                        row[var_visit_wtk] = str(level)
-                        row[var_stay_wtk] = str(level)
-                        row[var_expenditure_wtk] = str(level)
+                    if row[VISIT_WEIGHTK_VARIABLE] == '':
+                        row[VISIT_WEIGHTK_VARIABLE] = str(level)
+                        row[STAY_WEIGHTK_VARIABLE] = str(level)
+                        row[EXPENDITURE_WEIGHTK_VARIABLE] = str(level)
 
-                    if row['INFO_PRESENT_MKR'] == 1 and row[var_visit_wtk] == str(level):
-                        row[var_visit_wt] = row[var_visit_wt] * (row['KNOWN_FINAL_WEIGHTS'] + row['UNKNOWN_FINAL_WEIGHT']) / row['KNOWN_FINAL_WEIGHTS']
-                        row[var_stay_wt] = row[var_stay_wt] * (row['KNOWN_STAY'] + row['UNKNOWN_STAY']) / row['KNOWN_STAY']
-                        row[var_expenditure_wt] = row[var_expenditure_wt] * (row['KNOWN_EXPEND'] + row['UNKNOWN_EXPEND']) / row['KNOWN_EXPEND']
+                    if row[INFO_PRESENT_MARKER] == 1 and row[VISIT_WEIGHTK_VARIABLE] == str(level):
+                        row[VISIT_WEIGHT_VARIABLE] = row[VISIT_WEIGHT_VARIABLE] * (row['KNOWN_FINAL_WEIGHTS'] + row['UNKNOWN_FINAL_WEIGHT']) / row['KNOWN_FINAL_WEIGHTS']
+                        row[STAY_WEIGHT_VARIABLE] = row[STAY_WEIGHT_VARIABLE] * (row['KNOWN_STAY'] + row['UNKNOWN_STAY']) / row['KNOWN_STAY']
+                        row[EXPENDITURE_WEIGHT_VARIABLE] = row[EXPENDITURE_WEIGHT_VARIABLE] * (row['KNOWN_EXPEND'] + row['UNKNOWN_EXPEND']) / row['KNOWN_EXPEND']
                 
-                elif row['INFO_PRESENT_MKR'] == 0:
-                    row[var_visit_wt] = 0
-                    row[var_stay_wt] = 0
-                    row[var_expenditure_wt] = 0
+                elif row[INFO_PRESENT_MARKER] == 0:
+                    row[VISIT_WEIGHT_VARIABLE] = 0
+                    row[STAY_WEIGHT_VARIABLE] = 0
+                    row[EXPENDITURE_WEIGHT_VARIABLE] = 0
                     pass
                 
                 return row
@@ -360,27 +362,24 @@ def do_ips_regional_weight_calculation(df_input_data, var_serial, max_level,
     
     # Extract the required data from the looped dataset
     df_output_data = df_impute_towns_ext[[var_serial,
-                                          var_visit_wt, var_stay_wt, var_expenditure_wt,
-                                          var_visit_wtk, var_stay_wtk, var_expenditure_wtk,
-                                          'NIGHTS1', 'NIGHTS2', 'NIGHTS3', 'NIGHTS4',
-                                          'NIGHTS5', 'NIGHTS6', 'NIGHTS7', 'NIGHTS8',
-                                          'STAY1K', 'STAY2K', 'STAY3K', 'STAY4K',
-                                          'STAY5K', 'STAY6K', 'STAY7K', 'STAY8K']]
+                                          VISIT_WEIGHT_VARIABLE, STAY_WEIGHT_VARIABLE, EXPENDITURE_WEIGHT_VARIABLE,
+                                          VISIT_WEIGHTK_VARIABLE, STAY_WEIGHTK_VARIABLE, EXPENDITURE_WEIGHTK_VARIABLE] +
+                                         night_columns + stay_columns]
     
     # Round the generated weights
     def round_wts(row):
-        row[var_visit_wt] = round(row[var_visit_wt], 3)
-        row[var_stay_wt] = round(row[var_stay_wt], 3)
-        row[var_expenditure_wt] = round(row[var_expenditure_wt], 3)
+        row[VISIT_WEIGHT_VARIABLE] = round(row[VISIT_WEIGHT_VARIABLE], 3)
+        row[STAY_WEIGHT_VARIABLE] = round(row[STAY_WEIGHT_VARIABLE], 3)
+        row[EXPENDITURE_WEIGHT_VARIABLE] = round(row[EXPENDITURE_WEIGHT_VARIABLE], 3)
         return row
     
     df_output_data = df_output_data.apply(round_wts, axis=1)
     
     # Fills blanks in the generated columns to be of type float (NIGHTS#) or string (STAY#K)
-    df_output_data[['NIGHTS1', 'NIGHTS2', 'NIGHTS3', 'NIGHTS4', 'NIGHTS5', 'NIGHTS6', 'NIGHTS7', 'NIGHTS8']] = \
-               df_output_data[['NIGHTS1', 'NIGHTS2', 'NIGHTS3', 'NIGHTS4', 'NIGHTS5', 'NIGHTS6', 'NIGHTS7', 'NIGHTS8']].fillna(np.NaN)
-    df_output_data[['STAY1K', 'STAY2K', 'STAY3K', 'STAY4K', 'STAY5K', 'STAY6K', 'STAY7K', 'STAY8K']] = \
-               df_output_data[['STAY1K', 'STAY2K', 'STAY3K', 'STAY4K', 'STAY5K', 'STAY6K', 'STAY7K', 'STAY8K']].fillna('')
+
+    df_output_data[night_columns] = df_output_data[night_columns].fillna(np.NaN)
+
+    df_output_data[stay_columns] = df_output_data[stay_columns].fillna('')
     
     # Sort the output data frame
     df_output_data = df_output_data.sort_values(by=var_serial)
@@ -389,31 +388,14 @@ def do_ips_regional_weight_calculation(df_input_data, var_serial, max_level,
     return df_output_data
 
 
-def calculate(in_table_name, out_table_name, response_table, var_serial, max_level,
-              var_stay, var_spend, var_final_wt, var_stay_wt,
-              var_visit_wt, var_expenditure_wt, var_stay_wtk, var_visit_wtk,
-              var_expenditure_wtk, var_eligible_flag,
-              strata1, strata2, strata3, strata4):
+def calculate(in_table_name, var_serial, var_final_weight):
     """
     Author       : Thomas Mahoney
     Date         : 16 / 02 / 2018
     Purpose      : Calculates regional weights for IPS system.
     Parameters   : in_table_name - the IPS survey records for the period.
-                   out_table_name - dataset to hold output data
                    response_table - SAS response table
                    var_serial - Variable holding the record serial number
-                   maxLevel - the number of the last imputation level (1-up)
-                   strataBase - the stem for the strata parameters
-                   var_stay - the name of the stay variable
-                   var_spend - the name of the spend variable
-                   var_final_wt - the name of the final weight variable
-                   var_stay_wt - the name of the stay weight output variable
-                   var_visit_wt - the name of the visit weight output variable
-                   var_expenditure_wt - the name of the spend weight output variable
-                   var_stay_wtk - the name of the stay weight key output variable
-                   var_visit_wtk - the name of the visit weight key output variable
-                   var_expenditure_wtk - the name of the spend weight key output variable
-                   var_eligible_flag - the name of the eligibility flag variable                     
     Returns      : NA
     Requirements : NA
     Dependencies : NA
@@ -431,19 +413,12 @@ def calculate(in_table_name, out_table_name, response_table, var_serial, max_lev
     
     # Set all of the columns imported to uppercase
     df_survey_data.columns = df_survey_data.columns.str.upper()
-
-    # Set up strata lists
-    strata_levels = [strata1, strata2, strata3, strata4]
-    
+ 
     # Calculate the unsampled weights of the imported dataset.
     print("Start - Calculate Regional Weights.")     
-    output_dataframe = do_ips_regional_weight_calculation(df_survey_data, var_serial, max_level,
-                                                          var_stay, var_spend, var_final_wt, var_stay_wt,
-                                                          var_visit_wt, var_expenditure_wt, var_stay_wtk,
-                                                          var_visit_wtk, var_expenditure_wtk, var_eligible_flag,
-                                                          strata_levels)
+    output_dataframe = do_ips_regional_weight_calculation(df_survey_data, var_serial, var_final_weight)
 
-    cf.insert_dataframe_into_table(out_table_name, output_dataframe)
+    cf.insert_dataframe_into_table(OUTPUT_TABLE_NAME, output_dataframe)
 
     function_name = str(inspect.stack()[0][3])
     audit_message = "Load Regional Weights calculation: %s()" % function_name
@@ -452,33 +427,4 @@ def calculate(in_table_name, out_table_name, response_table, var_serial, max_lev
     cf.database_logger().info("SUCCESS - Completed Regional Weights calculation.")
     cf.commit_to_audit_log("Create", "Regional", audit_message)
     print("Completed - Calculate Regional Weights.")
-    
 
-if __name__ == '__main__':
-    calculate(in_table_name='SAS_SURVEY_SUBSAMPLE',
-              out_table_name='SAS_REGIONAL_IMP',
-              response_table='SAS_RESPONSE',
-              var_serial='SERIAL',
-              max_level=4,
-              var_stay='STAY',
-              var_spend='SPEND',
-              var_final_wt='FINAL_WT',
-              var_stay_wt='STAY_WT',
-              var_visit_wt='VISIT_WT',
-              var_expenditure_wt='EXPENDITURE_WT',
-              var_stay_wtk='STAY_WTK',
-              var_visit_wtk='VISIT_WTK',
-              var_expenditure_wtk='EXPENDITURE_WTK',
-              var_eligible_flag='REG_IMP_ELIGIBLE_PV',
-              strata1=['FLOW',
-                        'PURPOSE_PV',
-                        'STAYIMPCTRYLEVEL1_PV'],
-              strata2=['FLOW',
-                       'PURPOSE_PV',
-                       'STAYIMPCTRYLEVEL2_PV'],
-              strata3=['FLOW',
-                       'PURPOSE_PV',
-                       'STAYIMPCTRYLEVEL3_PV'],
-              strata4=['FLOW',
-                       'PURPOSE_PV',
-                       'STAYIMPCTRYLEVEL4_PV'])

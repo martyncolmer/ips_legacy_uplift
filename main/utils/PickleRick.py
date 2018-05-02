@@ -4,41 +4,18 @@ Created on 5 Mar 2018
 @author: mahont1
 '''
 import pandas as pd
+from sas7bdat import SAS7BDAT
 
+in_path = r"../../tests/data/import/output/post_import_SURVEY_SUBSAMPLE.csv"
+out_path = r"../../tests/data/import/output/post_import_SURVEY_SUBSAMPLE.pkl"
 
-# in_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec Data\shift_weight\shiftsdata.sas7bdat'
-# out_path = r'C:\Git_projects\IPS_Legacy_Uplift\tests\data\shift_weight\shiftsdata.pkl'
-#
-# df = pd.read_sas(in_path)
-#
-# df.to_pickle(out_path)
+if in_path[-3:] == 'csv':
+    df = pd.read_csv(in_path)
+else:
+    try:
+        df = pd.read_sas(in_path)
+    except:
+        df = SAS7BDAT(in_path).to_data_frame()
 
-import glob
-import os
-
-sas_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec_Data\shift_weight' + r'\*.sas7bdat'
-pkl_path = r'C:\Git_projects\IPS_Legacy_Uplift\tests\data\shift_weight_2'
-
-# collect all the sas7bdat files
-files = glob.glob(sas_path)
-
-for file in files:
-    # print(file.title())
-
-    # get file name and extension
-    base = os.path.basename(file.title())
-
-    # get file name only
-    filename = os.path.splitext(base)[0]
-
-    # create path to pickle file
-    path_to_write_pickle_file = pkl_path + '\\' + filename + ".pkl"
-
-    # read sas file
-    df = pd.read_sas(file.title())
-
-    # write pkl file
-    df.to_pickle(path_to_write_pickle_file)
-
-
-
+df = pd.read_sas(in_path)
+df.to_pickle(out_path)
