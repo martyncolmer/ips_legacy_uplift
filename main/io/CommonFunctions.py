@@ -224,19 +224,16 @@ def extract_zip(dir_name, zip_file):
     
     # Validate existence of file
     if validate_file(dir_name, current_working_file, function_name):
-        os.chdir(dir_name)
     
         file_found = False
         for item in os.listdir(dir_name):
             if item == zip_file:
-                file_name = os.path.abspath(item)
+                file_name = os.path.join(dir_name, zip_file)
                 zip_ref = zipfile.ZipFile(file_name)
                 zip_ref.extractall(dir_name)
                 zip_ref.close()
                 file_found = True
                 break
-        
-        os.chdir(os.path.dirname(os.path.realpath(__file__)))
         
         return file_found
 

@@ -8,7 +8,11 @@ import os
 
 from main.io import CommonFunctions as cf
 
+import pytest
+@pytest.mark.testthis
 class TestCommonFunctions(unittest.TestCase):
+    root_dir_path = r"tests/data/common_functions"
+
     def test_extract_zip_true(self):
         """
         Author          : thorne1
@@ -20,14 +24,13 @@ class TestCommonFunctions(unittest.TestCase):
         Dependencies    : None
         """
         
-        root_dir_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing"
         filename = "testdata.zip"
-        empty_file = root_dir_path + "\Empty Folder"
-        no_zip_values = root_dir_path + "\crossingfactor"
+        empty_file = os.path.join(self.root_dir_path, "Empty Folder")
+        no_zip_values = os.path.join(self.root_dir_path, "\crossingfactor")
         non_existent_dir = r"\\hello\this_is\a\fake\directory"
         
         # Real, empty, no zip and non-existen values
-        self.assertTrue(cf.extract_zip(root_dir_path, filename))     
+        self.assertTrue(cf.extract_zip(self.root_dir_path, filename))
         self.assertFalse(cf.extract_zip(empty_file, filename))       
         self.assertFalse(cf.extract_zip(no_zip_values, filename))    
         self.assertFalse(cf.extract_zip(non_existent_dir, filename)) 
@@ -45,11 +48,10 @@ class TestCommonFunctions(unittest.TestCase):
         """
         
         # File locations: Real, empty, fake and non-existent files
-        root_dir_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing"
-        real_filename = root_dir_path + "\Sea Traffic Q1 2017.csv" 
-        empty_csv_file = root_dir_path + "\EmptyFile.csv"            
-        fake_csv_file = root_dir_path + "\FakeFile.csv"              
-        non_existent_csv_file = root_dir_path + r"\NEFile.csv"
+        real_filename = os.path.join(self.root_dir_path, "Sea Traffic Q1 2017.csv")
+        empty_csv_file = os.path.join(self.root_dir_path, "EmptyFile.csv")
+        fake_csv_file = os.path.join(self.root_dir_path, "FakeFile.csv")
+        non_existent_csv_file = os.path.join(self.root_dir_path, "NEFile.csv")
         
         # Create empty and fake CSV files
         empty_file = open(empty_csv_file, "w")
@@ -82,10 +84,9 @@ class TestCommonFunctions(unittest.TestCase):
         """
         
         # File locations: Real, empty, fake and non-existent files
-        root_dir_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing"
-        real_sas_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\testdata.sas7bdat" 
-        empty_sas_file = root_dir_path + "\EmptyFile.sas"            
-        non_existent_sas_file = root_dir_path + r"\NEFile.sas"
+        real_sas_file = os.path.join(self.root_dir_path, r"testdata.sas7bdat")
+        empty_sas_file = os.path.join(self.root_dir_path, "EmptyFile.sas")
+        non_existent_sas_file = os.path.join(self.root_dir_path, "NEFile.sas")
         
         # Create empty and fake SAS files
         empty_file = open(empty_sas_file, "w")
