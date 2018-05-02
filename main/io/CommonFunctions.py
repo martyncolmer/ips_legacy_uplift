@@ -143,7 +143,7 @@ def validate_file(xfile, current_working_file, function_name):
 #         return conn
 
 
-def get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials_SQLServer.json"):
+def get_oracle_connection():
     """
     Author       : Thomas Mahoney
     Date         : 03 / 04 / 2018
@@ -154,10 +154,6 @@ def get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CAS
     Requirements : NA
     Dependencies : NA
     """
-
-    # Check if file exists or is empty
-    if not validate_file(credentials_file, str(inspect.stack()[0][1]), str(inspect.stack()[0][3])):
-        return False
 
     # Get credentials and decrypt
     username = os.getenv("DB_USER_NAME")
