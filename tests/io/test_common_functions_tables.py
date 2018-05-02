@@ -9,7 +9,8 @@ import pyodbc
 from main.io import import_traffic_data
 from main.io import CommonFunctions as cf
 
-
+import pytest
+@pytest.mark.skip
 class TestCommonFunctions(unittest.TestCase):
     def setUp(self):
         """
