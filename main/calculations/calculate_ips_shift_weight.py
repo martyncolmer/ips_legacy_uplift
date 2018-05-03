@@ -68,12 +68,6 @@ def calculate_ips_shift_factor(df_shiftsdata, df_surveydata, ShiftsStratumDef, v
     # Re-index the data frame
     df_sampledshifts.index = range(df_sampledshifts.shape[0])
 
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"\sampledShifts.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_sampledshifts, df_test)
-    # test code end
-
     # -----------------------------------------
     # Calculate the number of sampled shifts by
     # strata
@@ -92,13 +86,6 @@ def calculate_ips_shift_factor(df_shiftsdata, df_surveydata, ShiftsStratumDef, v
                                                     .agg([('DENOMINATOR', 'count')]) \
                                                     .reset_index()
 
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"\totalSampledShifts.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    df_test = df_test.drop(['_TYPE_', '_FREQ_'], axis=1)
-    assert_frame_equal(df_totalsampledshifts, df_test, check_dtype=False)
-    # test code end
-
     # -----------------------------------------
     # Calculate the number of possible shifts
     # by strata
@@ -113,13 +100,6 @@ def calculate_ips_shift_factor(df_shiftsdata, df_surveydata, ShiftsStratumDef, v
 
     # Flattens the column structure after adding the new numerator column
     df_possibleshifts = df_possibleshifts.reset_index()
-
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"\possibleShifts.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    df_test = df_test.drop(['_TYPE_', '_FREQ_'], axis=1)
-    assert_frame_equal(df_possibleshifts, df_test, check_dtype=False)
-    # test code end
 
     # -----------------------------------------
     # Now compute the shift factor
@@ -137,13 +117,6 @@ def calculate_ips_shift_factor(df_shiftsdata, df_surveydata, ShiftsStratumDef, v
                                                      axis=1, args=(var_shiftFlag,))
 
     df_surveydata_merge = left_join_1.drop(['NUMERATOR', 'DENOMINATOR'], 1)
-
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"\outputdata_sf.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    #df_test = df_test.drop(['_TYPE_', '_FREQ_'], axis=1)
-    assert_frame_equal(df_surveydata_merge, df_test, check_dtype=False)
-    # test code end
 
     # Return the three dataframes produced
     return (df_totalsampledshifts, df_possibleshifts, df_surveydata_merge)
@@ -240,18 +213,6 @@ def calculate_ips_crossing_factor(df_shiftsdata, df_surveydata, ShiftsStratumDef
 
     # Drop numerator and denominator columns
     df_surveydata_merge = left_join_1.drop(['NUMERATOR', 'DENOMINATOR'], 1)
-
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"\totalSampledCrossings.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_totalSampledCrossings, df_test.drop(['_TYPE_', '_FREQ_'], axis=1), check_dtype=False)
-    # test code end
-
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"\outputdata_cf.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_surveydata_merge, df_test)
-    # test code end
 
     return (df_totalSampledCrossings, df_surveydata_merge)
 
@@ -390,13 +351,6 @@ def do_ips_shift_weight_calculation(df_surveydata,df_shiftsdata,OutputData,Summa
                                             * df_surveydata_merge[var_crossingsFactor] \
                                             * df_surveydata_merge[var_SI]
 
-    # test code start
-    columns_to_drop = ['ERRORSTR', 'J', 'X', 'Y']
-    df_test = pd.read_pickle(path_to_data + r"\out_1.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_surveydata_merge, df_test.drop(columns_to_drop, axis=1), check_dtype=False)
-    # test code end
-
     # --------------------------------------------------------------------
     # produce shift weight summary output
     # --------------------------------------------------------------------
@@ -416,12 +370,6 @@ def do_ips_shift_weight_calculation(df_surveydata,df_shiftsdata,OutputData,Summa
 
     # Flatten summary columns to single row after aggregation
     df_surveydata_merge_sorted_grouped = df_surveydata_merge_sorted_grouped.reset_index()
-
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"\summary_1.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_surveydata_merge_sorted_grouped, df_test, check_dtype=False)
-    # test code end
 
     # --------------------------------------------------------------------
     # Merge possible shifts to summary
@@ -450,16 +398,6 @@ def do_ips_shift_weight_calculation(df_surveydata,df_shiftsdata,OutputData,Summa
     # Re-index the data frames
     df_summary_2.index = range(df_summary_2.shape[0])
 
-    # test code start
-    df_summary_2_nan = df_summary.sort_values(colset2)
-    df_summary_2_nan.index = range(df_summary_2_nan.shape[0])
-    df_summary_2_nan[var_sampledCount].replace(0, np.nan, inplace=True)
-
-    df_test = pd.read_pickle(path_to_data + r"\summary_2.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_summary_2_nan, df_test, check_dtype=False)
-    # test code end
-
     # --------------------------------------------------------------------
     # Produce summary high
     # --------------------------------------------------------------------
@@ -479,24 +417,17 @@ def do_ips_shift_weight_calculation(df_surveydata,df_shiftsdata,OutputData,Summa
     # Flatten summary high columns to single row after aggregation
     df_summary_high = df_summary_high.reset_index()
 
-    # test code start
-    df_test = pd.read_pickle(path_to_data+ r"\highsummary.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_summary_high, df_test, check_dtype=False)
-    # test code end
+    # # test code start
+    # df_test = pd.read_pickle(path_to_data+ r"\highsummary.pkl")
+    # df_test.columns = df_test.columns.str.upper()
+    # assert_frame_equal(df_summary_high, df_test, check_dtype=False)
+    # # test code end
 
     # Append total sample crossings and total sample shifts
     df_totsampshifts_appended = df_totsampshifts.append(df_totsampcrossings)
 
     # Re-index the data frame
     df_totsampshifts_appended.index = range(df_totsampshifts_appended.shape[0])
-
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"\Totalsampledshifts_Append.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_totsampshifts_appended,
-                       df_test.drop(['_TYPE_', '_FREQ_'], axis=1), check_dtype=False, check_like=True)
-    # test code end
 
     # Sort total sample shifts
     df_totsampshifts_1 = df_totsampshifts_appended.sort_values(colset3)
@@ -507,20 +438,8 @@ def do_ips_shift_weight_calculation(df_surveydata,df_shiftsdata,OutputData,Summa
     # Flatten summary high sampled columns to single row after aggregation
     df_summary_high_sampled = df_summary_high_sampled.reset_index()
 
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"\highsampled.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_summary_high_sampled, df_test, check_dtype=False)
-    # test code end
-
     # Left merge summary high with summary high sampled
     df_summary_high_1 = pd.merge(df_summary_high, df_summary_high_sampled, on=subStrata, how='left')
-
-    # test code start
-    df_test_high_summary = pd.read_pickle(path_to_data + r"\highsummary_2.pkl")
-    df_test_high_summary.columns = df_test_high_summary.columns.str.upper()
-    assert_frame_equal(df_summary_high_1, df_test_high_summary, check_dtype=False)
-    # test code end
 
     # Append summary and summary high
     df_summary_3 = pd.concat([df_summary_high_1, df_summary_2])
@@ -530,15 +449,8 @@ def do_ips_shift_weight_calculation(df_surveydata,df_shiftsdata,OutputData,Summa
     df_summary_5 = df_summary_4.sort_values(by=[var_summaryKey], ascending=True, kind='mergesort')
     df_summary_5.index = range(df_summary_5.shape[0])
 
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"\Summary_3.pkl")
-    df_test.columns = df_test.columns.str.upper()
-
-    # replace 0's with NAN to match SAS
-    df_summary_5_nan = df_summary_5
-    df_summary_5_nan[var_sampledCount].replace(0, np.nan, inplace=True)
-    assert_frame_equal(df_summary_5_nan, df_test, check_like=True)
-    # test code end
+    # replace 0 with nan to match SAS
+    df_summary_5[var_sampledCount].replace(0, np.nan, inplace=True)
 
     # Set surveydata columns
     df_surveydata_merge_output = df_surveydata_merge_3[colset5]
@@ -547,22 +459,8 @@ def do_ips_shift_weight_calculation(df_surveydata,df_shiftsdata,OutputData,Summa
     # re-index the dataframe
     df_surveydata_merge_output_2.index = range(df_surveydata_merge_output_2.shape[0])
 
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"\out_2.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    df_test_2 = df_test.sort_values(['SERIAL'])
-    df_test_2.index = range(df_test_2.shape[0])
-    assert_frame_equal(df_surveydata_merge_output_2, df_test_2, check_dtype=False)
-    # test code end
-
     final_output_data = df_surveydata_merge_output_2
     final_summary_data = df_summary_5
-
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"\summary_3.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(final_summary_data, df_test, check_like=True)
-    # test code end
 
     # --------------------------------------------------------------------
     # Report any weights that are not within bounds
@@ -661,18 +559,6 @@ def calculate(SurveyData,ShiftsData,OutputData,SummaryData,
     df_surveydata.columns = df_surveydata.columns.str.upper()
     df_shiftsdata.columns = df_shiftsdata.columns.str.upper()
 
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"\surveydata.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_surveydata, df_test, check_column_type=False)
-    # test code end
-
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"\shiftsdata.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_shiftsdata, df_test, check_column_type=False)
-    # test code end
-
     # These variables are passed into SAS but not required, we also pass them in for now
     outputData = None
     summaryData = None
@@ -685,20 +571,6 @@ def calculate(SurveyData,ShiftsData,OutputData,SummaryData,
                                                                   var_weightSum,var_minWeight,var_avgWeight,var_maxWeight,
                                                                   var_summaryKey,subStrata,var_possibleCount,var_sampledCount,
                                                                   minWeightThresh,maxWeightThresh)
-
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"\out_2.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    df_test_2 = df_test.sort_values(['SERIAL'])
-    df_test_2.index = range(df_test_2.shape[0])
-    assert_frame_equal(df_surveydata_out, df_test_2, check_dtype=False)
-    # test code end
-
-    # test code start
-    df_test = pd.read_pickle(path_to_data + r"\summary_3.pkl")
-    df_test.columns = df_test.columns.str.upper()
-    assert_frame_equal(df_summary_out, df_test, check_like=True)
-    # test code end
 
     print("Calculations completed successfully, returning data sets...")
 
