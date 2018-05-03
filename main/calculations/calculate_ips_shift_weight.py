@@ -10,35 +10,26 @@ from main.io import CommonFunctions as cf
 
 path_to_data = r"../../tests/data/shift_weight"
 
-# TODO: test all functions
-# TODO: remove deprecated statements for aggregations
-# TODO: review code for variable names and program flow, and remove redundant code
-
-# TODO: test this function and see if we need the exception by zero
 def calculate_factor(row, flag):
+
     """
-    Author       : Thomas Mahoney
-    Date         : 02 Jan 2018
+    Author       : Thomas Mahoney / Nassir Mohammad
+    Date         : Apr 2018
     Purpose      : Calculates the factor of the given row's values.
     Parameters   : row  - This parameter represents the row being manipulated
                           from the dataframe calling the function.
                    flag - Used to filter the rows being manipulated. If the
                           flag is true for the given row, the calculation would
                           be made to determine the factor.
-    Returns      : The calculated factor value (float), or a None value.
+    Returns      : The calculated factor value (float), or a np.nan.
     Requirements : NA
     Dependencies : NA
     """
 
-    if(row[flag] != 0):
-        try:
-            result = row['NUMERATOR'] / row['DENOMINATOR']
-        except ZeroDivisionError:
-            return None
-        else:
-            return result
+    if row[flag] != 0:
+        return row['NUMERATOR'] / row['DENOMINATOR']
     else:
-        return None
+        return np.nan
 
 def calculate_ips_shift_factor(df_shiftsdata, df_surveydata, ShiftsStratumDef, var_shiftFlag,
                                var_shiftNumber, var_shiftFactor, var_totals):
@@ -105,7 +96,7 @@ def calculate_ips_shift_factor(df_shiftsdata, df_surveydata, ShiftsStratumDef, v
     df_test = pd.read_pickle(path_to_data + r"\totalSampledShifts.pkl")
     df_test.columns = df_test.columns.str.upper()
     df_test = df_test.drop(['_TYPE_', '_FREQ_'], axis=1)
-    assert_frame_equal(df_totalsampledshifts.head(92), df_test.head(92), check_dtype=False)
+    assert_frame_equal(df_totalsampledshifts, df_test, check_dtype=False)
     # test code end
 
     # -----------------------------------------
