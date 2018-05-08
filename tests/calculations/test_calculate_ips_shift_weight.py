@@ -12,7 +12,7 @@ import pytest
 from pandas.util.testing import assert_frame_equal
 
 from main.calculations.calculate_ips_shift_weight import calculate_factor, calculate, \
-                                                         do_ips_shift_weight_calculation,calculate_ips_crossing_factor, \
+                                                         do_ips_shift_weight_calculation, calculate_ips_crossing_factor, \
                                                          calculate_ips_shift_factor
 
 path_to_data = r"../data/shift_weight"
@@ -62,38 +62,11 @@ class TestCalculateFactor(object):
 
 @pytest.mark.shiftweight
 def test_calculate():
-    print("Started testing IPS Shift Weight - calculate()")
 
     (df_surveydata, df_summary) = calculate(SurveyData = 'SAS_SURVEY_SUBSAMPLE'
-                                             , ShiftsData = 'SAS_SHIFT_DATA'
-                                             , OutputData = 'SAS_SHIFT_WT'
-                                             , SummaryData = 'SAS_PS_SHIFT_DATA'
-                                             , ShiftsStratumDef = ['SHIFT_PORT_GRP_PV',
-                                                                 'ARRIVEDEPART',
-                                                                 'WEEKDAY_END_PV',
-                                                                 'AM_PM_NIGHT_PV'],
+                                             , ShiftsData = 'SAS_SHIFT_DATA',
                                              var_serialNum = 'SERIAL',
-                                             var_shiftFlag = 'SHIFT_FLAG_PV',
-                                             var_shiftFactor = 'SHIFT_FACTOR',
-                                             var_totals = 'TOTAL',
-                                             var_shiftNumber = 'SHIFTNO',
-                                             var_crossingFlag = 'CROSSINGS_FLAG_PV',
-                                             var_crossingsFactor = 'CROSSINGS_FACTOR',
-                                             var_crossingNumber = 'SHUTTLE',
-                                             var_SI = 'MIGSI',
-                                             var_shiftWeight = 'SHIFT_WT',
-                                             var_count = 'COUNT_RESPS',
-                                             var_weightSum = 'SUM_SH_WT',
-                                             var_minWeight = 'MIN_SH_WT',
-                                             var_avgWeight = 'MEAN_SH_WT',
-                                             var_maxWeight = 'MAX_SH_WT',
-                                             var_summaryKey = 'SHIFT_PORT_GRP_PV',
-                                             subStrata = ['SHIFT_PORT_GRP_PV',
-                                                          'ARRIVEDEPART'],
-                                             var_possibleCount = 'POSS_SHIFT_CROSS',
-                                             var_sampledCount = 'SAMP_SHIFT_CROSS',
-                                             minWeightThresh = 50,
-                                             maxWeightThresh = 5000)
+                                             var_shiftWeight = 'SHIFT_WT')
 
     # test code start
     df_test = pd.read_pickle(path_to_data + r"\out_2.pkl")
@@ -111,7 +84,6 @@ def test_calculate():
     assert_frame_equal(df_summary, df_test, check_like=True)
     # test code end
 
-    print("test_calculate finished successfully")
 
 @pytest.mark.shiftweight
 def test_do_ips_shift_weight_calculation():
@@ -123,40 +95,10 @@ def test_do_ips_shift_weight_calculation():
     df_surveydata.columns = df_surveydata.columns.str.upper()
     df_shiftsdata.columns = df_shiftsdata.columns.str.upper()
 
-    # These variables are passed into SAS but not required, we also pass them in for now
-    outputData = None
-    summaryData = None
-
     df_surveydata_out, df_summary_out = do_ips_shift_weight_calculation(df_surveydata,
                                                                         df_shiftsdata,
-                                                                        outputData,
-                                                                        summaryData,
-                                                                        ShiftsStratumDef=['SHIFT_PORT_GRP_PV',
-                                                                                          'ARRIVEDEPART',
-                                                                                          'WEEKDAY_END_PV',
-                                                                                          'AM_PM_NIGHT_PV'],
                                                                         var_serialNum='SERIAL',
-                                                                        var_shiftFlag='SHIFT_FLAG_PV',
-                                                                        var_shiftFactor='SHIFT_FACTOR',
-                                                                        var_totals='TOTAL',
-                                                                        var_shiftNumber='SHIFTNO',
-                                                                        var_crossingFlag='CROSSINGS_FLAG_PV',
-                                                                        var_crossingsFactor='CROSSINGS_FACTOR',
-                                                                        var_crossingNumber='SHUTTLE',
-                                                                        var_SI='MIGSI',
-                                                                        var_shiftWeight='SHIFT_WT',
-                                                                        var_count='COUNT_RESPS',
-                                                                        var_weightSum='SUM_SH_WT',
-                                                                        var_minWeight='MIN_SH_WT',
-                                                                        var_avgWeight='MEAN_SH_WT',
-                                                                        var_maxWeight='MAX_SH_WT',
-                                                                        var_summaryKey='SHIFT_PORT_GRP_PV',
-                                                                        subStrata=['SHIFT_PORT_GRP_PV',
-                                                                                   'ARRIVEDEPART'],
-                                                                        var_possibleCount='POSS_SHIFT_CROSS',
-                                                                        var_sampledCount='SAMP_SHIFT_CROSS',
-                                                                        minWeightThresh=50,
-                                                                        maxWeightThresh=5000)
+                                                                        var_shiftWeight='SHIFT_WT')
 
     # test code start
     df_test = pd.read_pickle(path_to_data + r"\out_2.pkl")
@@ -183,16 +125,7 @@ def test_calculate_ips_shift_factor():
     df_shiftsdata.columns = df_shiftsdata.columns.str.upper()
 
     (df_totalsampledshifts, df_possibleshifts, df_surveydata_merge) = calculate_ips_shift_factor(df_shiftsdata,
-                                                                                        df_surveydata,
-                                                                                        ShiftsStratumDef=[
-                                                                                            'SHIFT_PORT_GRP_PV',
-                                                                                            'ARRIVEDEPART',
-                                                                                            'WEEKDAY_END_PV',
-                                                                                            'AM_PM_NIGHT_PV'],
-                                                                                        var_shiftFlag = 'SHIFT_FLAG_PV',
-                                                                                        var_shiftNumber='SHIFTNO',
-                                                                                        var_shiftFactor='SHIFT_FACTOR',
-                                                                                        var_totals='TOTAL')
+                                                                                        df_surveydata)
     # test code start
     df_test = pd.read_pickle(path_to_data + r"\totalSampledShifts.pkl")
     df_test.columns = df_test.columns.str.upper()
@@ -234,28 +167,10 @@ def test_calculate_ips_crossing_factor():
     # get the survey data input from calculate_ips_shift_factor()
     (_, _, df_surveydata_for_crossings) = calculate_ips_shift_factor(df_shiftsdata,
                                                                      df_surveydata,
-                                                                     ShiftsStratumDef=[
-                                                                         'SHIFT_PORT_GRP_PV',
-                                                                         'ARRIVEDEPART',
-                                                                         'WEEKDAY_END_PV',
-                                                                         'AM_PM_NIGHT_PV'],
-                                                                     var_shiftFlag='SHIFT_FLAG_PV',
-                                                                     var_shiftNumber='SHIFTNO',
-                                                                     var_shiftFactor='SHIFT_FACTOR',
-                                                                     var_totals='TOTAL')
+                                                                     )
 
     (df_totalSampledCrossings, df_surveydata_merge) = calculate_ips_crossing_factor(df_shiftsdata,
-                                                                                df_surveydata_for_crossings,
-                                                                                ShiftsStratumDef=[
-                                                                                    'SHIFT_PORT_GRP_PV',
-                                                                                    'ARRIVEDEPART',
-                                                                                    'WEEKDAY_END_PV',
-                                                                                    'AM_PM_NIGHT_PV'],
-                                                                                var_crossingFlag='CROSSINGS_FLAG_PV',
-                                                                                var_shiftNumber='SHIFTNO',
-                                                                                var_crossingNumber='SHUTTLE',
-                                                                                var_crossingsFactor='CROSSINGS_FACTOR',
-                                                                                var_totals='TOTAL')
+                                                                                df_surveydata_for_crossings)
 
     # test code start
     df_test = pd.read_pickle(path_to_data + r"\totalSampledCrossings.pkl")
