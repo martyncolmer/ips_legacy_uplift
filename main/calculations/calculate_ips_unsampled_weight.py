@@ -15,7 +15,6 @@ TOTALS_COLUMN = 'UNSAMP_TOTAL'
 MAX_RULE_LENGTH = '512'
 MODEL_GROUP = 'C_GROUP'
 MODEL_GROUP_COLUMN = 'C_GROUP'
-OOH_WEIGHT_COLUMN = 'UNSAMP_TRAFFIC_WT'
 GES_BOUND_TYPE = 'G'  # 'G' => cal. weights bound, 'F' => final weights bound
 GES_UPPER_BOUND = ''
 GES_LOWER_BOUND = '1.0'
@@ -47,7 +46,8 @@ def do_ips_ges_weighting(input, SerialNumVarName, DesignWeightVarName,
 
 
 def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftWeight, var_NRWeight,
-                                        var_minWeight, var_trafficWeight, df_ustotals, minCountThresh):
+                                        var_minWeight, var_trafficWeight, var_OOHWeight, 
+                                        df_ustotals, minCountThresh):
     """
     Author       : Thomas Mahoney / Nassir Mohammad
     Date         : Apr 2018
@@ -127,7 +127,7 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
     # Call the GES weighting macro
     ges_dataframes = do_ips_ges_weighting(df_surveydata, var_serialNum, ooh_design_weight_column, OOH_STRATA,
                                           liftedTotals, TOTALS_COLUMN, MAX_RULE_LENGTH,
-                                          MODEL_GROUP_COLUMN, OOH_WEIGHT_COLUMN, 'CalWeight', GES_BOUND_TYPE,
+                                          MODEL_GROUP_COLUMN, var_OOHWeight, 'CalWeight', GES_BOUND_TYPE,
                                           GES_UPPER_BOUND, GES_LOWER_BOUND, GES_MAX_DIFFERENCE, GES_MAX_ITERATIONS,
                                           GES_MAX_DISTANCE)
 
@@ -138,13 +138,13 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
     df_output = df_output.sort_values(by=var_serialNum)
 
     # Merge the df_surveydata and output data frame to generate the summary table
-    df_survey[OOH_WEIGHT_COLUMN] = df_output[OOH_WEIGHT_COLUMN]
+    df_survey[var_OOHWeight] = df_output[var_OOHWeight]
 
     # Fill blank UNSAMP_TRAFFIC_WT values with 1.0
-    df_survey[OOH_WEIGHT_COLUMN].fillna(1.0, inplace=True)
+    df_survey[var_OOHWeight].fillna(1.0, inplace=True)
 
     # Generate POSTWEIGHT values from the UNSAMP_TRAFFIC_WT and ooh_design_weight_column values
-    df_survey[POST_WEIGHT_COLUMN] = df_survey[OOH_WEIGHT_COLUMN] * df_survey[ooh_design_weight_column]
+    df_survey[POST_WEIGHT_COLUMN] = df_survey[var_OOHWeight] * df_survey[ooh_design_weight_column]
 
     # Sort the data ready for summarising    
     df_survey = df_survey.sort_values(by=OOH_STRATA)
@@ -156,7 +156,7 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
     df_summary = df_summary.fillna('NOTHING')
 
     # Generate a dataframe containing the count of each evaluated group
-    df_cases = df_summary.groupby(OOH_STRATA)[OOH_WEIGHT_COLUMN].agg([(CASE_COUNT_COLUMN, 'count')])
+    df_cases = df_summary.groupby(OOH_STRATA)[var_OOHWeight].agg([(CASE_COUNT_COLUMN, 'count')])
 
     # Flattens the column structure after adding the new CASE_COUNT_COLUMN column
     df_cases = df_cases.reset_index()
@@ -165,7 +165,7 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
     df_summary = df_summary.groupby(OOH_STRATA).agg({
         ooh_design_weight_column: 'sum',
         POST_WEIGHT_COLUMN: 'sum',
-        OOH_WEIGHT_COLUMN: 'mean'
+        var_OOHWeight: 'mean'
     })
 
     # Flattens the column structure after adding the new ooh_design_weight_column and POSTWEIGHT columns
@@ -206,7 +206,7 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
 
 
 def calculate(SurveyData, var_serialNum, var_shiftWeight, var_NRWeight, var_minWeight, var_trafficWeight,
-              minCountThresh):
+              var_OOHWeight, minCountThresh):
     """
     Author       : Thomas Mahoney / Nassir Mohammad
     Date         : Apr 2018
@@ -220,8 +220,8 @@ def calculate(SurveyData, var_serialNum, var_shiftWeight, var_NRWeight, var_minW
                    var_shiftWeight - variable holding the shift weight field name                
                    var_NRWeight - variable holding the non-response weight field name        
                    var_minWeight - variable holding the minimum weight field name            
-                   var_trafficWeight - variable holding the traffic weight field name        
-                   var_designWeight - Variable holding the design weight field name
+                   var_trafficWeight - variable holding the traffic weight field name  
+                   var_OOHWeight = Variable holding the unsampled weight field name
                    minCountThresh - The minimum cell count threshold
     Returns      : NA
     Requirements : do_ips_unsampled_weight_calculation()
@@ -246,6 +246,7 @@ def calculate(SurveyData, var_serialNum, var_shiftWeight, var_NRWeight, var_minW
     output_dataframe, summary_dataframe = do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum,
                                                                               var_shiftWeight, var_NRWeight,
                                                                               var_minWeight, var_trafficWeight,
+                                                                              var_OOHWeight,
                                                                               df_ustotals, minCountThresh)
 
     # TODO - following code to be removed/refactored once IPS_main() done

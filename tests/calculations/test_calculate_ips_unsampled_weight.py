@@ -21,6 +21,7 @@ def test_calculate():
                                                       var_NRWeight='NON_RESPONSE_WT',
                                                       var_minWeight='MINS_WT',
                                                       var_trafficWeight='TRAFFIC_WT',
+                                                      var_OOHWeight="UNSAMP_TRAFFIC_WT",
                                                       minCountThresh=30)
 
     test_df = pd.read_pickle(path_to_data + r"/output_final.pkl")
@@ -31,7 +32,7 @@ def test_calculate():
     test_summary.columns = test_summary.columns.str.upper()
     assert_frame_equal(summary_dataframe, test_summary, check_like=True, check_dtype=False)
 
-@pytest.mark.unsampled_weight
+@pytest.mark.unsampled
 def test_do_ips_unsampled_weight_calculation():
 
     df_surveydata = pd.read_pickle(path_to_data + r"/survey_input.pkl")
@@ -46,6 +47,7 @@ def test_do_ips_unsampled_weight_calculation():
                                                                               var_NRWeight='NON_RESPONSE_WT',
                                                                               var_minWeight='MINS_WT',
                                                                               var_trafficWeight='TRAFFIC_WT',
+                                                                              var_OOHWeight="UNSAMP_TRAFFIC_WT",
                                                                               df_ustotals=df_ustotals,
                                                                               minCountThresh=30)
 
