@@ -101,9 +101,8 @@ def calculate_ips_shift_factor(df_shiftsdata, df_surveydata):
     df_sample_sorted_no_dup.index = range(df_sample_sorted_no_dup.shape[0])
 
     # Calculate the number of sampled shifts by strata
-    df_totalsampledshifts = df_sample_sorted_no_dup.groupby(SHIFTS_STRATA)[SHIFT_NUMBER_COLUMN] \
-                                                    .agg([('DENOMINATOR', 'count')]) \
-                                                    .reset_index()
+    df_totalsampledshifts = df_sample_sorted_no_dup.groupby(SHIFTS_STRATA)[SHIFT_NUMBER_COLUMN]\
+        .agg([('DENOMINATOR', 'count')]).reset_index()
 
     # -----------------------------------------
     # Calculate the number of possible shifts
@@ -114,8 +113,8 @@ def calculate_ips_shift_factor(df_shiftsdata, df_surveydata):
     df_possibleshifts_temp = df_shiftsdata.sort_values(SHIFTS_STRATA)
 
     # Calculate the number of possible shifts by strata
-    df_possibleshifts = df_possibleshifts_temp.groupby(SHIFTS_STRATA)\
-            [TOTALS_COLUMN].agg([('NUMERATOR', 'sum')])
+    df_possibleshifts = df_possibleshifts_temp.groupby(SHIFTS_STRATA)[TOTALS_COLUMN]\
+        .agg([('NUMERATOR', 'sum')])
 
     # Flattens the column structure after adding the new numerator column
     df_possibleshifts = df_possibleshifts.reset_index()
@@ -132,8 +131,7 @@ def calculate_ips_shift_factor(df_shiftsdata, df_surveydata):
         .merge(df_totalsampledshifts,
                on=SHIFTS_STRATA, how='left')
 
-    left_join_1[FACTOR_COLUMN] = left_join_1.apply(calculate_factor,
-                                                     axis=1, args=(FLAG_COLUMN,))
+    left_join_1[FACTOR_COLUMN] = left_join_1.apply(calculate_factor, axis=1, args=(FLAG_COLUMN,))
 
     df_surveydata_merge = left_join_1.drop(['NUMERATOR', 'DENOMINATOR'], 1)
 
@@ -161,8 +159,8 @@ def calculate_ips_crossing_factor(df_shiftsdata, df_surveydata):
     print("Calculate IPS Crossing Factor")
 
     # Set the new data frames from the SAS data sets
-    df_crossingsData = df_shiftsdata
-    df_outputData = df_surveydata
+    df_crossingsdata = df_shiftsdata
+    df_outputdata = df_surveydata
 
     # --------------------------------------------------
     # Get survey records that are crossings based
@@ -182,9 +180,8 @@ def calculate_ips_crossing_factor(df_shiftsdata, df_surveydata):
     # --------------------------------------------------
 
     # Require reset_index() here to compose the correctly laid out data frame
-    df_totalSampledCrossings = df_sorted_sampled_crossings.groupby(SHIFTS_STRATA)[CROSSING_NUMBER_COLUMN] \
-                                                     .agg([('_FREQ_', 'count'),('DENOMINATOR', 'count')]) \
-                                                     .reset_index()
+    df_totalSampledCrossings = df_sorted_sampled_crossings.groupby(SHIFTS_STRATA)[CROSSING_NUMBER_COLUMN]\
+        .agg([('_FREQ_', 'count'), ('DENOMINATOR', 'count')]).reset_index()
 
     # Not required but incase required in future for similar
     df_totalSampledCrossings.index = range(df_totalSampledCrossings.shape[0])
@@ -197,12 +194,11 @@ def calculate_ips_crossing_factor(df_shiftsdata, df_surveydata):
     # --------------------------------------------------
 
     # Sort the data
-    df_sorted_crossingsData = df_crossingsData.sort_values(SHIFTS_STRATA)
+    df_sorted_crossingsData = df_crossingsdata.sort_values(SHIFTS_STRATA)
 
     # Require reset_index() here to compose the correctly laid out data frame
     df_totalCrossings = df_sorted_crossingsData.groupby(SHIFTS_STRATA)[TOTALS_COLUMN]\
-                                                     .agg([('_FREQ_', 'count'), ('NUMERATOR', 'sum')]) \
-                                                     .reset_index()
+        .agg([('_FREQ_', 'count'), ('NUMERATOR', 'sum')]).reset_index()
 
     df_totalCrossings.index = range(df_totalCrossings.shape[0])
 
@@ -213,7 +209,7 @@ def calculate_ips_crossing_factor(df_shiftsdata, df_surveydata):
     # now compute the crossings factor
     # --------------------------------------------------
 
-    df_sorted_outputData = df_outputData.sort_values(SHIFTS_STRATA)
+    df_sorted_outputData = df_outputdata.sort_values(SHIFTS_STRATA)
 
     df_totalCrossings  = df_totalCrossings[SHIFTS_STRATA + ['NUMERATOR']]
     df_totalSampledCrossings = df_totalSampledCrossings[SHIFTS_STRATA + ['DENOMINATOR']]
@@ -261,17 +257,11 @@ def do_ips_shift_weight_calculation(df_surveydata, df_shiftsdata, var_serialNum,
 
     colset3 = SHIFTS_SUB_STRATA
 
-    colset4 = SHIFTS_STRATA \
-              + [MIG_SI_COLUMN] \
-              + [POSSIBLE_COUNT_COLUMN] \
-              + [SAMPLED_COUNT_COLUMN] \
-              + [MIN_WEIGHT_COLUMN] \
-              + [AVERAGE_WEIGHT_COLUMN] \
-              + [MAX_WEIGHT_COLUMN] \
-              + [COUNT_COLUMN] \
-              + [WEIGHT_SUM_COLUMN]
+    colset4 = SHIFTS_STRATA + [MIG_SI_COLUMN, POSSIBLE_COUNT_COLUMN, SAMPLED_COUNT_COLUMN,
+                               MIN_WEIGHT_COLUMN, AVERAGE_WEIGHT_COLUMN, MAX_WEIGHT_COLUMN,
+                               COUNT_COLUMN, WEIGHT_SUM_COLUMN]
 
-    colset5 = [var_serialNum] + [var_shiftWeight]
+    colset5 = [var_serialNum, var_shiftWeight]
 
     # Make all column headers upper case
     df_surveydata_merge.columns = df_surveydata_merge.columns.str.upper()
@@ -284,10 +274,10 @@ def do_ips_shift_weight_calculation(df_surveydata, df_shiftsdata, var_serialNum,
     # --------------------------------------------------------------------
     df_shift_flag = df_surveydata_merge[df_surveydata_merge[FLAG_COLUMN] == 1]
 
-    if(len(df_shift_flag[df_shift_flag[FACTOR_COLUMN].isnull()]) > 0):
+    if len(df_shift_flag[df_shift_flag[FACTOR_COLUMN].isnull()]) > 0:
         cf.database_logger().error('Error: Case(s) contain no shift factor(s)')
     else:
-        df_surveydata_merge.loc[df_surveydata_merge[FACTOR_COLUMN].isnull() & \
+        df_surveydata_merge.loc[df_surveydata_merge[FACTOR_COLUMN].isnull() &
                                 (df_surveydata_merge[FLAG_COLUMN] != 1), FACTOR_COLUMN] = 1
         cf.database_logger().info('Success: Contains shift factor(s)')
 
@@ -299,7 +289,7 @@ def do_ips_shift_weight_calculation(df_surveydata, df_shiftsdata, var_serialNum,
     if len(df_crossings_flag[df_crossings_flag[CROSSING_FACTOR_COLUMN].isnull()]) > 0:
         cf.database_logger().error('Error: Case(s) contain no crossings factor(s)')
     else:
-        df_surveydata_merge.loc[df_surveydata_merge[CROSSING_FACTOR_COLUMN].isnull() & \
+        df_surveydata_merge.loc[df_surveydata_merge[CROSSING_FACTOR_COLUMN].isnull() &
                                 (df_surveydata_merge.CROSSINGS_FLAG_PV != 1), CROSSING_FACTOR_COLUMN] = 1
         cf.database_logger().info('Success: Contains crossings factor(s)')
 
@@ -324,8 +314,8 @@ def do_ips_shift_weight_calculation(df_surveydata, df_shiftsdata, var_serialNum,
     # Calculate shift weight
     # --------------------------------------------------------------------
     df_surveydata_merge[var_shiftWeight] = df_surveydata_merge[FACTOR_COLUMN] \
-                                            * df_surveydata_merge[CROSSING_FACTOR_COLUMN] \
-                                            * df_surveydata_merge[MIG_SI_COLUMN]
+                                           * df_surveydata_merge[CROSSING_FACTOR_COLUMN] \
+                                           * df_surveydata_merge[MIG_SI_COLUMN]
 
     # --------------------------------------------------------------------
     # produce shift weight summary output
@@ -335,14 +325,14 @@ def do_ips_shift_weight_calculation(df_surveydata, df_shiftsdata, var_serialNum,
     df_surveydata_merge_sorted = df_surveydata_merge.sort_values(colset1)
 
     # Group by the necessary columns and aggregate df_surveydata_merge shift weight
-    df_surveydata_merge_sorted_grouped = df_surveydata_merge_sorted.groupby(SHIFTS_STRATA \
-                                                                            + [MIG_SI_COLUMN])[var_shiftWeight].agg({
-        COUNT_COLUMN: 'count',
-        WEIGHT_SUM_COLUMN: 'sum',
-        MIN_WEIGHT_COLUMN: 'min',
-        AVERAGE_WEIGHT_COLUMN: 'mean',
-        MAX_WEIGHT_COLUMN: 'max'
-    })
+    df_surveydata_merge_sorted_grouped = df_surveydata_merge_sorted.groupby(SHIFTS_STRATA +
+                                                                            [MIG_SI_COLUMN])[var_shiftWeight]\
+        .agg({
+            COUNT_COLUMN: 'count',
+            WEIGHT_SUM_COLUMN: 'sum',
+            MIN_WEIGHT_COLUMN: 'min',
+            AVERAGE_WEIGHT_COLUMN: 'mean',
+            MAX_WEIGHT_COLUMN: 'max'})
 
     # Flatten summary columns to single row after aggregation
     df_surveydata_merge_sorted_grouped = df_surveydata_merge_sorted_grouped.reset_index()
@@ -443,9 +433,9 @@ def do_ips_shift_weight_calculation(df_surveydata, df_shiftsdata, var_serialNum,
     # --------------------------------------------------------------------
 
     # Create shift weight threshold data sets
-    df_min_sw_check = df_summary_2[df_summary_2[SAMPLED_COUNT_COLUMN].notnull() \
+    df_min_sw_check = df_summary_2[df_summary_2[SAMPLED_COUNT_COLUMN].notnull()
                                    & (df_summary_2[MIN_WEIGHT_COLUMN] < int(MINIMUM_WEIGHT_THRESHOLD))]
-    df_max_sw_check = df_summary_2[df_summary_2[SAMPLED_COUNT_COLUMN].notnull() \
+    df_max_sw_check = df_summary_2[df_summary_2[SAMPLED_COUNT_COLUMN].notnull()
                                    & (df_summary_2[MAX_WEIGHT_COLUMN] > int(MAXIMUM_WEIGHT_THRESHOLD))]
 
     # Merge shift weight threshold data sets
