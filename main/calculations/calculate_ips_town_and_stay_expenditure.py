@@ -402,7 +402,7 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_gr
     df_output_stay1 = pd.merge(df_stay_towns7, df_stay_towns97_right, on=[var_serial], how="left")
 
     # Extract those records that need uplifting
-    df_output_stay2 = df_output_stay1.dropna(subset=[["SPEND1", "NIGHTS_IN_LONDON"]])
+    df_output_stay2 = df_output_stay1.dropna(subset=["SPEND1", "NIGHTS_IN_LONDON"])
     df_output_stay2 = df_output_stay2[(df_output_stay2["SPEND1"] != 0)]
     df_output_stay2 = df_output_stay2[(df_output_stay2["NIGHTS_IN_LONDON"] != 0)]
 
