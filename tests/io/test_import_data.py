@@ -1,17 +1,17 @@
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
-from main.io import import_data
+from main.utils import import_data
 from main.io import CommonFunctions as cf
 
 
 #TODO test fails due to inability to access SQL server. Recheck test when SQL server is available again.
 def test_import_survey_data():
     # Read in the expected result
-    result_data_path = r"data/import/output/post_import_SURVEY_SUBSAMPLE.csv"
+    result_data_path = r"../data/import/output/post_import_SURVEY_SUBSAMPLE.csv"
     df_result = pd.read_csv(result_data_path)
 
     # Read in the input data
-    test_data_path = r"data/import/input/input_data.pkl"
+    test_data_path = r"../data/import/input/input_data.pkl"
 
     # Execute the import script
     import_data.import_survey_data(test_data_path, 'TEST-RUN-ID', 1234)
