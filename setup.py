@@ -11,7 +11,6 @@ setup(name='ips_legacy_uplift',
       install_requires=[
           'sas7bdat',
           'survey_support',
-          'cx_Oracle',
           'pandas',
           'numpy'
       ],
