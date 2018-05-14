@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
-import survey_support
+# import survey_support
 
 from main.io import CommonFunctions as cf
 
-PATH_TO_TEST_DATA = r"../../tests/data/shift_weight"
+PATH_TO_TEST_DATA = r"tests/data/shift_weight"
 
 OUTPUT_TABLE_NAME = 'SAS_SHIFT_WT'
 SUMMARY_TABLE_NAME = 'SAS_PS_SHIFT_DATA'
