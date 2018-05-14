@@ -4,12 +4,8 @@ Created on 7 Feb 2018
 @author: thorne1
 '''
 import inspect
-# import survey_support
-
 import pandas as pd
-import survey_support
 
-# import survey_support
 from main.io import CommonFunctions as cf
 
 OUTPUT_TABLE_NAME = "SAS_IMBALANCE_WT"
