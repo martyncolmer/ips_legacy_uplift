@@ -18,7 +18,7 @@ import zipfile
 
 from pandas.util.testing import assert_frame_equal
 
-import survey_support as ss
+# import survey_support as ss
 
 
 def database_logger():
@@ -32,8 +32,8 @@ def database_logger():
     Dependencies  : social_surveys.setup_logging
     """
     # Database logger setup
-    ss.setup_logging(os.path.dirname(os.getcwd()) 
-                     + "\\IPS_Logger\\IPS_logging_config_debug.json")   
+    # ss.setup_logging(os.path.dirname(os.getcwd())
+    #                  + "\\IPS_Logger\\IPS_logging_config_debug.json")
     return logging.getLogger(__name__)
 
 
@@ -143,7 +143,7 @@ def validate_file(xfile, current_working_file, function_name):
 #         return conn
 
 
-def get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials_SQLServer.json"):
+def get_oracle_connection():
     """
     Author       : Thomas Mahoney
     Date         : 03 / 04 / 2018
@@ -155,15 +155,11 @@ def get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CAS
     Dependencies : NA
     """
 
-    # Check if file exists or is empty
-    if not validate_file(credentials_file, str(inspect.stack()[0][1]), str(inspect.stack()[0][3])):
-        return False
-
     # Get credentials and decrypt
-    username = ss.get_keyvalue_from_json("User", credentials_file)
-    password = ss.get_keyvalue_from_json("Password", credentials_file)
-    database = ss.get_keyvalue_from_json('Database', credentials_file)
-    server = ss.get_keyvalue_from_json('Server', credentials_file)
+    username = os.getenv("DB_USER_NAME")
+    password = os.getenv("DB_PASSWORD")
+    database = os.getenv("DB_NAME")
+    server = os.getenv("DB_SERVER")
 
     # Attempt to connect to the database
     try:
@@ -224,19 +220,16 @@ def extract_zip(dir_name, zip_file):
     
     # Validate existence of file
     if validate_file(dir_name, current_working_file, function_name):
-        os.chdir(dir_name)
     
         file_found = False
         for item in os.listdir(dir_name):
             if item == zip_file:
-                file_name = os.path.abspath(item)
+                file_name = os.path.join(dir_name, zip_file)
                 zip_ref = zipfile.ZipFile(file_name)
                 zip_ref.extractall(dir_name)
                 zip_ref.close()
                 file_found = True
                 break
-        
-        os.chdir(os.path.dirname(os.path.realpath(__file__)))
         
         return file_found
 

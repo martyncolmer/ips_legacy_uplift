@@ -10,10 +10,9 @@ from main.calculations.calculate_ips_airmiles import do_ips_airmiles_calculation
 
 
 def test_calculate():
-    # This is an integration test as it runs the entire step
 
     # Import the test data
-    test_survey = pd.read_pickle('../data/airmiles_input.pkl')
+    test_survey = pd.read_pickle('tests/data/airmiles_input.pkl')
 
     # Set the imported columns to be uppercase
     test_survey.columns = test_survey.columns.str.upper()
@@ -23,7 +22,7 @@ def test_calculate():
                                               var_serial='SERIAL')
 
     # Import the expected result
-    test_result = pd.read_pickle('../data/airmiles_output.pkl')
+    test_result = pd.read_pickle('tests/data/airmiles_output.pkl')
 
     # Set the imported columns to be uppercase
     test_result.columns = test_result.columns.str.upper()

@@ -9,12 +9,10 @@ from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_final_weight import calculate, do_ips_final_wt_calculation
 import pytest
 
-path_to_data = r"../data/final_weight"
+path_to_data = r"tests/data/final_weight"
 
 
 def test_calculate():
-    print("Started testing IPS final weight - calculate()")
-
     (surveydata_dataframe, summary_dataframe) = calculate(SurveyData='SAS_SURVEY_SUBSAMPLE'
                                                                       , var_serialNum='SERIAL'
                                                                       , var_shiftWeight='SHIFT_WT'
@@ -32,12 +30,8 @@ def test_calculate():
 
     # unable to test summary_dataframe as it contains a random sample
 
-    print("test_calculate() finished successfully")
-
 
 def test_do_ips_final_wt_calculation():
-
-    print("Started testing IPS final weight - do_ips_final_wt_calculation()")
 
     # Setup path to the base directory containing data files
     path_to_surveydata = path_to_data + r"\surveydata.pkl"
@@ -61,5 +55,4 @@ def test_do_ips_final_wt_calculation():
 
     # unable to test df_summary as it contains a random sample
 
-    print("test_do_ips_final_wt_calculation finished successfully")
 

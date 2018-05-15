@@ -10,8 +10,8 @@ import inspect
 
 from main.io import CommonFunctions as cf
 
-import survey_support as ss
-
+import pytest
+@pytest.mark.skip('No longer relevant, can be removed when appropriate')
 class TestCommonFunctions(unittest.TestCase):
     def setUp(self):
         """
@@ -39,10 +39,10 @@ class TestCommonFunctions(unittest.TestCase):
         empty_creds_file.close()
         
         # Encrypt values within fake_creds_file
-        ss.write_keyvalue_to_json("User", "Fake", self.fake_creds_file, True)
-        ss.write_keyvalue_to_json("Password", "Fake", self.fake_creds_file, True)
-        ss.write_keyvalue_to_json("Database", "Fake", self.fake_creds_file)
-                                  
+        # ss.write_keyvalue_to_json("User", "Fake", self.fake_creds_file, True)
+        # ss.write_keyvalue_to_json("Password", "Fake", self.fake_creds_file, True)
+        # s.write_keyvalue_to_json("Database", "Fake", self.fake_creds_file)
+
       
     def test_validate_file(self):
         """

@@ -1,9 +1,9 @@
 import pandas as pd
-import survey_support
+# import survey_support
 
 from main.io import CommonFunctions as cf
 
-PATH_TO_DATA = r"../../tests/data/traffic_weight"
+PATH_TO_DATA = r"tests/data/traffic_weight"
 
 # TODO
 #  1. do_ips_ges_weighting() - plug-in real solution once done
@@ -48,7 +48,7 @@ def calculate(SurveyData, var_serialNum, var_shiftWeight, var_NRWeight, var_minW
     """
 
     # Call JSON configuration file for error logger setup
-    survey_support.setup_logging('IPS_logging_config_debug.json')
+    # survey_support.setup_logging('IPS_logging_config_debug.json')
 
     # following code only required when connecting to Oracle database
     # Connect to Oracle and unload parameter list

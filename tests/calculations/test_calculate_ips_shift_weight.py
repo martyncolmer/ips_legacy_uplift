@@ -15,7 +15,7 @@ from main.calculations.calculate_ips_shift_weight import calculate_factor, calcu
                                                          do_ips_shift_weight_calculation, calculate_ips_crossing_factor, \
                                                          calculate_ips_shift_factor
 
-path_to_data = r"../data/shift_weight"
+path_to_data = r"tests/data/shift_weight"
 
 
 @pytest.mark.shiftweight

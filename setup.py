@@ -10,8 +10,8 @@ setup(name='ips_legacy_uplift',
       packages=['ips_legacy_uplift'],
       install_requires=[
           'sas7bdat',
-          'survey_support',
           'pandas',
-          'numpy'
+          'numpy',
+          'pyodbc'
       ],
       zip_safe=False)
