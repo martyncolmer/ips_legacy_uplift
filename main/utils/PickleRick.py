@@ -6,8 +6,8 @@ Created on 5 Mar 2018
 import pandas as pd
 from sas7bdat import SAS7BDAT
 
-in_path = r"../../tests/data/import/output/post_import_SURVEY_SUBSAMPLE.csv"
-out_path = r"../../tests/data/import/output/post_import_SURVEY_SUBSAMPLE.pkl"
+in_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Town and Stay Imputation\output_townspend_final.sas7bdat"
+out_path = r"../../tests/data/import/output/post_import_TOWN_AND_STAY.pkl"
 
 if in_path[-3:] == 'csv':
     df = pd.read_csv(in_path)

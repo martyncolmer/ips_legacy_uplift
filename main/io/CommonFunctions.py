@@ -17,6 +17,7 @@ import winsound
 import zipfile
 
 from pandas.util.testing import assert_frame_equal
+from sas7bdat import SAS7BDAT
 
 import survey_support as ss
 
@@ -895,12 +896,18 @@ def compare_datasets(test_name, sas_file, py_df):
         print(test_name + " SUCCESS")
 
 
-def compare_dfs(test_name, sas_file, df, serial_no = True, col_list = False):
-    sas_root = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Imbalance Weight"
+def compare_dfs(test_name, sas_file, df, col_list = False):
+    sas_root = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Oct Data\Town and Stay Imputation"
     print(sas_root + "\\" + sas_file)
-    csv = pandas.read_sas(sas_root + "\\" + sas_file)
+
+    try:
+        csv = pandas.read_sas(sas_root + "\\" + sas_file)
+    except Exception as err:
+        csv = SAS7BDAT(sas_root + "\\" + sas_file).to_data_frame()
+
+    csv.columns = csv.columns.str.upper()
     
-    fdir = r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare"
+    fdir = r"H:\My Documents\Documents\Git Repo\Misc and Admin\Legacy Uplift\Compare"
     sas = "_sas.csv"
     py = "_py.csv"
     
@@ -1060,12 +1067,18 @@ def round_half_up(f):
     return math.floor(f + 0.5)
 
 
+def round_series_half_up(dataframe):
+    import math
+
+
 def beep():
     winsound.Beep(440, 250) # frequency, duration
     time.sleep(0.25)        # in seconds (0.25 is 250ms)
     
     winsound.Beep(600, 250)
     time.sleep(0.25)
+
+    print("boop-beep!")
 
 
 if __name__ == "__main__":
