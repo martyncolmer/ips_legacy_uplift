@@ -4,6 +4,7 @@ Created on March 2018
 Author: Elinor Thorne
 '''
 import sys
+from pprint import pprint
 
 import inspect
 import math
@@ -111,6 +112,36 @@ def calculate_spends_part2(row):
     return row
 
 
+def calculate_ade(df_output_data, source_dataframe, col_name):
+    var_final_wt = "FINAL_WT"
+    var_spend = "SPEND"
+    var_stay = "STAY"
+    var_flow = "FLOW"
+    var_purpose_grp = "PURPOSE_PV"
+    var_country_grp = "STAYIMPCTRYLEVEL4_PV"
+    target_dataframe = source_dataframe.copy()
+
+    target_dataframe[col_name + "_TEMP1"] = (df_output_data[var_final_wt]
+                                             * (df_output_data[var_spend]
+                                                / df_output_data[var_stay]))
+    target_dataframe[col_name + "_TEMP2"] = df_output_data[var_final_wt]
+
+    # Group by and aggregate
+    target_dataframe = target_dataframe.groupby([var_flow,
+                                                 var_purpose_grp,
+                                                 var_country_grp]).agg({"KNOWN_LONDON_VISIT": 'count',
+                                                                        col_name + "_TEMP1": 'sum',
+                                                                        col_name + "_TEMP2": 'sum'})
+    target_dataframe[col_name] = target_dataframe[col_name + "_TEMP1"] / target_dataframe[col_name + "_TEMP2"]
+
+    # Cleanse dataframe
+    target_dataframe = target_dataframe.reset_index()
+    target_dataframe.drop([col_name + "_TEMP1"], axis=1, inplace=True)
+    target_dataframe.drop([col_name + "_TEMP2"], axis=1, inplace=True)
+
+    return target_dataframe
+
+
 def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_grp, var_country_grp, var_residence,
                             var_stay, var_spend, var_final_wt, var_eligible_flag):
     """
@@ -149,53 +180,78 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_gr
                           (df_output_data["TOWNCODE7"].between(70000, 79999)) |
                           (df_output_data["TOWNCODE8"].between(70000, 79999)))
 
-    df_segment1 = df_output_data[[var_flow,
+    # df_segment1 = df_output_data[[var_flow,
+    #                               var_purpose_grp,
+    #                               var_country_grp,
+    #                               "KNOWN_LONDON_VISIT"]].ix[towncode_condition]
+    #
+    # Calculate the value ade1
+    # df_segment1["ADE1_TEMP1"] = (df_output_data[var_final_wt]
+    #                              * (df_output_data[var_spend]
+    #                                 / df_output_data[var_stay]))
+    # df_segment1["ADE1_TEMP2"] = df_output_data[var_final_wt]
+    #
+    # # Group by and aggregate
+    # df_segment1 = df_segment1.groupby([var_flow,
+    #                                    var_purpose_grp,
+    #                                    var_country_grp]).agg({"KNOWN_LONDON_VISIT": 'count',
+    #                                                           "ADE1_TEMP1": 'sum',
+    #                                                           "ADE1_TEMP2": 'sum'})
+    # df_segment1["ADE1"] = df_segment1["ADE1_TEMP1"] / df_segment1["ADE1_TEMP2"]
+    #
+    # # Cleanse dataframe
+    # df_segment1 = df_segment1.reset_index()
+    # df_segment1.drop(["ADE1_TEMP1"], axis=1, inplace=True)
+    # df_segment1.drop(["ADE1_TEMP2"], axis=1, inplace=True)
+    #
+    # # Calculate the value ade2
+    # df_segment2 = df_output_data[[var_flow, var_purpose_grp,
+    #                               var_country_grp, "KNOWN_LONDON_NOT_VISIT"]].ix[towncode_condition]
+    # df_segment2["ADE2_TEMP1"] = (df_output_data[var_final_wt]
+    #                              * (df_output_data[var_spend]
+    #                                 / df_output_data[var_stay]))
+    # df_segment2["ADE2_TEMP2"] = df_output_data[var_final_wt]
+    #
+    # # Group by and aggregate
+    # df_segment2 = df_segment2.groupby([var_flow,
+    #                                    var_purpose_grp,
+    #                                    var_country_grp]).agg({"KNOWN_LONDON_NOT_VISIT": 'count',
+    #                                                           "ADE2_TEMP1": 'sum',
+    #                                                           "ADE2_TEMP2": 'sum'})
+    # df_segment2["ADE2"] = df_segment2["ADE2_TEMP1"] / df_segment2["ADE2_TEMP2"]
+    #
+    # # Cleanse dataframe
+    # df_segment2 = df_segment2.reset_index()
+    # df_segment2.drop(["ADE2_TEMP1"], axis=1, inplace=True)
+    # df_segment2.drop(["ADE2_TEMP2"], axis=1, inplace=True)
+    #
+    source_dataframe = df_output_data[[var_flow,
                                   var_purpose_grp,
                                   var_country_grp,
                                   "KNOWN_LONDON_VISIT"]].ix[towncode_condition]
 
-    # Calculate the value ade1
-    df_segment1["ADE1_TEMP1"] = (df_output_data[var_final_wt]
-                                 * (df_output_data[var_spend]
-                                    / df_output_data[var_stay]))
-    df_segment1["ADE1_TEMP2"] = df_output_data[var_final_wt]
+    df_segment1 = calculate_ade(df_output_data, source_dataframe, "ADE1")
+    df_segment2 = calculate_ade(df_output_data, source_dataframe, "ADE2")
 
-    # Group by and aggregate
-    df_segment1 = df_segment1.groupby([var_flow,
-                                       var_purpose_grp,
-                                       var_country_grp]).agg({"KNOWN_LONDON_VISIT": 'count',
-                                                              "ADE1_TEMP1": 'sum',
-                                                              "ADE1_TEMP2": 'sum'})
-    df_segment1["ADE1"] = df_segment1["ADE1_TEMP1"] / df_segment1["ADE1_TEMP2"]
-
-    # Cleanse dataframe
-    df_segment1 = df_segment1.reset_index()
-    df_segment1.drop(["ADE1_TEMP1"], axis=1, inplace=True)
-    df_segment1.drop(["ADE1_TEMP2"], axis=1, inplace=True)
-
-    # Calculate the value ade2
-    df_segment2 = df_output_data[[var_flow, var_purpose_grp,
-                                  var_country_grp, "KNOWN_LONDON_NOT_VISIT"]].ix[towncode_condition]
-    df_segment2["ADE2_TEMP1"] = (df_output_data[var_final_wt]
-                                 * (df_output_data[var_spend]
-                                    / df_output_data[var_stay]))
-    df_segment2["ADE2_TEMP2"] = df_output_data[var_final_wt]
-
-    # Group by and aggregate
-    df_segment2 = df_segment2.groupby([var_flow,
-                                       var_purpose_grp,
-                                       var_country_grp]).agg({"KNOWN_LONDON_NOT_VISIT": 'count',
-                                                              "ADE2_TEMP1": 'sum',
-                                                              "ADE2_TEMP2": 'sum'})
-    df_segment2["ADE2"] = df_segment2["ADE2_TEMP1"] / df_segment2["ADE2_TEMP2"]
-
-    # Cleanse dataframe
-    df_segment2 = df_segment2.reset_index()
-    df_segment2.drop(["ADE2_TEMP1"], axis=1, inplace=True)
-    df_segment2.drop(["ADE2_TEMP2"], axis=1, inplace=True)
+    # ===========================================================================
+    # ===========================================================================
+    cf.compare_dfs("seg1", "seg1.sas7bdat", df_segment1)
+    cf.compare_dfs("seg2", "seg2.sas7bdat", df_segment2)
+    # cf.beep()
+    # sys.exit()
+    # ===========================================================================
+    # ===========================================================================
 
     # Merge the files containing ade1 and ade2
     df_segment_merge = pd.merge(df_segment1, df_segment2, on=[var_flow, var_purpose_grp, var_country_grp], how='left')
+
+    # ===========================================================================
+    # ===========================================================================
+    cf.compare_dfs("segment", "segment.sas7bdat", df_segment_merge)
+    cf.beep()
+    sys.exit()
+    # ===========================================================================
+    # ===========================================================================
 
     # Update the extract with ade1, ade2 and counts
     df_extract_update = pd.merge(df_output_data, df_segment_merge, on=[var_flow,
@@ -262,34 +318,28 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_gr
 
     # Calculate ratio london to not london
     df_stay_towns4 = df_stay_towns2.copy()
-    df_stay_towns4["RATION_L_NL_ADES"] = np.where(((df_stay_towns4["ADE1"] != 0) & (df_stay_towns4["ADE2"] != 0)), (df_stay_towns4["ADE1"]/df_stay_towns4["ADE2"]), 0)
+    df_stay_towns4["RATION_L_NL_ADES"] = np.where(((df_stay_towns4["ADE1"] != 0) & (df_stay_towns4["ADE2"] != 0)),
+                                                  (df_stay_towns4["ADE1"] / df_stay_towns4["ADE2"]), 0)
 
     # Calculate number of nights in london and number of nights outside london
     df_stay_towns5 = df_stay_towns4.copy()
     df_stay_towns5["NIGHTS_IN_LONDON"] = 0
     df_stay_towns5["NIGHTS_NOT_LONDON"] = 0
+    nights = "NIGHTS"
+    towncode = "TOWNCODE"
 
-    def calculate_nights(row):
-        """
-        Author        : thorne1
-        Date          : Mar 2018
-        Purpose       : Calculates the number of nights in london and number of nights outside london
-        Parameters    : row - each row of dataframe
-        Returns       : row
-        """
-        nights = "NIGHTS"
-        towncode = "TOWNCODE"
+    for count in range(1, 9):
+        # Assign conditions
+        in_london_condition = (df_stay_towns5[nights + str(count)].notnull()) & (
+            df_stay_towns5[towncode + str(count)].between(70000, 79999))
+        not_london_condition = (df_stay_towns5[nights + str(count)].notnull()) & (
+                    df_stay_towns5[towncode + str(count)].lt(70000) & (df_stay_towns5[towncode + str(count)].gt(79999)))
 
-        for count in range(1, 9):
-            if not math.isnan(row[nights+str(count)]):
-                if (row[towncode+str(count)] >= 70000) & (row[towncode+str(count)] <= 79999):
-                    row["NIGHTS_IN_LONDON"] = (row["NIGHTS_IN_LONDON"] + row[nights+str(count)])
-                else:
-                    row["NIGHTS_NOT_LONDON"] = (row["NIGHTS_NOT_LONDON"] + row[nights+str(count)])
-
-        return row
-
-    df_stay_towns5 = df_stay_towns5.apply(calculate_nights, axis=1)
+        # Apply conditions
+        df_stay_towns5.loc[in_london_condition, "NIGHTS_IN_LONDON"] += df_stay_towns5.loc[
+            in_london_condition, nights + str(count)]
+        df_stay_towns5.loc[not_london_condition, "NIGHTS_NOT_LONDON"] += df_stay_towns5.loc[
+            not_london_condition, nights + str(count)]
 
     # Calculate spends
     df_stay_towns6 = df_stay_towns5.copy()
