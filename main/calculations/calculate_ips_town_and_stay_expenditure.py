@@ -301,106 +301,6 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_gr
     df_stay_towns7 = df_stay_towns6.copy()
     df_stay_towns7 = df_stay_towns7.apply(calculate_spends_part2, axis=1)
 
-    # Set markers to indicate london visits or outside
-    # df_stay_towns99 = df_stay_towns7.ix[df_stay_towns7["TOWNCODE1"] != 99999]
-    #
-    # def set_markers(row):
-    #     """
-    #     Author        : thorne1
-    #     Date          : Mar 2018
-    #     Purpose       : Sets markers to indicate london visits or outside
-    #     Parameters    : row - each row of dataframe
-    #     Returns       : row
-    #     """
-    #     towncode = "TOWNCODE"
-    #     town = "TOWN"
-    #
-    #     for count in range(1, 9):
-    #         if (row[towncode+str(count)] >= 70000) & (row[towncode+str(count)] <= 79999):
-    #             row[town+str(count)] = 1
-    #         elif (row[towncode+str(count)] >= 0) & (row[towncode+str(count)] <= 59999):
-    #             row[town+str(count)] = 0
-    #         elif (row[towncode+str(count)] >= 90000) & (row[towncode+str(count)] <= 99999):
-    #             row[town+str(count)] = 0
-    #         else:
-    #             row[town+str(count)] = 9
-    #
-    #     if (row[["TOWN1", "TOWN2", "TOWN3", "TOWN4", "TOWN5", "TOWN6", "TOWN7", "TOWN8"]] == 1).any():
-    #         row["LONDON"] = 1
-    #     else:
-    #         row["LONDON"] = 0
-    #
-    #     return row
-    #
-    # df_stay_towns99 = df_stay_towns99.apply(set_markers, axis=1)
-    #
-    # # Create new variables for expenditure and stay
-    # df_stay_towns98 = df_stay_towns99.copy()
-    # df_stay_towns98["EXPLON"] = df_stay_towns98["LONDON_SPEND"]
-    # df_stay_towns98["STYLON"] = df_stay_towns98["NIGHTS_IN_LONDON"]
-    # df_stay_towns98["EXPOTH"] = (df_stay_towns98[var_spend] - df_stay_towns98["LONDON_SPEND"])
-    # df_stay_towns98["STYOTH"] = df_stay_towns98["NIGHTS_NOT_LONDON"]
-    #
-    # # Sum spend and stay
-    # df_stay_totals = df_stay_towns98[[var_flow, var_residence, "EXPLON", "EXPOTH", "STYLON", "STYOTH"]].copy()
-    #
-    # # Cleanse to handle calculation with NaNs
-    # df_stay_totals[[var_flow, var_residence]] = df_stay_totals[[var_flow, var_residence]].fillna(-1)
-    #
-    # # Group by
-    # df_stay_totals = df_stay_totals.groupby([var_flow,
-    #                                          var_residence]).agg({"EXPLON": 'sum',
-    #                                                               "EXPOTH": 'sum',
-    #                                                               "STYLON": 'sum',
-    #                                                               "STYOTH": 'sum'})
-    #
-    # # Cleanse
-    # df_stay_totals = df_stay_totals.reset_index()
-    # df_stay_totals[[var_flow, var_residence]] = df_stay_totals[[var_flow, var_residence]].replace(-1, np.NaN)
-    #
-    # # Calculate uplift
-    # df_stay_totals1 = df_stay_totals.copy()
-    # df_stay_totals1["UPLIFT"] = np.where((df_stay_totals1["EXPLON"] != 0)
-    #                                      & (df_stay_totals1["STYLON"] != 0)
-    #                                      & (df_stay_totals1["EXPOTH"] != 0)
-    #                                      & (df_stay_totals1["STYOTH"] != 0), (df_stay_totals1["EXPLON"]
-    #                                                                           / df_stay_totals1["STYLON"])
-    #                                      / (df_stay_totals1["EXPOTH"]
-    #                                         / df_stay_totals1["STYOTH"]), 1)
-    #
-    # # Merge totals onto file with markers
-    # df_stay_towns97 = pd.merge(df_stay_towns98, df_stay_totals1, on=[var_flow, var_residence], how="left")
-    #
-    # # Cleanse
-    # # EXPLON, STYLON, EXPOTH and STYOTH are no longer required.  Deleted as per Adnan Fiaz's Peer Review
-    # df_stay_towns97.drop(["EXPLON_x", "STYLON_x", "EXPOTH_x", "STYOTH_x", "EXPLON_y", "STYLON_y", "EXPOTH_y",
-    #                       "STYOTH_y"], axis=1, inplace=True)
-    #
-    # # Merge uplifted data
-    # # df_stay_towns97_right = df_stay_towns97[[var_serial, "TOWN1", "TOWN2", "TOWN3", "TOWN4", "TOWN5", "TOWN6", "TOWN7", "TOWN8", "UPLIFT"]]
-    # # df_output_stay1 = pd.merge(df_stay_towns7, df_stay_towns97_right, on=[var_serial], how="left")
-    # df_output_stay1 = pd.merge(df_stay_towns7, df_stay_towns97[[var_serial, "TOWN1", "TOWN2", "TOWN3", "TOWN4", "TOWN5", "TOWN6", "TOWN7", "TOWN8", "UPLIFT"]], on=[var_serial], how="left")
-    #
-    # # Extract those records that need uplifting
-    # df_output_stay2 = df_output_stay1.dropna(subset=[["SPEND1", "NIGHTS_IN_LONDON"]])
-    # df_output_stay2 = df_output_stay2[(df_output_stay2["SPEND1"] != 0) & (df_output_stay2["NIGHTS_IN_LONDON"] != 0)]
-    #
-    # # Update main file with uplifted data
-    # df_output_stay3 = df_output_stay2[[var_serial, "SPEND1", "SPEND2", "SPEND3", "SPEND4", "SPEND5", "SPEND6", "SPEND7",
-    #                                    "SPEND8"]]
-    # df_stay_towns8 = pd.merge(df_stay_towns7, df_output_stay3, on=var_serial, how="left")
-    #
-    # # Cleanse main file with uplifted data
-    # df_stay_towns8.drop(["SPEND1_y", "SPEND2_y", "SPEND3_y", "SPEND4_y", "SPEND5_y", "SPEND6_y", "SPEND7_y",
-    #                      "SPEND8_y"], axis=1, inplace=True)
-    # df_stay_towns8.rename(columns={"SPEND1_x": "SPEND1",  "SPEND2_x": "SPEND2",  "SPEND3_x": "SPEND3",
-    #                                "SPEND4_x": "SPEND4",  "SPEND5_x": "SPEND5",  "SPEND6_x": "SPEND6",
-    #                                "SPEND7_x": "SPEND7",  "SPEND8_x": "SPEND8"}, inplace=True)
-    #
-    # # Create output file ready for appending to Oracle file
-    # df_output = df_stay_towns8[[var_serial, "SPEND1", "SPEND2", "SPEND3", "SPEND4", "SPEND5", "SPEND6", "SPEND7",
-    #                             "SPEND8"]]
-
     # Create output file ready for appending to Oracle file
     df_output = df_stay_towns7[[var_serial, "SPEND1", "SPEND2", "SPEND3", "SPEND4", "SPEND5", "SPEND6", "SPEND7",
                                  "SPEND8"]]
@@ -420,14 +320,6 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_gr
         return row
 
     df_output.apply(round, axis=1)
-
-    # ===========================================================================
-    # ===========================================================================
-    cf.compare_dfs("output", "output_townspend_final.sas7bdat", df_output)
-    cf.beep()
-    sys.exit()
-    # ===========================================================================
-    # ===========================================================================
 
     return df_output
 
