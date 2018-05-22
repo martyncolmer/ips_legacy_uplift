@@ -180,51 +180,6 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_gr
                           (df_output_data["TOWNCODE7"].between(70000, 79999)) |
                           (df_output_data["TOWNCODE8"].between(70000, 79999)))
 
-    # df_segment1 = df_output_data[[var_flow,
-    #                               var_purpose_grp,
-    #                               var_country_grp,
-    #                               "KNOWN_LONDON_VISIT"]].ix[towncode_condition]
-    #
-    # Calculate the value ade1
-    # df_segment1["ADE1_TEMP1"] = (df_output_data[var_final_wt]
-    #                              * (df_output_data[var_spend]
-    #                                 / df_output_data[var_stay]))
-    # df_segment1["ADE1_TEMP2"] = df_output_data[var_final_wt]
-    #
-    # # Group by and aggregate
-    # df_segment1 = df_segment1.groupby([var_flow,
-    #                                    var_purpose_grp,
-    #                                    var_country_grp]).agg({"KNOWN_LONDON_VISIT": 'count',
-    #                                                           "ADE1_TEMP1": 'sum',
-    #                                                           "ADE1_TEMP2": 'sum'})
-    # df_segment1["ADE1"] = df_segment1["ADE1_TEMP1"] / df_segment1["ADE1_TEMP2"]
-    #
-    # # Cleanse dataframe
-    # df_segment1 = df_segment1.reset_index()
-    # df_segment1.drop(["ADE1_TEMP1"], axis=1, inplace=True)
-    # df_segment1.drop(["ADE1_TEMP2"], axis=1, inplace=True)
-    #
-    # # Calculate the value ade2
-    # df_segment2 = df_output_data[[var_flow, var_purpose_grp,
-    #                               var_country_grp, "KNOWN_LONDON_NOT_VISIT"]].ix[towncode_condition]
-    # df_segment2["ADE2_TEMP1"] = (df_output_data[var_final_wt]
-    #                              * (df_output_data[var_spend]
-    #                                 / df_output_data[var_stay]))
-    # df_segment2["ADE2_TEMP2"] = df_output_data[var_final_wt]
-    #
-    # # Group by and aggregate
-    # df_segment2 = df_segment2.groupby([var_flow,
-    #                                    var_purpose_grp,
-    #                                    var_country_grp]).agg({"KNOWN_LONDON_NOT_VISIT": 'count',
-    #                                                           "ADE2_TEMP1": 'sum',
-    #                                                           "ADE2_TEMP2": 'sum'})
-    # df_segment2["ADE2"] = df_segment2["ADE2_TEMP1"] / df_segment2["ADE2_TEMP2"]
-    #
-    # # Cleanse dataframe
-    # df_segment2 = df_segment2.reset_index()
-    # df_segment2.drop(["ADE2_TEMP1"], axis=1, inplace=True)
-    # df_segment2.drop(["ADE2_TEMP2"], axis=1, inplace=True)
-    #
     source_dataframe = df_output_data[[var_flow,
                                   var_purpose_grp,
                                   var_country_grp,
@@ -233,25 +188,8 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_gr
     df_segment1 = calculate_ade(df_output_data, source_dataframe, "ADE1")
     df_segment2 = calculate_ade(df_output_data, source_dataframe, "ADE2")
 
-    # ===========================================================================
-    # ===========================================================================
-    cf.compare_dfs("seg1", "seg1.sas7bdat", df_segment1)
-    cf.compare_dfs("seg2", "seg2.sas7bdat", df_segment2)
-    # cf.beep()
-    # sys.exit()
-    # ===========================================================================
-    # ===========================================================================
-
     # Merge the files containing ade1 and ade2
     df_segment_merge = pd.merge(df_segment1, df_segment2, on=[var_flow, var_purpose_grp, var_country_grp], how='left')
-
-    # ===========================================================================
-    # ===========================================================================
-    cf.compare_dfs("segment", "segment.sas7bdat", df_segment_merge)
-    cf.beep()
-    sys.exit()
-    # ===========================================================================
-    # ===========================================================================
 
     # Update the extract with ade1, ade2 and counts
     df_extract_update = pd.merge(df_output_data, df_segment_merge, on=[var_flow,
