@@ -18,7 +18,6 @@ def test_calculate():
                                                  var_flow="FLOW",
                                                  var_purpose_grp="PURPOSE_PV",
                                                  var_country_grp="STAYIMPCTRYLEVEL4_PV",
-                                                 var_residence="RESIDENCE",
                                                  var_stay="STAY",
                                                  var_spend="SPEND",
                                                  var_final_wt="FINAL_WT",

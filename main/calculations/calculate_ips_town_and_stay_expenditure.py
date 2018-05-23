@@ -139,7 +139,7 @@ def __calculate_spends_part2(row):
     return row
 
 
-def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_grp, var_country_grp, var_residence,
+def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_grp, var_country_grp,
                             var_stay, var_spend, var_final_wt, var_eligible_flag):
     """
     Author        : thorne1
@@ -309,7 +309,7 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_gr
     return df_output
 
 
-def calculate(output, var_serial, var_flow, var_purpose_grp, var_country_grp, var_residence, var_stay, var_spend,
+def calculate(output, var_serial, var_flow, var_purpose_grp, var_country_grp, var_stay, var_spend,
               var_final_wt, var_eligible_flag):
     """
     Author        : thorne1
@@ -321,7 +321,6 @@ def calculate(output, var_serial, var_flow, var_purpose_grp, var_country_grp, va
                     var_flow = "FLOW"
                     var_purpose_grp = "PURPOSE_PV"
                     var_country_grp = "STAYIMPCTRYLEVEL4_PV"
-                    var_residence = "RESIDENCE"
                     var_stay = "STAY"
                     var_spend = "SPEND"
                     var_final_wt = "FINAL_WT"
@@ -345,7 +344,7 @@ def calculate(output, var_serial, var_flow, var_purpose_grp, var_country_grp, va
 
     # Calculate the values of the imported data set
     output_dataframe = do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_grp, var_country_grp,
-                                               var_residence, var_stay, var_spend, var_final_wt, var_eligible_flag)
+                                               var_stay, var_spend, var_final_wt, var_eligible_flag)
 
     # Append the generated data to output tables
     cf.insert_dataframe_into_table(output, output_dataframe)
