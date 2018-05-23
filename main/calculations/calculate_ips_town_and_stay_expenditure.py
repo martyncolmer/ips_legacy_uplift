@@ -3,19 +3,46 @@ Created on March 2018
 
 Author: Elinor Thorne
 '''
-import sys
-from pprint import pprint
 
 import inspect
 import math
 import decimal
 import numpy as np
 import pandas as pd
-import survey_support
 from main.io import CommonFunctions as cf
 
 
-def calculate_spends_part1(row):
+def __calculate_ade(df_output_data, source_dataframe, col_name):
+    var_final_wt = "FINAL_WT"
+    var_spend = "SPEND"
+    var_stay = "STAY"
+    var_flow = "FLOW"
+    var_purpose_grp = "PURPOSE_PV"
+    var_country_grp = "STAYIMPCTRYLEVEL4_PV"
+    target_dataframe = source_dataframe.copy()
+
+    target_dataframe[col_name + "_TEMP1"] = (df_output_data[var_final_wt]
+                                             * (df_output_data[var_spend]
+                                                / df_output_data[var_stay]))
+    target_dataframe[col_name + "_TEMP2"] = df_output_data[var_final_wt]
+
+    # Group by and aggregate
+    target_dataframe = target_dataframe.groupby([var_flow,
+                                                 var_purpose_grp,
+                                                 var_country_grp]).agg({"KNOWN_LONDON_VISIT": 'count',
+                                                                        col_name + "_TEMP1": 'sum',
+                                                                        col_name + "_TEMP2": 'sum'})
+    target_dataframe[col_name] = target_dataframe[col_name + "_TEMP1"] / target_dataframe[col_name + "_TEMP2"]
+
+    # Cleanse dataframe
+    target_dataframe = target_dataframe.reset_index()
+    target_dataframe.drop([col_name + "_TEMP1"], axis=1, inplace=True)
+    target_dataframe.drop([col_name + "_TEMP2"], axis=1, inplace=True)
+
+    return target_dataframe
+
+
+def __calculate_spends_part1(row):
     """
     Author        : thorne1
     Date          : Mar 2018
@@ -81,7 +108,7 @@ def calculate_spends_part1(row):
     return row
 
 
-def calculate_spends_part2(row):
+def __calculate_spends_part2(row):
     """
     Author        : thorne1
     Date          : Mar 2018
@@ -110,36 +137,6 @@ def calculate_spends_part2(row):
                     row[var_spend+str(count)] = 0
 
     return row
-
-
-def calculate_ade(df_output_data, source_dataframe, col_name):
-    var_final_wt = "FINAL_WT"
-    var_spend = "SPEND"
-    var_stay = "STAY"
-    var_flow = "FLOW"
-    var_purpose_grp = "PURPOSE_PV"
-    var_country_grp = "STAYIMPCTRYLEVEL4_PV"
-    target_dataframe = source_dataframe.copy()
-
-    target_dataframe[col_name + "_TEMP1"] = (df_output_data[var_final_wt]
-                                             * (df_output_data[var_spend]
-                                                / df_output_data[var_stay]))
-    target_dataframe[col_name + "_TEMP2"] = df_output_data[var_final_wt]
-
-    # Group by and aggregate
-    target_dataframe = target_dataframe.groupby([var_flow,
-                                                 var_purpose_grp,
-                                                 var_country_grp]).agg({"KNOWN_LONDON_VISIT": 'count',
-                                                                        col_name + "_TEMP1": 'sum',
-                                                                        col_name + "_TEMP2": 'sum'})
-    target_dataframe[col_name] = target_dataframe[col_name + "_TEMP1"] / target_dataframe[col_name + "_TEMP2"]
-
-    # Cleanse dataframe
-    target_dataframe = target_dataframe.reset_index()
-    target_dataframe.drop([col_name + "_TEMP1"], axis=1, inplace=True)
-    target_dataframe.drop([col_name + "_TEMP2"], axis=1, inplace=True)
-
-    return target_dataframe
 
 
 def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_grp, var_country_grp, var_residence,
@@ -185,8 +182,8 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_gr
                                   var_country_grp,
                                   "KNOWN_LONDON_VISIT"]].ix[towncode_condition]
 
-    df_segment1 = calculate_ade(df_output_data, source_dataframe, "ADE1")
-    df_segment2 = calculate_ade(df_output_data, source_dataframe, "ADE2")
+    df_segment1 = __calculate_ade(df_output_data, source_dataframe, "ADE1")
+    df_segment2 = __calculate_ade(df_output_data, source_dataframe, "ADE2")
 
     # Merge the files containing ade1 and ade2
     df_segment_merge = pd.merge(df_segment1, df_segment2, on=[var_flow, var_purpose_grp, var_country_grp], how='left')
@@ -283,16 +280,16 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_gr
     df_stay_towns6 = df_stay_towns5.copy()
     df_stay_towns6["H_K"] = np.NaN
     df_stay_towns6["LONDON_SPEND"] = 0
-    df_stay_towns6 = df_stay_towns6.apply(calculate_spends_part1, axis=1)
+    df_stay_towns6 = df_stay_towns6.apply(__calculate_spends_part1, axis=1)
 
     # Finish calculating spends
     df_stay_towns7 = df_stay_towns6.copy()
-    df_stay_towns7 = df_stay_towns7.apply(calculate_spends_part2, axis=1)
+    df_stay_towns7 = df_stay_towns7.apply(__calculate_spends_part2, axis=1)
 
     # Create output file ready for appending to Oracle file
     df_output = df_stay_towns7[[var_serial, "SPEND1", "SPEND2", "SPEND3", "SPEND4", "SPEND5", "SPEND6", "SPEND7",
                                  "SPEND8"]]
-    df_output.fillna(0)
+    df_output.fillna(0.0)
 
     def round(row):
         """
@@ -333,8 +330,8 @@ def calculate(output, var_serial, var_flow, var_purpose_grp, var_country_grp, va
     """
 
     # Call JSON configuration file for error logger setup
-    survey_support.setup_logging('IPS_logging_config_debug.json')
-    logger = cf.database_logger()
+    # survey_support.setup_logging('IPS_logging_config_debug.json')
+    # logger = cf.database_logger()
 
     # Import data via SAS
     path_to_survey_data = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Oct Data\Town and Stay Imputation\input_townspend.sas7bdat"
@@ -351,7 +348,7 @@ def calculate(output, var_serial, var_flow, var_purpose_grp, var_country_grp, va
                                                var_residence, var_stay, var_spend, var_final_wt, var_eligible_flag)
 
     # Append the generated data to output tables
-    cf.insert_into_table_many(output, output_dataframe)
+    cf.insert_dataframe_into_table(output, output_dataframe)
 
     # Retrieve current function name using inspect:
     # 0 = frame object, 3 = function name.
@@ -360,7 +357,7 @@ def calculate(output, var_serial, var_flow, var_purpose_grp, var_country_grp, va
     audit_message = "Load Town and Stay Imputation: %s()" % function_name
 
     # Log success message in SAS_RESPONSE and AUDIT_LOG
-    logger.info("SUCCESS - Completed Town and Stay Imputation.")
+    # logger.info("SUCCESS - Completed Town and Stay Imputation.")
     cf.commit_to_audit_log("Create", "Town and Stay Imputation", audit_message)
 
 

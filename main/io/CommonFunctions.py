@@ -19,7 +19,7 @@ import zipfile
 from pandas.util.testing import assert_frame_equal
 from sas7bdat import SAS7BDAT
 
-import survey_support as ss
+# import survey_support as ss
 
 
 def database_logger():
@@ -33,8 +33,8 @@ def database_logger():
     Dependencies  : social_surveys.setup_logging
     """
     # Database logger setup
-    ss.setup_logging(os.path.dirname(os.getcwd()) 
-                     + "\\IPS_Logger\\IPS_logging_config_debug.json")   
+    # ss.setup_logging(os.path.dirname(os.getcwd())
+    #                  + "\\IPS_Logger\\IPS_logging_config_debug.json")
     return logging.getLogger(__name__)
 
 
@@ -142,9 +142,40 @@ def validate_file(xfile, current_working_file, function_name):
 #         return False
 #     else:
 #         return conn
+#
+#
+# def get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials_SQLServer.json"):
+#     """
+#     Author       : Thomas Mahoney
+#     Date         : 03 / 04 / 2018
+#     Purpose      : Establishes a connection to the SQL Server database and returns the connection object.
+#     Parameters   : in_table_name - the IPS survey records for the period.
+#                    credentials_file  - file containing the server and login credentials used for connection.
+#     Returns      : a pyodbc connection object.
+#     Requirements : NA
+#     Dependencies : NA
+#     """
+#
+#     # Check if file exists or is empty
+#     if not validate_file(credentials_file, str(inspect.stack()[0][1]), str(inspect.stack()[0][3])):
+#         return False
+#
+#     # Get credentials and decrypt
+#     username = ss.get_keyvalue_from_json("User", credentials_file)
+#     password = ss.get_keyvalue_from_json("Password", credentials_file)
+#     database = ss.get_keyvalue_from_json('Database', credentials_file)
+#     server = ss.get_keyvalue_from_json('Server', credentials_file)
+#
+#     # Attempt to connect to the database
+#     try:
+#         conn = pyodbc.connect(driver="{SQL Server}", server=server, database=database, uid=username, pwd=password, autocommit=True)
+#     except Exception as err:
+#         database_logger().error(err, exc_info = True)
+#         return False
+#     else:
+#         return conn
 
-
-def get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials_SQLServer.json"):
+def get_oracle_connection():
     """
     Author       : Thomas Mahoney
     Date         : 03 / 04 / 2018
@@ -156,15 +187,16 @@ def get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CAS
     Dependencies : NA
     """
 
-    # Check if file exists or is empty
-    if not validate_file(credentials_file, str(inspect.stack()[0][1]), str(inspect.stack()[0][3])):
-        return False
-
     # Get credentials and decrypt
-    username = ss.get_keyvalue_from_json("User", credentials_file)
-    password = ss.get_keyvalue_from_json("Password", credentials_file)
-    database = ss.get_keyvalue_from_json('Database', credentials_file)
-    server = ss.get_keyvalue_from_json('Server', credentials_file)
+    username = os.getenv("DB_USER_NAME")
+    password = os.getenv("DB_PASSWORD")
+    database = os.getenv("DB_NAME")
+    server = os.getenv("DB_SERVER")
+
+    print("Username: {}".format(username))
+    print("Password: {}".format(password))
+    print("Database: {}".format(database))
+    print("Server: {}".format(server))
 
     # Attempt to connect to the database
     try:
@@ -174,6 +206,7 @@ def get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CAS
         return False
     else:
         return conn
+
 
 
 def get_credentials(credentials_file):
