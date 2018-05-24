@@ -17,6 +17,7 @@ import winsound
 import zipfile
 
 from pandas.util.testing import assert_frame_equal
+from sas7bdat import SAS7BDAT
 
 # import survey_support as ss
 
@@ -141,7 +142,38 @@ def validate_file(xfile, current_working_file, function_name):
 #         return False
 #     else:
 #         return conn
-
+#
+#
+# def get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials_SQLServer.json"):
+#     """
+#     Author       : Thomas Mahoney
+#     Date         : 03 / 04 / 2018
+#     Purpose      : Establishes a connection to the SQL Server database and returns the connection object.
+#     Parameters   : in_table_name - the IPS survey records for the period.
+#                    credentials_file  - file containing the server and login credentials used for connection.
+#     Returns      : a pyodbc connection object.
+#     Requirements : NA
+#     Dependencies : NA
+#     """
+#
+#     # Check if file exists or is empty
+#     if not validate_file(credentials_file, str(inspect.stack()[0][1]), str(inspect.stack()[0][3])):
+#         return False
+#
+#     # Get credentials and decrypt
+#     username = ss.get_keyvalue_from_json("User", credentials_file)
+#     password = ss.get_keyvalue_from_json("Password", credentials_file)
+#     database = ss.get_keyvalue_from_json('Database', credentials_file)
+#     server = ss.get_keyvalue_from_json('Server', credentials_file)
+#
+#     # Attempt to connect to the database
+#     try:
+#         conn = pyodbc.connect(driver="{SQL Server}", server=server, database=database, uid=username, pwd=password, autocommit=True)
+#     except Exception as err:
+#         database_logger().error(err, exc_info = True)
+#         return False
+#     else:
+#         return conn
 
 def get_oracle_connection():
     """
@@ -169,6 +201,7 @@ def get_oracle_connection():
         return False
     else:
         return conn
+
 
 
 def get_credentials(credentials_file):
@@ -888,12 +921,18 @@ def compare_datasets(test_name, sas_file, py_df):
         print(test_name + " SUCCESS")
 
 
-def compare_dfs(test_name, sas_file, df, serial_no = True, col_list = False):
-    sas_root = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Imbalance Weight"
+def compare_dfs(test_name, sas_file, df, col_list = False):
+    sas_root = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Oct Data\Town and Stay Imputation"
     print(sas_root + "\\" + sas_file)
-    csv = pandas.read_sas(sas_root + "\\" + sas_file)
+
+    try:
+        csv = pandas.read_sas(sas_root + "\\" + sas_file)
+    except Exception as err:
+        csv = SAS7BDAT(sas_root + "\\" + sas_file).to_data_frame()
+
+    csv.columns = csv.columns.str.upper()
     
-    fdir = r"H:\My Documents\Documents\Git Repo\Misc and Admin\LegacyUplift\Compare"
+    fdir = r"H:\My Documents\Documents\Git Repo\Misc and Admin\Legacy Uplift\Compare"
     sas = "_sas.csv"
     py = "_py.csv"
     
@@ -1053,12 +1092,18 @@ def round_half_up(f):
     return math.floor(f + 0.5)
 
 
+def round_series_half_up(dataframe):
+    import math
+
+
 def beep():
     winsound.Beep(440, 250) # frequency, duration
     time.sleep(0.25)        # in seconds (0.25 is 250ms)
     
     winsound.Beep(600, 250)
     time.sleep(0.25)
+
+    print("boop-beep!")
 
 
 if __name__ == "__main__":
