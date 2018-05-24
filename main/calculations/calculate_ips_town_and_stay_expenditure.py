@@ -21,6 +21,15 @@ RESIDENCE_COLUMN = "RESIDENCE"
 STAY_COLUMN = "STAY"
 SPEND_COLUMN = "SPEND"
 ELIGIBLE_FLAG_COLUMN = "TOWN_IMP_ELIGIBLE_PV"
+KNOWN_LONDON_NOT_VISIT = "KNOWN_LONDON_NOT_VISIT"
+KNOWN_LONDON_VISIT = "KNOWN_LONDON_VISIT"
+RATION_COLUMN = "RATION_L_NL_ADES"
+NIGHTS_IN_LONDON = "NIGHTS_IN_LONDON"
+NIGHTS_NOT_LONDON = "NIGHTS_NOT_IN_LONDON"
+NIGHTS = "NIGHTS"
+TOWNCODE = "TOWNCODE"
+H_K_COLUMN = "H_K"
+LONDON_SPEND_COLUMN = "LONDON_SPEND"
 
 
 def __calculate_ade(var_final_wt, df_output_data, source_dataframe, aggregation_columns,
@@ -57,58 +66,54 @@ def __calculate_spends_part1(row):
     Returns       : row
     """
 
-    nights = "NIGHTS"
-    towncode = "TOWNCODE"
-
-    if row["NIGHTS_IN_LONDON"] == 0:
+    if row[NIGHTS_IN_LONDON] == 0:
         for count in range(1, 9):
-            if math.isnan(row[towncode + str(count)]):
-                if (((row["NIGHTS_NOT_LONDON"] != 0) & (not math.isnan(row["NIGHTS_NOT_LONDON"])))
-                        & (not math.isnan(row[nights + str(count)]))):
+            if math.isnan(row[TOWNCODE + str(count)]):
+                if (((row[NIGHTS_NOT_LONDON] != 0) & (not math.isnan(row[NIGHTS_NOT_LONDON])))
+                        & (not math.isnan(row[NIGHTS + str(count)]))):
                     row[SPEND_COLUMN + str(count)] = ((row[SPEND_COLUMN]
-                                                    * row[nights + str(count)])
-                                                   / row["NIGHTS_NOT_LONDON"])
+                                                       * row[NIGHTS + str(count)])
+                                                      / row[NIGHTS_NOT_LONDON])
                 else:
                     row[SPEND_COLUMN + str(count)] = 0
-    elif (row["NIGHTS_NOT_LONDON"] == 0) | (math.isnan(row["NIGHTS_NOT_LONDON"])):
+    elif (row[NIGHTS_NOT_LONDON] == 0) | (math.isnan(row[NIGHTS_NOT_LONDON])):
         for count in range(1, 9):
-            if not math.isnan(row[towncode + str(count)]):
+            if not math.isnan(row[TOWNCODE + str(count)]):
 
-                if (((row["NIGHTS_IN_LONDON"] != 0)
-                     & (not math.isnan(row["NIGHTS_IN_LONDON"])))
-                        & (not math.isnan(row[nights + str(count)]))):
+                if (((row[NIGHTS_IN_LONDON] != 0)
+                     & (not math.isnan(row[NIGHTS_IN_LONDON])))
+                        & (not math.isnan(row[NIGHTS + str(count)]))):
                     row[SPEND_COLUMN + str(count)] = ((row[SPEND_COLUMN]
-                                                    * row[nights + str(count)])
-                                                   / row["NIGHTS_IN_LONDON"])
+                                                       * row[NIGHTS + str(count)])
+                                                      / row[NIGHTS_IN_LONDON])
                 else:
                     row[SPEND_COLUMN + str(count)] = 0
     else:
-        if (((row["KNOWN_LONDON_VISIT"] != 0) & (not math.isnan(row["KNOWN_LONDON_VISIT"])))
+        if (((row[KNOWN_LONDON_VISIT] != 0) & (not math.isnan(row[KNOWN_LONDON_VISIT])))
                 &
-                ((row["KNOWN_LONDON_NOT_VISIT"] != 0) & (not math.isnan(row["KNOWN_LONDON_NOT_VISIT"])))
+                ((row[KNOWN_LONDON_NOT_VISIT] != 0) & (not math.isnan(row[KNOWN_LONDON_NOT_VISIT])))
                 &
-                ((row["RATION_L_NL_ADES"] != 0) & (not math.isnan(row["RATION_L_NL_ADES"])))):
-            row["H_K"] = ((row["NIGHTS_IN_LONDON"]
-                           / row["NIGHTS_NOT_LONDON"])
-                          * row["RATION_L_NL_ADES"])
+                ((row[RATION_COLUMN] != 0) & (not math.isnan(row[RATION_COLUMN])))):
+            row[H_K_COLUMN] = ((row[NIGHTS_IN_LONDON] / row[NIGHTS_NOT_LONDON])
+                               * row[RATION_COLUMN])
         else:
-            row["H_K"] = 0
-        row["LONDON_SPEND"] = 0
+            row[H_K_COLUMN] = 0
+        row[LONDON_SPEND_COLUMN] = 0
         for count in range(1, 9):
-            if (row[towncode + str(count)] >= 70000) & (row[towncode + str(count)] <= 79999):
-                if (((row["NIGHTS_IN_LONDON"] != 0) & (not math.isnan(row["NIGHTS_IN_LONDON"])))
-                        & (not math.isnan(row[nights + str(count)]))
-                        & ((row["H_K"] != 0) & (not math.isnan(row["H_K"])))
+            if (row[TOWNCODE + str(count)] >= 70000) & (row[TOWNCODE + str(count)] <= 79999):
+                if (((row[NIGHTS_IN_LONDON] != 0) & (not math.isnan(row[NIGHTS_IN_LONDON])))
+                        & (not math.isnan(row[NIGHTS + str(count)]))
+                        & ((row[H_K_COLUMN] != 0) & (not math.isnan(row[H_K_COLUMN])))
                         & (row[SPEND_COLUMN] != 0)):
                     row[SPEND_COLUMN + str(count)] = (((row[SPEND_COLUMN]
-                                                     * row["H_K"])
-                                                    / (1 + row["H_K"]))
-                                                   * (row[nights + str(count)]
-                                                      / row["NIGHTS_IN_LONDON"]))
+                                                        * row[H_K_COLUMN])
+                                                       / (1 + row[H_K_COLUMN]))
+                                                      * (row[NIGHTS + str(count)]
+                                                         / row[NIGHTS_IN_LONDON]))
                 else:
                     row[SPEND_COLUMN + str(count)] = 0
-                row["LONDON_SPEND"] = (row["LONDON_SPEND"]
-                                       + row[SPEND_COLUMN + str(count)])
+                row[LONDON_SPEND_COLUMN] = (row[LONDON_SPEND_COLUMN]
+                                            + row[SPEND_COLUMN + str(count)])
 
     return row
 
@@ -121,23 +126,20 @@ def __calculate_spends_part2(row):
     Parameters    : row - each row of dataframe
     Returns       : row
     """
-    nights = "NIGHTS"
-    towncode = "TOWNCODE"
-    SPEND_COLUMN = "SPEND"
 
-    if ((row["NIGHTS_IN_LONDON"] != 0)
-        & ((row["NIGHTS_NOT_LONDON"] != 0)
-           & (not math.isnan(row["NIGHTS_NOT_LONDON"])))):
+    if ((row[NIGHTS_IN_LONDON] != 0)
+        & ((row[NIGHTS_NOT_LONDON] != 0)
+           & (not math.isnan(row[NIGHTS_NOT_LONDON])))):
         for count in range(1, 9):
-            if math.isnan(row[towncode+str(count)]):
+            if math.isnan(row[TOWNCODE+str(count)]):
                 row[SPEND_COLUMN+str(count)] = 0
-            elif (row[towncode+str(count)] < 70000) | (row[towncode+str(count)] > 79999):
-                if (((row["NIGHTS_NOT_LONDON"] != 0) & (not math.isnan(row["NIGHTS_NOT_LONDON"])))
-                        & (not math.isnan(row[nights+str(count)]))):
-                    row[SPEND_COLUMN+str(count)] = (row[nights+str(count)]
-                                                 * ((row[SPEND_COLUMN]
-                                                     - row["LONDON_SPEND"])
-                                                    / row["NIGHTS_NOT_LONDON"]))
+            elif (row[TOWNCODE+str(count)] < 70000) | (row[TOWNCODE+str(count)] > 79999):
+                if (((row[NIGHTS_NOT_LONDON] != 0) & (not math.isnan(row[NIGHTS_NOT_LONDON])))
+                        & (not math.isnan(row[NIGHTS+str(count)]))):
+                    row[SPEND_COLUMN+str(count)] = (row[NIGHTS+str(count)]
+                                                    * ((row[SPEND_COLUMN]
+                                                        - row[LONDON_SPEND_COLUMN])
+                                                       / row[NIGHTS_NOT_LONDON]))
                 else:
                     row[SPEND_COLUMN+str(count)] = 0
 
@@ -158,11 +160,11 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_final_wt):
     # Do some initial setup and selection
     df_output_data = df_survey_data.copy()
     df_output_data.drop(df_output_data[df_output_data[ELIGIBLE_FLAG_COLUMN] != 1.0].index, inplace=True)
-    df_output_data["KNOWN_LONDON_NOT_VISIT"] = 0
-    df_output_data["KNOWN_LONDON_VISIT"] = 0
+    df_output_data[KNOWN_LONDON_NOT_VISIT] = 0
+    df_output_data[KNOWN_LONDON_VISIT] = 0
     df_output_data["ADE1"] = 0
     df_output_data["ADE2"] = 0
-    df_output_data["RATION_L_NL_ADES"] = 0
+    df_output_data[RATION_COLUMN] = 0
 
     # Create df where condition to calculate the vale ade1
     towncode_condition = ((df_output_data["TOWNCODE1"].between(70000, 79999)) |
@@ -175,13 +177,13 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_final_wt):
                           (df_output_data["TOWNCODE8"].between(70000, 79999)))
 
     source_dataframe = df_output_data[[FLOW_COLUMN, PURPOSE_GROUP_COLUMN,
-                                       COUNTRY_GROUP_COLUMN, "KNOWN_LONDON_VISIT",
-                                       "KNOWN_LONDON_NOT_VISIT"]].ix[towncode_condition]
+                                       COUNTRY_GROUP_COLUMN, KNOWN_LONDON_VISIT,
+                                       KNOWN_LONDON_NOT_VISIT]].ix[towncode_condition]
     aggregation_columns = [FLOW_COLUMN, PURPOSE_GROUP_COLUMN, COUNTRY_GROUP_COLUMN]
     df_segment1 = __calculate_ade(var_final_wt, df_output_data, source_dataframe,
-                                  aggregation_columns, "ADE1", "KNOWN_LONDON_VISIT")
+                                  aggregation_columns, "ADE1", KNOWN_LONDON_VISIT)
     df_segment2 = __calculate_ade(var_final_wt, df_output_data, source_dataframe,
-                                  aggregation_columns, "ADE2", "KNOWN_LONDON_NOT_VISIT")
+                                  aggregation_columns, "ADE2", KNOWN_LONDON_NOT_VISIT)
 
     # Merge the files containing ade1 and ade2
     df_segment_merge = pd.merge(df_segment1, df_segment2, on=aggregation_columns, how='left')
@@ -190,12 +192,12 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_final_wt):
     df_extract_update = pd.merge(df_output_data, df_segment_merge, on=aggregation_columns, how='left')
 
     # Cleanse dataframe
-    df_extract_update.rename(columns={"KNOWN_LONDON_VISIT_y": "KNOWN_LONDON_VISIT",
-                                      "KNOWN_LONDON_NOT_VISIT_y": "KNOWN_LONDON_NOT_VISIT",
+    df_extract_update.rename(columns={KNOWN_LONDON_VISIT + "_y": KNOWN_LONDON_VISIT,
+                                      KNOWN_LONDON_NOT_VISIT + "_y": KNOWN_LONDON_NOT_VISIT,
                                       "ADE1_y": "ADE1",
                                       "ADE2_y": "ADE2"}, inplace=True)
-    df_extract_update.drop(["KNOWN_LONDON_VISIT_x",
-                            "KNOWN_LONDON_NOT_VISIT_x",
+    df_extract_update.drop([KNOWN_LONDON_VISIT + "_x",
+                            KNOWN_LONDON_NOT_VISIT + "_x",
                             "ADE1_x",
                             "ADE2_x"], axis=1, inplace=True)
 
@@ -219,33 +221,31 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_final_wt):
 
     # Calculate ratio london to not london
     df_stay_towns4 = df_stay_towns2.copy()
-    df_stay_towns4["RATION_L_NL_ADES"] = np.where(((df_stay_towns4["ADE1"] != 0) & (df_stay_towns4["ADE2"] != 0)),
-                                                  (df_stay_towns4["ADE1"] / df_stay_towns4["ADE2"]), 0)
+    df_stay_towns4[RATION_COLUMN] = np.where(((df_stay_towns4["ADE1"] != 0) & (df_stay_towns4["ADE2"] != 0)),
+                                             (df_stay_towns4["ADE1"] / df_stay_towns4["ADE2"]), 0)
 
     # Calculate number of nights in london and number of nights outside london
     df_stay_towns5 = df_stay_towns4.copy()
-    df_stay_towns5["NIGHTS_IN_LONDON"] = 0
-    df_stay_towns5["NIGHTS_NOT_LONDON"] = 0
-    nights = "NIGHTS"
-    towncode = "TOWNCODE"
+    df_stay_towns5[NIGHTS_IN_LONDON] = 0
+    df_stay_towns5[NIGHTS_NOT_LONDON] = 0
 
     for count in range(1, 9):
         # Assign conditions
-        in_london_condition = (df_stay_towns5[nights + str(count)].notnull()) & (
-            df_stay_towns5[towncode + str(count)].between(70000, 79999))
-        not_london_condition = (df_stay_towns5[nights + str(count)].notnull()) & ~(
-            df_stay_towns5[towncode + str(count)].between(70000, 79999))
+        in_london_condition = (df_stay_towns5[NIGHTS + str(count)].notnull()) & (
+            df_stay_towns5[TOWNCODE + str(count)].between(70000, 79999))
+        not_london_condition = (df_stay_towns5[NIGHTS + str(count)].notnull()) & ~(
+            df_stay_towns5[TOWNCODE + str(count)].between(70000, 79999))
 
         # Apply conditions
-        df_stay_towns5.loc[in_london_condition, "NIGHTS_IN_LONDON"] += df_stay_towns5.loc[
-            in_london_condition, nights + str(count)]
-        df_stay_towns5.loc[not_london_condition, "NIGHTS_NOT_LONDON"] += df_stay_towns5.loc[
-            not_london_condition, nights + str(count)]
+        df_stay_towns5.loc[in_london_condition, NIGHTS_IN_LONDON] += df_stay_towns5.loc[
+            in_london_condition, NIGHTS + str(count)]
+        df_stay_towns5.loc[not_london_condition, NIGHTS_NOT_LONDON] += df_stay_towns5.loc[
+            not_london_condition, NIGHTS + str(count)]
 
     # Calculate spends
     df_stay_towns6 = df_stay_towns5.copy()
-    df_stay_towns6["H_K"] = np.NaN
-    df_stay_towns6["LONDON_SPEND"] = 0
+    df_stay_towns6[H_K_COLUMN] = np.NaN
+    df_stay_towns6[LONDON_SPEND_COLUMN] = 0
     df_stay_towns6 = df_stay_towns6.apply(__calculate_spends_part1, axis=1)
 
     # Finish calculating spends
@@ -253,8 +253,8 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_final_wt):
     df_stay_towns7 = df_stay_towns7.apply(__calculate_spends_part2, axis=1)
 
     # Create output file ready for appending to Oracle file
-    df_output = df_stay_towns7[[var_serial, "SPEND1", "SPEND2", "SPEND3", "SPEND4", "SPEND5", "SPEND6", "SPEND7",
-                                "SPEND8"]]
+
+    df_output = df_stay_towns7[[var_serial] + [SPEND_COLUMN + str(i) for i in range(1, 9)]]
     df_output.fillna(0.0)
 
     def round_number(row):
