@@ -23,7 +23,8 @@ SPEND_COLUMN = "SPEND"
 ELIGIBLE_FLAG_COLUMN = "TOWN_IMP_ELIGIBLE_PV"
 
 
-def __calculate_ade(var_final_wt, df_output_data, source_dataframe, aggregation_column, col_name):
+def __calculate_ade(var_final_wt, df_output_data, source_dataframe, aggregation_columns,
+                    col_name, count_column=None):
     target_dataframe = source_dataframe.copy()
 
     target_dataframe[col_name + "_TEMP1"] = (df_output_data[var_final_wt]
@@ -31,18 +32,18 @@ def __calculate_ade(var_final_wt, df_output_data, source_dataframe, aggregation_
                                                 / df_output_data[STAY_COLUMN]))
     target_dataframe[col_name + "_TEMP2"] = df_output_data[var_final_wt]
 
+    # Specify aggregations
+    aggregations = {col_name + "_TEMP1": 'sum', col_name + "_TEMP2": 'sum'}
+    if count_column is not None:
+        aggregations[count_column] = 'count'
+
     # Group by and aggregate
-    target_dataframe = target_dataframe.groupby([FLOW_COLUMN,
-                                                 PURPOSE_GROUP_COLUMN,
-                                                 COUNTRY_GROUP_COLUMN]).agg({aggregation_column: 'count',
-                                                                        col_name + "_TEMP1": 'sum',
-                                                                        col_name + "_TEMP2": 'sum'})
+    target_dataframe = target_dataframe.groupby(aggregation_columns).agg(aggregations)
     target_dataframe[col_name] = target_dataframe[col_name + "_TEMP1"] / target_dataframe[col_name + "_TEMP2"]
 
     # Cleanse dataframe
     target_dataframe = target_dataframe.reset_index()
-    target_dataframe.drop([col_name + "_TEMP1"], axis=1, inplace=True)
-    target_dataframe.drop([col_name + "_TEMP2"], axis=1, inplace=True)
+    target_dataframe.drop([col_name + "_TEMP1", col_name + "_TEMP2"], axis=1, inplace=True)
 
     return target_dataframe
 
@@ -150,14 +151,7 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_final_wt):
     Purpose       : Calculate the town and stay expenditure
     Parameters    : df_survey_data = "SAS_SURVEY_SUBSAMPLE"
                     var_serial = "SERIAL"
-                    FLOW_COLUMN = "FLOW"
-                    PURPOSE_GROUP_COLUMN = "PURPOSE_PV"
-                    COUNTRY_GROUP_COLUMN = "STAYIMPCTRYLEVEL4_PV"
-                    var_residence = "RESIDENCE"
-                    STAY_COLUMN = "STAY"
-                    SPEND_COLUMN = "SPEND"
                     var_final_wt = "FINAL_WT"
-                    var_eligible_flag = "TOWN_IMP_ELIGIBLE_PV"
     Returns       : Dataframe
     """
 
@@ -183,17 +177,17 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_final_wt):
     source_dataframe = df_output_data[[FLOW_COLUMN, PURPOSE_GROUP_COLUMN,
                                        COUNTRY_GROUP_COLUMN, "KNOWN_LONDON_VISIT",
                                        "KNOWN_LONDON_NOT_VISIT"]].ix[towncode_condition]
-
-    df_segment1 = __calculate_ade(var_final_wt, df_output_data, source_dataframe, "KNOWN_LONDON_VISIT", "ADE1")
-    df_segment2 = __calculate_ade(var_final_wt, df_output_data, source_dataframe, "KNOWN_LONDON_NOT_VISIT", "ADE2")
+    aggregation_columns = [FLOW_COLUMN, PURPOSE_GROUP_COLUMN, COUNTRY_GROUP_COLUMN]
+    df_segment1 = __calculate_ade(var_final_wt, df_output_data, source_dataframe,
+                                  aggregation_columns, "ADE1", "KNOWN_LONDON_VISIT")
+    df_segment2 = __calculate_ade(var_final_wt, df_output_data, source_dataframe,
+                                  aggregation_columns, "ADE2", "KNOWN_LONDON_NOT_VISIT")
 
     # Merge the files containing ade1 and ade2
-    df_segment_merge = pd.merge(df_segment1, df_segment2, on=[FLOW_COLUMN, PURPOSE_GROUP_COLUMN, COUNTRY_GROUP_COLUMN], how='left')
+    df_segment_merge = pd.merge(df_segment1, df_segment2, on=aggregation_columns, how='left')
 
     # Update the extract with ade1, ade2 and counts
-    df_extract_update = pd.merge(df_output_data, df_segment_merge, on=[FLOW_COLUMN,
-                                                                       PURPOSE_GROUP_COLUMN,
-                                                                       COUNTRY_GROUP_COLUMN], how='left')
+    df_extract_update = pd.merge(df_output_data, df_segment_merge, on=aggregation_columns, how='left')
 
     # Cleanse dataframe
     df_extract_update.rename(columns={"KNOWN_LONDON_VISIT_y": "KNOWN_LONDON_VISIT",
@@ -206,48 +200,18 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_final_wt):
                             "ADE2_x"], axis=1, inplace=True)
 
     # Calculate ade1 without flow
-    df_temp_london = df_output_data[[PURPOSE_GROUP_COLUMN, COUNTRY_GROUP_COLUMN]].ix[towncode_condition]
-    df_temp_london["ADE1_TEMP1"] = pd.Series((df_output_data[var_final_wt]
-                                              * df_output_data[SPEND_COLUMN])
-                                             / (df_output_data[STAY_COLUMN]))
-    df_temp_london["ADE1_TEMP2"] = df_output_data[var_final_wt]
-
-    # Group by and aggregate
-    df_temp_london = df_temp_london.groupby([PURPOSE_GROUP_COLUMN,
-                                             COUNTRY_GROUP_COLUMN]).agg({"ADE1_TEMP1": 'sum',
-                                                                    "ADE1_TEMP2": 'sum'})
-    df_temp_london["ADE1"] = (df_temp_london["ADE1_TEMP1"]
-                              / df_temp_london["ADE1_TEMP2"])
-
-    # Cleanse dataframe
-    df_temp_london = df_temp_london.reset_index()
-    df_temp_london.drop(["ADE1_TEMP1"], axis=1, inplace=True)
-    df_temp_london.drop(["ADE1_TEMP2"], axis=1, inplace=True)
+    aggregation_columns = [PURPOSE_GROUP_COLUMN, COUNTRY_GROUP_COLUMN]
+    source_dataframe = df_output_data[aggregation_columns].ix[towncode_condition]
+    df_temp_london = __calculate_ade(var_final_wt, df_output_data, source_dataframe, aggregation_columns, "ADE1")
 
     # Calculate ade2 without flow
-    df_temp_london2 = df_output_data[[PURPOSE_GROUP_COLUMN, COUNTRY_GROUP_COLUMN]].ix[towncode_condition]
-    df_temp_london2["ADE2_TEMP1"] = (pd.Series((df_output_data[var_final_wt]
-                                                * df_output_data[SPEND_COLUMN])
-                                               / (df_output_data[STAY_COLUMN])))
-    df_temp_london2["ADE2_TEMP2"] = df_output_data[var_final_wt]
-
-    # Group by and aggregate
-    df_temp_london2 = df_temp_london2.groupby([PURPOSE_GROUP_COLUMN,
-                                               COUNTRY_GROUP_COLUMN]).agg({"ADE2_TEMP1": 'sum',
-                                                                      "ADE2_TEMP2": 'sum'})
-    df_temp_london2["ADE2"] = (df_temp_london2["ADE2_TEMP1"]
-                               / df_temp_london2["ADE2_TEMP2"])
-
-    # Cleanse dataframe
-    df_temp_london2 = df_temp_london2.reset_index()
-    df_temp_london2.drop(["ADE2_TEMP1"], axis=1, inplace=True)
-    df_temp_london2.drop(["ADE2_TEMP2"], axis=1, inplace=True)
+    df_temp_london2 = __calculate_ade(var_final_wt, df_output_data, source_dataframe, aggregation_columns, "ADE2")
 
     # Merge files containing ade1 ade2
-    df_london = pd.merge(df_temp_london, df_temp_london2, on=[PURPOSE_GROUP_COLUMN, COUNTRY_GROUP_COLUMN], how='left')
+    df_london = pd.merge(df_temp_london, df_temp_london2, on=aggregation_columns, how='left')
 
     # Update extract with ade1 ade2 where not already set
-    df_stay_towns2 = pd.merge(df_extract_update, df_london, on=[PURPOSE_GROUP_COLUMN, COUNTRY_GROUP_COLUMN], how='left')
+    df_stay_towns2 = pd.merge(df_extract_update, df_london, on=aggregation_columns, how='left')
 
     # Cleanse dataframe
     df_stay_towns2.rename(columns={"ADE1_x": "ADE1", "ADE2_x": "ADE2"}, inplace=True)
@@ -290,10 +254,10 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_final_wt):
 
     # Create output file ready for appending to Oracle file
     df_output = df_stay_towns7[[var_serial, "SPEND1", "SPEND2", "SPEND3", "SPEND4", "SPEND5", "SPEND6", "SPEND7",
-                                 "SPEND8"]]
+                                "SPEND8"]]
     df_output.fillna(0.0)
 
-    def round(row):
+    def round_number(row):
         """
         Author        : thorne1
         Date          : May 2018
@@ -306,7 +270,7 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_final_wt):
             row[col] = new_value
         return row
 
-    df_output.apply(round, axis=1)
+    df_output.apply(round_number, axis=1)
 
     return df_output
 
@@ -351,4 +315,3 @@ def calculate(df_survey_data, var_serial, var_final_wt):
     # Log success message in SAS_RESPONSE and AUDIT_LOG
     # logger.info("SUCCESS - Completed Town and Stay Imputation.")
     cf.commit_to_audit_log("Create", "Town and Stay Imputation", audit_message)
-
