@@ -4,32 +4,37 @@ Created on March 2018
 Author: Elinor Thorne
 '''
 
+import decimal
 import inspect
 import math
-import decimal
+
 import numpy as np
 import pandas as pd
+
 from main.io import CommonFunctions as cf
 
+OUTPUT_TABLE_NAME = "SAS_TOWN_STAY_IMP"
+FLOW_COLUMN = "FLOW"
+PURPOSE_GROUP_COLUMN = "PURPOSE_PV"
+COUNTRY_GROUP_COLUMN = "STAYIMPCTRYLEVEL4_PV"
+RESIDENCE_COLUMN = "RESIDENCE"
+STAY_COLUMN = "STAY"
+SPEND_COLUMN = "SPEND"
+ELIGIBLE_FLAG_COLUMN = "TOWN_IMP_ELIGIBLE_PV"
 
-def __calculate_ade(df_output_data, source_dataframe, aggregation_column, col_name):
-    var_final_wt = "FINAL_WT"
-    var_spend = "SPEND"
-    var_stay = "STAY"
-    var_flow = "FLOW"
-    var_purpose_grp = "PURPOSE_PV"
-    var_country_grp = "STAYIMPCTRYLEVEL4_PV"
+
+def __calculate_ade(var_final_wt, df_output_data, source_dataframe, aggregation_column, col_name):
     target_dataframe = source_dataframe.copy()
 
     target_dataframe[col_name + "_TEMP1"] = (df_output_data[var_final_wt]
-                                             * (df_output_data[var_spend]
-                                                / df_output_data[var_stay]))
+                                             * (df_output_data[SPEND_COLUMN]
+                                                / df_output_data[STAY_COLUMN]))
     target_dataframe[col_name + "_TEMP2"] = df_output_data[var_final_wt]
 
     # Group by and aggregate
-    target_dataframe = target_dataframe.groupby([var_flow,
-                                                 var_purpose_grp,
-                                                 var_country_grp]).agg({aggregation_column: 'count',
+    target_dataframe = target_dataframe.groupby([FLOW_COLUMN,
+                                                 PURPOSE_GROUP_COLUMN,
+                                                 COUNTRY_GROUP_COLUMN]).agg({aggregation_column: 'count',
                                                                         col_name + "_TEMP1": 'sum',
                                                                         col_name + "_TEMP2": 'sum'})
     target_dataframe[col_name] = target_dataframe[col_name + "_TEMP1"] / target_dataframe[col_name + "_TEMP2"]
@@ -53,18 +58,17 @@ def __calculate_spends_part1(row):
 
     nights = "NIGHTS"
     towncode = "TOWNCODE"
-    var_spend = "SPEND"
 
     if row["NIGHTS_IN_LONDON"] == 0:
         for count in range(1, 9):
             if math.isnan(row[towncode + str(count)]):
                 if (((row["NIGHTS_NOT_LONDON"] != 0) & (not math.isnan(row["NIGHTS_NOT_LONDON"])))
                         & (not math.isnan(row[nights + str(count)]))):
-                    row[var_spend + str(count)] = ((row[var_spend]
+                    row[SPEND_COLUMN + str(count)] = ((row[SPEND_COLUMN]
                                                     * row[nights + str(count)])
                                                    / row["NIGHTS_NOT_LONDON"])
                 else:
-                    row[var_spend + str(count)] = 0
+                    row[SPEND_COLUMN + str(count)] = 0
     elif (row["NIGHTS_NOT_LONDON"] == 0) | (math.isnan(row["NIGHTS_NOT_LONDON"])):
         for count in range(1, 9):
             if not math.isnan(row[towncode + str(count)]):
@@ -72,11 +76,11 @@ def __calculate_spends_part1(row):
                 if (((row["NIGHTS_IN_LONDON"] != 0)
                      & (not math.isnan(row["NIGHTS_IN_LONDON"])))
                         & (not math.isnan(row[nights + str(count)]))):
-                    row[var_spend + str(count)] = ((row[var_spend]
+                    row[SPEND_COLUMN + str(count)] = ((row[SPEND_COLUMN]
                                                     * row[nights + str(count)])
                                                    / row["NIGHTS_IN_LONDON"])
                 else:
-                    row[var_spend + str(count)] = 0
+                    row[SPEND_COLUMN + str(count)] = 0
     else:
         if (((row["KNOWN_LONDON_VISIT"] != 0) & (not math.isnan(row["KNOWN_LONDON_VISIT"])))
                 &
@@ -94,16 +98,16 @@ def __calculate_spends_part1(row):
                 if (((row["NIGHTS_IN_LONDON"] != 0) & (not math.isnan(row["NIGHTS_IN_LONDON"])))
                         & (not math.isnan(row[nights + str(count)]))
                         & ((row["H_K"] != 0) & (not math.isnan(row["H_K"])))
-                        & (row[var_spend] != 0)):
-                    row[var_spend + str(count)] = (((row[var_spend]
+                        & (row[SPEND_COLUMN] != 0)):
+                    row[SPEND_COLUMN + str(count)] = (((row[SPEND_COLUMN]
                                                      * row["H_K"])
                                                     / (1 + row["H_K"]))
                                                    * (row[nights + str(count)]
                                                       / row["NIGHTS_IN_LONDON"]))
                 else:
-                    row[var_spend + str(count)] = 0
+                    row[SPEND_COLUMN + str(count)] = 0
                 row["LONDON_SPEND"] = (row["LONDON_SPEND"]
-                                       + row[var_spend + str(count)])
+                                       + row[SPEND_COLUMN + str(count)])
 
     return row
 
@@ -118,41 +122,40 @@ def __calculate_spends_part2(row):
     """
     nights = "NIGHTS"
     towncode = "TOWNCODE"
-    var_spend = "SPEND"
+    SPEND_COLUMN = "SPEND"
 
     if ((row["NIGHTS_IN_LONDON"] != 0)
         & ((row["NIGHTS_NOT_LONDON"] != 0)
            & (not math.isnan(row["NIGHTS_NOT_LONDON"])))):
         for count in range(1, 9):
             if math.isnan(row[towncode+str(count)]):
-                row[var_spend+str(count)] = 0
+                row[SPEND_COLUMN+str(count)] = 0
             elif (row[towncode+str(count)] < 70000) | (row[towncode+str(count)] > 79999):
                 if (((row["NIGHTS_NOT_LONDON"] != 0) & (not math.isnan(row["NIGHTS_NOT_LONDON"])))
                         & (not math.isnan(row[nights+str(count)]))):
-                    row[var_spend+str(count)] = (row[nights+str(count)]
-                                                 * ((row[var_spend]
+                    row[SPEND_COLUMN+str(count)] = (row[nights+str(count)]
+                                                 * ((row[SPEND_COLUMN]
                                                      - row["LONDON_SPEND"])
                                                     / row["NIGHTS_NOT_LONDON"]))
                 else:
-                    row[var_spend+str(count)] = 0
+                    row[SPEND_COLUMN+str(count)] = 0
 
     return row
 
 
-def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_grp, var_country_grp,
-                            var_stay, var_spend, var_final_wt, var_eligible_flag):
+def do_ips_spend_imputation(df_survey_data, var_serial, var_final_wt):
     """
     Author        : thorne1
     Date          : 13 Mar 2018
     Purpose       : Calculate the town and stay expenditure
     Parameters    : df_survey_data = "SAS_SURVEY_SUBSAMPLE"
                     var_serial = "SERIAL"
-                    var_flow = "FLOW"
-                    var_purpose_grp = "PURPOSE_PV"
-                    var_country_grp = "STAYIMPCTRYLEVEL4_PV"
+                    FLOW_COLUMN = "FLOW"
+                    PURPOSE_GROUP_COLUMN = "PURPOSE_PV"
+                    COUNTRY_GROUP_COLUMN = "STAYIMPCTRYLEVEL4_PV"
                     var_residence = "RESIDENCE"
-                    var_stay = "STAY"
-                    var_spend = "SPEND"
+                    STAY_COLUMN = "STAY"
+                    SPEND_COLUMN = "SPEND"
                     var_final_wt = "FINAL_WT"
                     var_eligible_flag = "TOWN_IMP_ELIGIBLE_PV"
     Returns       : Dataframe
@@ -160,7 +163,7 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_gr
 
     # Do some initial setup and selection
     df_output_data = df_survey_data.copy()
-    df_output_data.drop(df_output_data[df_output_data[var_eligible_flag] != 1.0].index, inplace=True)
+    df_output_data.drop(df_output_data[df_output_data[ELIGIBLE_FLAG_COLUMN] != 1.0].index, inplace=True)
     df_output_data["KNOWN_LONDON_NOT_VISIT"] = 0
     df_output_data["KNOWN_LONDON_VISIT"] = 0
     df_output_data["ADE1"] = 0
@@ -177,20 +180,20 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_gr
                           (df_output_data["TOWNCODE7"].between(70000, 79999)) |
                           (df_output_data["TOWNCODE8"].between(70000, 79999)))
 
-    source_dataframe = df_output_data[[var_flow, var_purpose_grp,
-                                       var_country_grp, "KNOWN_LONDON_VISIT",
+    source_dataframe = df_output_data[[FLOW_COLUMN, PURPOSE_GROUP_COLUMN,
+                                       COUNTRY_GROUP_COLUMN, "KNOWN_LONDON_VISIT",
                                        "KNOWN_LONDON_NOT_VISIT"]].ix[towncode_condition]
 
-    df_segment1 = __calculate_ade(df_output_data, source_dataframe, "KNOWN_LONDON_VISIT", "ADE1")
-    df_segment2 = __calculate_ade(df_output_data, source_dataframe, "KNOWN_LONDON_NOT_VISIT", "ADE2")
+    df_segment1 = __calculate_ade(var_final_wt, df_output_data, source_dataframe, "KNOWN_LONDON_VISIT", "ADE1")
+    df_segment2 = __calculate_ade(var_final_wt, df_output_data, source_dataframe, "KNOWN_LONDON_NOT_VISIT", "ADE2")
 
     # Merge the files containing ade1 and ade2
-    df_segment_merge = pd.merge(df_segment1, df_segment2, on=[var_flow, var_purpose_grp, var_country_grp], how='left')
+    df_segment_merge = pd.merge(df_segment1, df_segment2, on=[FLOW_COLUMN, PURPOSE_GROUP_COLUMN, COUNTRY_GROUP_COLUMN], how='left')
 
     # Update the extract with ade1, ade2 and counts
-    df_extract_update = pd.merge(df_output_data, df_segment_merge, on=[var_flow,
-                                                                       var_purpose_grp,
-                                                                       var_country_grp], how='left')
+    df_extract_update = pd.merge(df_output_data, df_segment_merge, on=[FLOW_COLUMN,
+                                                                       PURPOSE_GROUP_COLUMN,
+                                                                       COUNTRY_GROUP_COLUMN], how='left')
 
     # Cleanse dataframe
     df_extract_update.rename(columns={"KNOWN_LONDON_VISIT_y": "KNOWN_LONDON_VISIT",
@@ -203,15 +206,15 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_gr
                             "ADE2_x"], axis=1, inplace=True)
 
     # Calculate ade1 without flow
-    df_temp_london = df_output_data[[var_purpose_grp, var_country_grp]].ix[towncode_condition]
+    df_temp_london = df_output_data[[PURPOSE_GROUP_COLUMN, COUNTRY_GROUP_COLUMN]].ix[towncode_condition]
     df_temp_london["ADE1_TEMP1"] = pd.Series((df_output_data[var_final_wt]
-                                              * df_output_data[var_spend])
-                                             / (df_output_data[var_stay]))
+                                              * df_output_data[SPEND_COLUMN])
+                                             / (df_output_data[STAY_COLUMN]))
     df_temp_london["ADE1_TEMP2"] = df_output_data[var_final_wt]
 
     # Group by and aggregate
-    df_temp_london = df_temp_london.groupby([var_purpose_grp,
-                                             var_country_grp]).agg({"ADE1_TEMP1": 'sum',
+    df_temp_london = df_temp_london.groupby([PURPOSE_GROUP_COLUMN,
+                                             COUNTRY_GROUP_COLUMN]).agg({"ADE1_TEMP1": 'sum',
                                                                     "ADE1_TEMP2": 'sum'})
     df_temp_london["ADE1"] = (df_temp_london["ADE1_TEMP1"]
                               / df_temp_london["ADE1_TEMP2"])
@@ -222,15 +225,15 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_gr
     df_temp_london.drop(["ADE1_TEMP2"], axis=1, inplace=True)
 
     # Calculate ade2 without flow
-    df_temp_london2 = df_output_data[[var_purpose_grp, var_country_grp]].ix[towncode_condition]
+    df_temp_london2 = df_output_data[[PURPOSE_GROUP_COLUMN, COUNTRY_GROUP_COLUMN]].ix[towncode_condition]
     df_temp_london2["ADE2_TEMP1"] = (pd.Series((df_output_data[var_final_wt]
-                                                * df_output_data[var_spend])
-                                               / (df_output_data[var_stay])))
+                                                * df_output_data[SPEND_COLUMN])
+                                               / (df_output_data[STAY_COLUMN])))
     df_temp_london2["ADE2_TEMP2"] = df_output_data[var_final_wt]
 
     # Group by and aggregate
-    df_temp_london2 = df_temp_london2.groupby([var_purpose_grp,
-                                               var_country_grp]).agg({"ADE2_TEMP1": 'sum',
+    df_temp_london2 = df_temp_london2.groupby([PURPOSE_GROUP_COLUMN,
+                                               COUNTRY_GROUP_COLUMN]).agg({"ADE2_TEMP1": 'sum',
                                                                       "ADE2_TEMP2": 'sum'})
     df_temp_london2["ADE2"] = (df_temp_london2["ADE2_TEMP1"]
                                / df_temp_london2["ADE2_TEMP2"])
@@ -241,10 +244,10 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_gr
     df_temp_london2.drop(["ADE2_TEMP2"], axis=1, inplace=True)
 
     # Merge files containing ade1 ade2
-    df_london = pd.merge(df_temp_london, df_temp_london2, on=[var_purpose_grp, var_country_grp], how='left')
+    df_london = pd.merge(df_temp_london, df_temp_london2, on=[PURPOSE_GROUP_COLUMN, COUNTRY_GROUP_COLUMN], how='left')
 
     # Update extract with ade1 ade2 where not already set
-    df_stay_towns2 = pd.merge(df_extract_update, df_london, on=[var_purpose_grp, var_country_grp], how='left')
+    df_stay_towns2 = pd.merge(df_extract_update, df_london, on=[PURPOSE_GROUP_COLUMN, COUNTRY_GROUP_COLUMN], how='left')
 
     # Cleanse dataframe
     df_stay_towns2.rename(columns={"ADE1_x": "ADE1", "ADE2_x": "ADE2"}, inplace=True)
@@ -308,22 +311,14 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_gr
     return df_output
 
 
-def calculate(output, var_serial, var_flow, var_purpose_grp, var_country_grp, var_stay, var_spend,
-              var_final_wt, var_eligible_flag):
+def calculate(df_survey_data, var_serial, var_final_wt):
     """
     Author        : thorne1
     Date          : 13 Mar 2018
     Purpose       : Sets up calculation for the town and stay expenditure and
                   : commits results to SQL database
-    Parameters    : output = "SAS_TOWN_STAY_IMP"
-                    var_serial = var_serialNum
-                    var_flow = "FLOW"
-                    var_purpose_grp = "PURPOSE_PV"
-                    var_country_grp = "STAYIMPCTRYLEVEL4_PV"
-                    var_stay = "STAY"
-                    var_spend = "SPEND"
+    Parameters    : var_serial = var_serialNum
                     var_final_wt = "FINAL_WT"
-                    var_eligible_flag = "TOWN_IMP_ELIGIBLE_PV"
     Returns       : N/A
     """
 
@@ -342,11 +337,10 @@ def calculate(output, var_serial, var_flow, var_purpose_grp, var_country_grp, va
     df_survey_data.columns = df_survey_data.columns.str.upper()
 
     # Calculate the values of the imported data set
-    output_dataframe = do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_grp, var_country_grp,
-                                               var_stay, var_spend, var_final_wt, var_eligible_flag)
+    output_dataframe = do_ips_spend_imputation(df_survey_data, var_serial, var_final_wt)
 
     # Append the generated data to output tables
-    cf.insert_dataframe_into_table(output, output_dataframe)
+    cf.insert_dataframe_into_table(OUTPUT_TABLE_NAME, output_dataframe)
 
     # Retrieve current function name using inspect:
     # 0 = frame object, 3 = function name.
@@ -357,10 +351,4 @@ def calculate(output, var_serial, var_flow, var_purpose_grp, var_country_grp, va
     # Log success message in SAS_RESPONSE and AUDIT_LOG
     # logger.info("SUCCESS - Completed Town and Stay Imputation.")
     cf.commit_to_audit_log("Create", "Town and Stay Imputation", audit_message)
-
-
-if __name__ == '__main__':
-    calculate(output="SAS_TOWN_STAY_IMP", var_serial="SERIAL", var_flow="FLOW", var_purpose_grp="PURPOSE_PV",
-              var_country_grp="STAYIMPCTRYLEVEL4_PV", var_residence="RESIDENCE", var_stay="STAY", var_spend="SPEND",
-              var_final_wt="FINAL_WT", var_eligible_flag="TOWN_IMP_ELIGIBLE_PV")
 
