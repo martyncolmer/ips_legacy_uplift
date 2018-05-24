@@ -267,8 +267,8 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_gr
         # Assign conditions
         in_london_condition = (df_stay_towns5[nights + str(count)].notnull()) & (
             df_stay_towns5[towncode + str(count)].between(70000, 79999))
-        not_london_condition = (df_stay_towns5[nights + str(count)].notnull()) & (
-                    df_stay_towns5[towncode + str(count)].lt(70000) & (df_stay_towns5[towncode + str(count)].gt(79999)))
+        not_london_condition = (df_stay_towns5[nights + str(count)].notnull()) & ~(
+            df_stay_towns5[towncode + str(count)].between(70000, 79999))
 
         # Apply conditions
         df_stay_towns5.loc[in_london_condition, "NIGHTS_IN_LONDON"] += df_stay_towns5.loc[
