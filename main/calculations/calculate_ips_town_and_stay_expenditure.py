@@ -12,7 +12,7 @@ import pandas as pd
 from main.io import CommonFunctions as cf
 
 
-def __calculate_ade(df_output_data, source_dataframe, col_name):
+def __calculate_ade(df_output_data, source_dataframe, aggregation_column, col_name):
     var_final_wt = "FINAL_WT"
     var_spend = "SPEND"
     var_stay = "STAY"
@@ -29,7 +29,7 @@ def __calculate_ade(df_output_data, source_dataframe, col_name):
     # Group by and aggregate
     target_dataframe = target_dataframe.groupby([var_flow,
                                                  var_purpose_grp,
-                                                 var_country_grp]).agg({"KNOWN_LONDON_VISIT": 'count',
+                                                 var_country_grp]).agg({aggregation_column: 'count',
                                                                         col_name + "_TEMP1": 'sum',
                                                                         col_name + "_TEMP2": 'sum'})
     target_dataframe[col_name] = target_dataframe[col_name + "_TEMP1"] / target_dataframe[col_name + "_TEMP2"]
@@ -177,13 +177,12 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_flow, var_purpose_gr
                           (df_output_data["TOWNCODE7"].between(70000, 79999)) |
                           (df_output_data["TOWNCODE8"].between(70000, 79999)))
 
-    source_dataframe = df_output_data[[var_flow,
-                                  var_purpose_grp,
-                                  var_country_grp,
-                                  "KNOWN_LONDON_VISIT"]].ix[towncode_condition]
+    source_dataframe = df_output_data[[var_flow, var_purpose_grp,
+                                       var_country_grp, "KNOWN_LONDON_VISIT",
+                                       "KNOWN_LONDON_NOT_VISIT"]].ix[towncode_condition]
 
-    df_segment1 = __calculate_ade(df_output_data, source_dataframe, "ADE1")
-    df_segment2 = __calculate_ade(df_output_data, source_dataframe, "ADE2")
+    df_segment1 = __calculate_ade(df_output_data, source_dataframe, "KNOWN_LONDON_VISIT", "ADE1")
+    df_segment2 = __calculate_ade(df_output_data, source_dataframe, "KNOWN_LONDON_NOT_VISIT", "ADE2")
 
     # Merge the files containing ade1 and ade2
     df_segment_merge = pd.merge(df_segment1, df_segment2, on=[var_flow, var_purpose_grp, var_country_grp], how='left')
