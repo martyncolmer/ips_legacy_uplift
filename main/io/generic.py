@@ -3,9 +3,6 @@ import sys
 import inspect
 from main.io import CommonFunctions as cf
 
-with open("variables.json") as f:
-    data = json.load(f)
-
 survey_subsample = "[dbo].[SURVEY_SUBSAMPLE]"
 sas_survey_subsample = "[dbo].[SAS_SURVEY_SUBSAMPLE]"
 sas_process_variable = "[dbo].[SAS_PROCESS_VARIABLE]"

@@ -5,7 +5,7 @@ Created on 26 April 2018
 '''
 
 import sys
-from main.io import CommonFunctions as cf
+from main.io import CommonFunctions as cf, generic
 from main.io import import_data
 from main.io import import_traffic_data
 from main.utils import process_variables
@@ -21,9 +21,7 @@ from main.calculations import calculate_ips_fares_imputation
 from main.calculations import calculate_ips_spend_imputation
 from main.calculations import calculate_ips_rail_imputation
 from main.calculations import calculate_ips_regional_weights
-from main.calculations import calculate_ips_town_and_stay_expenditure
 from main.calculations import calculate_ips_airmiles
-from IPS_XML import generic
 
 
 def import_step(run_id, version_id):
@@ -281,8 +279,8 @@ def unsampled_weight_step(run_id, connection):
     step = "UNSAMPLED_WEIGHT"
 
     generic.populate_survey_data_for_step(run_id, connection, step)
-    generic.populate_step_data(run_id,connection, step)
-    generic.copy_step_pvs_for_survey_data(run_id,connection, step)
+    generic.populate_step_data(run_id, connection, step)
+    generic.copy_step_pvs_for_survey_data(run_id, connection, step)
 
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
@@ -290,7 +288,7 @@ def unsampled_weight_step(run_id, connection):
                               in_id='serial')
 
     generic.update_survey_data_with_step_pv_output(connection, step)
-    generic.copy_step_pvs_for_step_data(run_id,connection, step)
+    generic.copy_step_pvs_for_step_data(run_id, connection, step)
 
     process_variables.process(dataset='unsampled',
                               in_table_name='SAS_NON_RESPONSE_DATA',
@@ -387,7 +385,7 @@ def stay_imputation_step(run_id,connection):
     calculate_ips_stay_imputation.ips_stay_imp()
 
     generic.update_survey_data_with_step_results(connection, step)
-    generic.store_survey_data_with_step_results(run_id,connection, step)
+    generic.store_survey_data_with_step_results(run_id, connection, step)
 
 
 def fares_imputation_step(run_id, connection):
