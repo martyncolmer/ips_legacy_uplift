@@ -8,7 +8,7 @@ sas_survey_subsample = "[dbo].[SAS_SURVEY_SUBSAMPLE]"
 sas_process_variable = "[dbo].[SAS_PROCESS_VARIABLE]"
 
 
-def populate_survey_data_for_step(run_id, conn, step):
+def populate_survey_data_for_step(run_id, conn, step_configuration):
     """
     Author       : Elinor Thorne
     Date         : 13 Apr 2018
@@ -32,7 +32,7 @@ def populate_survey_data_for_step(run_id, conn, step):
 
         # Construct string for SQL statement
         input = []
-        for item in data[step]["nullify_pvs"]:
+        for item in step_configuration["nullify_pvs"]:
             input.append(item + " = null")
         columns_to_null = ", ".join(map(str, input))
 
@@ -90,7 +90,7 @@ def populate_survey_data_for_step(run_id, conn, step):
                    [TRAFFIC_WT], [UNSAMP_TRAFFIC_WT], [IMBAL_WT], [FINAL_WT], [FAREKEY], [TYPEINTERVIEW]"""
 
         # Assign RESPNSE condition to step
-        if step == "TRAFFIC_WEIGHT" or step == "UNSAMPLED_WEIGHT":
+        if step_configuration["name"] == "TRAFFIC_WEIGHT" or step_configuration["name"] == "UNSAMPLED_WEIGHT":
             respnse = "BETWEEN 1 and 2"
         else:
             respnse = "BETWEEN 1 and 6"
@@ -114,14 +114,14 @@ def populate_survey_data_for_step(run_id, conn, step):
     # Cleanse tables as applicable
     cf.delete_from_table(sas_survey_subsample)
 
-    for table in data[step]["delete_tables"]:
+    for table in step_configuration["delete_tables"]:
         cf.delete_from_table(table)
 
     nullify_survey_subsample_pv_values()
     move_survey_subsample_to_sas_table()
 
 
-def populate_step_data(run_id, conn, step):
+def populate_step_data(run_id, conn, step_configuration):
     """
     Author       : Elinor Thorne
     Date         : April 2018
@@ -136,14 +136,14 @@ def populate_step_data(run_id, conn, step):
     print("")
 
     # Assign variables
-    table = data[step]["table_name"]
-    data_table = data[step]["data_table"]
-    columns = data[step]["insert_to_populate"]
+    table = step_configuration["table_name"]
+    data_table = step_configuration["data_table"]
+    columns = step_configuration["insert_to_populate"]
     cols = ", ".join(map(str, columns))
 
     # Construct string for SQL statement
     calc_cols = []
-    for col in data[step]["insert_to_populate"]:
+    for col in step_configuration["insert_to_populate"]:
         if col != "REC_ID":
             calc_cols.append("CALC." + col)
     calc_columns = ", ".join(map(str, calc_cols))
@@ -166,7 +166,7 @@ def populate_step_data(run_id, conn, step):
     conn.commit()
 
 
-def copy_step_pvs_for_survey_data(run_id, conn, step):
+def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
     """
     Author       : Elinor Thorne
     Date         : April 2018
@@ -183,16 +183,18 @@ def copy_step_pvs_for_survey_data(run_id, conn, step):
     # Assign variables
     basic_insert = ["SHIFT_WEIGHT", "NON_RESPONSE", "MINIMUMS_WEIGHT", "TRAFFIC_WEIGHT"]
     multiple_inserts = ["UNSAMPLED_WEIGHT", "IMBALANCE_WEIGHT", "STAY_IMPUTATION", "FARES_IMPUTATION", "SPEND_IMPUTATION", "RAIL_IMPUTATION", "REGIONAL_WEIGHTS", "TOWN_AND_STAY_EXPENDITURE"]
-    spv_table = (data[step]["spv_table"])
+    spv_table = (step_configuration["spv_table"])
     cur = conn.cursor()
 
     # Cleanse tables
     cf.delete_from_table(sas_process_variable)
     cf.delete_from_table(spv_table)
 
+    step = step_configuration["name"]
+
     # Construct SQL statement as applicable and execute
     if step in basic_insert:
-        input = data[step]["pv_columns"]
+        input = step_configuration["pv_columns"]
         str_input = "', '".join(map(str, input))
         sql = """
         INSERT INTO {}
@@ -206,7 +208,7 @@ def copy_step_pvs_for_survey_data(run_id, conn, step):
 
     if step in multiple_inserts:
         count = 0
-        for item in data[step]["pv_columns"]:
+        for item in step_configuration["pv_columns"]:
             count = count + 1
             sql = """
             INSERT INTO {}
@@ -219,7 +221,7 @@ def copy_step_pvs_for_survey_data(run_id, conn, step):
             conn.commit()
 
     if step == "STAY_IMPUTATION":
-        input = data[step]["copy_pvs"]
+        input = step_configuration["copy_pvs"]
         str_input = "', '".join(map(str, input))
         sql = """
         INSERT INTO {}
@@ -233,7 +235,7 @@ def copy_step_pvs_for_survey_data(run_id, conn, step):
         conn.commit()
         count = 0
 
-        for item in data[step]["copy_pvs2"]:
+        for item in step_configuration["copy_pvs2"]:
             count = count + 1
             sql = """
             INSERT INTO {}
@@ -246,7 +248,7 @@ def copy_step_pvs_for_survey_data(run_id, conn, step):
             conn.commit()
 
 
-def update_survey_data_with_step_pv_output(conn, step):
+def update_survey_data_with_step_pv_output(conn, step_configuration):
     """
     Author       : Elinor Thorne
     Date         : Apr 2018
@@ -260,11 +262,11 @@ def update_survey_data_with_step_pv_output(conn, step):
     print("")
 
     # Assign variables
-    spv_table = data[step]["spv_table"]
+    spv_table = step_configuration["spv_table"]
 
     # Construct string for SQL statement
     set = []
-    for item in data[step]["pv_columns"]:
+    for item in step_configuration["pv_columns"]:
         set.append(item + " = (SELECT " + item + " FROM " + spv_table + " AS CALC WHERE SERIAL = CALC.SERIAL)")
     set_statement = ", ".join(map(str, set))
 
@@ -285,12 +287,12 @@ def update_survey_data_with_step_pv_output(conn, step):
     cf.delete_from_table(sas_process_variable)
     cf.delete_from_table(spv_table)
 
-    if step == "MINIMUMS_WEIGHT":
-        cf.delete_from_table(data[step]["weight_table"])
-        cf.delete_from_table(data[step]["sas_ps_table"])
+    if step_configuration["name"] == "MINIMUMS_WEIGHT":
+        cf.delete_from_table(step_configuration["weight_table"])
+        cf.delete_from_table(step_configuration["sas_ps_table"])
 
 
-def copy_step_pvs_for_step_data(run_id, conn, step):
+def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
     """
     Author       : Elinor Thorne
     Date         : April 2018
@@ -306,12 +308,12 @@ def copy_step_pvs_for_step_data(run_id, conn, step):
 
     # Cleanse temp tables
     cf.delete_from_table(sas_process_variable)
-    cf.delete_from_table(data[step]["pv_table"])
+    cf.delete_from_table(step_configuration["pv_table"])
 
     # Construct and execute SQL statements as applicable
-    if step == "UNSAMPLED_WEIGHT":
-        order = data[step]["order"]
-        for item in data[step]["pv_columns"]:
+    if step_configuration["name"] == "UNSAMPLED_WEIGHT":
+        order = step_configuration["order"]
+        for item in step_configuration["pv_columns"]:
             print("""
                  INSERT INTO {}
                  ([PROCVAR_NAME], [PROCVAR_RULE], [PROCVAR_ORDER])
@@ -333,7 +335,7 @@ def copy_step_pvs_for_step_data(run_id, conn, step):
             order = order + 1
     else:
         cols = []
-        for item in data[step]["pv_columns"]:
+        for item in step_configuration["pv_columns"]:
             cols.append(item)
         pv_columns = ", ".join(map(str, cols))
 
@@ -344,7 +346,7 @@ def copy_step_pvs_for_step_data(run_id, conn, step):
                 FROM [dbo].[PROCESS_VARIABLE] AS pv
                 WHERE pv.[RUN_ID] = '{}'
                 AND UPPER(pv.[PV_NAME]) in ({})) 
-        """.format(sas_process_variable, data[step]["order"], run_id, pv_columns)
+        """.format(sas_process_variable, step_configuration["order"], run_id, pv_columns)
 
         print(sql)
         cur = conn.cursor()
@@ -352,7 +354,7 @@ def copy_step_pvs_for_step_data(run_id, conn, step):
         conn.commit()
 
 
-def update_survey_data_with_step_pv_output(conn, step):
+def update_survey_data_with_step_pv_output(conn, step_configuration):
     """
     Author       : Elinor Thorne
     Date         : April 2018
@@ -367,9 +369,9 @@ def update_survey_data_with_step_pv_output(conn, step):
 
     # Construct string for SQL statement
     set = []
-    for item in data[step]["pv_columns2"]:
+    for item in step_configuration["pv_columns2"]:
         set.append(
-            item + " = (SELECT " + item + " FROM " + data[step]["pv_table"] + " AS PV WHERE [REC_ID] = PV.[REC_ID])")
+            item + " = (SELECT " + item + " FROM " + step_configuration["pv_table"] + " AS PV WHERE [REC_ID] = PV.[REC_ID])")
     set_statement = """, 
     """.join(map(str, set))
 
@@ -378,7 +380,7 @@ def update_survey_data_with_step_pv_output(conn, step):
         UPDATE {}
         SET {}
         WHERE [REC_ID] = (SELECT [REC_ID] FROM {})
-    """.format(data[step]["data_table"], set_statement, data[step]["pv_table"])
+    """.format(step_configuration["data_table"], set_statement, step_configuration["pv_table"])
 
     print(sql)
     cur = conn.cursor()
@@ -386,13 +388,13 @@ def update_survey_data_with_step_pv_output(conn, step):
     conn.commit()
 
     # Cleanse temporary tables
-    cf.delete_from_table(data[step]["pv_table"])
-    cf.delete_from_table(data[step]["weight_table"])
+    cf.delete_from_table(step_configuration["pv_table"])
+    cf.delete_from_table(step_configuration["weight_table"])
     cf.delete_from_table(sas_process_variable)
-    cf.delete_from_table(data[step]["sas_ps_table"])
+    cf.delete_from_table(step_configuration["sas_ps_table"])
 
 
-def update_survey_data_with_step_results(conn, step):
+def update_survey_data_with_step_results(conn, step_configuration):
     """
     Author       : Elinor Thorne
     Date         : May 2018
@@ -405,6 +407,8 @@ def update_survey_data_with_step_results(conn, step):
     print(str(inspect.stack()[0][3]).upper())
     print("")
 
+    step = step_configuration["name"]
+
     # Assign variables
     do_green = ["SHIFT_WEIGHT", "NON_RESPONSE", "MINIMUMS_WEIGHT", "TRAFFIC_WEIGHT", "UNSAMPLED_WEIGHT", "FINAL_WEIGHT",
                 "FARES_IMPUTATION", "REGIONAL_WEIGHTS", "TOWN_AND_STAY_EXPENDITURE", "AIR_MILES"]
@@ -414,15 +418,15 @@ def update_survey_data_with_step_results(conn, step):
                    "STAY_IMPUTATION", "SPEND_IMPUTATION", "AIR_MILES"]
 
     if step in weights:
-        table = data[step]["weight_table"]
+        table = step_configuration["weight_table"]
     elif step in imputations:
-        table = data[step]["temp_table"]
+        table = step_configuration["temp_table"]
     else:
         table = sas_survey_subsample
 
     sql2 = ""
 
-    def update_statement(step):
+    def update_statement(step_configuration):
         """
         Author       : Elinor Thorne
         Date         : May 2018
@@ -432,7 +436,7 @@ def update_survey_data_with_step_results(conn, step):
         """
         # Construct SET string
         cols = []
-        for item in data[step]["results_columns"]:
+        for item in step_configuration["results_columns"]:
             cols.append(
                 item + " = (SELECT temp." + item + " FROM " + table + " AS temp WHERE [SERIAL] = temp.[SERIAL])")
         columns = """, 
@@ -501,7 +505,7 @@ def update_survey_data_with_step_results(conn, step):
     cf.delete_from_table(table)
 
 
-def store_survey_data_with_step_results(run_id, conn, step):
+def store_survey_data_with_step_results(run_id, conn, step_configuration):
     """
     Author       : Elinor Thorne
     Date         : April 2018
@@ -515,14 +519,14 @@ def store_survey_data_with_step_results(run_id, conn, step):
     print("")
 
     # Add additional column to two steps
-    if (step == "SPEND_IMPUTATION") \
-            or (step == "RAIL_IMPUTATION"):
+    if (step_configuration["name"] == "SPEND_IMPUTATION") \
+            or (step_configuration["name"] == "RAIL_IMPUTATION"):
         set = ["[SPEND] = (SELECT [SPEND] FROM [dbo].[SAS_SURVEY_SUBSAMPLE] AS SS WHERE [SERIAL] = SS.[SERIAL])"]
     else:
         set = []
 
     # Create SET and SELECT string
-    for item in data[step]["nullify_pvs"]:
+    for item in step_configuration["nullify_pvs"]:
         set.append(
             item + " = (SELECT " + item + " FROM " + sas_survey_subsample + " AS SS WHERE [SERIAL] = SS.[SERIAL])")
     set_statement = """, 
@@ -549,12 +553,12 @@ def store_survey_data_with_step_results(run_id, conn, step):
         , "IMBALANCE_WEIGHT"
         , "FINAL_WEIGHT"]
 
-    if step in ps_tables_to_delete:
-        cf.delete_from_table(data[step]["ps_table"], "RUN_ID", "=", run_id)
+    if step_configuration["name"] in ps_tables_to_delete:
+        cf.delete_from_table(step_configuration["ps_table"], "RUN_ID", "=", run_id)
     cf.delete_from_table(sas_survey_subsample)
 
 
-def store_step_summary(run_id, conn, step):
+def store_step_summary(run_id, conn, step_configuration):
     """
     Author       : Elinor Thorne
     Date         : May 2018
@@ -569,13 +573,13 @@ def store_step_summary(run_id, conn, step):
     print("")
 
     # Assign variables
-    ps_table = data[step]["ps_table"]
-    sas_ps_table = data[step]["sas_ps_table"]
+    ps_table = step_configuration["ps_table"]
+    sas_ps_table = step_configuration["sas_ps_table"]
     cols = []
     sel = []
 
     # Create selection string
-    for col in data[step]["ps_columns"]:
+    for col in step_configuration["ps_columns"]:
         cols.append(col)
         if col != "[RUN_ID]":
             sel.append("SELECT " + col + " FROM " + sas_ps_table)
@@ -605,135 +609,3 @@ def store_step_summary(run_id, conn, step):
 
     # Cleanse temporary summary table
     cf.delete_from_table(sas_ps_table)
-
-
-if __name__ == "__main__":
-    run_id = "9e5c1872-3f8e-4ae5-85dc-c67a602d011e"
-    connection = cf.get_oracle_connection()
-
-    # step = "SHIFT_WEIGHT"
-    # print("***{}***".format(step))
-    # populate_survey_data_for_step(run_id, connection, step)
-    # populate_step_data(run_id, connection, step)
-    # copy_step_pvs_for_survey_data(run_id, connection, step)
-    # update_survey_data_with_step_pv_output(connection, step)
-    # copy_step_pvs_for_step_data(run_id, connection, step)
-    # update_survey_data_with_step_pv_output(connection, step)
-    # update_survey_data_with_step_results(connection, step)
-    # store_survey_data_with_step_results(run_id, connection, step)
-    # store_step_summary(run_id, connection, step)
-
-    # step = "NON_RESPONSE"
-    # print("***{}***".format(step))
-    # populate_survey_data_for_step(run_id, connection, step)
-    # populate_step_data(run_id, connection, step)
-    # copy_step_pvs_for_survey_data(run_id, connection, step)
-    # update_survey_data_with_step_pv_output(connection, step)
-    # copy_step_pvs_for_step_data(run_id, connection, step)
-    # update_survey_data_with_step_pv_output(connection, step)
-    # update_survey_data_with_step_results(connection, step)
-    # store_survey_data_with_step_results(run_id, connection, step)
-    # store_step_summary(run_id, connection, step)
-    #
-    # step = "MINIMUMS_WEIGHT"
-    # print("***{}***".format(step))
-    # populate_survey_data_for_step(run_id, connection, step)
-    # copy_step_pvs_for_survey_data(run_id, connection, step)
-    # update_survey_data_with_step_pv_output(connection, step)
-    # update_survey_data_with_step_results(connection, step)
-    # store_survey_data_with_step_results(run_id, connection, step)
-    # store_step_summary(run_id, connection, step)
-    #
-    # step = "TRAFFIC_WEIGHT"
-    # print("***{}***".format(step))
-    # populate_survey_data_for_step(run_id, connection, step)
-    # populate_step_data(run_id, connection, step)
-    # copy_step_pvs_for_survey_data(run_id, connection, step)
-    # update_survey_data_with_step_pv_output(connection, step)
-    # copy_step_pvs_for_step_data(run_id, connection, step)
-    # update_survey_data_with_step_pv_output(connection, step)
-    # update_survey_data_with_step_results(connection, step)
-    # store_survey_data_with_step_results(run_id, connection, step)
-    # store_step_summary(run_id, connection, step)
-    #
-    # step = "UNSAMPLED_WEIGHT"
-    # print("***{}***".format(step))
-    # populate_survey_data_for_step(run_id, connection, step)
-    # populate_step_data(run_id, connection, step)
-    # copy_step_pvs_for_survey_data(run_id, connection, step)
-    # update_survey_data_with_step_pv_output(connection, step)
-    # copy_step_pvs_for_step_data(run_id, connection, step)
-    # update_survey_data_with_step_pv_output(connection, step)
-    # update_survey_data_with_step_results(connection, step)
-    # store_survey_data_with_step_results(run_id, connection, step)
-    # store_step_summary(run_id, connection, step)
-    #
-    # step = "IMBALANCE_WEIGHT"
-    # print("***{}***".format(step))
-    # populate_survey_data_for_step(run_id, connection, step)
-    # copy_step_pvs_for_survey_data(run_id, connection, step)
-    # update_survey_data_with_step_pv_output(connection, step)
-    # update_survey_data_with_step_results(connection, step)
-    # store_survey_data_with_step_results(run_id, connection, step)
-    # store_step_summary(run_id, connection, step)
-    #
-    # step = "FINAL_WEIGHT"
-    # print("***{}***".format(step))
-    # populate_survey_data_for_step(run_id, connection, step)
-    # update_survey_data_with_step_results(connection, step)
-    # store_survey_data_with_step_results(run_id, connection, step)
-    # store_step_summary(run_id, connection, step)
-    #
-    # step = "STAY_IMPUTATION"
-    # print("***{}***".format(step))
-    # populate_survey_data_for_step(run_id, connection, step)
-    # copy_step_pvs_for_survey_data(run_id, connection, step)
-    # update_survey_data_with_step_pv_output(connection, step)
-    # update_survey_data_with_step_results(connection, step)
-    # store_survey_data_with_step_results(run_id, connection, step)
-    #
-    # step = "FARES_IMPUTATION"
-    # print("***{}***".format(step))
-    # populate_survey_data_for_step(run_id, connection, step)
-    # copy_step_pvs_for_survey_data(run_id, connection, step)
-    # update_survey_data_with_step_pv_output(connection, step)
-    # update_survey_data_with_step_results(connection, step)
-    # store_survey_data_with_step_results(run_id, connection, step)
-    #
-    # step = "SPEND_IMPUTATION"
-    # print("***{}***".format(step))
-    # populate_survey_data_for_step(run_id, connection, step)
-    # copy_step_pvs_for_survey_data(run_id, connection, step)
-    # update_survey_data_with_step_pv_output(connection, step)
-    # update_survey_data_with_step_results(connection, step)
-    # store_survey_data_with_step_results(run_id, connection, step)
-    #
-    # step = "RAIL_IMPUTATION"
-    # print("***{}***".format(step))
-    # populate_survey_data_for_step(run_id, connection, step)
-    # copy_step_pvs_for_survey_data(run_id, connection, step)
-    # update_survey_data_with_step_pv_output(connection, step)
-    # update_survey_data_with_step_results(connection, step)
-    # store_survey_data_with_step_results(run_id, connection, step)
-    #
-    # step = "REGIONAL_WEIGHTS"
-    # print("***{}***".format(step))
-    # populate_survey_data_for_step(run_id, connection, step)
-    # copy_step_pvs_for_survey_data(run_id, connection, step)
-    # update_survey_data_with_step_pv_output(connection, step)
-    # update_survey_data_with_step_results(connection, step)
-    # store_survey_data_with_step_results(run_id, connection, step)
-    #
-    # step = "TOWN_AND_STAY_EXPENDITURE"
-    # print("***{}***".format(step))
-    # populate_survey_data_for_step(run_id, connection, step)
-    # copy_step_pvs_for_survey_data(run_id, connection, step)
-    # update_survey_data_with_step_pv_output(connection, step)
-    # update_survey_data_with_step_results(connection, step)
-    # store_survey_data_with_step_results(run_id, connection, step)
-    #
-    # step = "AIR_MILES"
-    # print("***{}***".format(step))
-    # populate_survey_data_for_step(run_id, connection, step)
-    # update_survey_data_with_step_results(connection, step)
-    # store_survey_data_with_step_results(run_id, connection, step)

@@ -5,6 +5,7 @@ Created on 26 April 2018
 '''
 
 import sys
+import json
 from main.io import CommonFunctions as cf, generic_xml_steps
 from main.io import import_data
 from main.io import import_traffic_data
@@ -57,7 +58,7 @@ def import_step(run_id, version_id):
     import_traffic_data.import_traffic_data(run_id, unsampled_data_path)
 
 
-def shift_weight_step(run_id, connection):
+def shift_weight_step(run_id, connection, step_configuration):
     """
     Author       : Thomas Mahoney
     Date         : 26 April 2018
@@ -69,26 +70,24 @@ def shift_weight_step(run_id, connection):
     Dependencies : NA
     """
 
-    step = "SHIFT_WEIGHT"
-
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
-    generic_xml_steps.populate_step_data(run_id, connection, step)
-    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step)
+    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step_configuration)
+    generic_xml_steps.populate_step_data(run_id, connection, step_configuration)
+    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step_configuration)
 
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_SHIFT_SPV',
                               in_id='serial')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
-    generic_xml_steps.copy_step_pvs_for_step_data(run_id, connection, step)
+    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step_configuration)
+    generic_xml_steps.copy_step_pvs_for_step_data(run_id, connection, step_configuration)
 
     process_variables.process(dataset='shift',
                               in_table_name='SAS_SHIFT_DATA',
                               out_table_name='SAS_SHIFT_PV',
                               in_id='REC_ID')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
+    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step_configuration)
 
     sas_survey_data = cf.get_table_values("SAS_SURVEY_SUBSAMPLE")
     sas_shift_data = cf.get_table_values("SAS_SHIFT_DATA")
@@ -97,11 +96,11 @@ def shift_weight_step(run_id, connection):
                                                                var_serialNum='SERIAL',
                                                                var_shiftWeight='SHIFT_WT')
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
+    generic_xml_steps.update_survey_data_with_step_results(connection, step_configuration)
 
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
+    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step_configuration)
 
-    generic_xml_steps.store_step_summary(run_id, connection, step)
+    generic_xml_steps.store_step_summary(run_id, connection, step_configuration)
 
 
 def non_response_weight_step(run_id, connection):
@@ -571,24 +570,25 @@ if __name__ == '__main__':
     # What was this for?
     version_id = 1891
 
+    # -- Read configuration --
+    with open('data/xml_steps_configuration.json') as config_file:
+        step_configurations = json.load(config_file)
+
     # -- Import --
     import_step(run_id, version_id)
 
     # -- Processing --
-    shift_weight_step(run_id, connection)
-    non_response_weight_step(run_id, connection)
-    minimums_weight_step(run_id, connection)
-    traffic_weight_step(run_id, connection)
-    unsampled_weight_step(run_id, connection)
-    imbalance_weight_step(run_id, connection)
-    final_weight_step(run_id, connection)
-    stay_imputation_step(run_id, connection)
-    fares_imputation_step(run_id, connection)
-    spend_imputation_step(run_id, connection)
-    rail_imputation_step(run_id, connection)
-    regional_weights_step(run_id, connection)
-    town_stay_expenditure_imputation_step(run_id, connection)
-    airmiles_step(run_id, connection)
-
-    # -- Export --
-    sys.exit()
+    shift_weight_step(run_id, connection, step_configurations["SHIFT_WEIGHT"])
+    non_response_weight_step(run_id, connection, step_configurations)
+    minimums_weight_step(run_id, connection, step_configurations)
+    traffic_weight_step(run_id, connection, step_configurations)
+    unsampled_weight_step(run_id, connection, step_configurations)
+    imbalance_weight_step(run_id, connection, step_configurations)
+    final_weight_step(run_id, connection, step_configurations)
+    stay_imputation_step(run_id, connection, step_configurations)
+    fares_imputation_step(run_id, connection, step_configurations)
+    spend_imputation_step(run_id, connection, step_configurations)
+    rail_imputation_step(run_id, connection, step_configurations)
+    regional_weights_step(run_id, connection,step_configurations)
+    town_stay_expenditure_imputation_step(run_id, connection, step_configurations)
+    airmiles_step(run_id, connection, step_configurations)
