@@ -7,8 +7,7 @@ Created on 26 April 2018
 import sys
 import json
 from main.io import CommonFunctions as cf, generic_xml_steps
-from main.io import import_data
-from main.io import import_traffic_data
+
 from main.utils import process_variables
 from main.calculations import calculate_ips_shift_weight
 from main.calculations import calculate_ips_nonresponse_weight
@@ -23,39 +22,6 @@ from main.calculations import calculate_ips_spend_imputation
 from main.calculations import calculate_ips_rail_imputation
 from main.calculations import calculate_ips_regional_weights
 from main.calculations import calculate_ips_airmiles
-
-
-def import_step(run_id, version_id):
-    """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
-    Purpose      : Runs the import step of the ips process
-    Params       : run_id - the id for the current run.
-                   version_id - the version id for the current run.
-    Returns      : NA
-    Requirements : NA
-    Dependencies : NA
-    """
-
-    # Import data paths (these will be passed in through the user)
-    survey_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec Data\ips1712bv4_amtspnd.sas7bdat"
-    shift_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Possible shifts Q1 2017.csv'
-    nr_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Non Response Q1 2017.csv'
-    sea_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Sea Traffic Q1 2017.csv'
-    tunnel_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Tunnel Traffic Q1 2017.csv'
-    air_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\CAA Q1 2017.csv'
-    unsampled_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Unsampled Traffic Q1 2017.csv'
-
-    # Import survey data function to go here
-    import_data.import_survey_data(survey_data_path, run_id, version_id)
-
-    # Import Shift Data
-    import_traffic_data.import_traffic_data(run_id, shift_data_path)
-    import_traffic_data.import_traffic_data(run_id, nr_data_path)
-    import_traffic_data.import_traffic_data(run_id, sea_data_path)
-    import_traffic_data.import_traffic_data(run_id, tunnel_data_path)
-    import_traffic_data.import_traffic_data(run_id, air_data_path)
-    import_traffic_data.import_traffic_data(run_id, unsampled_data_path)
 
 
 def shift_weight_step(run_id, connection, step_configuration):
@@ -573,9 +539,6 @@ if __name__ == '__main__':
     # -- Read configuration --
     with open('data/xml_steps_configuration.json') as config_file:
         step_configurations = json.load(config_file)
-
-    # -- Import --
-    import_step(run_id, version_id)
 
     # -- Processing --
     shift_weight_step(run_id, connection, step_configurations["SHIFT_WEIGHT"])
