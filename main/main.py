@@ -21,23 +21,9 @@ from main.calculations import calculate_ips_fares_imputation
 from main.calculations import calculate_ips_spend_imputation
 from main.calculations import calculate_ips_rail_imputation
 from main.calculations import calculate_ips_regional_weights
-# from main.calculations import calculate_ips_town_and_stay_expenditure_imputation
+from main.calculations import calculate_ips_town_and_stay_expenditure
 from main.calculations import calculate_ips_airmiles
 from IPS_XML import generic
-# from IPS_XML import shift_weight
-# from IPS_XML import non_response
-# from IPS_XML import minimums_weight
-# from IPS_XML import traffic_weight
-# from IPS_XML import unsampled_weight
-# from IPS_XML import imbalance_weight
-# from IPS_XML import final_weight
-# from IPS_XML import stay_imputation
-# from IPS_XML import fares_imputation
-# from IPS_XML import spend_imputation
-# from IPS_XML import rail_imputation
-# from IPS_XML import regional_weights
-# from IPS_XML import town_and_stay_expenditure
-# from IPS_XML import air_miles
 
 
 def import_step(run_id, version_id):
@@ -106,45 +92,17 @@ def shift_weight_step(run_id, connection):
 
     generic.update_survey_data_with_step_pv_output(connection, step)
 
-    calculate_ips_shift_weight.calculate(SurveyData='SAS_SURVEY_SUBSAMPLE',
-                                         ShiftsData='SAS_SHIFT_DATA',
-                                         OutputData='SAS_SHIFT_WT',
-                                         SummaryData='SAS_PS_SHIFT_DATA',
-                                         ResponseTable='SAS_RESPONSE',
-                                         ShiftsStratumDef=['SHIFT_PORT_GRP_PV',
-                                                           'ARRIVEDEPART',
-                                                           'WEEKDAY_END_PV',
-                                                           'AM_PM_NIGHT_PV'],
-                                         var_serialNum='SERIAL',
-                                         var_shiftFlag='SHIFT_FLAG_PV',
-                                         var_shiftFactor='SHIFT_FACTOR',
-                                         var_totals='TOTAL',
-                                         var_shiftNumber='SHIFTNO',
-                                         var_crossingFlag='CROSSINGS_FLAG_PV',
-                                         var_crossingsFactor='CROSSINGS_FACTOR',
-                                         var_crossingNumber='SHUTTLE',
-                                         var_SI='MIGSI',
-                                         var_shiftWeight='SHIFT_WT',
-                                         var_count='COUNT_RESPS',
-                                         var_weightSum='SUM_SH_WT',
-                                         var_minWeight='MIN_SH_WT',
-                                         var_avgWeight='MEAN_SH_WT',
-                                         var_maxWeight='MAX_SH_WT',
-                                         var_summaryKey='SHIFT_PORT_GRP_PV',
-                                         subStrata=['SHIFT_PORT_GRP_PV',
-                                                    'ARRIVEDEPART'],
-                                         var_possibleCount='POSS_SHIFT_CROSS',
-                                         var_sampledCount='SAMP_SHIFT_CROSS',
-                                         minWeightThresh='50',
-                                         maxWeightThresh='5000')
+    sas_survey_data = cf.get_table_values("SAS_SURVEY_SUBSAMPLE")
+    sas_shift_data = cf.get_table_values("SAS_SHIFT_DATA")
+    calculate_ips_shift_weight.do_ips_shift_weight_calculation(sas_survey_data,
+                                                               sas_shift_data,
+                                                               var_serialNum='SERIAL',
+                                                               var_shiftWeight='SHIFT_WT')
 
-    print("Start - update_survey_data_with_shift_wt_results")
     generic.update_survey_data_with_step_results(connection, step)
 
-    print("Start - store_survey_data_with_shift_wt_results")
     generic.store_survey_data_with_step_results(run_id, connection, step)
 
-    print("Start - store_shift_wt_summary")
     generic.store_step_summary(run_id, connection, step)
 
 
