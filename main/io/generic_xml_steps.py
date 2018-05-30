@@ -135,9 +135,6 @@ def populate_step_data(run_id, conn, step_configuration):
     Returns      : NA
     """
 
-    print(str(inspect.stack()[0][3]).upper())
-    print("")
-
     # Assign variables
     table = step_configuration["table_name"]
     data_table = step_configuration["data_table"]
@@ -147,7 +144,7 @@ def populate_step_data(run_id, conn, step_configuration):
     # Construct string for SQL statement
     calc_cols = []
     for col in step_configuration["insert_to_populate"]:
-        if col != "REC_ID":
+        if col != "[REC_ID]":
             calc_cols.append("CALC." + col)
     calc_columns = ", ".join(map(str, calc_cols))
 
@@ -158,7 +155,7 @@ def populate_step_data(run_id, conn, step_configuration):
     sql = """
     INSERT INTO {}
         ({})
-    SELECT ([sys].[sp_sequence_get_range]), {}
+    SELECT 1, {}
     FROM {} AS CALC
     WHERE RUN_ID = '{}'
     """.format(data_table, cols, calc_columns, table, run_id)
@@ -198,12 +195,12 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
     # Construct SQL statement as applicable and execute
     if step in basic_insert:
         input = step_configuration["pv_columns"]
-        str_input = "', '".join(map(str, input))
+        str_input = ", ".join(map(str, input))
         sql = """
         INSERT INTO {}
             (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, 0
-            FROM PROCESS_VARIABLE AS PV WHERE PV.RUN_ID = '{}' 
-            AND UPPER(PV.PV_NAME) IN ('{}'))
+            FROM PROCESS_VARIABLE_PY AS PV WHERE PV.RUN_ID = '{}' 
+            AND UPPER(PV.PV_NAME) IN ({}))
         """.format(SAS_PROCESS_VARIABLES_TABLE, run_id, str_input)
         print(sql)
         cur.execute(sql)
@@ -216,7 +213,7 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
             sql = """
             INSERT INTO {}
                 (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, {}
-                FROM PROCESS_VARIABLE AS PV WHERE PV.RUN_ID = '{}' 
+                FROM PROCESS_VARIABLE_PY AS PV WHERE PV.RUN_ID = '{}' 
                 AND UPPER(PV.PV_NAME) IN ('{}'))
             """.format(SAS_PROCESS_VARIABLES_TABLE, count, run_id, item)
             print(sql)
@@ -229,7 +226,7 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
         sql = """
         INSERT INTO {}
             (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, 0
-            FROM PROCESS_VARIABLE AS PV WHERE PV.RUN_ID = '{}' 
+            FROM PROCESS_VARIABLE_PY AS PV WHERE PV.RUN_ID = '{}' 
             AND UPPER(PV.PV_NAME) IN ('{}'))
             """.format(SAS_PROCESS_VARIABLES_TABLE, run_id, str_input)
 
@@ -243,7 +240,7 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
             sql = """
             INSERT INTO {}
                 (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, {}
-                FROM PROCESS_VARIABLE AS PV WHERE PV.RUN_ID = '{}' 
+                FROM PROCESS_VARIABLE_PY AS PV WHERE PV.RUN_ID = '{}' 
                 AND UPPER(PV.PV_NAME) IN ('{}'))
             """.format(SAS_PROCESS_VARIABLES_TABLE, count, run_id, item)
             print(sql)
@@ -321,7 +318,7 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
                  INSERT INTO {}
                  ([PROCVAR_NAME], [PROCVAR_RULE], [PROCVAR_ORDER])
                      (SELECT pv.[PV_NAME], pv.[PV_DEF], {}
-                     FROM [dbo].[PROCESS_VARIABLE] AS pv
+                     FROM [dbo].[PROCESS_VARIABLE_PY] AS pv
                      WHERE pv.[RUN_ID] = '{}'
                      AND UPPER(pv.[PV_NAME]) in ({}))
                  """.format(SAS_PROCESS_VARIABLES_TABLE, order, run_id, item))
@@ -330,7 +327,7 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
                 INSERT INTO {}
                 ([PROCVAR_NAME], [PROCVAR_RULE], [PROCVAR_ORDER])
                     (SELECT pv.[PV_NAME], pv.[PV_DEF], {}
-                    FROM [dbo].[PROCESS_VARIABLE] AS pv
+                    FROM [dbo].[PROCESS_VARIABLE_PY] AS pv
                     WHERE pv.[RUN_ID] = '{}'
                     AND UPPER(pv.[PV_NAME]) in ({}))
                 """.format(SAS_PROCESS_VARIABLES_TABLE, order, run_id, item))
@@ -346,7 +343,7 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
             INSERT INTO {}
             ([PROCVAR_NAME], [PROCVAR_RULE], [PROCVAR_ORDER])
                 (SELECT pv.[PV_NAME], pv.[PV_DEF], {}
-                FROM [dbo].[PROCESS_VARIABLE] AS pv
+                FROM [dbo].[PROCESS_VARIABLE_PY] AS pv
                 WHERE pv.[RUN_ID] = '{}'
                 AND UPPER(pv.[PV_NAME]) in ({})) 
         """.format(SAS_PROCESS_VARIABLES_TABLE, step_configuration["order"], run_id, pv_columns)
@@ -357,7 +354,7 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
         conn.commit()
 
 
-def update_survey_data_with_step_pv_output(conn, step_configuration):
+def update_step_data_with_step_pv_output(conn, step_configuration):
     """
     Author       : Elinor Thorne
     Date         : April 2018
