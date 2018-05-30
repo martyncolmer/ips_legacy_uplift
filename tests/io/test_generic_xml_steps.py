@@ -1,17 +1,19 @@
 from main.io import import_data
 from main.io import import_traffic_data
+import main.io.CommonFunctions as cf
 from main.io.CommonFunctions import get_oracle_connection
+import main.io.generic_xml_steps as gxs
 import pytest
+import pandas as pd
 
-
-@pytest.fixture()
+@pytest.fixture(scope='module')
 def import_data_into_database():
     run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
 
     version_id = 1891
 
     # Import data paths (these will be passed in through the user)
-    survey_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec Data\ips1712bv4_amtspnd.sas7bdat"
+    survey_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec_Data\ips1712bv4_amtspnd.sas7bdat"
     shift_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Possible shifts Q1 2017.csv'
     nr_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Non Response Q1 2017.csv'
     sea_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Sea Traffic Q1 2017.csv'
@@ -30,3 +32,22 @@ def import_data_into_database():
     import_traffic_data.import_traffic_data(run_id, air_data_path)
     import_traffic_data.import_traffic_data(run_id, unsampled_data_path)
 
+@pytest.mark.testthis
+def test_nullify_survey_subsample_pv_values():
+    test_data = pd.read_pickle('tests/data/generic_xml_steps/nullify_pv_survey_data.pkl')
+
+    assert test_data['SHIFT_PORT_GRP_PV'].isnull().sum() == 0
+    assert test_data['WEEKDAY_END_PV'].isnull().sum() == 0
+
+    # Insert the imported data into the survey_subsample table on the database.
+    cf.insert_dataframe_into_table('SURVEY_SUBSAMPLE', test_data)
+    connection = get_oracle_connection()
+    gxs.nullify_survey_subsample_pv_values("nullify-test", connection, ["[SHIFT_PORT_GRP_PV]",
+                                                                        "[WEEKDAY_END_PV]"])
+
+    result = cf.select_data('SHIFT_PORT_GRP_PV', 'SURVEY_SUBSAMPLE', 'RUN_ID', 'nullify-test')
+    assert result['SHIFT_PORT_GRP_PV'].isnull().sum() == len(result)
+    result = cf.select_data('WEEKDAY_END_PV', 'SURVEY_SUBSAMPLE', 'RUN_ID', "nullify-test")
+    assert result['WEEKDAY_END_PV'].isnull().sum() == len(result)
+
+    cf.delete_from_table('SURVEY_SUBSAMPLE', 'RUN_ID', '=', 'nullify-test')
