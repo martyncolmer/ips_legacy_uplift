@@ -527,53 +527,39 @@ def select_data(column_name, table_name, condition1, condition2):
     """
     Author        : Elinor Thorne
     Date          : 21 Dec 2017
-    Purpose       : Uses SQL query to retrieve value from Oracle table  
+    Purpose       : Uses SQL query to retrieve values from database
     Parameters    : column_name, table_name, condition1, condition2, i.e:
                   : "SELECT column_name FROM table_name WHERE condition1 = condition2" (no 'AND'/'OR' clause)
-    Returns       : Result (String)  
+    Returns       : Data Frame for multiple values, scalar/string for single values
     Requirements  : None
-    Dependencies  : get_oracle_connection(),
-                    database_logger()
     """
-    
+
     # Connection variables
     conn = get_oracle_connection()
-    cur = conn.cursor()
-    
+    # cur = conn.cursor()
+
     # Create SQL statement
-    sql = ("SELECT " + column_name 
-           + " FROM " + table_name 
-           + " WHERE " + condition1 
+    sql = ("SELECT " + column_name
+           + " FROM " + table_name
+           + " WHERE " + condition1
            + " = '" + condition2 + "'")
 
     try:
-        # Execute
-        cur.execute(sql)
+        result = pandas.read_sql(sql, conn)
     except Exception as err:
         # Return False to indicate error
-        #database_logger().error(err, exc_info = True)
+        # database_logger().error(err, exc_info = True)
         return False
-    else:
-        #val = cur.fetchall()
-        row = cur.fetchone()
-        if row:
-            result = row[0]
-        else:
-            result = row
-        
-    # 0 = frame object, 1 = filename, 3 = function name. 
-    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
-    current_working_file = str(inspect.stack()[0][1])
-    function_name = str(inspect.stack()[0][3]) 
-    
-    if row == 'None':
-        err_msg = "ERROR: SQL query failed to return result."
-        database_logger().error(standard_log_message(err_msg
-                                                     , current_working_file
-                                                     , function_name))
-        return False
-    else:
-        return result
+
+    # if an empty data frame is returned
+    if len(result) == 0:
+        # err_msg = "ERROR: SQL query failed to return result."
+        result = False
+    elif len(result) == 1:
+        # if a single value is returned we don't want it to be a data frame
+        result = result.loc[0, column_name]
+
+    return result
 
 
 def unload_parameters(parameter_id = False):
@@ -1105,6 +1091,11 @@ def beep():
 
     print("boop-beep!")
 
+
+def execute_sql_query(connection, sql_statement):
+    cur = connection.cursor()
+    cur.execute(sql_statement)
+    connection.commit()
 
 if __name__ == "__main__":
     print (delete_from_table("SAS_IMBALANCE_WT"))
