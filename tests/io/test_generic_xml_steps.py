@@ -5,6 +5,11 @@ from main.io.CommonFunctions import get_oracle_connection
 import main.io.generic_xml_steps as gxs
 import pytest
 import pandas as pd
+from pandas.util.testing import assert_frame_equal
+
+@pytest.fixture(scope='module')
+def database_connection():
+    return get_oracle_connection()
 
 @pytest.fixture(scope='module')
 def import_data_into_database():
@@ -32,22 +37,42 @@ def import_data_into_database():
     import_traffic_data.import_traffic_data(run_id, air_data_path)
     import_traffic_data.import_traffic_data(run_id, unsampled_data_path)
 
-@pytest.mark.testthis
-def test_nullify_survey_subsample_pv_values():
-    test_data = pd.read_pickle('tests/data/generic_xml_steps/nullify_pv_survey_data.pkl')
 
+def test_nullify_survey_subsample_pv_values(database_connection):
+    test_data = pd.read_pickle('tests/data/generic_xml_steps/nullify_pv_survey_data.pkl')
+    # test to make sure our test data is different from the data after applying the function
     assert test_data['SHIFT_PORT_GRP_PV'].isnull().sum() == 0
     assert test_data['WEEKDAY_END_PV'].isnull().sum() == 0
 
     # Insert the imported data into the survey_subsample table on the database.
-    cf.insert_dataframe_into_table('SURVEY_SUBSAMPLE', test_data)
-    connection = get_oracle_connection()
-    gxs.nullify_survey_subsample_pv_values("nullify-test", connection, ["[SHIFT_PORT_GRP_PV]",
-                                                                        "[WEEKDAY_END_PV]"])
+    cf.insert_dataframe_into_table(gxs.SURVEY_SUBSAMPLE_TABLE, test_data)
+    gxs.nullify_survey_subsample_pv_values("nullify-test", database_connection, ["[SHIFT_PORT_GRP_PV]",
+                                                                                 "[WEEKDAY_END_PV]"])
 
-    result = cf.select_data('SHIFT_PORT_GRP_PV', 'SURVEY_SUBSAMPLE', 'RUN_ID', 'nullify-test')
+    cf.delete_from_table(gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'nullify-test')
+
+    result = cf.select_data('SHIFT_PORT_GRP_PV', gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', 'nullify-test')
     assert result['SHIFT_PORT_GRP_PV'].isnull().sum() == len(result)
-    result = cf.select_data('WEEKDAY_END_PV', 'SURVEY_SUBSAMPLE', 'RUN_ID', "nullify-test")
+    result = cf.select_data('WEEKDAY_END_PV', gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', "nullify-test")
     assert result['WEEKDAY_END_PV'].isnull().sum() == len(result)
 
-    cf.delete_from_table('SURVEY_SUBSAMPLE', 'RUN_ID', '=', 'nullify-test')
+
+def test_move_survey_subsample_to_sas_table(database_connection):
+    test_data = pd.read_pickle('tests/data/generic_xml_steps/move_survey_subsample.pkl')
+
+    cf.insert_dataframe_into_table(gxs.SURVEY_SUBSAMPLE_TABLE, test_data)
+    cf.delete_from_table(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+    gxs.move_survey_subsample_to_sas_table('move-survey-test', database_connection, step_name="")
+
+    result = cf.get_table_values(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+    cf.delete_from_table(gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'move-survey-test')
+
+    assert len(result) == len(test_data)
+    assert result.columns.isin(gxs.COLUMNS_TO_MOVE).sum() == len(gxs.COLUMNS_TO_MOVE)
+
+    test_result = pd.read_pickle('tests/data/generic_xml_steps/move_survey_subsample_result.pkl')
+    assert_frame_equal(result, test_result)
+
+
