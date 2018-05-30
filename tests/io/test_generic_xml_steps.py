@@ -95,3 +95,27 @@ def test_move_survey_subsample_to_sas_table_traffic_weight(database_connection):
 
     test_result = pd.read_pickle('tests/data/generic_xml_steps/move_survey_subsample_traffic_result.pkl')
     assert_frame_equal(result, test_result)
+
+
+def test_populate_survey_data_for_step(database_connection):
+    # this is an integration of the above tests so we will keep things simple
+
+    test_data = pd.read_pickle('tests/data/generic_xml_steps/move_survey_subsample.pkl')
+    cf.insert_dataframe_into_table(gxs.SURVEY_SUBSAMPLE_TABLE, test_data)
+
+    step_config = {'nullify_pvs': ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]"],
+                   'name': 'SHIFT_WEIGHT',
+                   'delete_tables': ["[dbo].[SAS_SHIFT_WT]", "[dbo].[SAS_PS_SHIFT_DATA]"]}
+    gxs.populate_survey_data_for_step('move-survey-test', database_connection, step_config)
+
+    cf.delete_from_table(gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'move-survey-test')
+
+    result = cf.get_table_values(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
+    test_result = pd.read_pickle('tests/data/generic_xml_steps/move_survey_subsample_result.pkl')
+    assert_frame_equal(result, test_result)
+
+    result = cf.get_table_values("SAS_SHIFT_WT")
+    assert len(result) == 0
+
+    result = cf.get_table_values("SAS_PS_SHIFT_DATA")
+    assert len(result) == 0
