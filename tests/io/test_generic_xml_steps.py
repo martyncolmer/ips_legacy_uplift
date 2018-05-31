@@ -217,6 +217,37 @@ def test_copy_step_pvs_for_survey_data_stay_imp(database_connection):
     assert len(results) == 0
 
 
+def test_update_survey_data_with_step_pv_output(database_connection):
+    step_config = {'name': "NON_RESPONSE",
+                   'spv_table': '[dbo].[SAS_NON_RESPONSE_SPV]',
+                   'pv_columns': ["'NR_PORT_GRP_PV'", "'MIG_FLAG_PV'", "'NR_FLAG_PV'"]
+                   }
+    run_id = 'update-survey-pvs'
+
+    # set up test data/tables
+    test_survey_data = pd.read_pickle(TEST_DATA_DIR + 'update_survey_data_pvs.pkl')
+    cf.insert_dataframe_into_table(gxs.SAS_SURVEY_SUBSAMPLE_TABLE, test_survey_data, database_connection)
+
+    test_nr_pv_data = pd.read_pickle(TEST_DATA_DIR + 'test_nr_pv_data.pkl')
+    cf.insert_dataframe_into_table(step_config['spv_table'], test_nr_pv_data, database_connection)
+
+    gxs.copy_step_pvs_for_survey_data(run_id, database_connection, step_config)
+
+    results = cf.get_table_values(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+    # clean test data before actually testing results
+    cf.delete_from_table(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+    test_results = pd.read_pickle(TEST_DATA_DIR + 'update_survey_data_pvs_result.pkl')
+    assert_frame_equal(results, test_results)
+
+    results = cf.get_table_values(step_config['spv_table'])
+    assert len(results) == 0
+
+    results = cf.get_table_values(gxs.SAS_PROCESS_VARIABLES_TABLE)
+    assert len(results) == 0
+
+
 @pytest.mark.skip('this takes very long')
 def test_shift_weight_step(database_connection):
     step_config = {"nullify_pvs": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[SHIFT_FLAG_PV]", "[CROSSINGS_FLAG_PV]", "[SHIFT_WT]"],

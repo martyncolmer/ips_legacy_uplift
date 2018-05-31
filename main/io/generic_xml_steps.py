@@ -249,9 +249,6 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
     Returns      : NA
     """
 
-    print(str(inspect.stack()[0][3]).upper())
-    print("")
-
     # Assign variables
     spv_table = step_configuration["spv_table"]
 
@@ -269,7 +266,6 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
             ON SSS.SERIAL = CALC.SERIAL
         """.format(SAS_SURVEY_SUBSAMPLE_TABLE, set_statement, SAS_SURVEY_SUBSAMPLE_TABLE, spv_table)
 
-    print(sql)
     cur = conn.cursor()
     cur.execute(sql)
     conn.commit()
