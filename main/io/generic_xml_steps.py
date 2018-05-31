@@ -388,6 +388,30 @@ def update_step_data_with_step_pv_output(conn, step_configuration):
     cf.delete_from_table(step_configuration["sas_ps_table"])
 
 
+def sql_update_statement(table_to_update_from, columns_to_update):
+    """
+    Author       : Elinor Thorne
+    Date         : May 2018
+    Purpose      : Constructs SQL update statement
+    Parameters   : step -
+    Returns      : String - SQL update statement
+    """
+    # Construct SET string
+    cols = [item + ' = temp.' + item for item in columns_to_update]
+    columns = " , ".join(cols)
+
+    # Construct SQL statement and execute
+    sql = """
+            UPDATE {}
+            SET {}
+            FROM {} as SSS
+            JOIN {} as temp
+            ON SSS.SERIAL = temp.SERIAL            
+            """.format(SAS_SURVEY_SUBSAMPLE_TABLE, columns, SAS_SURVEY_SUBSAMPLE_TABLE, table_to_update_from)
+
+    return sql
+
+
 def update_survey_data_with_step_results(conn, step_configuration):
     """
     Author       : Elinor Thorne
@@ -397,9 +421,6 @@ def update_survey_data_with_step_results(conn, step_configuration):
                  : step -
     Returns      : NA
     """
-
-    print(str(inspect.stack()[0][3]).upper())
-    print("")
 
     step = step_configuration["name"]
 
@@ -416,47 +437,24 @@ def update_survey_data_with_step_results(conn, step_configuration):
     elif step in imputations:
         table = step_configuration["temp_table"]
     else:
-        table = SAS_SURVEY_SUBSAMPLE_TABLE
+        # TODO throw error - invalid step
+        return None
 
     sql2 = ""
 
-    def update_statement(step_configuration):
-        """
-        Author       : Elinor Thorne
-        Date         : May 2018
-        Purpose      : Constructs SQL update statement
-        Parameters   : step -
-        Returns      : String - SQL update statement
-        """
-        # Construct SET string
-        cols = []
-        for item in step_configuration["results_columns"]:
-            cols.append(
-                item + " = (SELECT temp." + item + " FROM " + table + " AS temp WHERE [SERIAL] = temp.[SERIAL])")
-        columns = """, 
-                """.join(map(str, cols))
-
-        # Construct SQL statement and execute
-        sql = """
-                UPDATE {}
-                SET {}
-                """.format(SAS_SURVEY_SUBSAMPLE_TABLE, columns, table)
-
-        return sql
-
     # Construct and execute SQL statement/s as applicable
+    results_columns = step_configuration["results_columns"]
     if step in do_green:
-        sql1 = update_statement(step)
+        sql1 = sql_update_statement(table, results_columns)
     elif step == "IMBALANCE_WEIGHT":
-        sql1 = update_statement(step)
+        sql1 = sql_update_statement(table, results_columns)
         sql2 = """
                 UPDATE {}
                 SET [IMBAL_WT] = 1.00
                 WHERE [IMBAL_WT] IS NULL
                 """.format(SAS_SURVEY_SUBSAMPLE_TABLE)
     elif step == "STAY_IMPUTATION":
-        print("hello?")
-        sql1 = update_statement(step)
+        sql1 = sql_update_statement(table, results_columns)
         sql2 = """
                 UPDATE {}
                 SET [STAY] = (SELECT temp.[NUMNIGHTS]
@@ -475,7 +473,7 @@ def update_survey_data_with_step_results(conn, step_configuration):
                         FROM {} AS temp2
                         WHERE temp2.[NEWSPEND] >= 0)
                     """.format(SAS_SURVEY_SUBSAMPLE_TABLE, table, table)
-        sql2 = update_statement(step)
+        sql2 = sql_update_statement(table, results_columns)
     else:
         sql1 = """
                    UPDATE {}
@@ -484,14 +482,9 @@ def update_survey_data_with_step_results(conn, step_configuration):
                    """.format(SAS_SURVEY_SUBSAMPLE_TABLE, table, table)
         sql2 = ""
 
-    print("sql1")
-    print(sql1)
     cur = conn.cursor()
     cur.execute(sql1)
-    print("")
     if sql2 != "":
-        print("sql2")
-        print(sql2)
         cur.execute(sql2)
     conn.commit()
 
