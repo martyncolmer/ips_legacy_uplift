@@ -53,14 +53,16 @@ def shift_weight_step(run_id, connection, step_configuration):
                               out_table_name='SAS_SHIFT_PV',
                               in_id='REC_ID')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step_configuration)
+    generic_xml_steps.update_step_data_with_step_pv_output(connection, step_configuration)
 
-    sas_survey_data = cf.get_table_values("SAS_SURVEY_SUBSAMPLE")
-    sas_shift_data = cf.get_table_values("SAS_SHIFT_DATA")
-    calculate_ips_shift_weight.do_ips_shift_weight_calculation(sas_survey_data,
-                                                               sas_shift_data,
-                                                               var_serialNum='SERIAL',
-                                                               var_shiftWeight='SHIFT_WT')
+    sas_survey_data = cf.get_table_values(generic_xml_steps.SAS_SURVEY_SUBSAMPLE_TABLE)
+    sas_shift_data = cf.get_table_values(step_configuration["data_table"])
+    surveydata_out, summary_out = calculate_ips_shift_weight.do_ips_shift_weight_calculation(sas_survey_data,
+                                                                                             sas_shift_data,
+                                                                                             var_serialNum='SERIAL',
+                                                                                             var_shiftWeight='SHIFT_WT')
+    cf.insert_dataframe_into_table(step_configuration["weight_table"], surveydata_out)
+    cf.insert_dataframe_into_table(step_configuration["sas_ps_table"], summary_out)
 
     generic_xml_steps.update_survey_data_with_step_results(connection, step_configuration)
 
