@@ -265,18 +265,18 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
     spv_table = step_configuration["spv_table"]
 
     # Construct string for SQL statement
-    set = []
-    for item in step_configuration["pv_columns"]:
-        set.append(item + " = (SELECT " + item + " FROM " + spv_table + " AS CALC WHERE SERIAL = CALC.SERIAL)")
-    set_statement = ", ".join(map(str, set))
+    cols = [item.replace("'", "") for item in step_configuration["pv_columns"]]
+    cols = [item + " = CALC. " + item for item in cols]
+    set_statement = ", ".join(map(str, cols))
 
     # Construct and execute SQL statement
     sql = """
         UPDATE {}
             SET {}
-            WHERE SERIAL = (SELECT SERIAL 
-                            FROM {})
-        """.format(SAS_SURVEY_SUBSAMPLE_TABLE, set_statement, spv_table)
+            FROM {} as SSS
+            JOIN {} as CALC
+            ON SSS.SERIAL = CALC.SERIAL
+        """.format(SAS_SURVEY_SUBSAMPLE_TABLE, set_statement, SAS_SURVEY_SUBSAMPLE_TABLE, spv_table)
 
     print(sql)
     cur = conn.cursor()
