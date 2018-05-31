@@ -539,44 +539,25 @@ def store_step_summary(run_id, conn, step_configuration):
     Returns      : NA
     """
 
-    print(str(inspect.stack()[0][3]).upper())
-    print("")
-
-    # Cleanse summary and subsample tables as applicable
-    ps_tables_to_delete = ["SHIFT_WEIGHT", "NON_RESPONSE", "MINIMUMS_WEIGHT",
-                           "TRAFFIC_WEIGHT", "UNSAMPLED_WEIGHT", "IMBALANCE_WEIGHT",
-                           "FINAL_WEIGHT"]
-
-    if step_configuration["name"] in ps_tables_to_delete:
-        cf.delete_from_table(step_configuration["ps_table"], "RUN_ID", "=", run_id)
-
     # Assign variables
     ps_table = step_configuration["ps_table"]
     sas_ps_table = step_configuration["sas_ps_table"]
-    cols = []
-    sel = []
+
+    # Cleanse summary table as applicable
+    cf.delete_from_table(ps_table, "RUN_ID", "=", run_id)
 
     # Create selection string
-    for col in step_configuration["ps_columns"]:
-        cols.append(col)
-        if col != "[RUN_ID]":
-            sel.append("SELECT " + col + " FROM " + sas_ps_table)
-    columns = """, 
-    """.join(map(str, cols))
-    selection = """),
-     (""".join(map(str, sel))
 
-    # Cleanse summary table
-    cf.delete_from_table(ps_table, 'RUN_ID', '=', run_id)
+    selection = [col for col in step_configuration["ps_columns"] if col != "[RUN_ID]"]
+    columns = " , ".join(step_configuration["ps_columns"])
+    selection = " , ".join(selection)
 
     # Create and execute SQL statement
     sql = """
     INSERT INTO {}
     ({})
-    VALUES ('{}', ({}))
-    """.format(ps_table, columns, run_id, selection)
-
-    print(sql)
+    SELECT '{}', {} FROM {}
+    """.format(ps_table, columns, run_id, selection, sas_ps_table)
 
     try:
         cur = conn.cursor()
