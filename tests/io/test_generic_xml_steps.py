@@ -151,15 +151,15 @@ def test_populate_step_data(database_connection):
     assert_frame_equal(result, test_result)
 
 
-@pytest.mark.parametrize('step_name, expected_results_file, pv_columns', [
-    ("SHIFT_WEIGHT", 'copy_pvs_shift_weight_result.pkl', ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'"]),
-    ("UNSAMPLED_WEIGHT", 'copy_pvs_unsampled_weight_result.pkl', ["'UNSAMP_PORT_GRP_PV'", "'UNSAMP_REGION_GRP_PV'"]),
+@pytest.mark.parametrize('step_name, expected_results_file, pv_columns, spv_table', [
+    ("SHIFT_WEIGHT", 'copy_pvs_shift_weight_result.pkl', ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'"], "[dbo].[SAS_SHIFT_SPV]"),
+    ("UNSAMPLED_WEIGHT", 'copy_pvs_unsampled_weight_result.pkl', ["'UNSAMP_PORT_GRP_PV'", "'UNSAMP_REGION_GRP_PV'"], "[dbo].[SAS_UNSAMPLED_OOH_SPV]"),
 ])
 def test_copy_step_pvs_for_survey_data(step_name, expected_results_file, pv_columns,
-                                       database_connection):
+                                       spv_table, database_connection):
 
     step_config = {'name': step_name,
-                   'spv_table': '[dbo].[SAS_SHIFT_SPV]',
+                   'spv_table': spv_table,
                    'pv_columns': pv_columns}
     run_id = 'copy-step-pvs'
 
@@ -178,6 +178,8 @@ def test_copy_step_pvs_for_survey_data(step_name, expected_results_file, pv_colu
     test_results = pd.read_pickle(TEST_DATA_DIR + expected_results_file)
     results = results.sort_values(by='PROCVAR_NAME')
     test_results = test_results.sort_values(by='PROCVAR_NAME')
+    results.index = range(0, len(results))
+    test_results.index = range(0, len(test_results))
     assert_frame_equal(results, test_results)
 
     results = cf.get_table_values(step_config['spv_table'])
@@ -186,7 +188,7 @@ def test_copy_step_pvs_for_survey_data(step_name, expected_results_file, pv_colu
 
 def test_copy_step_pvs_for_survey_data_stay_imp(database_connection):
     step_config = {'name': "STAY_IMPUTATION",
-                   'spv_table': '[dbo].[SAS_SHIFT_SPV]',
+                   'spv_table': '[dbo].[SAS_STAY_SPV]',
                    "copy_pvs": ["[STAY_IMP_FLAG_PV]", "[STAY_IMP_ELIGIBLE_PV]", "[STAY_PURPOSE_GRP_PV]"],
                    "copy_pvs2": ["[STAYIMPCTRYLEVEL1_PV]", "[STAYIMPCTRYLEVEL2_PV]", "[STAYIMPCTRYLEVEL3_PV]",
                                  "[STAYIMPCTRYLEVEL4_PV]"]}
