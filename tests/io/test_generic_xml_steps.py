@@ -8,6 +8,8 @@ import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from main.main import shift_weight_step
 
+TEST_DATA_DIR = 'tests/data/generic_xml_steps/'
+
 @pytest.fixture(scope='module')
 def database_connection():
     return get_oracle_connection()
@@ -147,6 +149,70 @@ def test_populate_step_data(database_connection):
 
     test_result = pd.read_pickle('tests/data/generic_xml_steps/populate_step_data_result.pkl')
     assert_frame_equal(result, test_result)
+
+
+@pytest.mark.parametrize('step_name, expected_results_file, pv_columns', [
+    ("SHIFT_WEIGHT", 'copy_pvs_shift_weight_result.pkl', ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'"]),
+    ("UNSAMPLED_WEIGHT", 'copy_pvs_unsampled_weight_result.pkl', ["'UNSAMP_PORT_GRP_PV'", "'UNSAMP_REGION_GRP_PV'"]),
+])
+def test_copy_step_pvs_for_survey_data(step_name, expected_results_file, pv_columns,
+                                       database_connection):
+
+    step_config = {'name': step_name,
+                   'spv_table': '[dbo].[SAS_SHIFT_SPV]',
+                   'pv_columns': pv_columns}
+    run_id = 'copy-step-pvs'
+
+    # set up test data/tables
+    test_process_variables = pd.read_pickle(TEST_DATA_DIR + 'process_variables.pkl')
+    cf.insert_dataframe_into_table('PROCESS_VARIABLE_PY', test_process_variables, database_connection)
+
+    gxs.copy_step_pvs_for_survey_data(run_id, database_connection, step_config)
+
+    results = cf.get_table_values(gxs.SAS_PROCESS_VARIABLES_TABLE)
+
+    # clean test data before actually testing results
+    cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
+    cf.delete_from_table(gxs.SAS_PROCESS_VARIABLES_TABLE)
+
+    test_results = pd.read_pickle(TEST_DATA_DIR + expected_results_file)
+    results = results.sort_values(by='PROCVAR_NAME')
+    test_results = test_results.sort_values(by='PROCVAR_NAME')
+    assert_frame_equal(results, test_results)
+
+    results = cf.get_table_values(step_config['spv_table'])
+    assert len(results) == 0
+
+
+def test_copy_step_pvs_for_survey_data_stay_imp(database_connection):
+    step_config = {'name': "STAY_IMPUTATION",
+                   'spv_table': '[dbo].[SAS_SHIFT_SPV]',
+                   "copy_pvs": ["[STAY_IMP_FLAG_PV]", "[STAY_IMP_ELIGIBLE_PV]", "[STAY_PURPOSE_GRP_PV]"],
+                   "copy_pvs2": ["[STAYIMPCTRYLEVEL1_PV]", "[STAYIMPCTRYLEVEL2_PV]", "[STAYIMPCTRYLEVEL3_PV]",
+                                 "[STAYIMPCTRYLEVEL4_PV]"]}
+    run_id = 'copy-step-pvs'
+
+    # set up test data/tables
+    test_process_variables = pd.read_pickle(TEST_DATA_DIR + 'process_variables.pkl')
+    cf.insert_dataframe_into_table('PROCESS_VARIABLE_PY', test_process_variables, database_connection)
+
+    gxs.copy_step_pvs_for_survey_data(run_id, database_connection, step_config)
+
+    results = cf.get_table_values(gxs.SAS_PROCESS_VARIABLES_TABLE)
+
+    # clean test data before actually testing results
+    cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
+    cf.delete_from_table(gxs.SAS_PROCESS_VARIABLES_TABLE)
+
+    test_results = pd.read_pickle(TEST_DATA_DIR + 'copy_pvs_stay_imp_result.pkl')
+    results = results.sort_values(by='PROCVAR_NAME')
+    test_results = test_results.sort_values(by='PROCVAR_NAME')
+    results.index = range(0, len(results))
+    test_results.index = range(0, len(test_results))
+    assert_frame_equal(results, test_results)
+
+    results = cf.get_table_values(step_config['spv_table'])
+    assert len(results) == 0
 
 
 @pytest.mark.skip('this takes very long')

@@ -173,13 +173,10 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
     Returns      : NA
     """
 
-    print(str(inspect.stack()[0][3]).upper())
-    print("")
-
     # Assign variables
     basic_insert = ["SHIFT_WEIGHT", "NON_RESPONSE", "MINIMUMS_WEIGHT", "TRAFFIC_WEIGHT"]
-    multiple_inserts = ["UNSAMPLED_WEIGHT", "IMBALANCE_WEIGHT", "STAY_IMPUTATION", "FARES_IMPUTATION", "SPEND_IMPUTATION", "RAIL_IMPUTATION", "REGIONAL_WEIGHTS", "TOWN_AND_STAY_EXPENDITURE"]
-    spv_table = (step_configuration["spv_table"])
+    multiple_inserts = ["UNSAMPLED_WEIGHT", "IMBALANCE_WEIGHT", "FARES_IMPUTATION", "SPEND_IMPUTATION", "RAIL_IMPUTATION", "REGIONAL_WEIGHTS", "TOWN_AND_STAY_EXPENDITURE"]
+    spv_table = step_configuration["spv_table"]
     cur = conn.cursor()
 
     # Cleanse tables
@@ -190,15 +187,14 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
 
     # Construct SQL statement as applicable and execute
     if step in basic_insert:
-        input = step_configuration["pv_columns"]
-        str_input = ", ".join(map(str, input))
+        columns = step_configuration["pv_columns"]
+        str_input = ", ".join(map(str, columns))
         sql = """
         INSERT INTO {}
             (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, 0
             FROM PROCESS_VARIABLE_PY AS PV WHERE PV.RUN_ID = '{}' 
             AND UPPER(PV.PV_NAME) IN ({}))
         """.format(SAS_PROCESS_VARIABLES_TABLE, run_id, str_input)
-        print(sql)
         cur.execute(sql)
         conn.commit()
 
@@ -210,15 +206,14 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
             INSERT INTO {}
                 (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, {}
                 FROM PROCESS_VARIABLE_PY AS PV WHERE PV.RUN_ID = '{}' 
-                AND UPPER(PV.PV_NAME) IN ('{}'))
+                AND UPPER(PV.PV_NAME) IN ({}))
             """.format(SAS_PROCESS_VARIABLES_TABLE, count, run_id, item)
-            print(sql)
             cur.execute(sql)
             conn.commit()
 
     if step == "STAY_IMPUTATION":
-        input = step_configuration["copy_pvs"]
-        str_input = "', '".join(map(str, input))
+        columns = [col.replace(']', '').replace('[', '') for col in step_configuration['copy_pvs']]
+        str_input = "', '".join(map(str, columns))
         sql = """
         INSERT INTO {}
             (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, 0
@@ -226,12 +221,12 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
             AND UPPER(PV.PV_NAME) IN ('{}'))
             """.format(SAS_PROCESS_VARIABLES_TABLE, run_id, str_input)
 
-        print(sql)
         cur.execute(sql)
         conn.commit()
         count = 0
 
         for item in step_configuration["copy_pvs2"]:
+            item = item.replace(']', '').replace('[', '')
             count = count + 1
             sql = """
             INSERT INTO {}
@@ -239,7 +234,7 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
                 FROM PROCESS_VARIABLE_PY AS PV WHERE PV.RUN_ID = '{}' 
                 AND UPPER(PV.PV_NAME) IN ('{}'))
             """.format(SAS_PROCESS_VARIABLES_TABLE, count, run_id, item)
-            print(sql)
+
             cur.execute(sql)
             conn.commit()
 
