@@ -361,25 +361,22 @@ def update_step_data_with_step_pv_output(conn, step_configuration):
     Returns      : NA
     """
 
-    print(str(inspect.stack()[0][3]).upper())
-    print("")
-
     # Construct string for SQL statement
-    set = []
-    for item in step_configuration["pv_columns2"]:
-        set.append(
-            item + " = (SELECT " + item + " FROM " + step_configuration["pv_table"] + " AS PV WHERE [REC_ID] = PV.[REC_ID])")
-    set_statement = """, 
-    """.join(map(str, set))
+    cols = [item.replace("'", "") for item in step_configuration["pv_columns2"]]
+    cols = [item + " = CALC. " + item for item in cols]
+    set_statement = ", ".join(map(str, cols))
 
     # Construct and execute SQL statement
+    pv_table = step_configuration["pv_table"]
+    data_table = step_configuration["data_table"]
     sql = """
-        UPDATE {}
-        SET {}
-        WHERE [REC_ID] = (SELECT [REC_ID] FROM {})
-    """.format(step_configuration["data_table"], set_statement, step_configuration["pv_table"])
+            UPDATE {}
+                SET {}
+                FROM {} as SSS
+                JOIN {} as CALC
+                ON SSS.REC_ID = CALC.REC_ID
+            """.format(data_table, set_statement, data_table, pv_table)
 
-    print(sql)
     cur = conn.cursor()
     cur.execute(sql)
     conn.commit()
