@@ -142,7 +142,7 @@ def populate_step_data(run_id, conn, step_configuration):
     cols = ", ".join(map(str, columns))
 
     # Construct string for SQL statement
-    calc_cols = ["CALC." + col for col in step_configuration["insert_to_populate"]]
+    calc_cols = ["CALC." + col for col in columns]
     calc_columns = ", ".join(map(str, calc_cols))
 
     # Cleanse temp table
@@ -157,7 +157,6 @@ def populate_step_data(run_id, conn, step_configuration):
     WHERE RUN_ID = '{}'
     """.format(data_table, cols, calc_columns, table, run_id)
 
-    print(sql)
     cur = conn.cursor()
     cur.execute(sql)
     conn.commit()

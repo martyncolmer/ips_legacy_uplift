@@ -6,6 +6,7 @@ import main.io.generic_xml_steps as gxs
 import pytest
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
+from main.main import shift_weight_step
 
 @pytest.fixture(scope='module')
 def database_connection():
@@ -114,8 +115,63 @@ def test_populate_survey_data_for_step(database_connection):
     test_result = pd.read_pickle('tests/data/generic_xml_steps/move_survey_subsample_result.pkl')
     assert_frame_equal(result, test_result)
 
+    cf.delete_from_table(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
+
     result = cf.get_table_values("SAS_SHIFT_WT")
     assert len(result) == 0
 
     result = cf.get_table_values("SAS_PS_SHIFT_DATA")
     assert len(result) == 0
+
+
+def test_populate_step_data(database_connection):
+    step_config = {"table_name": "[dbo].[SHIFT_DATA]",
+                   "data_table": "[dbo].[SAS_SHIFT_DATA]",
+                   "insert_to_populate": ["[PORTROUTE]", "[WEEKDAY]", "[ARRIVEDEPART]", "[TOTAL]",
+                                          "[AM_PM_NIGHT]"],
+                   }
+
+    # setup test data/tables
+    test_data = pd.read_pickle('tests/data/generic_xml_steps/populate_step_data.pkl')
+    cf.insert_dataframe_into_table(step_config["table_name"], test_data)
+    cf.delete_from_table(step_config['data_table'])
+    run_id = 'populate-step-data'
+
+    gxs.populate_step_data(run_id, database_connection, step_config)
+
+    result = cf.get_table_values(step_config['data_table'])
+
+    # clean test data before actually testing results
+    cf.delete_from_table(step_config['table_name'], 'RUN_ID', '=', run_id)
+    cf.delete_from_table(step_config['data_table'])
+
+    test_result = pd.read_pickle('tests/data/generic_xml_steps/populate_step_data_result.pkl')
+    assert_frame_equal(result, test_result)
+
+
+@pytest.mark.skip('this takes very long')
+def test_shift_weight_step(database_connection):
+    step_config = {"nullify_pvs": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[SHIFT_FLAG_PV]", "[CROSSINGS_FLAG_PV]", "[SHIFT_WT]"],
+                   'name': 'SHIFT_WEIGHT',
+                   'delete_tables': ["[dbo].[SAS_SHIFT_WT]", "[dbo].[SAS_PS_SHIFT_DATA]"],
+                   "table_name": "[dbo].[SHIFT_DATA]",
+                   "data_table": "[dbo].[SAS_SHIFT_DATA]",
+                   "insert_to_populate": ["[PORTROUTE]", "[WEEKDAY]", "[ARRIVEDEPART]", "[TOTAL]",
+                                          "[AM_PM_NIGHT]"],
+                   "spv_table": "[dbo].[SAS_SHIFT_SPV]",
+                   "pv_columns": ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'"],
+                   "pv_columns2": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]"],
+                   "order": 0,
+                   "pv_table": "[dbo].[SAS_SHIFT_PV]",
+                   "weight_table": "[dbo].[SAS_SHIFT_WT]",
+                   "sas_ps_table": "[dbo].[SAS_PS_SHIFT_DATA]",
+                   "results_columns": ["[SHIFT_WT]"],
+                   "ps_table": "[dbo].[PS_SHIFT_DATA]",
+                   "ps_columns": ["[RUN_ID]", "[SHIFT_PORT_GRP_PV]", "[ARRIVEDEPART]", "[WEEKDAY_END_PV]",
+                                  "[AM_PM_NIGHT_PV]", "[MIGSI]", "[POSS_SHIFT_CROSS]", "[SAMP_SHIFT_CROSS]",
+                                  "[MIN_SH_WT]", "[MEAN_SH_WT]", "[MAX_SH_WT]", "[COUNT_RESPS]", "[SUM_SH_WT]"],
+
+                   }
+
+    shift_weight_step('9e5c1872-3f8e-4ae5-85dc-c67a602d011e', database_connection, step_config)
+
