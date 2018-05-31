@@ -10,12 +10,24 @@ from main.main import shift_weight_step
 
 TEST_DATA_DIR = 'tests/data/generic_xml_steps/'
 
-@pytest.fixture(scope='module')
-def database_connection():
-    return get_oracle_connection()
 
 @pytest.fixture(scope='module')
+def database_connection():
+    '''
+    This fixture provides the database connection. It is added to the function argument of each test
+    and picked up by the test from there. The fixture allows us to re-use the same database connection
+    over and over again.
+    '''
+    return get_oracle_connection()
+
+
 def import_data_into_database():
+    '''
+    This function prepares all the data necessary to run all 14 steps.
+    The input files have been edited to make sure data types match the database tables.
+    Note that no process variables are uploaded and are expected to be present in the database.
+    :return:
+    '''
     run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
 
     version_id = 1891
@@ -24,9 +36,9 @@ def import_data_into_database():
     survey_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec_Data\ips1712bv4_amtspnd.sas7bdat"
     shift_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Possible shifts Q1 2017.csv'
     nr_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Non Response Q1 2017.csv'
-    sea_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Sea Traffic Q1 2017.csv'
-    tunnel_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Tunnel Traffic Q1 2017.csv'
-    air_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\CAA Q1 2017.csv'
+    sea_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Sea Traffic Q1 2017 - Copy.csv'
+    tunnel_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Tunnel Traffic Q1 2017 - Copy.csv'
+    air_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\CAA Q1 2017 - Copy.csv'
     unsampled_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Unsampled Traffic Q1 2017.csv'
 
     # Import survey data function to go here
@@ -52,6 +64,7 @@ def test_nullify_survey_subsample_pv_values(database_connection):
     gxs.nullify_survey_subsample_pv_values("nullify-test", database_connection, ["[SHIFT_PORT_GRP_PV]",
                                                                                  "[WEEKDAY_END_PV]"])
 
+    # cleanse tables before testing output
     cf.delete_from_table(gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'nullify-test')
 
     result = cf.select_data('SHIFT_PORT_GRP_PV', gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', 'nullify-test')
@@ -69,7 +82,7 @@ def test_move_survey_subsample_to_sas_table(database_connection):
     gxs.move_survey_subsample_to_sas_table('move-survey-test', database_connection, step_name="")
 
     result = cf.get_table_values(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
-
+    # cleanse tables before testing output
     cf.delete_from_table(gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'move-survey-test')
 
     # one record has a value beyond the RESPNSE range
@@ -89,7 +102,7 @@ def test_move_survey_subsample_to_sas_table_traffic_weight(database_connection):
     gxs.move_survey_subsample_to_sas_table('move-survey-test', database_connection, step_name="TRAFFIC_WEIGHT")
 
     result = cf.get_table_values(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
-
+    # cleanse tables before testing output
     cf.delete_from_table(gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'move-survey-test')
 
     # two records have a value beyond the RESPNSE range
@@ -111,12 +124,14 @@ def test_populate_survey_data_for_step(database_connection):
                    'delete_tables': ["[dbo].[SAS_SHIFT_WT]", "[dbo].[SAS_PS_SHIFT_DATA]"]}
     gxs.populate_survey_data_for_step('move-survey-test', database_connection, step_config)
 
+    # cleanse tables before testing output
     cf.delete_from_table(gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'move-survey-test')
 
     result = cf.get_table_values(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
     test_result = pd.read_pickle('tests/data/generic_xml_steps/move_survey_subsample_result.pkl')
     assert_frame_equal(result, test_result)
 
+    # cleanse tables before testing output
     cf.delete_from_table(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
 
     result = cf.get_table_values("SAS_SHIFT_WT")
@@ -157,7 +172,9 @@ def test_populate_step_data(database_connection):
 ])
 def test_copy_step_pvs_for_survey_data(step_name, expected_results_file, pv_columns,
                                        spv_table, database_connection):
-
+    # This test is parameterised. The values for the arguments of this test function
+    # are taken from the parameters specified in pytest.mark.parametrize
+    # see https://docs.pytest.org/en/latest/parametrize.html
     step_config = {'name': step_name,
                    'spv_table': spv_table,
                    'pv_columns': pv_columns}
@@ -207,6 +224,7 @@ def test_copy_step_pvs_for_survey_data_stay_imp(database_connection):
     cf.delete_from_table(gxs.SAS_PROCESS_VARIABLES_TABLE)
 
     test_results = pd.read_pickle(TEST_DATA_DIR + 'copy_pvs_stay_imp_result.pkl')
+    # we need to massage the data frames a little to ensure outputs are the same
     results = results.sort_values(by='PROCVAR_NAME')
     test_results = test_results.sort_values(by='PROCVAR_NAME')
     results.index = range(0, len(results))
@@ -248,8 +266,43 @@ def test_update_survey_data_with_step_pv_output(database_connection):
     assert len(results) == 0
 
 
+@pytest.mark.skip('not implemented')
+def test_copy_step_pvs_for_step_data(database_connection):
+    # TODO implement test
+    assert False
+
+
+@pytest.mark.skip('not implemented')
+def test_update_step_data_with_step_pv_output(database_connection):
+    # TODO implement test
+    assert False
+
+
+@pytest.mark.skip('not implemented')
+def test_update_survey_data_with_step_results(database_connection):
+    # TODO implement test
+    assert False
+
+
+@pytest.mark.skip('not implemented')
+def test_store_survey_data_with_step_results(database_connection):
+    # TODO implement test
+    assert False
+
+
+@pytest.mark.skip('not implemented')
+def test_store_step_summary(database_connection):
+    # TODO implement test
+    assert False
+
+
 @pytest.mark.skip('this takes very long')
 def test_shift_weight_step(database_connection):
+
+    # import the necessary data into the database
+    # note that this has not been tested to work repeatedly
+    import_data_into_database()
+
     step_config = {"nullify_pvs": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[SHIFT_FLAG_PV]", "[CROSSINGS_FLAG_PV]", "[SHIFT_WT]"],
                    'name': 'SHIFT_WEIGHT',
                    'delete_tables': ["[dbo].[SAS_SHIFT_WT]", "[dbo].[SAS_PS_SHIFT_DATA]"],
