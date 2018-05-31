@@ -502,46 +502,29 @@ def store_survey_data_with_step_results(run_id, conn, step_configuration):
     Returns      : NA
     """
 
-    print(str(inspect.stack()[0][3]).upper())
-    print("")
-
+    step = step_configuration["name"]
+    cols = step_configuration["nullify_pvs"]
     # Add additional column to two steps
-    if (step_configuration["name"] == "SPEND_IMPUTATION") \
-            or (step_configuration["name"] == "RAIL_IMPUTATION"):
-        set = ["[SPEND] = (SELECT [SPEND] FROM [dbo].[SAS_SURVEY_SUBSAMPLE] AS SS WHERE [SERIAL] = SS.[SERIAL])"]
-    else:
-        set = []
+    if (step == "SPEND_IMPUTATION") or (step == "RAIL_IMPUTATION"):
+        cols.append("[SPEND]")
 
-    # Create SET and SELECT string
-    for item in step_configuration["nullify_pvs"]:
-        set.append(
-            item + " = (SELECT " + item + " FROM " + SAS_SURVEY_SUBSAMPLE_TABLE + " AS SS WHERE [SERIAL] = SS.[SERIAL])")
-    set_statement = """, 
-        """.join(map(str, set))
+    cols = [item + " = SSS." + item for item in cols]
+    set_statement = " , ".join(cols)
 
     # Create SQL statement and execute
     sql = """
     UPDATE {}
     SET {}
-    WHERE RUN_ID = '{}'
-    """.format(SURVEY_SUBSAMPLE_TABLE, set_statement, run_id)
+    FROM {} as SS
+    JOIN {} as SSS
+    ON SS.SERIAL = SSS.SERIAL
+    AND SS.RUN_ID = '{}'
+    """.format(SURVEY_SUBSAMPLE_TABLE, set_statement, SURVEY_SUBSAMPLE_TABLE, SAS_SURVEY_SUBSAMPLE_TABLE, run_id)
 
-    print(sql)
     cur = conn.cursor()
     cur.execute(sql)
     conn.commit()
 
-    # Cleanse summary and subsample tables as applicable
-    ps_tables_to_delete = ["SHIFT_WEIGHT"
-        , "NON_RESPONSE"
-        , "MINIMUMS_WEIGHT"
-        , "TRAFFIC_WEIGHT"
-        , "UNSAMPLED_WEIGHT"
-        , "IMBALANCE_WEIGHT"
-        , "FINAL_WEIGHT"]
-
-    if step_configuration["name"] in ps_tables_to_delete:
-        cf.delete_from_table(step_configuration["ps_table"], "RUN_ID", "=", run_id)
     cf.delete_from_table(SAS_SURVEY_SUBSAMPLE_TABLE)
 
 
@@ -558,6 +541,14 @@ def store_step_summary(run_id, conn, step_configuration):
 
     print(str(inspect.stack()[0][3]).upper())
     print("")
+
+    # Cleanse summary and subsample tables as applicable
+    ps_tables_to_delete = ["SHIFT_WEIGHT", "NON_RESPONSE", "MINIMUMS_WEIGHT",
+                           "TRAFFIC_WEIGHT", "UNSAMPLED_WEIGHT", "IMBALANCE_WEIGHT",
+                           "FINAL_WEIGHT"]
+
+    if step_configuration["name"] in ps_tables_to_delete:
+        cf.delete_from_table(step_configuration["ps_table"], "RUN_ID", "=", run_id)
 
     # Assign variables
     ps_table = step_configuration["ps_table"]
