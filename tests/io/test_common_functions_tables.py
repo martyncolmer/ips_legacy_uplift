@@ -10,6 +10,7 @@ from main.io import import_traffic_data
 from main.io import CommonFunctions as cf
 
 
+@unittest.skip("Skipping these due to Oracle connection being non-functional.")
 class TestCommonFunctions(unittest.TestCase):
     def setUp(self):
         """
