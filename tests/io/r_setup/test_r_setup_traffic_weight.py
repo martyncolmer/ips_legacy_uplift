@@ -14,16 +14,16 @@ import sys
 def test_r_survey_input():
 
     # Import the test data
-    df_survey_input = pd.read_pickle('../tests/data/r_setup/December_2017/traffic_weight/survey_input.pkl')
+    df_survey_input = pd.read_pickle('tests/data/r_setup/December_2017/traffic_weight/survey_input.pkl')
 
     # Import the test data
-    df_ges_input = pd.read_pickle('../tests/data/r_setup/December_2017/traffic_weight/ges_input.pkl')
+    df_ges_input = pd.read_pickle('tests/data/r_setup/December_2017/traffic_weight/ges_input.pkl')
 
     # Run the test
     df_test_result = r_survey_input(df_survey_input, df_ges_input)
 
     # Expected result
-    test_file = r"../tests/data/r_setup/December_2017/traffic_weight/df_r_ges_input.pkl"
+    test_file = r"tests/data/r_setup/December_2017/traffic_weight/df_r_ges_input.pkl"
 
     df_expected_result = pd.read_pickle(test_file)
 
@@ -41,19 +41,19 @@ def test_r_survey_input():
 def test_r_population_input():
 
     # Import the test data
-    df_survey_input = pd.read_pickle('../tests/data/r_setup/December_2017/traffic_weight/survey_input.pkl')
+    df_survey_input = pd.read_pickle('tests/data/r_setup/December_2017/traffic_weight/survey_input.pkl')
 
     # Import the test data
-    df_tr_totals = pd.read_pickle('../tests/data/r_setup/December_2017/traffic_weight/trtotals.pkl')
+    df_tr_totals = pd.read_pickle('tests/data/r_setup/December_2017/traffic_weight/trtotals.pkl')
 
     # Import the test data
-    lookup = pd.read_pickle('../tests/data/r_setup/December_2017/traffic_weight/lookup.pkl')
+    lookup = pd.read_pickle('tests/data/r_setup/December_2017/traffic_weight/lookup.pkl')
 
     # Run the test
     df_test_result = r_population_input(df_survey_input, df_tr_totals, lookup)
 
     # Expected result
-    test_file = r"../tests/data/r_setup/December_2017/traffic_weight/PopRowVec.pkl"
+    test_file = r"tests/data/r_setup/December_2017/traffic_weight/PopRowVec.pkl"
 
     df_expected_result = pd.read_pickle(test_file)
 
