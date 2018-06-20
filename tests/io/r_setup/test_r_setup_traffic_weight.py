@@ -7,23 +7,20 @@ Created on 04 Jun 2018
 import pandas as pd
 import numpy as np
 from pandas.util.testing import assert_frame_equal
-from main.io.r_setup_traffic_weight import r_survey_input, r_population_input
+from main.calculations.calculate_ips_traffic_weight import r_survey_input, r_population_input
 import sys
 
 
 def test_r_survey_input():
 
     # Import the test data
-    df_survey_input = pd.read_pickle('tests/data/r_setup/December_2017/traffic_weight/survey_input.pkl')
-
-    # Import the test data
-    df_ges_input = pd.read_pickle('tests/data/r_setup/December_2017/traffic_weight/ges_input.pkl')
+    survey_input = pd.read_pickle('tests/data/r_setup/October_2017/traffic_weight/survey_input.pkl')
 
     # Run the test
-    df_test_result = r_survey_input(df_survey_input, df_ges_input)
+    df_test_result = r_survey_input(survey_input)
 
     # Expected result
-    test_file = r"tests/data/r_setup/December_2017/traffic_weight/df_r_ges_input.pkl"
+    test_file = r"tests\data\r_setup\October_2017\traffic_weight\df_r_ges_input.pkl"
 
     df_expected_result = pd.read_pickle(test_file)
 
@@ -33,6 +30,9 @@ def test_r_survey_input():
     df_test_result['T1'] = df_test_result.T1.astype(np.float64)
     df_test_result['SAMP_PORT_GRP_PV'] = df_test_result.SAMP_PORT_GRP_PV.astype(np.str)
 
+    df_test_result = df_test_result.sort_values(['SERIAL'])
+    df_expected_result = df_test_result.sort_values(['SERIAL'])
+
     # Check if the test and result dataframes match
     assert_frame_equal(df_test_result, df_expected_result, check_dtype=True, check_like=True)
     print("DONE")
@@ -41,19 +41,16 @@ def test_r_survey_input():
 def test_r_population_input():
 
     # Import the test data
-    df_survey_input = pd.read_pickle('tests/data/r_setup/December_2017/traffic_weight/survey_input.pkl')
+    survey_input = pd.read_pickle('tests/data/r_setup/October_2017/traffic_weight/survey_input.pkl')
 
     # Import the test data
-    df_tr_totals = pd.read_pickle('tests/data/r_setup/December_2017/traffic_weight/trtotals.pkl')
-
-    # Import the test data
-    lookup = pd.read_pickle('tests/data/r_setup/December_2017/traffic_weight/lookup.pkl')
+    trtotals = pd.read_pickle('tests/data/r_setup/October_2017/traffic_weight/trtotals.pkl')
 
     # Run the test
-    df_test_result = r_population_input(df_survey_input, df_tr_totals, lookup)
+    df_test_result = r_population_input(survey_input, trtotals)
 
     # Expected result
-    test_file = r"tests/data/r_setup/December_2017/traffic_weight/PopRowVec.pkl"
+    test_file = r"tests\data\r_setup\October_2017\traffic_weight\poprowvec.pkl"
 
     df_expected_result = pd.read_pickle(test_file)
 

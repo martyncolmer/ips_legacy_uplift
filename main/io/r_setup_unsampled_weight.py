@@ -85,20 +85,24 @@ def r_survey_input(df_survey_input, df_ges_input):
 
 
 # Prepare population totals to create AUX lookup variables
-def r_population_input(df_pop_row_vec):
+def r_population_input(survey_input, ustotals):
     """
     Author       : David Powell
     Date         : 07/06/2018
     Purpose      : Creates population data that feeds into the R GES weighting
-    Parameters   : df_pop_row_vec - A data frame containing the population data for
+    Parameters   : ustotals - A data frame containing the population data for
+                   processing month
+                   survey_input - A data frame containing the survey data for
                    processing month
     Returns      : A data frame containing the information needed for GES weighting
     Requirements : NA
     Dependencies : NA
     """
 
-    # Load survey data
-    df_modpop_totals = df_pop_row_vec
+    # Load data
+    df_survey_input = survey_input
+    df_pop_totals = ustotals
+
 
     # Export dataframes to CSV
     df_modpop_totals.to_csv(
