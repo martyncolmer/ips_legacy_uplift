@@ -9,11 +9,13 @@ from pandas.util.testing import assert_frame_equal
 
 from main.calculations import calculate_ips_nonresponse_weight as non_resp
 
+path_to_data = r"tests/data/non_response_weight"
+
 
 def test_calculate():
     # This is an integration test as it runs the entire step
-    test_survey = pd.read_pickle('tests/data/non_response_survey_data.pkl')
-    test_nr_data = pd.read_pickle('tests/data/non_response_data.pkl')
+    test_survey = pd.read_pickle(path_to_data + '/non_response_survey_data.pkl')
+    test_nr_data = pd.read_pickle(path_to_data + '/non_response_data.pkl')
     result_py_data = non_resp.do_ips_nrweight_calculation(test_survey, test_nr_data,
                                                           'NON_RESPONSE_WT', 'SERIAL')
 
@@ -27,14 +29,14 @@ def test_calculate():
     py_summary_data.index = range(0, len(py_summary_data))
 
     # Retrieve SAS Survey Data output and cleanse
-    test_result_survey = pd.read_pickle('tests/data/non_response_weight_output.pkl')
+    test_result_survey = pd.read_pickle(path_to_data + '/non_response_weight_output.pkl')
     test_result_survey.columns = test_result_survey.columns.str.upper()
     test_result_survey = test_result_survey.sort_values(by='SERIAL')
     test_result_survey.index = range(0, len(test_result_survey))
     # test_result_survey.replace("", np.NaN, inplace=True)
 
     # Retrieve SAS Summary Data output and cleanse
-    test_result_summary = pd.read_pickle('tests/data/non_response_weight_summary.pkl')
+    test_result_summary = pd.read_pickle(path_to_data + '/non_response_weight_summary.pkl')
     test_result_summary.columns = test_result_summary.columns.str.upper()
     test_result_summary.index = range(0, len(test_result_summary))
 

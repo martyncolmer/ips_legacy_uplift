@@ -9,12 +9,16 @@ from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_minimums_weight import do_ips_minweight_calculation
 
 import pytest
+
+path_to_data = r"tests/data/min_weight"
+
+
 @pytest.mark.skip("Known failure due to rounding")
 def test_calculate():
     # This is an integration test as it runs the entire step
 
     # Import the test data
-    test_survey = pd.read_pickle('tests/data/minimums_input.pkl')
+    test_survey = pd.read_pickle(path_to_data + '/minimums_input.pkl')
 
     # Set the imported columns to be uppercase
     test_survey.columns = test_survey.columns.str.upper()
@@ -28,8 +32,8 @@ def test_calculate():
     output_data = output_dataframes[0]
     summary_data = output_dataframes[1]
     # Import the expected result
-    test_output = pd.read_pickle('tests/data/minimums_output.pkl')
-    test_summary = pd.read_pickle('tests/data/minimums_summary.pkl')
+    test_output = pd.read_pickle(path_to_data + '/minimums_output.pkl')
+    test_summary = pd.read_pickle(path_to_data + '/minimums_summary.pkl')
     # Set the imported columns to be uppercase
     test_output.columns = test_output.columns.str.upper()
     test_summary.columns = test_summary.columns.str.upper()
@@ -41,7 +45,7 @@ def test_calculate():
     test_output = test_output.sort_values(by='SERIAL')
     output_data = output_data.sort_values(by='SERIAL')
 
-    test_summary = test_summary.sort_values(by=['MINS_PORT_GRP_PV','MINS_CTRY_GRP_PV'])
+    test_summary = test_summary.sort_values(by=['MINS_PORT_GRP_PV', 'MINS_CTRY_GRP_PV'])
     summary_data = summary_data.sort_values(by=['MINS_PORT_GRP_PV', 'MINS_CTRY_GRP_PV'])
 
     test_output.index = range(0, len(test_output))
@@ -56,7 +60,7 @@ def test_calculate():
 
     # Rounding here performed mostly for test purposes, could be removed
     test_summary[["PRIOR_GROSS_ALL", "PRIOR_GROSS_FULLS", "PRIOR_GROSS_MINS", "MINS_WT"]] = \
-    test_summary[["PRIOR_GROSS_ALL", "PRIOR_GROSS_FULLS", "PRIOR_GROSS_MINS", "MINS_WT"]].round(3)
+        test_summary[["PRIOR_GROSS_ALL", "PRIOR_GROSS_FULLS", "PRIOR_GROSS_MINS", "MINS_WT"]].round(3)
 
     # Check the results match
 
