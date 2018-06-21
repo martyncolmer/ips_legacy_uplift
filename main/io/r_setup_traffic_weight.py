@@ -9,7 +9,7 @@ import numpy as np
 
 
 # Prepare survey data
-def r_survey_input(df_survey_input, df_ges_input):
+def r_survey_input(df_survey_input):
     """
     Author       : David Powell
     Date         : 07/06/2018
@@ -49,28 +49,14 @@ def r_survey_input(df_survey_input, df_ges_input):
     df_aux_variables = pd.merge(df_survey_input_sorted, lookup_dataframe, on=['SAMP_PORT_GRP_PV',
                                                                               'ARRIVEDEPART'], how='left')
 
-    # Load GES data
-    df_ges_input = df_ges_input
+    # Create traffic design weight used within GES weighting
+    values = df_aux_variables.SHIFT_WT * df_aux_variables.NON_RESPONSE_WT * df_aux_variables.MINS_WT
+    df_aux_variables['trafDesignWeight'] = values
 
-    # Cleanse data
-    df_ges_input = df_ges_input.rename(index=str, columns={"GES_serial": "SERIAL"})
-
-    # Sort values ready for merge
-    df_survey_input_serial = df_survey_input.sort_values(['SERIAL'])
-    df_ges_input["SERIAL"] = pd.to_numeric(df_ges_input["SERIAL"])
-    df_ges_input_sorted = df_ges_input.sort_values(['SERIAL'])
-    df_aux_variables_sorted = df_aux_variables.sort_values(['SERIAL'])
-
-    # Cleanse and merge data ready for input into R GES
-    df_aux_variables_column = df_aux_variables_sorted[['SERIAL', 'T1']]
-
-    df_trafdesignwt = pd.merge(df_survey_input_serial, df_ges_input_sorted, on=['SERIAL'], how='left')
-    df_trafdesignwt = df_trafdesignwt.drop(columns=['ARRIVEDEPART_y', 'SAMP_PORT_GRP_PV_y'])
-    df_trafdesignwt = df_trafdesignwt.rename(index=str, columns={"SAMP_PORT_GRP_PV_x": "SAMP_PORT_GRP_PV"})
-    df_trafdesignwt = df_trafdesignwt.rename(index=str, columns={"ARRIVEDEPART_x": "ARRIVEDEPART"})
-
-    df_r_ges_input = pd.merge(df_trafdesignwt, df_aux_variables_column, on=['SERIAL'], how='left')
+    # Create input to pass into GES weighting
+    df_r_ges_input = df_aux_variables.sort_values(['SERIAL'])
     df_r_ges_input = df_r_ges_input[~df_r_ges_input['T1'].isnull()]
+    df_r_ges_input['SERIAL'] = df_r_ges_input.SERIAL.astype(np.float64)
     df_r_ges_input = df_r_ges_input[['SERIAL', 'ARRIVEDEPART', 'PORTROUTE', 'SAMP_PORT_GRP_PV', 'SHIFT_WT',
                                      'NON_RESPONSE_WT', 'MINS_WT', 'trafDesignWeight', 'T1']]
 
