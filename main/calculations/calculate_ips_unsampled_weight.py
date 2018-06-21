@@ -105,7 +105,7 @@ def r_survey_input(survey_input):
 
     # Export dataframes to CSV
     df_r_ges_input.to_csv(
-        r"tests/data/r_setup/October_2017/unsampled_weight/df_r_ges_input.csv", index=False)
+        r"tests/data/r_setup/October_2017/unsampled_weight/df_r_ges_input_unsamp.csv", index=False)
 
     return df_r_ges_input
 
