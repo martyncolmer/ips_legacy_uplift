@@ -139,7 +139,6 @@ def ips_setup_ges_auxvars(df_poptotals, StrataDef, AuxVar, TotVar,
     # Set the aux variable count
     AuxVarCount = len(df_model_definition.index)
     
-    
     # Set up the aux variable number format macro
     AuxNumFormat = int(math.log10(AuxVarCount)) + 1
     

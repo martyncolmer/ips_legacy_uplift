@@ -1,6 +1,9 @@
-import numpy as np
 import pandas as pd
+import sys
 # import survey_support
+import numpy as np
+from sas7bdat import SAS7BDAT
+import math
 from main.io import CommonFunctions as cf
 
 PATH_TO_DATA = 'tests/data/unsampled_weight'
@@ -43,6 +46,170 @@ def do_ips_ges_weighting(input, SerialNumVarName, DesignWeightVarName,
     df_output_post_ges.columns = df_output_post_ges.columns.str.upper()
 
     return df_survey_post_ges, df_output_post_ges
+
+
+# Prepare survey data
+def r_survey_input(survey_input):
+    """
+    Author       : David Powell
+    Date         : 07/06/2018
+    Purpose      : Creates input data that feeds into the R GES weighting
+    Parameters   : df_survey_input - A data frame containing the survey data for
+                   processing month
+    Returns      : A data frame containing the information needed for GES weighting
+    Requirements : NA
+    Dependencies : NA
+    """
+
+    # Load survey Data
+    df_survey_input = survey_input
+    df_survey_input_copy = survey_input
+
+    # Sort input values
+    sort1 = ['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV', 'ARRIVEDEPART']
+    df_survey_input_sorted = df_survey_input.sort_values(sort1)
+
+    # Cleanse data
+    df_survey_input_sorted.UNSAMP_REGION_GRP_PV.fillna(value=0, inplace=True)
+    df_survey_input_sorted = df_survey_input_sorted[~df_survey_input_sorted['UNSAMP_PORT_GRP_PV'].isnull()]
+    df_survey_input_sorted = df_survey_input_sorted[~df_survey_input_sorted['ARRIVEDEPART'].isnull()]
+
+    # Create lookup. Group by and aggregate
+    lookup_dataframe = df_survey_input_copy
+
+    lookup_dataframe["count"] = ""
+    lookup_dataframe = lookup_dataframe.groupby(['UNSAMP_PORT_GRP_PV',
+                                                 'UNSAMP_REGION_GRP_PV',
+                                                 'ARRIVEDEPART']).agg({"count": 'count'}).reset_index()
+
+    # Cleanse data
+    lookup_dataframe.drop(["count"], axis=1)
+    lookup_dataframe["T1"] = range(len(lookup_dataframe))
+    lookup_dataframe["T1"] = lookup_dataframe["T1"] + 1
+
+    # Merge lookup data in to source dataframe
+    df_aux_variables = pd.merge(df_survey_input_sorted, lookup_dataframe, on=['UNSAMP_PORT_GRP_PV',
+                                                                              'UNSAMP_REGION_GRP_PV',
+                                                                              'ARRIVEDEPART'], how='left')
+
+    # Create traffic design weight used within GES weighting
+    values = df_aux_variables.SHIFT_WT * df_aux_variables.NON_RESPONSE_WT * df_aux_variables.MINS_WT
+    df_aux_variables['OOHDesignWeight'] = values
+    df_aux_variables = df_aux_variables.sort_values(['SERIAL'])
+
+    # Create input to pass into GES weighting
+    df_r_ges_input = df_aux_variables[~df_aux_variables['T1'].isnull()]
+    df_r_ges_input = df_r_ges_input[['SERIAL', 'ARRIVEDEPART', 'PORTROUTE', 'SHIFT_WT',
+                                     'NON_RESPONSE_WT', 'MINS_WT', 'UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV',
+                                     'OOHDesignWeight', 'T1']]
+
+    # Export dataframes to CSV
+    df_r_ges_input.to_csv(
+        r"tests/data/r_setup/October_2017/unsampled_weight/df_r_ges_input_unsamp.csv", index=False)
+
+    return df_r_ges_input
+
+
+# Prepare population totals to create AUX lookup variables
+def r_population_input(survey_input, ustotals):
+    """
+    Author       : David Powell
+    Date         : 07/06/2018
+    Purpose      : Creates population data that feeds into the R GES weighting
+    Parameters   : survey_input - A data frame containing the survey data for
+                   processing month
+                   ustotals - A data frame containing population information for
+                   processing year
+    Returns      : A data frame containing the information needed for GES weighting
+    Requirements : NA
+    Dependencies : NA
+    """
+
+    df_survey_input = survey_input
+    df_us_totals = ustotals
+
+    # Sort input values
+    sort1 = ['UNSAMP_PORT_GRP_PV','UNSAMP_REGION_GRP_PV','ARRIVEDEPART']
+    df_us_totals = df_us_totals.sort_values(sort1)
+
+    # Create population totals
+    df_us_totals = df_us_totals.fillna('NOTHING')
+    df_pop_totals = df_us_totals.groupby(['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV',
+                                          'ARRIVEDEPART']).agg({"UNSAMP_TOTAL": 'sum'}).reset_index()
+
+    df_pop_totals.rename(columns={'UNSAMP_TOTAL': 'uplift'}, inplace=True)
+    df_pop_totals = df_pop_totals.replace('NOTHING', np.NaN)
+    df_pop_totals = df_pop_totals.sort_values(sort1)
+
+    # Create unsampled design weight used within GES weighting
+    df_survey_input['SHIFT_WT'] = df_survey_input.SHIFT_WT.astype(np.float)
+    df_survey_input = df_survey_input.round({'SHIFT_WT': 3})
+    values = df_survey_input.SHIFT_WT * df_survey_input.NON_RESPONSE_WT * df_survey_input.MINS_WT * df_survey_input.TRAFFIC_WT
+    df_survey_input['OOHDesignWeight'] = values
+    df_survey_input = df_survey_input.sort_values(sort1)
+
+    df_survey_input = df_survey_input[df_survey_input.OOHDesignWeight > 0]
+    df_survey_input = df_survey_input.fillna('NOTHING')
+
+    df_prev_totals = df_survey_input.groupby(['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV',
+                                              'ARRIVEDEPART']).agg({"OOHDesignWeight": 'sum'}).reset_index()
+
+    df_prev_totals.rename(columns={'OOHDesignWeight': 'prevtotals'}, inplace=True)
+
+    df_prev_totals = df_prev_totals.replace('NOTHING', np.NaN)
+    df_prev_totals = df_prev_totals.sort_values(sort1)
+
+    df_pop_totals = df_pop_totals[df_pop_totals.uplift > 0]
+
+    df_pop_totals = df_pop_totals.fillna('NOTHING')
+    df_prev_totals = df_prev_totals.fillna('NOTHING')
+
+    # Merge populations totals to create one dataframe lookup
+    df_lifted_totals = pd.merge(df_prev_totals, df_pop_totals, on=['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV',
+                                                                   'ARRIVEDEPART'], how='left')
+
+    df_lifted_totals = df_lifted_totals.replace('NOTHING', np.NaN)
+    df_lifted_totals['uplift'] = df_lifted_totals['uplift'].fillna(0)
+
+    values = df_lifted_totals.prevtotals + df_lifted_totals.uplift
+    df_lifted_totals['UNSAMP_TOTAL'] = values
+
+    # Create lookup. Group by and aggregate. Allocates T_1 - T_n.
+    lookup_dataframe = df_survey_input
+    lookup_dataframe["count"] = ""
+    lookup_dataframe = lookup_dataframe.groupby(['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV',
+                                                 'ARRIVEDEPART']).agg({"count": 'count'}).reset_index()
+
+    # Cleanse data
+    lookup_dataframe = lookup_dataframe.replace('NOTHING', np.NaN)
+    lookup_dataframe.drop(["count"], axis=1)
+    lookup_dataframe["T1"] = range(len(lookup_dataframe))
+    lookup_dataframe["T1"] = lookup_dataframe["T1"] + 1
+
+    # Create population totals for current survey data - Cleanse data and merge
+    lookup_dataframe_aux = lookup_dataframe[['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV', 'ARRIVEDEPART', 'T1']]
+    lookup_dataframe_aux['T1'] = lookup_dataframe_aux.T1.astype(np.int64)
+
+    df_mod_totals = pd.merge(df_lifted_totals, lookup_dataframe_aux, on=['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV',
+                                                                         'ARRIVEDEPART'], how='left')
+
+    df_mod_totals['C_group'] = 1
+    df_mod_totals = df_mod_totals.drop(columns=['ARRIVEDEPART', 'UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV'])
+    df_mod_totals = df_mod_totals.pivot_table(index='C_group',
+                                              columns='T1',
+                                              values='UNSAMP_TOTAL')
+
+    df_mod_totals = df_mod_totals.add_prefix('T_')
+    df_mod_totals['C_group'] = 1
+    cols = ['C_group'] + [col for col in df_mod_totals if col != 'C_group']
+    df_mod_pop_totals = df_mod_totals[cols]
+
+    # File passed into R GES weighting process
+    df_mod_pop_totals.to_csv(
+        r"tests/data/r_setup/October_2017/unsampled_weight/df_mod_pop_totals.csv",
+        index=False)
+
+    return df_mod_pop_totals
 
 
 def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftWeight, var_NRWeight,
