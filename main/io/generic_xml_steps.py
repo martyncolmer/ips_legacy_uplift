@@ -291,8 +291,8 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
     Returns      : NA
     """
 
-    print(str(inspect.stack()[0][3]).upper())
-    print("")
+    # print(str(inspect.stack()[0][3]).upper())
+    # print("")
 
     # Cleanse temp tables
     cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)

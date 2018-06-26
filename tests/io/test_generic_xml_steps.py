@@ -22,10 +22,9 @@ def database_connection():
     return get_oracle_connection()
 
 
-@pytest.fixture(scope='module')
 def store_rec_id(table_name):
     '''
-    This fixture retrieves the max REC_ID from the database and stores value within a text file.
+    This function retrieves the max REC_ID from the database and stores value within a text file.
     '''
 
     file = r'tests/data/generic_xml_steps/record_id.txt'
@@ -51,10 +50,9 @@ def store_rec_id(table_name):
         print(err)
 
 
-@pytest.fixture(scope='module')
 def amend_rec_id(dataframe):
     '''
-    This fixture retrieves REC_ID from text file and inputs to test result dataframe.
+    This function retrieves REC_ID from text file and inputs to test result dataframe.
     '''
     with open(r'tests/data/generic_xml_steps/record_id.txt', 'r') as file:
         rec_id = int(file.read())
@@ -325,10 +323,43 @@ def test_update_survey_data_with_step_pv_output(database_connection):
     assert len(results) == 0
 
 
-@pytest.mark.skip('not implemented')
 def test_copy_step_pvs_for_step_data(database_connection):
-    # TODO implement test
-    assert False
+    step_config = {'name': '[dbo].[SHIFT_DATA]'
+                   , 'pv_table': '[dbo].[SAS_SHIFT_PV]'
+                   , 'pv_columns': ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'"]
+                   , 'order': 0
+                   }
+    run_id = 'copy-step-pvs-for-step-data'
+
+    # Pickle some test data
+    test_data = pd.read_pickle(TEST_DATA_DIR + 'copy_shift_weight_pvs_for_shift_data.pkl')
+    cf.insert_dataframe_into_table("PROCESS_VARIABLE_PY", test_data, database_connection)
+
+    # Plug it in to copy_step_pvs_for_step_data(run_id, conn, step_configuration)
+    gxs.copy_step_pvs_for_step_data(run_id, database_connection, step_config)
+    results = cf.get_table_values('SAS_PROCESS_VARIABLE')
+
+    # Assert step_configuration["pv_table"] has 0 records
+    sql = """
+    SELECT COUNT(*)
+    FROM {}
+    """.format(step_config['pv_table'])
+
+    cur = database_connection.cursor()
+    result = cur.execute(sql).fetchone()[0]
+
+    assert result == 0
+
+    # Cleanse tables before continuing
+    cf.delete_from_table(gxs.SAS_PROCESS_VARIABLES_TABLE)
+    cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
+
+    # Pickle some test results
+    test_results = pd.read_pickle(TEST_DATA_DIR + 'copy_shift_weight_pvs_for_shift_data_results.pkl')
+    # test_results["PROCVAR_ORDER"] = test_results["PROCVAR_ORDER"].astype(float)
+
+    # Assert equal
+    assert_frame_equal(results, test_results, check_dtype=False)
 
 
 @pytest.mark.skip('not implemented')
