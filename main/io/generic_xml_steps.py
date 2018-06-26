@@ -62,6 +62,7 @@ def nullify_survey_subsample_pv_values(run_id, conn, pv_values):
         SET {} 
         WHERE RUN_ID = '{}'
     """.format(SURVEY_SUBSAMPLE_TABLE, columns_to_null, run_id)
+    print("3. {}".format(sql))
 
     # Execute and commits the SQL command
     cur = conn.cursor()

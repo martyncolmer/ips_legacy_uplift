@@ -1,10 +1,11 @@
-from main.io import import_data
-from main.io import import_traffic_data
 import main.io.CommonFunctions as cf
-from main.io.CommonFunctions import get_oracle_connection
 import main.io.generic_xml_steps as gxs
 import pytest
 import pandas as pd
+import sys
+from main.io import import_data
+from main.io import import_traffic_data
+from main.io.CommonFunctions import get_oracle_connection
 from pandas.util.testing import assert_frame_equal
 from main.main import shift_weight_step
 
@@ -19,6 +20,50 @@ def database_connection():
     over and over again.
     '''
     return get_oracle_connection()
+
+
+@pytest.fixture(scope='module')
+def store_rec_id(table_name):
+    '''
+    This fixture retrieves the max REC_ID from the database and stores value within a text file.
+    '''
+
+    file = r'tests/data/generic_xml_steps/record_id.txt'
+
+    conn = get_oracle_connection()
+    cur = conn.cursor()
+    sql = """
+        SELECT MAX(REC_ID)
+        FROM [ips_test].{}    
+        """.format(table_name)
+    try:
+        result = cur.execute(sql).fetchone()
+    except Exception as err:
+        print(err)
+    else:
+        rec_id = result[0]
+
+    try:
+        with open(file, 'w') as f:
+            f.write(str(rec_id))
+        # f.flush()
+    except IOError as err:
+        print(err)
+
+
+@pytest.fixture(scope='module')
+def amend_rec_id(dataframe):
+    '''
+    This fixture retrieves REC_ID from text file and inputs to test result dataframe.
+    '''
+    with open(r'tests/data/generic_xml_steps/record_id.txt', 'r') as file:
+        rec_id = int(file.read())
+
+    for row in range(0, len(dataframe['REC_ID'])):
+        rec_id = rec_id + 1
+        dataframe['REC_ID'][row] = rec_id
+
+    return dataframe
 
 
 def import_data_into_database():
@@ -64,13 +109,16 @@ def test_nullify_survey_subsample_pv_values(database_connection):
     gxs.nullify_survey_subsample_pv_values("nullify-test", database_connection, ["[SHIFT_PORT_GRP_PV]",
                                                                                  "[WEEKDAY_END_PV]"])
 
+    # COMMENTED AS CAUSING TEST TO FAIL.  RECORDS BEING INSERTED AND THEN DELETED BEFORE TESTING - ET
     # cleanse tables before testing output
-    cf.delete_from_table(gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'nullify-test')
+    # cf.delete_from_table(gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'nullify-test')
 
     result = cf.select_data('SHIFT_PORT_GRP_PV', gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', 'nullify-test')
     assert result['SHIFT_PORT_GRP_PV'].isnull().sum() == len(result)
     result = cf.select_data('WEEKDAY_END_PV', gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', "nullify-test")
     assert result['WEEKDAY_END_PV'].isnull().sum() == len(result)
+
+    cf.delete_from_table(gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'nullify-test')
 
 
 def test_move_survey_subsample_to_sas_table(database_connection):
@@ -150,19 +198,30 @@ def test_populate_step_data(database_connection):
 
     # setup test data/tables
     test_data = pd.read_pickle('tests/data/generic_xml_steps/populate_step_data.pkl')
+
+    # Reorder columns to match db and insert
+    test_data.columns = test_data.columns.str.upper()
+    test_data = test_data[
+        ['RUN_ID', 'YEAR', 'MONTH', 'DATA_SOURCE_ID', 'PORTROUTE', 'WEEKDAY', 'ARRIVEDEPART', 'TOTAL', 'AM_PM_NIGHT']]
     cf.insert_dataframe_into_table(step_config["table_name"], test_data)
-    cf.delete_from_table(step_config['data_table'])
+
+    # Assign run_id, and input test data to function
     run_id = 'populate-step-data'
-
     gxs.populate_step_data(run_id, database_connection, step_config)
-
     result = cf.get_table_values(step_config['data_table'])
 
-    # clean test data before actually testing results
+    # Retrieve and amend rec_id within test result data
+    test_result = pd.read_pickle('tests/data/generic_xml_steps/populate_step_data_result.pkl')
+    test_result = amend_rec_id(test_result)
+
+    # Before deleting anything get and record the latest REC_ID number
+    store_rec_id(step_config['data_table'])
+
+    # tear-down and cleanse
+    cf.delete_from_table(step_config['data_table'])
     cf.delete_from_table(step_config['table_name'], 'RUN_ID', '=', run_id)
     cf.delete_from_table(step_config['data_table'])
 
-    test_result = pd.read_pickle('tests/data/generic_xml_steps/populate_step_data_result.pkl')
     assert_frame_equal(result, test_result)
 
 

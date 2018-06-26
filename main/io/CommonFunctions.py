@@ -197,6 +197,7 @@ def get_oracle_connection():
     try:
         conn = pyodbc.connect(driver="{SQL Server}", server=server, database=database, uid=username, pwd=password, autocommit=True)
     except Exception as err:
+        # print("computer says no")
         database_logger().error(err, exc_info = True)
         return False
     else:
@@ -541,12 +542,13 @@ def select_data(column_name, table_name, condition1, condition2):
     # Create SQL statement
     sql = ("SELECT " + column_name
            + " FROM " + table_name
-           + " WHERE " + condition1
-           + " = '" + condition2 + "'")
+           + " WHERE " + condition1 + " = '" + condition2 + "'")
 
     try:
         result = pandas.read_sql(sql, conn)
+        print("Result: {}".format(result))
     except Exception as err:
+        print(err)
         # Return False to indicate error
         # database_logger().error(err, exc_info = True)
         return False
@@ -1097,7 +1099,20 @@ def execute_sql_query(connection, sql_statement):
     cur.execute(sql_statement)
     connection.commit()
 
-if __name__ == "__main__":
-    print (delete_from_table("SAS_IMBALANCE_WT"))
-    print (delete_from_table("SAS_PS_IMBALANCE"))
-#    pprint(unload_parameters(279))
+
+def unpickle_rick(file):
+    # File location
+    path = r"C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\generic_xml_steps"
+
+    # Pickle in and CSV out
+    in_file = "\{}.pkl".format(file)
+    out_file = "{}.csv".format(file)
+
+    # Read pickle in as df
+    df = pandas.read_pickle(path+in_file)
+
+    # Send to CSV
+    df.to_csv(r"{}\unpickled_{}".format(path, out_file))
+    beep()
+
+
