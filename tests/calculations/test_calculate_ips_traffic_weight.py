@@ -12,7 +12,6 @@ from main.calculations.calculate_ips_traffic_weight import calculate, do_ips_ges
 
 path_to_data = r"tests/data/traffic_weight"
 
-
 def test_calculate():
     (df_output_merge_final_rounded, df_summary_merge_sum_traftot) = calculate(SurveyData='sas_survey_subsample'
                                                                               , var_serialNum='serial'.upper()
