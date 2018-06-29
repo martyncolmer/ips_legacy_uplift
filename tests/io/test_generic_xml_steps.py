@@ -356,17 +356,33 @@ def test_copy_step_pvs_for_step_data(database_connection):
 
     # Pickle some test results
     test_results = pd.read_pickle(TEST_DATA_DIR + 'copy_shift_weight_pvs_for_shift_data_results.pkl')
-    # test_results["PROCVAR_ORDER"] = test_results["PROCVAR_ORDER"].astype(float)
 
     # Assert equal
     assert_frame_equal(results, test_results, check_dtype=False)
 
 
-@pytest.mark.skip('not implemented')
+@pytest.mark.skip('not finished writing')
 def test_update_step_data_with_step_pv_output(database_connection):
-    # TODO implement test
-    assert False
+    # step_config and run_id variables
+    step_config = {'pv_columns2': ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]"]
+        ,'pv_table': '[dbo].[SAS_SHIFT_PV]'
+        ,'data_table': '[dbo].[SAS_SHIFT_DATA]'
+        ,'weight_table': '[dbo].[SAS_SHIFT_WT]'
+        ,'sas_ps_table': '[dbo].[SAS_PS_SHIFT_DATA]'
+                   }
+    run_id = 'update-step-data-with-step-pv-output'
 
+    # Pickle some test data
+
+
+
+    # Plug it in
+
+    # Pickle results
+
+    # Assert tables are empty
+
+    # Assert it!
 
 @pytest.mark.skip('not implemented')
 def test_update_survey_data_with_step_results(database_connection):

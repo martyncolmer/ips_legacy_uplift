@@ -2,11 +2,11 @@
   "SHIFT_WEIGHT":
     {
       "nullify_pvs": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[SHIFT_FLAG_PV]", "[CROSSINGS_FLAG_PV]", "[SHIFT_WT]"],
-      "pv_columns": ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'"],
+      "pv_columns": ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'", "'SHIFT_FLAG_PV'", "'CROSSINGS_FLAG_PV'"],
       "pv_columns2": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]"],
       "ps_columns": ["[RUN_ID]", "[SHIFT_PORT_GRP_PV]", "[ARRIVEDEPART]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[MIGSI]", "[POSS_SHIFT_CROSS]", "[SAMP_SHIFT_CROSS]", "[MIN_SH_WT]", "[MEAN_SH_WT]", "[MAX_SH_WT]", "[COUNT_RESPS]", "[SUM_SH_WT]"],
       "results_columns": ["[SHIFT_WT]"],
-      "insert_to_populate": ["[REC_ID]", "[PORTROUTE]", "[WEEKDAY]", "[ARRIVEDEPART]", "[TOTAL]", "[AM_PM_NIGHT]"],
+      "insert_to_populate": ["[PORTROUTE]", "[WEEKDAY]", "[ARRIVEDEPART]", "[TOTAL]", "[AM_PM_NIGHT]"],
       "delete_tables": ["[dbo].[SAS_SHIFT_WT]", "[dbo].[SAS_PS_SHIFT_DATA]"],
       "spv_table": "[dbo].[SAS_SHIFT_SPV]",
       "pv_table": "[dbo].[SAS_SHIFT_PV]",
@@ -33,7 +33,7 @@
       "ps_table": "[dbo].[PS_NON_RESPONSE]",
       "weight_table": "[dbo].[SAS_NON_RESPONSE_WT]",
       "table_name": "[dbo].[NON_RESPONSE_DATA]",
-      "insert_to_populate": ["[REC_ID]", "[PORTROUTE]", "[WEEKDAY]", "[ARRIVEDEPART]", "[AM_PM_NIGHT]", "[SAMPINTERVAL]", "[MIGTOTAL]", "[ORDTOTAL]"],
+      "insert_to_populate": ["[PORTROUTE]", "[WEEKDAY]", "[ARRIVEDEPART]", "[AM_PM_NIGHT]", "[SAMPINTERVAL]", "[MIGTOTAL]", "[ORDTOTAL]"],
       "count": 0,
       "order": 0
     },
@@ -65,7 +65,7 @@
       "sas_ps_table": "[dbo].[SAS_PS_TRAFFIC]",
       "ps_table": "[dbo].[PS_TRAFFIC]",
       "table_name": "[dbo].[TRAFFIC_DATA]",
-      "insert_to_populate": ["[REC_ID]", "[PORTROUTE]", "[ARRIVEDEPART]", "[TRAFFICTOTAL]", "[PERIODSTART]", "[PERIODEND]"
+      "insert_to_populate": ["[PORTROUTE]", "[ARRIVEDEPART]", "[TRAFFICTOTAL]", "[PERIODSTART]", "[PERIODEND]"
         , "[AM_PM_NIGHT]", "[HAUL]", "[VEHICLE]"],
       "count": 0,
       "order": 0
@@ -85,7 +85,7 @@
       "ps_table": "[dbo].[PS_UNSAMPLED_OOH]",
       "weight_table": "[dbo].[SAS_UNSAMPLED_OOH_WT]",
       "table_name": "[dbo].[UNSAMPLED_OOH_DATA]",
-      "insert_to_populate": ["[REC_ID]", "[PORTROUTE]", "[REGION]", "[ARRIVEDEPART]", "[UNSAMP_TOTAL]"],
+      "insert_to_populate": ["[PORTROUTE]", "[REGION]", "[ARRIVEDEPART]", "[UNSAMP_TOTAL]"],
       "count": 2,
       "order": 1
     },
@@ -107,7 +107,7 @@
       "nullify_pvs": ["[FINAL_WT]"],
       "ps_columns": ["[RUN_ID]", "[SERIAL]", "[SHIFT_WT]", "[NON_RESPONSE_WT]", "[MINS_WT]", "[TRAFFIC_WT]", "[UNSAMP_TRAFFIC_WT]", "[IMBAL_WT]", "[FINAL_WT]"],
       "results_columns": ["[FINAL_WT]"],
-      "delete_tables": ["[dbo].[SAS_FINAL_WT]", "[dbo].[SAS_PS_FINAL]", "[dbo].[SAS_SURVEY_SUBSAMPLE]"],
+      "delete_tables": ["[dbo].[SAS_FINAL_WT]", "[dbo].[SAS_PS_FINAL]"],
       "ps_table": "[dbo].[PS_FINAL]",
       "sas_ps_table": "[dbo].[SAS_PS_FINAL]",
       "weight_table": "[dbo].[SAS_FINAL_WT]"
@@ -146,7 +146,7 @@
     {
       "nullify_pvs": ["[SPEND_IMP_FLAG_PV]", "[SPEND_IMP_ELIGIBLE_PV]", "[UK_OS_PV]", "[PUR1_PV]", "[PUR2_PV]", "[PUR3_PV]", "[DUR1_PV]"
       , "[DUR2_PV]", "[SPENDK]"],
-      "pv_columns": ["'SPEND_IMP_FLAG_PV'", "'SPEND_IMP_ELIGIBLE_PV'", "'UK_OS_PV'" , "'PUR1_PV'"
+      "pv_columns": ["'SPEND_IMP_ELIGIBLE_PV'", "'SPEND_IMP_FLAG_PV'", "'UK_OS_PV'" , "'PUR1_PV'"
       , "'PUR2_PV'", "'PUR3_PV'", "'DUR1_PV'", "'DUR2_PV'"],
       "results_columns": ["[SPENDK]"],
       "delete_tables": ["[dbo].[SAS_SPEND_IMP]"],

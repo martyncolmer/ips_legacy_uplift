@@ -521,7 +521,7 @@ def delete_from_table(table_name, condition1=None, operator=None
         #database_logger().error(err, exc_info = True)
         return False
     else:
-        return True
+        return sql
         
 
 def select_data(column_name, table_name, condition1, condition2):
