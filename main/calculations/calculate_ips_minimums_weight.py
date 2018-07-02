@@ -82,8 +82,14 @@ def do_ips_minweight_calculation(df_surveydata, var_serialNum, var_shiftWeight, 
 
     df_check_prior_gross_fulls = df_summary[df_summary[PRIOR_WEIGHT_FULL_COLUMN] <= 0]
 
+    # Collect data outside of specified threshold
+    threshold_string = ""
+    for index, record in df_check_prior_gross_fulls.iterrows():
+        threshold_string += "___||___" \
+                            + df_check_prior_gross_fulls.columns[0] + " : " + str(record[0])
+
     if not df_check_prior_gross_fulls.empty and not df_summig.empty:
-        cf.database_logger().error('Error: No complete or partial responses')
+        cf.database_logger().error('Error: No complete or partial responses' + threshold_string)
     else:
         df_summary[var_minWeight] = np.where(df_summary[PRIOR_WEIGHT_FULL_COLUMN] > 0,
                                              (df_summary[PRIOR_WEIGHT_MINIMUM_COLUMN] +

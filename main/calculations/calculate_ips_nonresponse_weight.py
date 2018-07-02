@@ -144,8 +144,14 @@ def do_ips_nrweight_calculation(survey_data, non_response_data,  non_response_we
 
     df_gross_resp_is_zero = df_gnr[df_gnr[GROSS_RESP_COLUMN] == 0]
 
+    # Collect data outside of specified threshold
+    threshold_string = ""
+    for index, record in df_gross_resp_is_zero.iterrows():
+        threshold_string += "___||___" \
+                            + df_gross_resp_is_zero.columns[0] + " : " + str(record[0])
+
     if len(df_gross_resp_is_zero) > 0:
-        logger.error('Error: Gross response is 0.')
+        logger.error('Error: Gross response is 0.' + threshold_string)
 
     # Sort df_gnr and df_surveydata ready for producing summary
     df_gnr = df_gnr.sort_values(by=NON_RESPONSE_STRATA)
