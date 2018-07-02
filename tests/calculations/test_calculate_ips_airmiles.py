@@ -8,7 +8,7 @@ import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_airmiles import do_ips_airmiles_calculation
 
-path_to_data = r"tests/data/air_miles"
+path_to_data = r"tests/data/calculations/october_2017/air_miles"
 
 def test_calculate():
 

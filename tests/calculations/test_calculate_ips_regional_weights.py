@@ -9,7 +9,7 @@ from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_regional_weights import do_ips_regional_weight_calculation
 import numpy as np
 
-path_to_data = r"tests/data/regional_weights"
+path_to_data = r"tests/data/calculations/october_2017/regional_weights"
 
 
 def test_calculate():

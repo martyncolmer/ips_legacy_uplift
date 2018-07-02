@@ -9,7 +9,7 @@ from main.calculations import calculate_ips_spend_imputation as spend
 
 import pytest
 
-path_to_data = r"tests/data/spend"
+path_to_data = r"tests/data/calculations/october_2017/spend"
 
 
 @pytest.mark.skip("Known failure due to rounding")

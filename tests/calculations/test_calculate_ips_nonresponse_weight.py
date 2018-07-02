@@ -9,7 +9,7 @@ from pandas.util.testing import assert_frame_equal
 
 from main.calculations import calculate_ips_nonresponse_weight as non_resp
 
-path_to_data = r"tests/data/non_response_weight"
+path_to_data = r"tests/data/calculations/october_2017/non_response_weight"
 
 
 def test_calculate():

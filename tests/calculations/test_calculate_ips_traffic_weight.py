@@ -10,7 +10,7 @@ from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_traffic_weight import calculate, do_ips_ges_weighting, \
     do_ips_trafweight_calculation, generate_ips_tw_summary
 
-path_to_data = r"tests/data/traffic_weight"
+path_to_data = r"tests/data/calculations/october_2017/traffic_weight"
 
 def test_calculate():
     (df_output_merge_final_rounded, df_summary_merge_sum_traftot) = calculate(SurveyData='sas_survey_subsample'

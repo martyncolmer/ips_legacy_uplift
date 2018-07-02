@@ -9,7 +9,7 @@ from main.calculations.calculate_ips_fares_imputation import do_ips_fares_imputa
 
 import pytest
 
-path_to_data = r"tests/data/fares"
+path_to_data = r"tests/data/calculations/october_2017/fares"
 
 
 @pytest.mark.skip("Known failure due to rounding")

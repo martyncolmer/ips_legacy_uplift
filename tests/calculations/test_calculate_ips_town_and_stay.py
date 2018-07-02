@@ -8,7 +8,7 @@ from pandas.util.testing import assert_frame_equal
 
 from main.calculations import calculate_ips_town_and_stay_expenditure as tse
 
-path_to_data = r"tests/data"
+path_to_data = r"tests/data/calculations/october_2017"
 
 def test_calculate():
     # This is an integration test as it runs the entire step
