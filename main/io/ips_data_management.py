@@ -395,35 +395,68 @@ def copy_step_pvs_for_step_data(run_id, conn, step):
         conn.commit()
 
 
-def update_survey_data_with_step_pv_output(conn, step):
-    """
-    Author       : Elinor Thorne
-    Date         : April 2018
-    Purpose      : Updates data with the process variable output.
-    Parameters   : conn - connection object pointing at the database.
-                 : step -
-    Returns      : NA
-    """
-
+# def update_survey_data_with_step_pv_output(conn, step):
+#     """
+#     Author       : Elinor Thorne
+#     Date         : April 2018
+#     Purpose      : Updates data with the process variable output.
+#     Parameters   : conn - connection object pointing at the database.
+#                  : step -
+#     Returns      : NA
+#     """
+#
+#     print(str(inspect.stack()[0][3]).upper())
+#     print("")
+#
+#     # Assign variables
+#     spv_table = DATA[step]["spv_table"]
+#
+#     # Construct string for SQL statement
+#     cols = [item.replace("'", "") for item in DATA[step]["pv_columns"]]
+#     cols = [item + " = CALC." + item for item in cols]
+#     set_statement = ", ".join(map(str, cols))
+#
+#     # Construct and execute SQL statement
+#     sql = """
+#             UPDATE {}
+#                 SET {}
+#                 FROM {} as SSS
+#                 JOIN {} as CALC
+#                 ON SSS.SERIAL = CALC.SERIAL
+#             """.format(SAS_SURVEY_SUBSAMPLE_TABLE, set_statement, SAS_SURVEY_SUBSAMPLE_TABLE, spv_table)
+#     print(sql)
+#     print("")
+#
+#     cur = conn.cursor()
+#     cur.execute(sql)
+#     conn.commit()
+#
+#     # Cleanse temp tables
+#     delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
+#     print(delete_statement)
+#     print("")
+#     delete_statement = cf.delete_from_table(spv_table)
+#     print(delete_statement)
+#     print("")
+def update_step_data_with_pvs_output(conn, step):
     print(str(inspect.stack()[0][3]).upper())
     print("")
 
-    # Assign variables
-    spv_table = DATA[step]["spv_table"]
+    # Construct set statement
+    cols = DATA[step]["pv_columns2"]
+    cols = [item + " = SSS." + item for item in cols]
+    set_statement = " , ".join(cols)
 
-    # Construct string for SQL statement
-    cols = [item.replace("'", "") for item in DATA[step]["pv_columns"]]
-    cols = [item + " = CALC." + item for item in cols]
-    set_statement = ", ".join(map(str, cols))
-
-    # Construct and execute SQL statement
+    # Create SQL statement and execute
     sql = """
-            UPDATE {}
-                SET {}
-                FROM {} as SSS
-                JOIN {} as CALC
-                ON SSS.SERIAL = CALC.SERIAL
-            """.format(SAS_SURVEY_SUBSAMPLE_TABLE, set_statement, SAS_SURVEY_SUBSAMPLE_TABLE, spv_table)
+    UPDATE {}
+    SET {}
+    FROM {} as SS
+    JOIN {} as SSS
+    ON SS.SERIAL = SSS.SERIAL
+    AND SS.RUN_ID = '{}'
+    """.format(DATA[step]["data_table"], set_statement, DATA[step]["pv_table"], DATA[step]["data_table"], run_id)
+
     print(sql)
     print("")
 
@@ -431,13 +464,7 @@ def update_survey_data_with_step_pv_output(conn, step):
     cur.execute(sql)
     conn.commit()
 
-    # Cleanse temp tables
-    delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
-    print(delete_statement)
-    print("")
-    delete_statement = cf.delete_from_table(spv_table)
-    print(delete_statement)
-    print("")
+
 
 
 def sql_update_statement(table_to_update_from, columns_to_update):
