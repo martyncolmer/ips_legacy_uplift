@@ -1,5 +1,4 @@
 import json
-import sys
 import inspect
 from main.io import CommonFunctions as cf
 
@@ -372,8 +371,6 @@ def copy_step_pvs_for_step_data(run_id, conn, step):
             order = order + 1
     else:
         cols = []
-
-
         for item in DATA[step]["pv_columns"]:
             cols.append(item)
 
@@ -403,7 +400,7 @@ def copy_step_pvs_for_step_data(run_id, conn, step):
         conn.commit()
 
 
-def update_step_data_with_pvs_output(conn, step):
+def update_step_data_with_step_pv_output(conn, step):
     print(str(inspect.stack()[0][3]).upper())
     print("")
 
@@ -569,13 +566,6 @@ def store_survey_data_with_step_results(run_id, conn, step):
     cols = [item + " = SSS." + item for item in cols]
     set_statement = " , ".join(cols)
 
-    # # Create SET and SELECT string
-    # for item in DATA[step]["nullify_pvs"]:
-    #     set.append(
-    #         item + " = (SELECT " + item + " FROM " + SAS_SURVEY_SUBSAMPLE_TABLE + " AS SS WHERE [SERIAL] = SS.[SERIAL])")
-    # set_statement = """,
-    #     """.join(map(str, set))
-
     # Create SQL statement and execute
     sql = """
     UPDATE {}
@@ -628,21 +618,12 @@ def store_step_summary(run_id, conn, step):
     # Assign variables
     ps_table = DATA[step]["ps_table"]
     sas_ps_table = DATA[step]["sas_ps_table"]
-    # cols = []
-    # sel = []
+
 
     # Create selection string
     selection = [col for col in DATA[step]["ps_columns"] if col != "[RUN_ID]"]
     columns = " , ".join(DATA[step]["ps_columns"])
     selection = " , ".join(selection)
-    # for col in DATA[step]["ps_columns"]:
-    #     cols.append(col)
-    #     if col != "[RUN_ID]":
-    #         sel.append("SELECT " + col + " FROM " + sas_ps_table)
-    # columns = """,
-    # """.join(map(str, cols))
-    # selection = """),
-    #  (""".join(map(str, sel))
 
     # Cleanse summary table
     delete_statement = cf.delete_from_table(ps_table, 'RUN_ID', '=', run_id)
@@ -676,9 +657,9 @@ if __name__ == "__main__":
     run_id = "9e5c1872-3f8e-4ae5-85dc-c67a602d011e"
     connection = cf.get_oracle_connection()
 
-    # step = "SHIFT_WEIGHT"
-    # print("***{}***".format(step))
-    # update_step_data_with_pvs_output(connection, step)
+    step = "SHIFT_WEIGHT"
+    print("***{}***".format(step))
+    update_step_data_with_step_pv_output(connection, step)
     # populate_survey_data_for_step(connection, step)
     # populate_step_data(run_id, connection, step)
     # copy_step_pvs_for_survey_data(run_id, connection, step)
@@ -808,3 +789,5 @@ if __name__ == "__main__":
     # populate_survey_data_for_step(connection, step)
     # update_survey_data_with_step_results(connection, step)
     # store_survey_data_with_step_results(run_id, connection, step)
+
+

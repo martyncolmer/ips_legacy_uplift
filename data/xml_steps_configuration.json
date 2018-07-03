@@ -41,6 +41,7 @@
     {
       "nullify_pvs": ["[MINS_PORT_GRP_PV]", "[MINS_CTRY_GRP_PV]", "[MINS_NAT_GRP_PV]", "[MINS_CTRY_PORT_GRP_PV]", "[MINS_FLAG_PV]", "[MINS_WT]"],
       "pv_columns": ["'MINS_PORT_GRP_PV'", "'MINS_CTRY_GRP_PV'", "'MINS_NAT_GRP_PV'", "'MINS_FLAG_PV'", "'MINS_CTRY_PORT_GRP_PV'"],
+      "pv_columns2": ["'MINS_FLAG_PV'", "'MINS_PORT_GRP_PV'","'MINS_CTRY_GRP_PV'","'MINS_NAT_GRP_PV'", "'MINS_CTRY_PORT_GRP_PV'"],
       "ps_columns": ["[RUN_ID]", "[MINS_PORT_GRP_PV]", "[ARRIVEDEPART]", "[MINS_CTRY_GRP_PV]", "[MINS_NAT_GRP_PV]", "[MINS_CTRY_PORT_GRP_PV]", "[MINS_CASES]", "[FULLS_CASES]", "[PRIOR_GROSS_MINS]", "[PRIOR_GROSS_FULLS]", "[PRIOR_GROSS_ALL]", "[MINS_WT]", "[POST_SUM]", "[CASES_CARRIED_FWD]"],
       "results_columns": ["[MINS_WT]"],
       "delete_tables": ["[dbo].[SAS_MINIMUMS_WT]", "[dbo].[SAS_PS_MINIMUMS]"],

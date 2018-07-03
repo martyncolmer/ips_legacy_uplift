@@ -518,6 +518,7 @@ def delete_from_table(table_name, condition1=None, operator=None
     try:
         cur.execute(sql)
     except Exception as err:
+        print("bla!")
         #database_logger().error(err, exc_info = True)
         return False
     else:
@@ -1116,3 +1117,5 @@ def unpickle_rick(file):
     beep()
 
 
+if __name__ == "__main__":
+    unpickle_rick("update_shift_data_with_shift_data_pv_output")

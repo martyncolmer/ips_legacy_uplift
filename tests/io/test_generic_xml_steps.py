@@ -220,6 +220,12 @@ def test_populate_step_data(database_connection):
     cf.delete_from_table(step_config['table_name'], 'RUN_ID', '=', run_id)
     cf.delete_from_table(step_config['data_table'])
 
+    # result.to_csv(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\El's Temp VDI Folder\XML\Generic\result.csv")
+    # test_result.to_csv(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\El's Temp VDI Folder\XML\Generic\test_result.csv")
+
+    print(result)
+    print(test_result)
+
     assert_frame_equal(result, test_result)
 
 
@@ -361,24 +367,29 @@ def test_copy_step_pvs_for_step_data(database_connection):
     assert_frame_equal(results, test_results, check_dtype=False)
 
 
-@pytest.mark.skip('not finished writing')
+# @pytest.mark.skip('not finished writing')
 def test_update_step_data_with_step_pv_output(database_connection):
     # step_config and run_id variables
-    step_config = {'pv_columns2': ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]"]
-        ,'pv_table': '[dbo].[SAS_SHIFT_PV]'
-        ,'data_table': '[dbo].[SAS_SHIFT_DATA]'
-        ,'weight_table': '[dbo].[SAS_SHIFT_WT]'
-        ,'sas_ps_table': '[dbo].[SAS_PS_SHIFT_DATA]'
-                   }
-    run_id = 'update-step-data-with-step-pv-output'
+    step_config = {"pv_columns": ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'", "'SHIFT_FLAG_PV'", "'CROSSINGS_FLAG_PV'"],
+                   "data_table": "[dbo].[SAS_SHIFT_DATA]",
+                   "pv_table": "[dbo].[SAS_SHIFT_PV]",
+                   "weight_table": "[dbo].[SAS_SHIFT_WT]",
+                   "sas_ps_table": "[dbo].[SAS_PS_SHIFT_DATA]"}
 
     # Pickle some test data
+    test_data = pd.read_pickle(TEST_DATA_DIR + 'update_shift_data_with_shift_data_pv_output.pkl')
+    print(cf.insert_dataframe_into_table("SAS_SHIFT_PV", test_data, database_connection))
 
-
+    sys.exit()
 
     # Plug it in
+    gxs.update_step_data_with_step_pv_output(database_connection, step_config)
+    results = cf.get_table_values('SAS_SHIFT_DATA')
 
-    # Pickle results
+    sys.exit()
+
+    # Pickle test results
+    test_results = pd.read_pickle(TEST_DATA_DIR + 'update_shift_data_with_shift_data_pv_output_results.pkl')
 
     # Assert tables are empty
 
