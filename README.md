@@ -11,4 +11,16 @@ Users select which steps should be executed and then generate reports from the r
 All data resides in the database and code connecting to the database can be found in the _io_ folder. Finally any generic functions are located in the _utils_ folder.
 
 # How to use this package?
-Call the *main* function.
+
+
+# Quick Start
+
+1. Clone and navigate to the root directory of this repository.
+
+2. Ensure python 3 and pip are installed.
+
+3. Install the dependencies with `pip install -r requirements.txt`
+
+4. Call the *main* function or
+
+4a. run all the tests using pytest (see for configuring pytest in pycharm and running tests)
