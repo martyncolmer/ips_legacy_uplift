@@ -8,8 +8,9 @@ from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_fares_imputation import do_ips_fares_imputation
 
 import pytest
+import tests.config
 
-path_to_data = r"tests/data/calculations/october_2017/fares"
+path_to_data = r"tests/data/calculations/" + tests.config.TEST_MONTH +  "/fares"
 
 
 @pytest.mark.skip("Known failure due to rounding")

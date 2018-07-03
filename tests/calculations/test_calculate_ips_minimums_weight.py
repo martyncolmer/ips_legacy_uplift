@@ -9,8 +9,9 @@ from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_minimums_weight import do_ips_minweight_calculation
 
 import pytest
+import tests.config
 
-path_to_data = r"tests/data/calculations/october_2017/min_weight"
+path_to_data = r"tests/data/calculations/" + tests.config.TEST_MONTH + "/min_weight"
 
 
 @pytest.mark.skip("Known failure due to rounding")

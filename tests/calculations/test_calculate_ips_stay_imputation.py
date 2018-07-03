@@ -6,8 +6,9 @@ Created on 15 Mar 2018
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_stay_imputation import do_ips_stay_imputation
+import tests.config
 
-path_to_data = r"tests/data/calculations/october_2017/stay"
+path_to_data = r"tests/data/calculations/" + tests.config.TEST_MONTH + "/stay"
 
 
 def test_calculate():

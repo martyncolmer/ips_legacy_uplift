@@ -6,8 +6,8 @@ Created on 6 Mar 2018
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from main.calculations import calculate_ips_imb_weight as imb
-
-path_to_data = r"tests/data/calculations/october_2017/imbalance_weight"
+import tests.config
+path_to_data = r"tests/data/calculations/" + tests.config.TEST_MONTH + "/imbalance_weight"
 
 
 def test_calculate():

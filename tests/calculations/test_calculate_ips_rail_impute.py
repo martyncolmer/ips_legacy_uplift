@@ -7,8 +7,9 @@ Created on 05 March 2018
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_rail_imputation import do_ips_railex_imp
+import tests.config
 
-path_to_data = r"tests/data/calculations/october_2017/rail"
+path_to_data = r"tests/data/calculations/" + tests.config.TEST_MONTH + "/rail"
 
 
 def test_calculate():

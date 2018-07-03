@@ -8,8 +8,8 @@ import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_final_weight import calculate, do_ips_final_wt_calculation
 import pytest
-
-path_to_data = r"tests/data/calculations/october_2017/final_weight"
+import tests.config
+path_to_data = r"tests/data/calculations/" + tests.config.TEST_MONTH + "/final_weight"
 
 
 def test_calculate():

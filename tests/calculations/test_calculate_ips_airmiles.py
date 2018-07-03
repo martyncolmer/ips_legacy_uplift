@@ -7,8 +7,9 @@ Created on 05 March 2018
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_airmiles import do_ips_airmiles_calculation
+import tests.config
 
-path_to_data = r"tests/data/calculations/october_2017/air_miles"
+path_to_data = r"tests/data/calculations/" + tests.config.TEST_MONTH + "/air_miles"
 
 def test_calculate():
 

@@ -8,8 +8,9 @@ import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_unsampled_weight import calculate, do_ips_unsampled_weight_calculation
 import pytest
+import tests.config
 
-path_to_data = 'tests/data/calculations/october_2017/unsampled_weight'
+path_to_data = "tests/data/calculations/" + tests.config.TEST_MONTH + "/unsampled_weight"
 
 
 @pytest.mark.unsampled
