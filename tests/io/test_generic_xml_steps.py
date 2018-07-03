@@ -367,33 +367,109 @@ def test_copy_step_pvs_for_step_data(database_connection):
     assert_frame_equal(results, test_results, check_dtype=False)
 
 
-# @pytest.mark.skip('not finished writing')
+# @pytest.mark.skip('Problems creating fake data')
 def test_update_step_data_with_step_pv_output(database_connection):
-    # step_config and run_id variables
-    step_config = {"pv_columns": ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'", "'SHIFT_FLAG_PV'", "'CROSSINGS_FLAG_PV'"],
-                   "data_table": "[dbo].[SAS_SHIFT_DATA]",
+    # step_config and variables
+    step_config = {"pv_columns2": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]"],
                    "pv_table": "[dbo].[SAS_SHIFT_PV]",
+                   "data_table": "[dbo].[SAS_SHIFT_DATA]",
                    "weight_table": "[dbo].[SAS_SHIFT_WT]",
                    "sas_ps_table": "[dbo].[SAS_PS_SHIFT_DATA]"}
+    cur = database_connection.cursor()
+
+    # HACK! - refactor this to insert faux data to SHIFT_DATA / try inserting faux data to SAS_SHIFT_DATA without
+    # adding a rec_id, using cf.insert?  Then remember to cleanse it.
+    sql = """
+    INSERT INTO [ips_test].[dbo].[SAS_SHIFT_DATA]
+            ([PORTROUTE], [WEEKDAY], [ARRIVEDEPART], [TOTAL], [AM_PM_NIGHT])
+        SELECT CALC.[PORTROUTE], CALC.[WEEKDAY], CALC.[ARRIVEDEPART], CALC.[TOTAL], CALC.[AM_PM_NIGHT]
+        FROM [ips_test].[dbo].[SHIFT_DATA] AS CALC
+        WHERE RUN_ID = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
+        """
+    cur.execute(sql)
+    # /HACK!
+
+    # Retrieve rec_id from MS SQL Server to plug in to test datasets.  Write a function for this
+    sql = """
+        SELECT min([REC_ID])
+          FROM {}
+          """.format(step_config["data_table"])
+
+    result = cur.execute(sql).fetchone()
+    rec_id = result[0]
+    rec_id2 = result[0]
 
     # Pickle some test data
-    test_data = pd.read_pickle(TEST_DATA_DIR + 'update_shift_data_with_shift_data_pv_output.pkl')
-    print(cf.insert_dataframe_into_table("SAS_SHIFT_PV", test_data, database_connection))
+    test_data = pd.read_pickle(TEST_DATA_DIR + 'update_step_data_with_step_pv_output.pkl')
 
-    sys.exit()
+    # Amend test data to reflect correct rec_id.  Write a function for this?
+    for row in range(0, len(test_data['REC_ID'])):
+        test_data['REC_ID'][row] = rec_id
+        rec_id = rec_id + 1
 
-    # Plug it in
+    # Insert test data to database
+    cf.insert_dataframe_into_table("[dbo].[SAS_SHIFT_PV]", test_data, database_connection)
+
+    # Run function
     gxs.update_step_data_with_step_pv_output(database_connection, step_config)
-    results = cf.get_table_values('SAS_SHIFT_DATA')
 
-    sys.exit()
+    # Retrieve actual results.  I shouldn't have to do this if I've fauxed it up with a run/rec_id
+    sql = """
+        SELECT TOP (4) [REC_ID]
+          ,[PORTROUTE]
+          ,[WEEKDAY]
+          ,[ARRIVEDEPART]
+          ,[TOTAL]
+          ,[AM_PM_NIGHT]
+          ,[SHIFT_PORT_GRP_PV]
+          ,[AM_PM_NIGHT_PV]
+          ,[WEEKDAY_END_PV]
+      FROM [ips_test].[dbo].[SAS_SHIFT_DATA]
+      ORDER BY REC_ID    
+    """
+    results = pd.read_sql(sql, database_connection)
 
-    # Pickle test results
-    test_results = pd.read_pickle(TEST_DATA_DIR + 'update_shift_data_with_shift_data_pv_output_results.pkl')
+    # Pickle expected test results
+    test_results = pd.read_pickle(TEST_DATA_DIR + 'update_step_data_with_step_pv_output_results.pkl')
+
+    # Amend test data to reflect correct rec_id. Function up!
+    for row in range(0, len(test_results['REC_ID'])):
+        test_results['REC_ID'][row] = rec_id2
+        rec_id2 = rec_id2 + 1
 
     # Assert tables are empty
+    pv_sql = """
+    SELECT COUNT(*)
+    FROM {}
+    """.format(step_config['pv_table'])
 
-    # Assert it!
+    wt_sql = """
+        SELECT COUNT(*)
+        FROM {}
+        """.format(step_config['weight_table'])
+
+    sas_pv_sql = """
+        SELECT COUNT(*)
+        FROM {}
+        """.format(gxs.SAS_PROCESS_VARIABLES_TABLE)
+
+    sas_ps_sql = """
+        SELECT COUNT(*)
+        FROM {}
+        """.format(step_config['sas_ps_table'])
+
+    pv_result = cur.execute(pv_sql).fetchone()[0]
+    wt_result = cur.execute(wt_sql).fetchone()[0]
+    sas_pv_result = cur.execute(sas_pv_sql).fetchone()[0]
+    sas_ps_result = cur.execute(sas_ps_sql).fetchone()[0]
+
+    # assert pv_result == 0
+    assert wt_result == 0
+    assert sas_pv_result == 0
+    assert sas_ps_result == 0
+
+    # Assert results are equal to expected test results
+    assert_frame_equal(results, test_results, check_dtype=False)
 
 @pytest.mark.skip('not implemented')
 def test_update_survey_data_with_step_results(database_connection):

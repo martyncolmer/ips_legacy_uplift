@@ -659,15 +659,17 @@ if __name__ == "__main__":
 
     step = "SHIFT_WEIGHT"
     print("***{}***".format(step))
+    populate_survey_data_for_step(connection, step)
+    populate_step_data(run_id, connection, step)
+    copy_step_pvs_for_survey_data(run_id, connection, step)
+    update_survey_data_with_step_pv_output(connection, step)
+    copy_step_pvs_for_step_data(run_id, connection, step)
     update_step_data_with_step_pv_output(connection, step)
-    # populate_survey_data_for_step(connection, step)
-    # populate_step_data(run_id, connection, step)
-    # copy_step_pvs_for_survey_data(run_id, connection, step)
-    # update_survey_data_with_step_pv_output(connection, step)
-    # copy_step_pvs_for_step_data(run_id, connection, step)
-    # update_survey_data_with_step_results(connection, step)
-    # store_survey_data_with_step_results(run_id, connection, step)
-    # store_step_summary(run_id, connection, step)
+    update_survey_data_with_step_results(connection, step)
+    store_survey_data_with_step_results(run_id, connection, step)
+    store_step_summary(run_id, connection, step)
+
+
     #
     # step = "NON_RESPONSE"
     # print("***{}***".format(step))

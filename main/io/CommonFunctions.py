@@ -1024,7 +1024,10 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False):
 
     cur = connection.cursor()
 
+
     dataframe = dataframe.where((pandas.notnull(dataframe)), None)
+    print(dataframe)
+    print(list(dataframe.columns.values))
 
     # Extract the dataframe values into a collection of rows
     rows = [tuple(x) for x in dataframe.values]
@@ -1058,11 +1061,12 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False):
     print("Rows to insert - " + str(len(rows)))
 
     # Debugging
-    # for rec in rows:
-    #    print (rec)
+    for rec in rows:
+       print(rec)
 
     start_time = time.time()
     print("Start - " + str(start_time))
+
     cur.executemany(sql, rows)
 
     end_time = time.time()
@@ -1113,9 +1117,19 @@ def unpickle_rick(file):
     df = pandas.read_pickle(path+in_file)
 
     # Send to CSV
-    df.to_csv(r"{}\unpickled_{}".format(path, out_file))
+    df.to_csv(r"{}\{}".format(path, out_file))
     beep()
 
 
+def create_fake_data():
+    data = {'REC_ID':[9,8,7],
+            'SHIFT_PORT_GRP_PV':['1','2','3'],
+            'AM_PM_NIGHT_PV':[4,5,6],
+            'WEEKDAY_END_PV':[7,8,9]}
+    df = pandas.DataFrame(data)
+    df.to_csv(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\El's Temp VDI Folder\XML\Generic\unpickled_update_shift_data_with_shift_data_pv_output.csv")
+    beep()
+
 if __name__ == "__main__":
-    unpickle_rick("update_shift_data_with_shift_data_pv_output")
+    unpickle_rick("update_survey_data_pvs")
+    # create_fake_data()
