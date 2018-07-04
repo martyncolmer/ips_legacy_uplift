@@ -4,7 +4,7 @@ import pandas as pd
 
 from main.io import CommonFunctions as cf
 
-PATH_TO_TEST_DATA = r"tests/data/shift_weight"
+PATH_TO_TEST_DATA = r"tests/data/calculations/october_2017/shift_weight"
 
 OUTPUT_TABLE_NAME = 'SAS_SHIFT_WT'
 SUMMARY_TABLE_NAME = 'SAS_PS_SHIFT_DATA'

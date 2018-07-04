@@ -7,12 +7,14 @@ Created on 05 March 2018
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_airmiles import do_ips_airmiles_calculation
+import tests.config
 
+path_to_data = r"tests/data/calculations/" + tests.config.TEST_MONTH + "/air_miles"
 
 def test_calculate():
 
     # Import the test data
-    test_survey = pd.read_pickle('tests/data/airmiles_input.pkl')
+    test_survey = pd.read_pickle(path_to_data + '/airmiles_input.pkl')
 
     # Set the imported columns to be uppercase
     test_survey.columns = test_survey.columns.str.upper()
@@ -22,10 +24,11 @@ def test_calculate():
                                               var_serial='SERIAL')
 
     # Import the expected result
-    test_result = pd.read_pickle('tests/data/airmiles_output.pkl')
+    test_result = pd.read_pickle(path_to_data + '/airmiles_output.pkl')
 
     # Set the imported columns to be uppercase
     test_result.columns = test_result.columns.str.upper()
 
     # Check the results match
     assert_frame_equal(output_data, test_result)
+
