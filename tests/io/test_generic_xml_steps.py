@@ -407,6 +407,7 @@ def test_update_step_data_with_step_pv_output(database_connection):
     results = cf.get_table_values(step_config["data_table"])
 
     # clean test data before actually testing results
+    cf.delete_from_table(step_config['data_table'])
     cf.delete_from_table(step_config['pv_table'])
 
     # Create expected test results
@@ -429,21 +430,56 @@ def test_update_step_data_with_step_pv_output(database_connection):
     assert len(results) == 0
 
 
-@pytest.mark.skip('not implemented')
+@pytest.mark.skip('problems inserting data to sas_survey_subsample')
 def test_update_survey_data_with_step_results(database_connection):
-    # TODO implement test
-    assert False
+    # step_config and variables
+    step_config = {"name": "SHIFT_WEIGHT",
+                   "weight_table": "[dbo].[SAS_SHIFT_WT]",
+                   "results_columns": ["[SHIFT_WT]"]}
+
+    # set up test data/tables
+
+    # clean test data before actually testing results
+
+    # Create expected test results and test against result
+
+    # Assert temp tables had been cleansed in function
 
 
-@pytest.mark.skip('not implemented')
+@pytest.mark.skip('problems inserting data to sas_survey_subsample')
 def test_store_survey_data_with_step_results(database_connection):
-    # TODO implement test
+    # step_config and variables
+
+    # set up test data/tables
+
+    # clean test data before actually testing results
+
+    # Create expected test results and test against result
+
+    # Assert temp tables had been cleansed in function
     assert False
 
 
-@pytest.mark.skip('not implemented')
+
+# @pytest.mark.skip('not implemented')
 def test_store_step_summary(database_connection):
-    # TODO implement test
+    # step_config and variables
+    step_config = {"ps_table": "[dbo].[PS_SHIFT_DATA]",
+                   "sas_ps_table": "[dbo].[SAS_PS_SHIFT_DATA]",
+                   "ps_columns": ["[RUN_ID]", "[SHIFT_PORT_GRP_PV]", "[ARRIVEDEPART]", "[WEEKDAY_END_PV]",
+                                  "[AM_PM_NIGHT_PV]", "[MIGSI]", "[POSS_SHIFT_CROSS]", "[SAMP_SHIFT_CROSS]",
+                                  "[MIN_SH_WT]", "[MEAN_SH_WT]", "[MAX_SH_WT]", "[COUNT_RESPS]", "[SUM_SH_WT]"]}
+
+    # set up test data/tables
+    test_ps_data = pd.read_pickle(TEST_DATA_DIR + 'store_ps_summary.pkl')
+    cf.insert_dataframe_into_table(step_config["sas_ps_table"], test_ps_data, database_connection)
+    sys.exit()
+
+    # clean test data before actually testing results
+
+    # Create expected test results and test against result
+
+    # Assert temp tables had been cleansed in function
     assert False
 
 
