@@ -22,6 +22,21 @@ def database_connection():
     return get_oracle_connection()
 
 
+def get_rec_id(value, table, database_connection):
+    # value = 'min' or 'max'
+    # table = table name
+    # Retrieve rec_id
+
+    cur = database_connection.cursor()
+    sql = """
+        SELECT {}([REC_ID])
+          FROM {}
+          """.format(value, table)
+
+    result = cur.execute(sql).fetchone()
+    return result[0]
+
+
 def store_rec_id(table_name):
     '''
     This function retrieves the max REC_ID from the database and stores value within a text file.
@@ -50,16 +65,16 @@ def store_rec_id(table_name):
         print(err)
 
 
-def amend_rec_id(dataframe):
+def amend_rec_id(dataframe, rec_id):
     '''
     This function retrieves REC_ID from text file and inputs to test result dataframe.
     '''
-    with open(r'tests/data/generic_xml_steps/record_id.txt', 'r') as file:
-        rec_id = int(file.read())
+    # with open(r'tests/data/generic_xml_steps/record_id.txt', 'r') as file:
+    #     rec_id = int(file.read())
 
     for row in range(0, len(dataframe['REC_ID'])):
-        rec_id = rec_id + 1
         dataframe['REC_ID'][row] = rec_id
+        rec_id = rec_id + 1
 
     return dataframe
 
@@ -367,7 +382,6 @@ def test_copy_step_pvs_for_step_data(database_connection):
     assert_frame_equal(results, test_results, check_dtype=False)
 
 
-# @pytest.mark.skip('Problems creating fake data')
 def test_update_step_data_with_step_pv_output(database_connection):
     # step_config and variables
     step_config = {"pv_columns2": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]"],
@@ -375,101 +389,45 @@ def test_update_step_data_with_step_pv_output(database_connection):
                    "data_table": "[dbo].[SAS_SHIFT_DATA]",
                    "weight_table": "[dbo].[SAS_SHIFT_WT]",
                    "sas_ps_table": "[dbo].[SAS_PS_SHIFT_DATA]"}
-    cur = database_connection.cursor()
 
-    # HACK! - refactor this to insert faux data to SHIFT_DATA / try inserting faux data to SAS_SHIFT_DATA without
-    # adding a rec_id, using cf.insert?  Then remember to cleanse it.
-    sql = """
-    INSERT INTO [ips_test].[dbo].[SAS_SHIFT_DATA]
-            ([PORTROUTE], [WEEKDAY], [ARRIVEDEPART], [TOTAL], [AM_PM_NIGHT])
-        SELECT CALC.[PORTROUTE], CALC.[WEEKDAY], CALC.[ARRIVEDEPART], CALC.[TOTAL], CALC.[AM_PM_NIGHT]
-        FROM [ips_test].[dbo].[SHIFT_DATA] AS CALC
-        WHERE RUN_ID = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
-        """
-    cur.execute(sql)
-    # /HACK!
+    # set up test data/tables
+    test_shift_data = pd.read_pickle(TEST_DATA_DIR + 'update_shift_data_pvs.pkl')
+    cf.delete_from_table(step_config["data_table"])         # This is a hack and should probably be deleted!
+    cf.insert_dataframe_into_table(step_config["data_table"], test_shift_data, database_connection)
 
-    # Retrieve rec_id from MS SQL Server to plug in to test datasets.  Write a function for this
-    sql = """
-        SELECT min([REC_ID])
-          FROM {}
-          """.format(step_config["data_table"])
+    test_shift_pv_data = pd.read_pickle(TEST_DATA_DIR + 'test_shift_pv_data.pkl')
 
-    result = cur.execute(sql).fetchone()
-    rec_id = result[0]
-    rec_id2 = result[0]
+    # Get rec_id and amend test dataframe
+    rec_id = get_rec_id("MIN", step_config["data_table"], database_connection)
+    test_shift_pv_data = amend_rec_id(test_shift_pv_data, rec_id)
 
-    # Pickle some test data
-    test_data = pd.read_pickle(TEST_DATA_DIR + 'update_step_data_with_step_pv_output.pkl')
+    cf.insert_dataframe_into_table(step_config['pv_table'], test_shift_pv_data, database_connection)
 
-    # Amend test data to reflect correct rec_id.  Write a function for this?
-    for row in range(0, len(test_data['REC_ID'])):
-        test_data['REC_ID'][row] = rec_id
-        rec_id = rec_id + 1
-
-    # Insert test data to database
-    cf.insert_dataframe_into_table("[dbo].[SAS_SHIFT_PV]", test_data, database_connection)
-
-    # Run function
     gxs.update_step_data_with_step_pv_output(database_connection, step_config)
+    results = cf.get_table_values(step_config["data_table"])
 
-    # Retrieve actual results.  I shouldn't have to do this if I've fauxed it up with a run/rec_id
-    sql = """
-        SELECT TOP (4) [REC_ID]
-          ,[PORTROUTE]
-          ,[WEEKDAY]
-          ,[ARRIVEDEPART]
-          ,[TOTAL]
-          ,[AM_PM_NIGHT]
-          ,[SHIFT_PORT_GRP_PV]
-          ,[AM_PM_NIGHT_PV]
-          ,[WEEKDAY_END_PV]
-      FROM [ips_test].[dbo].[SAS_SHIFT_DATA]
-      ORDER BY REC_ID    
-    """
-    results = pd.read_sql(sql, database_connection)
+    # clean test data before actually testing results
+    cf.delete_from_table(step_config['pv_table'])
 
-    # Pickle expected test results
-    test_results = pd.read_pickle(TEST_DATA_DIR + 'update_step_data_with_step_pv_output_results.pkl')
+    # Create expected test results
+    test_results = pd.read_pickle(TEST_DATA_DIR + 'update_shift_data_pvs_result.pkl')
+    test_results = amend_rec_id(test_results, rec_id)
 
-    # Amend test data to reflect correct rec_id. Function up!
-    for row in range(0, len(test_results['REC_ID'])):
-        test_results['REC_ID'][row] = rec_id2
-        rec_id2 = rec_id2 + 1
-
-    # Assert tables are empty
-    pv_sql = """
-    SELECT COUNT(*)
-    FROM {}
-    """.format(step_config['pv_table'])
-
-    wt_sql = """
-        SELECT COUNT(*)
-        FROM {}
-        """.format(step_config['weight_table'])
-
-    sas_pv_sql = """
-        SELECT COUNT(*)
-        FROM {}
-        """.format(gxs.SAS_PROCESS_VARIABLES_TABLE)
-
-    sas_ps_sql = """
-        SELECT COUNT(*)
-        FROM {}
-        """.format(step_config['sas_ps_table'])
-
-    pv_result = cur.execute(pv_sql).fetchone()[0]
-    wt_result = cur.execute(wt_sql).fetchone()[0]
-    sas_pv_result = cur.execute(sas_pv_sql).fetchone()[0]
-    sas_ps_result = cur.execute(sas_ps_sql).fetchone()[0]
-
-    # assert pv_result == 0
-    assert wt_result == 0
-    assert sas_pv_result == 0
-    assert sas_ps_result == 0
-
-    # Assert results are equal to expected test results
     assert_frame_equal(results, test_results, check_dtype=False)
+
+    # Assert temp tables had been cleanse in function
+    results = cf.get_table_values(step_config['pv_table'])
+    assert len(results) == 0
+
+    results = cf.get_table_values(step_config['weight_table'])
+    assert len(results) == 0
+
+    results = cf.get_table_values(gxs.SAS_PROCESS_VARIABLES_TABLE)
+    assert len(results) == 0
+
+    results = cf.get_table_values(step_config['sas_ps_table'])
+    assert len(results) == 0
+
 
 @pytest.mark.skip('not implemented')
 def test_update_survey_data_with_step_results(database_connection):
@@ -519,4 +477,3 @@ def test_shift_weight_step(database_connection):
                    }
 
     shift_weight_step('9e5c1872-3f8e-4ae5-85dc-c67a602d011e', database_connection, step_config)
-
