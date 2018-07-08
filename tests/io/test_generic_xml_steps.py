@@ -2,6 +2,7 @@ import main.io.CommonFunctions as cf
 import main.io.generic_xml_steps as gxs
 import pytest
 import pandas as pd
+import numpy as np
 import sys
 from main.io import import_data
 from main.io import import_traffic_data
@@ -442,21 +443,45 @@ def test_update_step_data_with_step_pv_output(database_connection):
     assert len(results) == 0
 
 
-@pytest.mark.skip('problems inserting data to sas_survey_subsample')
+# @pytest.mark.skip('problems inserting data to sas_survey_subsample')
 def test_update_survey_data_with_step_results(database_connection):
     # step_config and variables
     step_config = {"name": "SHIFT_WEIGHT",
                    "weight_table": "[dbo].[SAS_SHIFT_WT]",
                    "results_columns": ["[SHIFT_WT]"]}
 
-    # set up test data/tables - export fake data into SAS_SURVEY_SUBSAMPLE (213
-    # columns) and SAS_SHIFT_WT (2 columns) with matching SERIAL numbers
+    # set up test data/tables - export fake data into SAS_SURVEY_SUBSAMPLE
+    sas_survey_subsample_input = pd.read_pickle(TEST_DATA_DIR + 'sas_survey_subsample_test_input.pkl')
+    cf.insert_dataframe_into_table(gxs.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection)
 
-    # clean test data before actually testing results
+    # and SAS_SHIFT_WT with matching SERIAL numbers
+    sas_shift_wt_input = pd.read_pickle(TEST_DATA_DIR + 'sas_shift_wt_test_input.pkl')
+    cf.insert_dataframe_into_table(step_config["weight_table"], sas_shift_wt_input, database_connection)
+
+    # Run that badger
+    gxs.update_survey_data_with_step_results(database_connection, step_config)
+    results = cf.get_table_values(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
 
     # Create expected test results and test against result
+    test_results = pd.read_pickle(TEST_DATA_DIR + 'test_results_of_update_survey_data_with_step_results.pkl')
+
+    # cleanse dataframes because pytest is stupid
+    # results = results.astype(str)
+    # test_results = test_results.astype(str)
+    # results['SERIAL'] = results['SERIAL'].apply(lambda x: '{:.0f}'.format(x))
+    # results["SERIAL"].astype(str)
+    # test_results = test_results.replace(np.nan, 'None')
+    # test_results["SERIAL"].astype(str)
+
+    print("results: {}".format(results))
+    print("test_results: {}".format(test_results))
+    # results.to_csv(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\El's Temp VDI Folder\results.csv")
+    # test_results.to_csv(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\El's Temp VDI Folder\test_results.csv")
+
+    assert_frame_equal(results, test_results, check_dtype=False)
 
     # Assert temp tables had been cleansed in function
+
 
 
 @pytest.mark.skip('problems inserting data to sas_survey_subsample')
