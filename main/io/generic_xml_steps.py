@@ -437,6 +437,7 @@ def update_step_data_with_step_pv_output(conn, step_configuration):
     print(delete_statement)
 
 
+
 def sql_update_statement(table_to_update_from, columns_to_update):
     """
     Author       : Elinor Thorne

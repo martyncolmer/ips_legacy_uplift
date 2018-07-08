@@ -392,7 +392,7 @@ def test_update_step_data_with_step_pv_output(database_connection):
 
     # set up test data/tables
     test_shift_data = pd.read_pickle(TEST_DATA_DIR + 'update_shift_data_pvs.pkl')
-    cf.delete_from_table(step_config["data_table"])         # This is a hack and should probably be deleted!
+    cf.delete_from_table(step_config["data_table"])  # This is a hack and should probably be deleted!
     cf.insert_dataframe_into_table(step_config["data_table"], test_shift_data, database_connection)
 
     test_shift_pv_data = pd.read_pickle(TEST_DATA_DIR + 'test_shift_pv_data.pkl')
@@ -437,7 +437,8 @@ def test_update_survey_data_with_step_results(database_connection):
                    "weight_table": "[dbo].[SAS_SHIFT_WT]",
                    "results_columns": ["[SHIFT_WT]"]}
 
-    # set up test data/tables
+    # set up test data/tables - export fake data into SAS_SURVEY_SUBSAMPLE (213
+    # columns) and SAS_SHIFT_WT (2 columns) with matching SERIAL numbers
 
     # clean test data before actually testing results
 
@@ -460,8 +461,6 @@ def test_store_survey_data_with_step_results(database_connection):
     assert False
 
 
-
-# @pytest.mark.skip('not implemented')
 def test_store_step_summary(database_connection):
     # step_config and variables
     step_config = {"ps_table": "[dbo].[PS_SHIFT_DATA]",
@@ -469,18 +468,23 @@ def test_store_step_summary(database_connection):
                    "ps_columns": ["[RUN_ID]", "[SHIFT_PORT_GRP_PV]", "[ARRIVEDEPART]", "[WEEKDAY_END_PV]",
                                   "[AM_PM_NIGHT_PV]", "[MIGSI]", "[POSS_SHIFT_CROSS]", "[SAMP_SHIFT_CROSS]",
                                   "[MIN_SH_WT]", "[MEAN_SH_WT]", "[MAX_SH_WT]", "[COUNT_RESPS]", "[SUM_SH_WT]"]}
+    run_id = 'store-shift-data-summary'
 
     # set up test data/tables
     test_ps_data = pd.read_pickle(TEST_DATA_DIR + 'store_ps_summary.pkl')
     cf.insert_dataframe_into_table(step_config["sas_ps_table"], test_ps_data, database_connection)
-    sys.exit()
 
-    # clean test data before actually testing results
+    # Run function return results
+    gxs.store_step_summary(run_id, database_connection, step_config)
+    results = cf.get_table_values(step_config["ps_table"])
 
     # Create expected test results and test against result
+    test_results = pd.read_pickle(TEST_DATA_DIR + 'store_shift_data_summary_test_result.pkl')
+    assert_frame_equal(results, test_results, check_dtype=False)
 
     # Assert temp tables had been cleansed in function
-    assert False
+    results = cf.get_table_values(step_config['sas_ps_table'])
+    assert len(results) == 0
 
 
 @pytest.mark.skip('this takes very long')
