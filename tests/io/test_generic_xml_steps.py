@@ -416,8 +416,10 @@ def test_update_step_data_with_step_pv_output(database_connection):
 
     # Create expected test results and assert equal
     test_results = pd.read_pickle(TEST_DATA_DIR + 'update_shift_data_pvs_result.pkl')
-    test_results = amend_rec_id(test_results, rec_id)
     test_results = amend_rec_id(test_results, rec_id, ascend=False)
+
+    print("results: {}".format(results))
+    print("test_results: {}".format(test_results))
 
     assert_frame_equal(results, test_results, check_dtype=False)
 
