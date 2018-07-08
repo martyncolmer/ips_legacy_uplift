@@ -65,16 +65,22 @@ def store_rec_id(table_name):
         print(err)
 
 
-def amend_rec_id(dataframe, rec_id):
+def amend_rec_id(dataframe, rec_id, ascend=True):
     '''
     This function retrieves REC_ID from text file and inputs to test result dataframe.
     '''
     # with open(r'tests/data/generic_xml_steps/record_id.txt', 'r') as file:
     #     rec_id = int(file.read())
 
-    for row in range(0, len(dataframe['REC_ID'])):
-        dataframe['REC_ID'][row] = rec_id
-        rec_id = rec_id + 1
+    if ascend==True:
+        for row in range(0, len(dataframe['REC_ID'])):
+            dataframe['REC_ID'][row] = rec_id
+            rec_id = rec_id + 1
+    else:
+        for row in range(0, len(dataframe['REC_ID'])):
+            dataframe['REC_ID'][row] = rec_id
+            rec_id = rec_id - 1
+
 
     return dataframe
 
@@ -390,29 +396,35 @@ def test_update_step_data_with_step_pv_output(database_connection):
                    "weight_table": "[dbo].[SAS_SHIFT_WT]",
                    "sas_ps_table": "[dbo].[SAS_PS_SHIFT_DATA]"}
 
-    # set up test data/tables
-    test_shift_data = pd.read_pickle(TEST_DATA_DIR + 'update_shift_data_pvs.pkl')
-    cf.delete_from_table(step_config["data_table"])  # This is a hack and should probably be deleted!
-    cf.insert_dataframe_into_table(step_config["data_table"], test_shift_data, database_connection)
-
+    # Set up test data/tables
     test_shift_pv_data = pd.read_pickle(TEST_DATA_DIR + 'test_shift_pv_data.pkl')
 
     # Get rec_id and amend test dataframe
-    rec_id = get_rec_id("MIN", step_config["data_table"], database_connection)
-    test_shift_pv_data = amend_rec_id(test_shift_pv_data, rec_id)
+    rec_id = get_rec_id("MAX", step_config["data_table"], database_connection)
+    test_shift_pv_data = amend_rec_id(test_shift_pv_data, rec_id, ascend=False)
 
     cf.insert_dataframe_into_table(step_config['pv_table'], test_shift_pv_data, database_connection)
 
     gxs.update_step_data_with_step_pv_output(database_connection, step_config)
-    results = cf.get_table_values(step_config["data_table"])
+    sql = """
+    SELECT TOP(5)[REC_ID]
+      ,[PORTROUTE]
+      ,[WEEKDAY]
+      ,[ARRIVEDEPART]
+      ,[TOTAL]
+      ,[AM_PM_NIGHT]
+      ,[SHIFT_PORT_GRP_PV]
+      ,[AM_PM_NIGHT_PV]
+      ,[WEEKDAY_END_PV]
+    FROM [ips_test].[dbo].[SAS_SHIFT_DATA]
+    ORDER BY REC_ID DESC
+    """
+    results = pd.read_sql(sql, database_connection)
 
-    # clean test data before actually testing results
-    cf.delete_from_table(step_config['data_table'])
-    cf.delete_from_table(step_config['pv_table'])
-
-    # Create expected test results
+    # Create expected test results and assert equal
     test_results = pd.read_pickle(TEST_DATA_DIR + 'update_shift_data_pvs_result.pkl')
     test_results = amend_rec_id(test_results, rec_id)
+    test_results = amend_rec_id(test_results, rec_id, ascend=False)
 
     assert_frame_equal(results, test_results, check_dtype=False)
 
