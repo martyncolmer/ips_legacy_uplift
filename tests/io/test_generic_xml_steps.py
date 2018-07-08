@@ -43,7 +43,7 @@ def store_rec_id(table_name):
     This function retrieves the max REC_ID from the database and stores value within a text file.
     '''
 
-    file = r'tests/data/generic_xml_steps/record_id.txt'
+    file = TEST_DATA_DIR + 'record_id.txt'
 
     conn = get_oracle_connection()
     cur = conn.cursor()
@@ -70,8 +70,6 @@ def amend_rec_id(dataframe, rec_id, ascend=True):
     '''
     This function retrieves REC_ID from text file and inputs to test result dataframe.
     '''
-    # with open(r'tests/data/generic_xml_steps/record_id.txt', 'r') as file:
-    #     rec_id = int(file.read())
 
     if ascend==True:
         for row in range(0, len(dataframe['REC_ID'])):
@@ -81,7 +79,6 @@ def amend_rec_id(dataframe, rec_id, ascend=True):
         for row in range(0, len(dataframe['REC_ID'])):
             dataframe['REC_ID'][row] = rec_id
             rec_id = rec_id - 1
-
 
     return dataframe
 
@@ -119,7 +116,7 @@ def import_data_into_database():
 
 
 def test_nullify_survey_subsample_pv_values(database_connection):
-    test_data = pd.read_pickle('tests/data/generic_xml_steps/nullify_pv_survey_data.pkl')
+    test_data = pd.read_pickle(TEST_DATA_DIR + 'nullify_pv_survey_data.pkl')
     # test to make sure our test data is different from the data after applying the function
     assert test_data['SHIFT_PORT_GRP_PV'].isnull().sum() == 0
     assert test_data['WEEKDAY_END_PV'].isnull().sum() == 0
@@ -142,7 +139,7 @@ def test_nullify_survey_subsample_pv_values(database_connection):
 
 
 def test_move_survey_subsample_to_sas_table(database_connection):
-    test_data = pd.read_pickle('tests/data/generic_xml_steps/move_survey_subsample.pkl')
+    test_data = pd.read_pickle(TEST_DATA_DIR + 'move_survey_subsample.pkl')
 
     cf.insert_dataframe_into_table(gxs.SURVEY_SUBSAMPLE_TABLE, test_data)
     cf.delete_from_table(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
@@ -157,12 +154,12 @@ def test_move_survey_subsample_to_sas_table(database_connection):
     assert len(result) == (len(test_data)-1)
     assert result.columns.isin(gxs.COLUMNS_TO_MOVE).sum() == len(gxs.COLUMNS_TO_MOVE)
 
-    test_result = pd.read_pickle('tests/data/generic_xml_steps/move_survey_subsample_result.pkl')
+    test_result = pd.read_pickle(TEST_DATA_DIR + 'move_survey_subsample_result.pkl')
     assert_frame_equal(result, test_result)
 
 
 def test_move_survey_subsample_to_sas_table_traffic_weight(database_connection):
-    test_data = pd.read_pickle('tests/data/generic_xml_steps/move_survey_subsample.pkl')
+    test_data = pd.read_pickle(TEST_DATA_DIR + 'move_survey_subsample.pkl')
 
     cf.insert_dataframe_into_table(gxs.SURVEY_SUBSAMPLE_TABLE, test_data)
     cf.delete_from_table(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
@@ -177,14 +174,14 @@ def test_move_survey_subsample_to_sas_table_traffic_weight(database_connection):
     assert len(result) == (len(test_data)-2)
     assert result.columns.isin(gxs.COLUMNS_TO_MOVE).sum() == len(gxs.COLUMNS_TO_MOVE)
 
-    test_result = pd.read_pickle('tests/data/generic_xml_steps/move_survey_subsample_traffic_result.pkl')
+    test_result = pd.read_pickle(TEST_DATA_DIR + 'move_survey_subsample_traffic_result.pkl')
     assert_frame_equal(result, test_result)
 
 
 def test_populate_survey_data_for_step(database_connection):
     # this is an integration of the above tests so we will keep things simple
 
-    test_data = pd.read_pickle('tests/data/generic_xml_steps/move_survey_subsample.pkl')
+    test_data = pd.read_pickle(TEST_DATA_DIR + 'move_survey_subsample.pkl')
     cf.insert_dataframe_into_table(gxs.SURVEY_SUBSAMPLE_TABLE, test_data)
 
     step_config = {'nullify_pvs': ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]"],
@@ -196,7 +193,7 @@ def test_populate_survey_data_for_step(database_connection):
     cf.delete_from_table(gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'move-survey-test')
 
     result = cf.get_table_values(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
-    test_result = pd.read_pickle('tests/data/generic_xml_steps/move_survey_subsample_result.pkl')
+    test_result = pd.read_pickle(TEST_DATA_DIR + 'move_survey_subsample_result.pkl')
     assert_frame_equal(result, test_result)
 
     # cleanse tables before testing output
@@ -215,9 +212,11 @@ def test_populate_step_data(database_connection):
                    "insert_to_populate": ["[PORTROUTE]", "[WEEKDAY]", "[ARRIVEDEPART]", "[TOTAL]",
                                           "[AM_PM_NIGHT]"],
                    }
+    run_id = 'populate-step-data'
+    rec_id = get_rec_id("MAX", step_config['data_table'], database_connection) + 1
 
     # setup test data/tables
-    test_data = pd.read_pickle('tests/data/generic_xml_steps/populate_step_data.pkl')
+    test_data = pd.read_pickle(TEST_DATA_DIR + 'populate_step_data.pkl')
 
     # Reorder columns to match db and insert
     test_data.columns = test_data.columns.str.upper()
@@ -226,27 +225,27 @@ def test_populate_step_data(database_connection):
     cf.insert_dataframe_into_table(step_config["table_name"], test_data)
 
     # Assign run_id, and input test data to function
-    run_id = 'populate-step-data'
     gxs.populate_step_data(run_id, database_connection, step_config)
-    result = cf.get_table_values(step_config['data_table'])
+    sql = """
+    SELECT TOP (5) [REC_ID]
+      ,[PORTROUTE]
+      ,[WEEKDAY]
+      ,[ARRIVEDEPART]
+      ,[TOTAL]
+      ,[AM_PM_NIGHT]
+      ,[SHIFT_PORT_GRP_PV]
+      ,[AM_PM_NIGHT_PV]
+      ,[WEEKDAY_END_PV]
+    FROM [ips_test].[dbo].[SAS_SHIFT_DATA]
+    """
+    result = pd.read_sql_query(sql, database_connection)
 
-    # Retrieve and amend rec_id within test result data
-    test_result = pd.read_pickle('tests/data/generic_xml_steps/populate_step_data_result.pkl')
-    test_result = amend_rec_id(test_result)
-
-    # Before deleting anything get and record the latest REC_ID number
-    store_rec_id(step_config['data_table'])
+    # Amend rec_id within test result data
+    test_result = pd.read_pickle(TEST_DATA_DIR + 'populate_step_data_result.pkl')
+    test_result = amend_rec_id(test_result, rec_id)
 
     # tear-down and cleanse
-    cf.delete_from_table(step_config['data_table'])
     cf.delete_from_table(step_config['table_name'], 'RUN_ID', '=', run_id)
-    cf.delete_from_table(step_config['data_table'])
-
-    # result.to_csv(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\El's Temp VDI Folder\XML\Generic\result.csv")
-    # test_result.to_csv(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\El's Temp VDI Folder\XML\Generic\test_result.csv")
-
-    print(result)
-    print(test_result)
 
     assert_frame_equal(result, test_result)
 
