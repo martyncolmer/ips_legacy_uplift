@@ -211,9 +211,9 @@ def copy_step_pvs_for_survey_data(run_id, conn, step):
     cur = conn.cursor()
 
     # Cleanse tables
-    # delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
-    # print(delete_statement)
-    # print("")
+    delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
+    print(delete_statement)
+    print("")
     delete_statement = cf.delete_from_table(spv_table)
     print(delete_statement)
     print("")
@@ -313,9 +313,9 @@ def update_survey_data_with_step_pv_output(conn, step):
     conn.commit()
 
     # Cleanse temp tables
-    # delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
-    # print(delete_statement)
-    # print("")
+    delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
+    print(delete_statement)
+    print("")
     delete_statement = cf.delete_from_table(spv_table)
     print(delete_statement)
     print("")
@@ -344,9 +344,9 @@ def copy_step_pvs_for_step_data(run_id, conn, step):
     print("")
 
     # Cleanse temp tables
-    # delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
-    # print(delete_statement)
-    # print("")
+    delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
+    print(delete_statement)
+    print("")
     delete_statement = cf.delete_from_table(DATA[step]["pv_table"])
     print(delete_statement)
     print("")
@@ -428,8 +428,8 @@ def update_step_data_with_step_pv_output(conn, step):
     print(delete_statement)
     delete_statement = cf.delete_from_table(DATA[step]["weight_table"])
     print(delete_statement)
-    # delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
-    # print(delete_statement)
+    delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
+    print(delete_statement)
     delete_statement = cf.delete_from_table(DATA[step]["sas_ps_table"])
     print(delete_statement)
 
@@ -662,12 +662,12 @@ if __name__ == "__main__":
     populate_survey_data_for_step(connection, step)
     populate_step_data(run_id, connection, step)
     copy_step_pvs_for_survey_data(run_id, connection, step)
-    # update_survey_data_with_step_pv_output(connection, step)
-    # copy_step_pvs_for_step_data(run_id, connection, step)
-    # update_step_data_with_step_pv_output(connection, step)
-    # update_survey_data_with_step_results(connection, step) ###
-    # store_survey_data_with_step_results(run_id, connection, step)
-    # store_step_summary(run_id, connection, step)
+    update_survey_data_with_step_pv_output(connection, step)
+    copy_step_pvs_for_step_data(run_id, connection, step)
+    update_step_data_with_step_pv_output(connection, step)
+    update_survey_data_with_step_results(connection, step) ###
+    store_survey_data_with_step_results(run_id, connection, step)
+    store_step_summary(run_id, connection, step)
 
     #
     # step = "NON_RESPONSE"

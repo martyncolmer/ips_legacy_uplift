@@ -4,7 +4,7 @@ Unpickles file to CSV in same location with same filename
 import pandas
 
 # Fill in dir and filename WITHOUT .pkl
-dir = r"C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\generic_xml_steps"
+dir = r"C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\shift_weight"
 file_name = "copy_pvs_stay_imp_result.pkl"
 
 # Just in case you didn't read my previous comment
