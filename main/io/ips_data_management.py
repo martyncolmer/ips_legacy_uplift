@@ -125,9 +125,9 @@ def populate_survey_data_for_step(run_id, conn, step_configuration):
     print("")
 
     # Cleanse tables as applicable
-    delete_statement = cf.delete_from_table(SAS_SURVEY_SUBSAMPLE_TABLE)
-    print(delete_statement)
-    print("")
+    # delete_statement = cf.delete_from_table(SAS_SURVEY_SUBSAMPLE_TABLE)
+    # print(delete_statement)
+    # print("")
 
     for table in step_configuration["delete_tables"]:
         delete_statement = cf.delete_from_table(table)
@@ -208,8 +208,8 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
     cur = conn.cursor()
 
     # Cleanse tables
-    # delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
-    # print(delete_statement)
+    delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
+    print(delete_statement)
     print("")
     delete_statement = cf.delete_from_table(spv_table)
     print(delete_statement)
@@ -314,9 +314,9 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
     conn.commit()
 
     # Cleanse temp tables
-    # delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
-    # print(delete_statement)
-    # print("")
+    delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
+    print(delete_statement)
+    print("")
     delete_statement = cf.delete_from_table(spv_table)
     print(delete_statement)
     print("")
@@ -345,9 +345,9 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
     print("")
 
     # Cleanse temp tables
-    # delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
-    # print(delete_statement)
-    # print("")
+    delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
+    print(delete_statement)
+    print("")
     delete_statement = cf.delete_from_table(step_configuration["pv_table"])
     print(delete_statement)
     print("")
@@ -431,8 +431,8 @@ def update_step_data_with_step_pv_output(conn, step_configuration):
     print(delete_statement)
     delete_statement = cf.delete_from_table(step_configuration["weight_table"])
     print(delete_statement)
-    # delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
-    # print(delete_statement)
+    delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
+    print(delete_statement)
     delete_statement = cf.delete_from_table(step_configuration["sas_ps_table"])
     print(delete_statement)
 
@@ -608,9 +608,9 @@ def store_survey_data_with_step_results(run_id, conn, step_configuration):
         print(delete_statement)
         print("")
 
-    delete_statement = cf.delete_from_table(SAS_SURVEY_SUBSAMPLE_TABLE)
-    print(delete_statement)
-    print("")
+    # delete_statement = cf.delete_from_table(SAS_SURVEY_SUBSAMPLE_TABLE)
+    # print(delete_statement)
+    # print("")
 
 
 def store_step_summary(run_id, conn, step_configuration):
