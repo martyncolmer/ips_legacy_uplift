@@ -6,7 +6,7 @@ Created on 26 April 2018
 
 import sys
 import json
-from main.io import CommonFunctions as cf, generic_xml_steps
+from main.io import CommonFunctions as cf, ips_data_management
 
 from main.utils import process_variables
 from main.calculations import calculate_ips_shift_weight

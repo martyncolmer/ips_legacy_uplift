@@ -1,5 +1,5 @@
 import main.io.CommonFunctions as cf
-import main.io.generic_xml_steps as gxs
+import main.io.ips_data_management as idm
 import pytest
 import pandas as pd
 import numpy as np
@@ -10,7 +10,7 @@ from main.io.CommonFunctions import get_oracle_connection
 from pandas.util.testing import assert_frame_equal
 from main.main import shift_weight_step
 
-TEST_DATA_DIR = 'tests/data/generic_xml_steps/'
+TEST_DATA_DIR = 'tests/data/ips_data_management/shift_weight/'
 
 
 @pytest.fixture(scope='module')
@@ -122,37 +122,37 @@ def test_nullify_survey_subsample_pv_values(database_connection):
     assert test_data['WEEKDAY_END_PV'].isnull().sum() == 0
 
     # Insert the imported data into the survey_subsample table on the database.
-    cf.insert_dataframe_into_table(gxs.SURVEY_SUBSAMPLE_TABLE, test_data)
-    gxs.nullify_survey_subsample_pv_values("nullify-test", database_connection, ["[SHIFT_PORT_GRP_PV]",
+    cf.insert_dataframe_into_table(idm.SURVEY_SUBSAMPLE_TABLE, test_data)
+    idm.nullify_survey_subsample_pv_values("nullify-test", database_connection, ["[SHIFT_PORT_GRP_PV]",
                                                                                  "[WEEKDAY_END_PV]"])
 
     # COMMENTED AS CAUSING TEST TO FAIL.  RECORDS BEING INSERTED AND THEN DELETED BEFORE TESTING - ET
     # cleanse tables before testing output
-    # cf.delete_from_table(gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'nullify-test')
+    # cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'nullify-test')
 
-    result = cf.select_data('SHIFT_PORT_GRP_PV', gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', 'nullify-test')
+    result = cf.select_data('SHIFT_PORT_GRP_PV', idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', 'nullify-test')
     assert result['SHIFT_PORT_GRP_PV'].isnull().sum() == len(result)
-    result = cf.select_data('WEEKDAY_END_PV', gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', "nullify-test")
+    result = cf.select_data('WEEKDAY_END_PV', idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', "nullify-test")
     assert result['WEEKDAY_END_PV'].isnull().sum() == len(result)
 
-    cf.delete_from_table(gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'nullify-test')
+    cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'nullify-test')
 
 
 def test_move_survey_subsample_to_sas_table(database_connection):
     test_data = pd.read_pickle(TEST_DATA_DIR + 'move_survey_subsample.pkl')
 
-    cf.insert_dataframe_into_table(gxs.SURVEY_SUBSAMPLE_TABLE, test_data)
-    cf.delete_from_table(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
+    cf.insert_dataframe_into_table(idm.SURVEY_SUBSAMPLE_TABLE, test_data)
+    cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    gxs.move_survey_subsample_to_sas_table('move-survey-test', database_connection, step_name="")
+    idm.move_survey_subsample_to_sas_table('move-survey-test', database_connection, step_name="")
 
-    result = cf.get_table_values(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
+    result = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
     # cleanse tables before testing output
-    cf.delete_from_table(gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'move-survey-test')
+    cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'move-survey-test')
 
     # one record has a value beyond the RESPNSE range
     assert len(result) == (len(test_data)-1)
-    assert result.columns.isin(gxs.COLUMNS_TO_MOVE).sum() == len(gxs.COLUMNS_TO_MOVE)
+    assert result.columns.isin(idm.COLUMNS_TO_MOVE).sum() == len(idm.COLUMNS_TO_MOVE)
 
     test_result = pd.read_pickle(TEST_DATA_DIR + 'move_survey_subsample_result.pkl')
     assert_frame_equal(result, test_result)
@@ -161,18 +161,18 @@ def test_move_survey_subsample_to_sas_table(database_connection):
 def test_move_survey_subsample_to_sas_table_traffic_weight(database_connection):
     test_data = pd.read_pickle(TEST_DATA_DIR + 'move_survey_subsample.pkl')
 
-    cf.insert_dataframe_into_table(gxs.SURVEY_SUBSAMPLE_TABLE, test_data)
-    cf.delete_from_table(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
+    cf.insert_dataframe_into_table(idm.SURVEY_SUBSAMPLE_TABLE, test_data)
+    cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    gxs.move_survey_subsample_to_sas_table('move-survey-test', database_connection, step_name="TRAFFIC_WEIGHT")
+    idm.move_survey_subsample_to_sas_table('move-survey-test', database_connection, step_name="TRAFFIC_WEIGHT")
 
-    result = cf.get_table_values(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
+    result = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
     # cleanse tables before testing output
-    cf.delete_from_table(gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'move-survey-test')
+    cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'move-survey-test')
 
     # two records have a value beyond the RESPNSE range
     assert len(result) == (len(test_data)-2)
-    assert result.columns.isin(gxs.COLUMNS_TO_MOVE).sum() == len(gxs.COLUMNS_TO_MOVE)
+    assert result.columns.isin(idm.COLUMNS_TO_MOVE).sum() == len(idm.COLUMNS_TO_MOVE)
 
     test_result = pd.read_pickle(TEST_DATA_DIR + 'move_survey_subsample_traffic_result.pkl')
     assert_frame_equal(result, test_result)
@@ -182,22 +182,22 @@ def test_populate_survey_data_for_step(database_connection):
     # this is an integration of the above tests so we will keep things simple
 
     test_data = pd.read_pickle(TEST_DATA_DIR + 'move_survey_subsample.pkl')
-    cf.insert_dataframe_into_table(gxs.SURVEY_SUBSAMPLE_TABLE, test_data)
+    cf.insert_dataframe_into_table(idm.SURVEY_SUBSAMPLE_TABLE, test_data)
 
     step_config = {'nullify_pvs': ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]"],
                    'name': 'SHIFT_WEIGHT',
                    'delete_tables': ["[dbo].[SAS_SHIFT_WT]", "[dbo].[SAS_PS_SHIFT_DATA]"]}
-    gxs.populate_survey_data_for_step('move-survey-test', database_connection, step_config)
+    idm.populate_survey_data_for_step('move-survey-test', database_connection, step_config)
 
     # cleanse tables before testing output
-    cf.delete_from_table(gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'move-survey-test')
+    cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', 'move-survey-test')
 
-    result = cf.get_table_values(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
+    result = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
     test_result = pd.read_pickle(TEST_DATA_DIR + 'move_survey_subsample_result.pkl')
     assert_frame_equal(result, test_result)
 
     # cleanse tables before testing output
-    cf.delete_from_table(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
+    cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
     result = cf.get_table_values("SAS_SHIFT_WT")
     assert len(result) == 0
@@ -225,7 +225,7 @@ def test_populate_step_data(database_connection):
     cf.insert_dataframe_into_table(step_config["table_name"], test_data)
 
     # Assign run_id, and input test data to function
-    gxs.populate_step_data(run_id, database_connection, step_config)
+    idm.populate_step_data(run_id, database_connection, step_config)
     sql = """
     SELECT TOP (5) [REC_ID]
       ,[PORTROUTE]
@@ -268,13 +268,13 @@ def test_copy_step_pvs_for_survey_data(step_name, expected_results_file, pv_colu
     test_process_variables = pd.read_pickle(TEST_DATA_DIR + 'process_variables.pkl')
     cf.insert_dataframe_into_table('PROCESS_VARIABLE_PY', test_process_variables, database_connection)
 
-    gxs.copy_step_pvs_for_survey_data(run_id, database_connection, step_config)
+    idm.copy_step_pvs_for_survey_data(run_id, database_connection, step_config)
 
-    results = cf.get_table_values(gxs.SAS_PROCESS_VARIABLES_TABLE)
+    results = cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE)
 
     # clean test data before actually testing results
     cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
-    cf.delete_from_table(gxs.SAS_PROCESS_VARIABLES_TABLE)
+    cf.delete_from_table(idm.SAS_PROCESS_VARIABLES_TABLE)
 
     test_results = pd.read_pickle(TEST_DATA_DIR + expected_results_file)
     results = results.sort_values(by='PROCVAR_NAME')
@@ -299,13 +299,13 @@ def test_copy_step_pvs_for_survey_data_stay_imp(database_connection):
     test_process_variables = pd.read_pickle(TEST_DATA_DIR + 'process_variables.pkl')
     cf.insert_dataframe_into_table('PROCESS_VARIABLE_PY', test_process_variables, database_connection)
 
-    gxs.copy_step_pvs_for_survey_data(run_id, database_connection, step_config)
+    idm.copy_step_pvs_for_survey_data(run_id, database_connection, step_config)
 
-    results = cf.get_table_values(gxs.SAS_PROCESS_VARIABLES_TABLE)
+    results = cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE)
 
     # clean test data before actually testing results
     cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
-    cf.delete_from_table(gxs.SAS_PROCESS_VARIABLES_TABLE)
+    cf.delete_from_table(idm.SAS_PROCESS_VARIABLES_TABLE)
 
     test_results = pd.read_pickle(TEST_DATA_DIR + 'copy_pvs_stay_imp_result.pkl')
     # we need to massage the data frames a little to ensure outputs are the same
@@ -328,17 +328,17 @@ def test_update_survey_data_with_step_pv_output(database_connection):
 
     # set up test data/tables
     test_survey_data = pd.read_pickle(TEST_DATA_DIR + 'update_survey_data_pvs.pkl')
-    cf.insert_dataframe_into_table(gxs.SAS_SURVEY_SUBSAMPLE_TABLE, test_survey_data, database_connection)
+    cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, test_survey_data, database_connection)
 
     test_nr_pv_data = pd.read_pickle(TEST_DATA_DIR + 'test_nr_pv_data.pkl')
     cf.insert_dataframe_into_table(step_config['spv_table'], test_nr_pv_data, database_connection)
 
-    gxs.copy_step_pvs_for_survey_data(run_id, database_connection, step_config)
+    idm.copy_step_pvs_for_survey_data(run_id, database_connection, step_config)
 
-    results = cf.get_table_values(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
+    results = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
     # clean test data before actually testing results
-    cf.delete_from_table(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
+    cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
     test_results = pd.read_pickle(TEST_DATA_DIR + 'update_survey_data_pvs_result.pkl')
     assert_frame_equal(results, test_results)
@@ -346,7 +346,7 @@ def test_update_survey_data_with_step_pv_output(database_connection):
     results = cf.get_table_values(step_config['spv_table'])
     assert len(results) == 0
 
-    results = cf.get_table_values(gxs.SAS_PROCESS_VARIABLES_TABLE)
+    results = cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE)
     assert len(results) == 0
 
 
@@ -363,7 +363,7 @@ def test_copy_step_pvs_for_step_data(database_connection):
     cf.insert_dataframe_into_table("PROCESS_VARIABLE_PY", test_data, database_connection)
 
     # Plug it in to copy_step_pvs_for_step_data(run_id, conn, step_configuration)
-    gxs.copy_step_pvs_for_step_data(run_id, database_connection, step_config)
+    idm.copy_step_pvs_for_step_data(run_id, database_connection, step_config)
     results = cf.get_table_values('SAS_PROCESS_VARIABLE')
 
     # Assert step_configuration["pv_table"] has 0 records
@@ -371,7 +371,7 @@ def test_copy_step_pvs_for_step_data(database_connection):
     assert len(result) == 0
 
     # Cleanse tables before continuing
-    cf.delete_from_table(gxs.SAS_PROCESS_VARIABLES_TABLE)
+    cf.delete_from_table(idm.SAS_PROCESS_VARIABLES_TABLE)
     cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
 
     # Pickle some test results
@@ -398,7 +398,7 @@ def test_update_step_data_with_step_pv_output(database_connection):
 
     cf.insert_dataframe_into_table(step_config['pv_table'], test_shift_pv_data, database_connection)
 
-    gxs.update_step_data_with_step_pv_output(database_connection, step_config)
+    idm.update_step_data_with_step_pv_output(database_connection, step_config)
     sql = """
     SELECT TOP(5)[REC_ID]
       ,[PORTROUTE]
@@ -430,7 +430,7 @@ def test_update_step_data_with_step_pv_output(database_connection):
     results = cf.get_table_values(step_config['weight_table'])
     assert len(results) == 0
 
-    results = cf.get_table_values(gxs.SAS_PROCESS_VARIABLES_TABLE)
+    results = cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE)
     assert len(results) == 0
 
     results = cf.get_table_values(step_config['sas_ps_table'])
@@ -446,15 +446,15 @@ def test_update_survey_data_with_step_results(database_connection):
 
     # set up test data/tables - export fake data into SAS_SURVEY_SUBSAMPLE
     sas_survey_subsample_input = pd.read_pickle(TEST_DATA_DIR + 'sas_survey_subsample_test_input.pkl')
-    cf.insert_dataframe_into_table(gxs.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection)
+    cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection)
 
     # and SAS_SHIFT_WT with matching SERIAL numbers
     sas_shift_wt_input = pd.read_pickle(TEST_DATA_DIR + 'sas_shift_wt_test_input.pkl')
     cf.insert_dataframe_into_table(step_config["weight_table"], sas_shift_wt_input, database_connection)
 
     # Run that badger
-    gxs.update_survey_data_with_step_results(database_connection, step_config)
-    results = cf.get_table_values(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
+    idm.update_survey_data_with_step_results(database_connection, step_config)
+    results = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
     # Create expected test results and test against result
     test_results = pd.read_pickle(TEST_DATA_DIR + 'test_results_of_update_survey_data_with_step_results.pkl')
@@ -491,14 +491,14 @@ def test_store_survey_data_with_step_results(database_connection):
 
     # Set up records in SURVEY_SUBSAMPLE with above run_id
     survey_subsample_input = pd.read_pickle(TEST_DATA_DIR + 'survey_subsample_test_input.pkl')
-    cf.insert_dataframe_into_table(gxs.SURVEY_SUBSAMPLE_TABLE, survey_subsample_input, database_connection)
+    cf.insert_dataframe_into_table(idm.SURVEY_SUBSAMPLE_TABLE, survey_subsample_input, database_connection)
 
     # Set up records in SAS)SURVEY_SUBSAMPLE with same SERIAL as above
     sas_survey_subsample_input = pd.read_pickle(TEST_DATA_DIR + 'sas_survey_subsample_test_store_input.pkl')
-    cf.insert_dataframe_into_table(gxs.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection)
+    cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection)
 
     # run that badger
-    gxs.store_survey_data_with_step_results(run_id, database_connection, step_config)
+    idm.store_survey_data_with_step_results(run_id, database_connection, step_config)
 
     # Assert temp tables had been cleansed in function
     sql = """
@@ -509,7 +509,7 @@ def test_store_survey_data_with_step_results(database_connection):
     result = cur.execute(sql).fetchone()
     assert result == None
 
-    result = cf.get_table_values(gxs.SAS_SURVEY_SUBSAMPLE_TABLE)
+    result = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
     assert len(result) == 0
 
     # Retrieve results produced by function
@@ -517,11 +517,11 @@ def test_store_survey_data_with_step_results(database_connection):
     SELECT * FROM {}
     WHERE SERIAL IN ('999999999991', '999999999992', '999999999993', '999999999994', '999999999995')
     AND RUN_ID = '{}'
-    """.format(gxs.SURVEY_SUBSAMPLE_TABLE, run_id)
+    """.format(idm.SURVEY_SUBSAMPLE_TABLE, run_id)
     results = pd.read_sql(sql, database_connection)
 
     # Cleanse and delete from_survey_subsample where run_id = run_id
-    cf.delete_from_table(gxs.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', run_id)
+    cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', run_id)
 
     # Create expected test results and test against result
     test_results = pd.read_pickle(TEST_DATA_DIR + 'test_results_store_survey_data_with_step_results.pkl')
@@ -553,7 +553,7 @@ def test_store_step_summary(database_connection):
     cf.insert_dataframe_into_table(step_config["sas_ps_table"], test_ps_data, database_connection)
 
     # Run function return results
-    gxs.store_step_summary(run_id, database_connection, step_config)
+    idm.store_step_summary(run_id, database_connection, step_config)
     results = cf.get_table_values(step_config["ps_table"])
 
     # Create expected test results and test against result
