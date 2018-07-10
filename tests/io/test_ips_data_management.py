@@ -258,7 +258,6 @@ def test_copy_step_pvs_for_survey_data(step_name, expected_results_file, pv_colu
     results = cf.get_table_values(step_config['spv_table'])
     assert len(results) == 0
 
-
 def test_copy_step_pvs_for_survey_data(database_connection):
     step_config = {'name': "SHIFT_WEIGHT",
                    "spv_table": "[dbo].[SAS_SHIFT_SPV]",
@@ -298,48 +297,30 @@ def test_update_survey_data_with_step_pv_output(database_connection):
                    }
     run_id = 'update-survey-pvs'
 
+    cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+
     # set up test data/tables
     test_survey_data = pd.read_pickle(TEST_DATA_DIR + 'update_survey_data_pvs.pkl')
     cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, test_survey_data, database_connection)
-    print("SAS_SURVEY_SUBSAMPLE UPDATED")
 
-    test_sw_pv_data = pd.read_pickle(TEST_DATA_DIR + 'test_sw_pv_data.pkl')
-    cf.insert_dataframe_into_table(step_config['spv_table'], test_sw_pv_data, database_connection)
-    print("SAS_SHIFT_SPV UPDATED")
+    test_nr_pv_data = pd.read_pickle(TEST_DATA_DIR + 'test_sw_pv_data.pkl')
+    cf.insert_dataframe_into_table(step_config['spv_table'], test_nr_pv_data, database_connection)
 
     idm.copy_step_pvs_for_survey_data(run_id, database_connection, step_config)
 
-    sql = """
-    SELECT * FROM {}
-    WHERE SERIAL IN ('430019535002','430019535003','430019535009','430019535055','430019535056')
-    """.format(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-    results = pd.read_sql(sql, database_connection)
-    results.to_csv(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\El's Temp VDI Folder\XML\Generic\this\results.csv")
+    results = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
     # clean test data before actually testing results
-    # cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE) # WHERE RUN_ID in 'bla'
+    cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
     test_results = pd.read_pickle(TEST_DATA_DIR + 'update_survey_data_pvs_result.pkl')
-    test_results['ANYUNDER16'] = test_results['ANYUNDER16'].astype(str)
-    results['ANYUNDER16'] = results['ANYUNDER16'].astype(str)
-
-    test_results['INTDATE'] = test_results['INTDATE'].astype(str)
-    results['INTDATE'] = results['INTDATE'].astype(str)
-
-    test_results['VISITBEGAN'] = test_results['VISITBEGAN'].astype(str)
-    results['VISITBEGAN'] = results['VISITBEGAN'].astype(str)
-
-    # foo = results.ix[:, 96]
-    # print(foo)
-
-
     assert_frame_equal(results, test_results, check_dtype=False)
 
-    # results = cf.get_table_values(step_config['spv_table'])
-    # assert len(results) == 0
+    results = cf.get_table_values(step_config['spv_table'])
+    assert len(results) == 0
 
-    # results = cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE)
-    # assert len(results) == 0
+    results = cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE)
+    assert len(results) == 0
 
 
 def test_copy_step_pvs_for_step_data(database_connection):
