@@ -5,7 +5,7 @@ import main.io.CommonFunctions as cf
 import main.io.ips_data_management as idm
 from main.io import import_data
 from main.io import import_traffic_data
-from main.io.CommonFunctions import get_oracle_connection
+from main.io.CommonFunctions import get_sql_connection
 from main.main import shift_weight_step
 
 import sys
@@ -20,7 +20,7 @@ def database_connection():
     and picked up by the test from there. The fixture allows us to re-use the same database connection
     over and over again.
     '''
-    return get_oracle_connection()
+    return get_sql_connection()
 
 
 def get_rec_id(value, table, database_connection):
