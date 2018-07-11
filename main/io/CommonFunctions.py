@@ -175,10 +175,10 @@ def validate_file(xfile, current_working_file, function_name):
 #     else:
 #         return conn
 
-def get_oracle_connection():
+def get_sql_connection():
     """
-    Author       : Thomas Mahoney
-    Date         : 03 / 04 / 2018
+    Author       : Thomas Mahoney / Nassir Mohammad (edits)
+    Date         : 11 / 07 / 2018
     Purpose      : Establishes a connection to the SQL Server database and returns the connection object.
     Parameters   : in_table_name - the IPS survey records for the period.
                    credentials_file  - file containing the server and login credentials used for connection.
