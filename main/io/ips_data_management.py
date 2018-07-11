@@ -125,9 +125,9 @@ def populate_survey_data_for_step(run_id, conn, step_configuration):
     print("")
 
     # Cleanse tables as applicable
-    # delete_statement = cf.delete_from_table(SAS_SURVEY_SUBSAMPLE_TABLE)
-    # print(delete_statement)
-    # print("")
+    delete_statement = cf.delete_from_table(SAS_SURVEY_SUBSAMPLE_TABLE)
+    print(delete_statement)
+    print("")
 
     for table in step_configuration["delete_tables"]:
         delete_statement = cf.delete_from_table(table)
@@ -608,9 +608,9 @@ def store_survey_data_with_step_results(run_id, conn, step_configuration):
         print(delete_statement)
         print("")
 
-    # delete_statement = cf.delete_from_table(SAS_SURVEY_SUBSAMPLE_TABLE)
-    # print(delete_statement)
-    # print("")
+    delete_statement = cf.delete_from_table(SAS_SURVEY_SUBSAMPLE_TABLE)
+    print(delete_statement)
+    print("")
 
 
 def store_step_summary(run_id, conn, step_configuration):
