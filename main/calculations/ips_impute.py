@@ -30,7 +30,7 @@ def ips_impute(df_input,var_serial_num,strata_base_list,thresh_base_list,num_lev
     
     df_to_impute = df_input.loc[df_input[var_impute_flag] == 1.0]
     
-    # Create recipient set, in which the inpute flag is true
+    # Create recipient set, in which the impute flag is true
     df_impute_from = df_input.loc[df_input[var_impute_flag] == 0.0]
     
     level = 0

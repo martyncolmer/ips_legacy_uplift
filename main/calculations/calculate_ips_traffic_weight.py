@@ -4,7 +4,7 @@ import numpy as np
 
 from main.io import CommonFunctions as cf
 
-PATH_TO_DATA = r"tests/data/traffic_weight"
+PATH_TO_DATA = r"tests/data/calculations/october_2017/traffic_weight"
 
 # TODO
 #  1. do_ips_ges_weighting() - plug-in real solution once done
@@ -246,11 +246,11 @@ def do_ips_ges_weighting(df_survey, var_serialNum, df_popTotals, GWeightVar, Cal
 
     # for now we read the output dataset from disk and return the dataframe result
     #df_output_merge_final = pd.read_pickle(PATH_TO_DATA + r"\output_merge_final.pkl")
-    df_output_merge_final = pd.read_pickle("tests/data/traffic_weight/output_merge_final.pkl")
+    df_output_merge_final = pd.read_pickle(PATH_TO_DATA+"/output_merge_final.pkl")
     df_output_merge_final.columns = df_output_merge_final.columns.str.upper()
 
     #df_survey_serialNum_sort = pd.read_pickle(PATH_TO_DATA + r"\survey_serialnum_sort.pkl")
-    df_survey_serialNum_sort = pd.read_pickle(r"tests/data/traffic_weight/survey_serialnum_sort.pkl")
+    df_survey_serialNum_sort = pd.read_pickle(PATH_TO_DATA+"/survey_serialnum_sort.pkl")
     df_survey_serialNum_sort.columns = df_survey_serialNum_sort.columns.str.upper()
 
     return (df_output_merge_final, df_survey_serialNum_sort)

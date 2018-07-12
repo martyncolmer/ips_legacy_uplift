@@ -6,7 +6,7 @@ from sas7bdat import SAS7BDAT
 import math
 from main.io import CommonFunctions as cf
 
-PATH_TO_DATA = 'tests/data/unsampled_weight'
+PATH_TO_DATA = 'tests/data/calculations/october_2017/unsampled_weight'
 
 OUTPUT_TABLE_NAME = 'SAS_UNSAMPLED_OOH_WT'
 SUMMARY_TABLE_NAME = 'SAS_PS_UNSAMPLED_OOH'

@@ -12,6 +12,8 @@ from main.io import CommonFunctions as cf
 
 FLOW_VARIABLE = 'FLOW'
 
+path_to_data = r"tests/data/calculations/october_2017/air_miles"
+
 OUTPUT_TABLE_NAME = 'SAS_AIR_MILES'
 DIST1 = 'UKLEG'
 DIST2 = 'OVLEG'
@@ -205,7 +207,7 @@ def calculate(input_table_name, var_serial):
     # survey_support.setup_logging('IPS_logging_config_debug.json')
 
     # Import data
-    df_surveydata = pd.read_pickle('../data/airmiles_input.pkl')
+    df_surveydata = pd.read_pickle(path_to_data + '/airmiles_input.pkl')
 
     # Import data via SQL
     # df_surveydata = cf.get_table_values(input_table_name)
