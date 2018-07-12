@@ -36,24 +36,24 @@ def shift_weight_step(run_id, connection, step_configuration):
     Dependencies : NA
     """
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step_configuration)
-    generic_xml_steps.populate_step_data(run_id, connection, step_configuration)
-    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step_configuration)
+    ips_data_management.populate_survey_data_for_step(run_id, connection, step_configuration)
+    ips_data_management.populate_step_data(run_id, connection, step_configuration)
+    ips_data_management.copy_step_pvs_for_survey_data(run_id, connection, step_configuration)
 
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_SHIFT_SPV',
                               in_id='serial')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step_configuration)
-    generic_xml_steps.copy_step_pvs_for_step_data(run_id, connection, step_configuration)
+    ips_data_management.update_survey_data_with_step_pv_output(connection, step_configuration)
+    ips_data_management.copy_step_pvs_for_step_data(run_id, connection, step_configuration)
 
     process_variables.process(dataset='shift',
                               in_table_name='SAS_SHIFT_DATA',
                               out_table_name='SAS_SHIFT_PV',
                               in_id='REC_ID')
 
-    generic_xml_steps.update_step_data_with_step_pv_output(connection, step_configuration)
+    ips_data_management.update_step_data_with_step_pv_output(connection, step_configuration)
 
     sas_survey_data = cf.get_table_values(generic_xml_steps.SAS_SURVEY_SUBSAMPLE_TABLE)
     sas_shift_data = cf.get_table_values(step_configuration["data_table"])
@@ -64,11 +64,11 @@ def shift_weight_step(run_id, connection, step_configuration):
     cf.insert_dataframe_into_table(step_configuration["weight_table"], surveydata_out)
     cf.insert_dataframe_into_table(step_configuration["sas_ps_table"], summary_out)
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step_configuration)
+    ips_data_management.update_survey_data_with_step_results(connection, step_configuration)
 
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step_configuration)
+    ips_data_management.store_survey_data_with_step_results(run_id, connection, step_configuration)
 
-    generic_xml_steps.store_step_summary(run_id, connection, step_configuration)
+    ips_data_management.store_step_summary(run_id, connection, step_configuration)
 
 
 def non_response_weight_step(run_id, connection):

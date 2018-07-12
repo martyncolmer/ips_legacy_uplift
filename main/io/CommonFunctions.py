@@ -144,7 +144,7 @@ def validate_file(xfile, current_working_file, function_name):
 #         return conn
 #
 #
-# def get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials_SQLServer.json"):
+# def get_sql_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials_SQLServer.json"):
 #     """
 #     Author       : Thomas Mahoney
 #     Date         : 03 / 04 / 2018
@@ -354,12 +354,12 @@ def create_table(table_name, column_list):
     Returns       : True/False  
     Requirements  : None
     Dependencies  : check_table(),
-                    get_oracle_connection(),
+                    get_sql_connection(),
                     database_logger()
     """
     
     # Oracle connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor()
     
     # Re-format column_list as string

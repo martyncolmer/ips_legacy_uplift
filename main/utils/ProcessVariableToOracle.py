@@ -44,7 +44,7 @@ else:
 def write_pv_to_table(pv_name,value,conn = None):
         
     if(conn == None):
-        conn = cf.get_oracle_connection()
+        conn = cf.get_sql_connection()
     
     
     sql = "update PROCESS_VARIABLE_PY set PV_DEF = " + val + " where (PV_NAME = '" + pv_name + "')"
@@ -56,7 +56,7 @@ def write_pv_to_table(pv_name,value,conn = None):
 def read_pv_table(pv_name = None,conn = None):
     
     if(conn == None):
-        conn = cf.get_oracle_connection()
+        conn = cf.get_sql_connection()
     
     if(pv_name == None):
         sql = "select PV_NAME, PROCESS_VARIABLE_ID, PV_DEF from PROCESS_VARIABLE_PY ORDER BY PROCESS_VARIABLE_ID"   

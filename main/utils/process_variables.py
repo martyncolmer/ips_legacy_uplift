@@ -44,7 +44,7 @@ def get_pvs(conn=None):
 
     # Connect to the database
     if conn is None:
-        conn = cf.get_oracle_connection()
+        conn = cf.get_sql_connection()
 
     # Create a cursor object from the connection
     cur = conn.cursor()
