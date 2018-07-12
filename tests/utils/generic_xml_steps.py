@@ -657,19 +657,18 @@ if __name__ == "__main__":
     run_id = "9e5c1872-3f8e-4ae5-85dc-c67a602d011e"
     connection = cf.get_sql_connection()
 
-    step = "SHIFT_WEIGHT"
-    print("***{}***".format(step))
-    populate_survey_data_for_step(connection, step)
-    populate_step_data(run_id, connection, step)
-    copy_step_pvs_for_survey_data(run_id, connection, step)
-    update_survey_data_with_step_pv_output(connection, step) #
+    # step = "SHIFT_WEIGHT"
+    # print("***{}***".format(step))
+    # populate_survey_data_for_step(connection, step)
+    # populate_step_data(run_id, connection, step)
+    # copy_step_pvs_for_survey_data(run_id, connection, step)
+    # update_survey_data_with_step_pv_output(connection, step) #
     # copy_step_pvs_for_step_data(run_id, connection, step)
     # update_step_data_with_step_pv_output(connection, step)
     # update_survey_data_with_step_results(connection, step) ###
     # store_survey_data_with_step_results(run_id, connection, step)
     # store_step_summary(run_id, connection, step)
 
-    #
     # step = "NON_RESPONSE"
     # print("***{}***".format(step))
     # update_step_data_with_pvs_output(connection, step)
@@ -729,9 +728,9 @@ if __name__ == "__main__":
     # store_survey_data_with_step_results(run_id, connection, step)
     # store_step_summary(run_id, connection, step)
     #
-    # step = "FINAL_WEIGHT"
-    # print("***{}***".format(step))
-    # populate_survey_data_for_step(connection, step)
+    step = "FINAL_WEIGHT"
+    print("***{}***".format(step))
+    populate_survey_data_for_step(connection, step)
     # update_survey_data_with_step_results(connection, step)
     # store_survey_data_with_step_results(run_id, connection, step)
     # store_step_summary(run_id, connection, step)
