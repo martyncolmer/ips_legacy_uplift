@@ -39,7 +39,7 @@ def sas_data_export(file_id):
         raise Exception('Error: File not found')
     
     
-    conn = cf.get_oracle_connection()
+    conn = cf.get_sql_connection()
     db_connection = conn.cursor()
     
     
@@ -82,7 +82,7 @@ def sas_data_import(file_id):
     Dependencies : NA
     """
     
-    conn = cf.get_oracle_connection()
+    conn = cf.get_sql_connection()
     db_connection = conn.cursor()
     sqlStr = "SELECT  SDE_LABEL, SDE_DATA FROM SAS_DATA_EXPORT WHERE SAS_PROCESS_ID =" + str(file_id)
     result  = db_connection.execute (sqlStr)

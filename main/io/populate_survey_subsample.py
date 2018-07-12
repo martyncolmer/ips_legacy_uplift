@@ -1,7 +1,7 @@
 import sys
 import pandas as pd
 from sas7bdat import SAS7BDAT
-from main.io.CommonFunctions import get_oracle_connection, insert_list_into_table
+from main.io.CommonFunctions import get_sql_connection, insert_list_into_table
 
 
 def get_column_and_version_data(cur, version):

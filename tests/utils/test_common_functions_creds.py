@@ -98,10 +98,10 @@ class TestCommonFunctions(unittest.TestCase):
         """
         
         # Run tests with real, empty, fake and non-existent files
-        self.assertIsNotNone(cf.get_oracle_connection(self.dave_creds_file))     
-        self.assertIsNotNone(cf.get_oracle_connection(self.rich_creds_file))     
-        self.assertFalse(cf.get_oracle_connection(self.fake_creds_file))         
-        self.assertFalse(cf.get_oracle_connection(self.non_existent_creds_file)) 
+        self.assertIsNotNone(cf.get_sql_connection(self.dave_creds_file))
+        self.assertIsNotNone(cf.get_sql_connection(self.rich_creds_file))
+        self.assertFalse(cf.get_sql_connection(self.fake_creds_file))
+        self.assertFalse(cf.get_sql_connection(self.non_existent_creds_file))
     
     
     def test_oracle_connection_with_survey_support(self): 
@@ -118,7 +118,7 @@ class TestCommonFunctions(unittest.TestCase):
         Dependencies    : CommonFunctions.oracle_connection()
         """
         # Empty creds file
-        self.assertFalse(cf.get_oracle_connection(self.empty_creds_file))          
+        self.assertFalse(cf.get_sql_connection(self.empty_creds_file))
   
     
     def tearDown(self):

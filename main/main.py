@@ -531,7 +531,7 @@ def airmiles_step(run_id, connection):
 if __name__ == '__main__':
 
     # Connection to the SQL server database
-    connection = cf.get_oracle_connection()
+    connection = cf.get_sql_connection()
     # Run Id (this will be generated automatically and will be unique)
     run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
 

@@ -666,7 +666,7 @@ def store_step_summary(run_id, conn, step_configuration):
 
 if __name__ == "__main__":
     run_id = 'update-step-data-with-step-pv-output'
-    conn = cf.get_oracle_connection()
+    conn = cf.get_sql_connection()
     step_config = {"table_name": "[dbo].[SHIFT_DATA]",
                    "data_table": "[dbo].[SAS_SHIFT_DATA]",
                    "insert_to_populate": ["[PORTROUTE]", "[WEEKDAY]", "[ARRIVEDEPART]", "[TOTAL]",

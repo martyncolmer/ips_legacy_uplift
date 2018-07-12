@@ -100,7 +100,7 @@ def validate_file(xfile, current_working_file, function_name):
         return True         
 
 
-# def get_oracle_connection(credentials_file =
+# def get_sql_connection(credentials_file =
 #                           r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials.json"):
 #     """
 #     Author     : thorne1
@@ -399,12 +399,12 @@ def check_table(table_name):
     Parameters    : table_name - name of table to check if exists
     Returns       : True - Table exists / False - Table does not exist (bool)  
     Requirements  : None
-    Dependencies  : get_oracle_connection()
+    Dependencies  : get_sql_connection()
                   : database_logger()
     """
     
     # Oracle connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor()
      
     # Create and execute SQL query
@@ -436,7 +436,7 @@ def drop_table(table_name):
     Returns       : True/False (bool)  
     Requirements  : None
     Dependencies  : check_table()
-                  : get_oracle_connection()
+                  : get_sql_connection()
                   : database_logger()
     """
 
@@ -446,7 +446,7 @@ def drop_table(table_name):
     function_name = str(inspect.stack()[0][3])
 
     # Oracle connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor()
     
     # Create and execute SQL query
@@ -490,11 +490,11 @@ def delete_from_table(table_name, condition1=None, operator=None
     Returns         : True/False (bool)   
     Requirements    : None
     Dependencies    : check_table(),
-                      get_oracle_connection,
+                      get_sql_connection,
     """
     
     # Oracle connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor() 
     
     # Create and execute SQL query
@@ -537,7 +537,7 @@ def select_data(column_name, table_name, condition1, condition2):
     """
 
     # Connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     # cur = conn.cursor()
 
     # Create SQL statement
@@ -575,12 +575,12 @@ def unload_parameters(parameter_id = False):
                     extract specific parameter sets.
     Returns       : A dictionary of parameters  
     Requirements  : None
-    Dependencies  : get_oracle_connection(),
+    Dependencies  : get_sql_connection(),
                     cx_Oracle,
     """
    
     # Connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor()
     
     # If no ID provided, fetch latest ID from SAS_PARAMETERS 
@@ -643,7 +643,7 @@ def get_table_values(table_name):
     """
 
     # Connection to the database
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     
     # Create SQL statement
     sql = "SELECT * from " + table_name
@@ -670,7 +670,7 @@ def insert_into_table(table_name, column_list, value_list):
     """
      
     # Oracle connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor()     
     
     # Re-format column_list and value_lists as strings    
@@ -705,7 +705,7 @@ def insert_into_table_many(table_name,dataframe,connection = False):
 
     if(connection == False):
         print("Getting Connection")
-        connection = get_oracle_connection()
+        connection = get_sql_connection()
     
     cur = connection.cursor()
 
@@ -769,7 +769,7 @@ def insert_list_into_table(table_name,columns,values,connection = False):
     
     if(connection == False):
         print("Getting Connection")
-        connection = get_oracle_connection()
+        connection = get_sql_connection()
     cur = connection.cursor()
 
     # Create column header string for SQL
@@ -830,7 +830,7 @@ def commit_to_audit_log(action, process_object, audit_msg):
     params = {}
     
     # Oracle connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor()       
     
     # Assign 'audit_id' by returning max audit_id and incrementing by 1
@@ -953,7 +953,7 @@ def insert_dataframe_into_table_rbr(table_name, dataframe, connection=False):
     # Check if connection to database exists and creates one if necessary.
     if not connection:
         print("Getting Connection")
-        connection = get_oracle_connection()
+        connection = get_sql_connection()
 
     cur = connection.cursor()
 
@@ -1020,7 +1020,7 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False):
     # Check if connection to database exists and creates one if necessary.
     if not connection:
         print("Getting Connection")
-        connection = get_oracle_connection()
+        connection = get_sql_connection()
 
     cur = connection.cursor()
 
