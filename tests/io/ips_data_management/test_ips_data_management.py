@@ -289,7 +289,7 @@ def test_copy_step_pvs_for_survey_data(database_connection):
     results = cf.get_table_values(step_config['spv_table'])
     assert len(results) == 0
 
-@pytest.mark.skip('For Tom to complete')
+@pytest.mark.skip('For Nassir to complete')
 def test_update_survey_data_with_step_pv_output(database_connection):
     step_config = {'name': "SHIFT_WEIGHT",
                    'spv_table': '[dbo].[SAS_SHIFT_SPV]',
@@ -322,7 +322,7 @@ def test_update_survey_data_with_step_pv_output(database_connection):
     results = cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE)
     assert len(results) == 0
 
-@pytest.mark.skip('For Tom to complete')
+@pytest.mark.skip('For Nassir to complete')
 def test_copy_step_pvs_for_step_data(database_connection):
     step_config = {'name': '[dbo].[SHIFT_DATA]'
                    , 'pv_table': '[dbo].[SAS_SHIFT_PV]'
@@ -353,7 +353,7 @@ def test_copy_step_pvs_for_step_data(database_connection):
     # Assert equal
     assert_frame_equal(results, test_results, check_dtype=False)
 
-@pytest.mark.skip('For Tom to complete')
+@pytest.mark.skip('For Nassir to complete')
 def test_update_step_data_with_step_pv_output(database_connection):
     # step_config and variables
     step_config = {"pv_columns2": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]"],
@@ -406,6 +406,7 @@ def test_update_step_data_with_step_pv_output(database_connection):
     results = cf.get_table_values(step_config['sas_ps_table'])
     assert len(results) == 0
 
+
 def test_update_survey_data_with_step_results(database_connection):
     # step_config and variables
     step_config = {"name": "SHIFT_WEIGHT",
@@ -413,25 +414,27 @@ def test_update_survey_data_with_step_results(database_connection):
                    "results_columns": ["[SHIFT_WT]"]}
 
     # set up test data/tables - export fake data into SAS_SURVEY_SUBSAMPLE
-    sas_survey_subsample_input = pd.read_pickle(TEST_DATA_DIR + 'sas_survey_subsample_test_input.pkl')
+    sas_survey_subsample_input = pd.read_csv(TEST_DATA_DIR + 'sas_survey_subsample_test_input.csv', dtype=object)
     cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection)
 
     # and SAS_SHIFT_WT with matching SERIAL numbers
-    sas_shift_wt_input = pd.read_pickle(TEST_DATA_DIR + 'sas_shift_wt_test_input.pkl')
+    sas_shift_wt_input = pd.read_csv(TEST_DATA_DIR + 'sas_shift_wt_test_input.csv', dtype=object)
     cf.insert_dataframe_into_table(step_config["weight_table"], sas_shift_wt_input, database_connection)
 
     # Run that badger
     idm.update_survey_data_with_step_results(database_connection, step_config)
     results = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    results.to_csv(TEST_DATA_DIR + 'update_survey_data_results.csv', index=False)
 
     # Create expected test results and test against result
-    test_results = pd.read_pickle(TEST_DATA_DIR + 'test_results_of_update_survey_data_with_step_results.pkl')
-
+    test_results = pd.read_csv(TEST_DATA_DIR + 'test_results_of_update_survey_data_with_step_results.csv', dtype=object)
+    results = pd.read_csv(TEST_DATA_DIR + 'update_survey_data_results.csv', dtype=object)
     assert_frame_equal(results, test_results, check_dtype=False)
 
     # Assert temp tables had been cleansed in function
     result = cf.get_table_values(step_config['weight_table'])
     assert len(result) == 0
+
 
 def test_store_survey_data_with_step_results(database_connection):
     # step_config and variables
@@ -442,11 +445,13 @@ def test_store_survey_data_with_step_results(database_connection):
     run_id = 'tst-store-survey-data-with-shift-wt-res'
 
     # Set up records in SURVEY_SUBSAMPLE with above run_id
-    survey_subsample_input = pd.read_pickle(TEST_DATA_DIR + 'survey_subsample_test_input.pkl')
+    # survey_subsample_input = pd.read_pickle(TEST_DATA_DIR + 'survey_subsample_test_input.pkl')
+    survey_subsample_input = pd.read_csv(TEST_DATA_DIR + 'survey_subsample_test_input.csv', dtype=object)
     cf.insert_dataframe_into_table(idm.SURVEY_SUBSAMPLE_TABLE, survey_subsample_input, database_connection)
 
     # Set up records in SAS)SURVEY_SUBSAMPLE with same SERIAL as above
-    sas_survey_subsample_input = pd.read_pickle(TEST_DATA_DIR + 'sas_survey_subsample_test_store_input.pkl')
+    # sas_survey_subsample_input = pd.read_pickle(TEST_DATA_DIR + 'sas_survey_subsample_test_store_input.pkl')
+    sas_survey_subsample_input = pd.read_csv(TEST_DATA_DIR + 'sas_survey_subsample_test_store_input.csv', dtype=object)
     cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection)
 
     # run that badger
@@ -465,20 +470,25 @@ def test_store_survey_data_with_step_results(database_connection):
     assert len(result) == 0
 
     # Retrieve results produced by function
+    # TODO: retrieve all results, don't fudge it!
     sql = """
     SELECT * FROM {}
     WHERE SERIAL IN ('999999999991', '999999999992', '999999999993', '999999999994', '999999999995')
     AND RUN_ID = '{}'
     """.format(idm.SURVEY_SUBSAMPLE_TABLE, run_id)
     results = pd.read_sql(sql, database_connection)
+    results.to_csv(TEST_DATA_DIR + 'store_survey_data_results.csv', index=False)
 
     # Cleanse and delete from_survey_subsample where run_id = run_id
     cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', run_id)
 
     # Create expected test results and test against result
-    test_results = pd.read_pickle(TEST_DATA_DIR + 'test_results_store_survey_data_with_step_results.pkl')
+    # test_results = pd.read_pickle(TEST_DATA_DIR + 'test_results_store_survey_data_with_step_results.pkl')
+    test_results = pd.read_csv(TEST_DATA_DIR + 'test_results_store_survey_data_with_step_results.csv', dtype=object)
+    results = pd.read_csv(TEST_DATA_DIR + 'store_survey_data_results.csv', dtype=object)
 
     assert_frame_equal(results, test_results, check_dtype=False)
+
 
 def test_store_step_summary(database_connection):
     # step_config and variables
