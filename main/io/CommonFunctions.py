@@ -1121,14 +1121,43 @@ def unpickle_rick(file):
     beep()
 
 
-def create_fake_data():
-    data = {'REC_ID':[9,8,7],
-            'SHIFT_PORT_GRP_PV':['1','2','3'],
-            'AM_PM_NIGHT_PV':[4,5,6],
-            'WEEKDAY_END_PV':[7,8,9]}
-    df = pandas.DataFrame(data)
-    df.to_csv(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\El's Temp VDI Folder\XML\Generic\unpickled_update_shift_data_with_shift_data_pv_output.csv")
-    beep()
+def do_testing_stuff():
+    sas_survey_subsample_input = pandas.read_sas(
+        r'S:\CASPA\IPS\Testing\Oct Data\Calculate_IPS_Shift_Weight\do ips shiftweight calculation\UI\surveydata.sas7bdat')
+    sas_survey_subsample_input.to_csv(
+        r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\shift_weight\update_survey_data_with_step_results\sas_survey_subsample_test_input.csv',
+        dtype=object)
+
+
+    # Convert r'S:\CASPA\IPS\Testing\Oct Data\Calculate_IPS_Shift_Weight\do ips shiftweight calculation\UI\out_final.sas7bdat' to CSV and store in testing/data
+    sas_shift_wt_input = pandas.read_sas(
+        r'S:\CASPA\IPS\Testing\Oct Data\Calculate_IPS_Shift_Weight\do ips shiftweight calculation\UI\out_final.sas7bdat')
+    sas_shift_wt_input.to_csv(r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\update_survey_data_with_step_results\shift_weight\sas_shift_wt_test_input.csv', dtype=object)
+
+    ###UPDATE_SURVEY_DATA_WITH_SHIFT_WEIGHT_RESULTS###
+    # delete_from_table("SAS_SHIFT_WT")
+    # sas_shift_wt_df = pd.read_sas(r'S:\CASPA\IPS\Testing\Oct Data\Calculate_IPS_Shift_Weight\do ips shiftweight calculation\UI\out_final.sas7bdat')
+    # insert_dataframe_into_table("SAS_SHIFT_WT", sas_shift_wt_df)
+
+    # delete_from_table("SAS_SURVEY_SUBSAMPLE")
+    # sas_survey_subsample_df = pd.read_sas(r'S:\CASPA\IPS\Testing\Oct Data\Calculate_IPS_Shift_Weight\do ips shiftweight calculation\UI\surveydata.sas7bdat')
+    # insert_dataframe_into_table("SAS_SURVEY_SUBSAMPLE", sas_survey_subsample_df)
+
+    # sql = """
+    # update sas_survey_subsample sss
+    # set (sss.SHIFT_WT ) =
+    # (select ssw.SHIFT_WT
+    # from sas_shift_wt ssw
+    # where sss.SERIAL = ssw.SERIAL)
+    # """
+
+    # conn = get_sql_connection
+    # cur = conn.cursor()
+    # expected_results = get_table_values(sas_survey_subsample)
+
+    # expected_results.to_csv(r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\shift_weight\expected_results_update_survey_data_with_shift_wt_results.csv', index=False)
+
+
 
 if __name__ == "__main__":
     unpickle_rick("update_survey_data_pvs")
