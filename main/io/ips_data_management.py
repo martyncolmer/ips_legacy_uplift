@@ -276,7 +276,7 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
             cur.execute(sql)
             conn.commit()
 
-
+# Nassir
 def update_survey_data_with_step_pv_output(conn, step_configuration):
     """
     Author       : Elinor Thorne
@@ -314,13 +314,16 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
     conn.commit()
 
     # Cleanse temp tables
-    delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
-    print(delete_statement)
-    print("")
+    #delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
+    #print(delete_statement)
+    #print("")
+
     delete_statement = cf.delete_from_table(spv_table)
     print(delete_statement)
     print("")
 
+    # code specific to minimums weight function/step
+    # TODO: consider moving this out to another function called by minimum weight
     if step_configuration["name"] == "MINIMUMS_WEIGHT":
         delete_statement = cf.delete_from_table(step_configuration["weight_table"])
         print(delete_statement)
@@ -329,7 +332,7 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
         print(delete_statement)
         print("")
 
-
+# Nassir
 def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
     """
     Author       : Elinor Thorne
@@ -390,7 +393,7 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
         cur.execute(sql)
         conn.commit()
 
-
+# Nassir
 def update_step_data_with_step_pv_output(conn, step_configuration):
     """
     Author       : Elinor Thorne

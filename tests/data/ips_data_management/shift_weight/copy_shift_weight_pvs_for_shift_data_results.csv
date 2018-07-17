@@ -1,0 +1,4 @@
+PROCVAR_NAME,PROCVAR_RULE,PROCVAR_ORDER
+SHIFT_PORT_GRP_PV,some kind of string,0.0
+WEEKDAY_END_PV,some other kind of string,0.0
+AM_PM_NIGHT_PV,another kind of string,0.0

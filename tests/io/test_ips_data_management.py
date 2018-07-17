@@ -1,89 +1,314 @@
-# import pytest
-# import pandas as pd
-# from pandas.util.testing import assert_frame_equal
-# import main.io.CommonFunctions as cf
-# import main.io.ips_data_management as idm
-# from main.io import import_data
-# from main.io import import_traffic_data
-# from main.io.CommonFunctions import get_sql_connection
-# from main.main import shift_weight_step
-#
-# import sys
-#
-# TEST_DATA_DIR = 'tests/data/ips_data_management/shift_weight/'
-#
-# @pytest.mark.skip("")
-# class test_ips_data_management:
-#     @pytest.fixture(scope='module')
-#     def database_connection(self):
-#         '''
-#         This fixture provides the database connection. It is added to the function argument of each test
-#         and picked up by the test from there. The fixture allows us to re-use the same database connection
-#         over and over again.
-#         '''
-#         return get_sql_connection()
-#
-#     def get_rec_id(value, table, database_connection):
-#         # value = 'min' or 'max'
-#         # table = table name
-#         # Retrieve rec_id
-#
-#         cur = database_connection.cursor()
-#         sql = """
-#             SELECT {}([REC_ID])
-#               FROM {}
-#               """.format(value, table)
-#
-#         result = cur.execute(sql).fetchone()
-#         return result[0]
-#
-#     def amend_rec_id(dataframe, rec_id, ascend=True):
-#         '''
-#         This function retrieves REC_ID from text file and inputs to test result dataframe.
-#         '''
-#
-#         if ascend==True:
-#             for row in range(0, len(dataframe['REC_ID'])):
-#                 dataframe['REC_ID'][row] = rec_id
-#                 rec_id = rec_id + 1
-#         else:
-#             for row in range(0, len(dataframe['REC_ID'])):
-#                 dataframe['REC_ID'][row] = rec_id
-#                 rec_id = rec_id - 1
-#
-#         return dataframe
-#
-#     def import_data_into_database(self):
-#         '''
-#         This function prepares all the data necessary to run all 14 steps.
-#         The input files have been edited to make sure data types match the database tables.
-#         Note that no process variables are uploaded and are expected to be present in the database.
-#         :return:
-#         '''
-#         run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
-#
-#         version_id = 1891
-#
-#         # Import data paths (these will be passed in through the user)
-#         survey_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec_Data\ips1712bv4_amtspnd.sas7bdat"
-#         shift_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Possible shifts Q1 2017.csv'
-#         nr_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Non Response Q1 2017.csv'
-#         sea_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Sea Traffic Q1 2017 - Copy.csv'
-#         tunnel_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Tunnel Traffic Q1 2017 - Copy.csv'
-#         air_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\CAA Q1 2017 - Copy.csv'
-#         unsampled_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Unsampled Traffic Q1 2017.csv'
-#
-#         # Import survey data function to go here
-#         import_data.import_survey_data(survey_data_path, run_id, version_id)
-#
-#         # Import Shift Data
-#         import_traffic_data.import_traffic_data(run_id, shift_data_path)
-#         import_traffic_data.import_traffic_data(run_id, nr_data_path)
-#         import_traffic_data.import_traffic_data(run_id, sea_data_path)
-#         import_traffic_data.import_traffic_data(run_id, tunnel_data_path)
-#         import_traffic_data.import_traffic_data(run_id, air_data_path)
-#         import_traffic_data.import_traffic_data(run_id, unsampled_data_path)
-#
+import pytest
+import pandas as pd
+from pandas.util.testing import assert_frame_equal
+import main.io.CommonFunctions as cf
+import main.io.ips_data_management as idm
+from main.io import import_data
+from main.io import import_traffic_data
+from main.io.CommonFunctions import get_sql_connection
+from main.main import shift_weight_step
+
+import sys
+
+TEST_DATA_DIR = 'tests/data/ips_data_management/shift_weight/'
+
+@pytest.fixture()
+def database_connection():
+        '''
+        This fixture provides the database connection. It is added to the function argument of each test
+        and picked up by the test from there. The fixture allows us to re-use the same database connection
+        over and over again.
+        '''
+        return get_sql_connection()
+
+#TODO: remove this function once finished as it is working in the class now
+@pytest.mark.usefixtures("database_connection")
+def test_update_survey_data_with_step_pv_output_with_name_shift_weight(database_connection):
+
+    step_config = {'name': "SHIFT_WEIGHT",
+                   'spv_table': '[dbo].[SAS_SHIFT_SPV]',
+                   "pv_columns": ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'", "'SHIFT_FLAG_PV'", "'CROSSINGS_FLAG_PV'"]
+                   }
+    # TODO: run_id is not used - delete
+    run_id = 'update-survey-pvs'
+
+    # delete the data in the table so that we have no data in table for test
+    cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+    # read and insert into the database the survey data
+    test_survey_data = pd.read_pickle(TEST_DATA_DIR + 'update_survey_data_pvs.pkl')
+    cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, test_survey_data, database_connection)
+
+    # read and insert into the database the pvs
+    test_nr_pv_data = pd.read_pickle(TEST_DATA_DIR + 'test_sw_pv_data.pkl')
+    cf.insert_dataframe_into_table(step_config['spv_table'], test_nr_pv_data, database_connection)
+
+    # call the test function
+    idm.update_survey_data_with_step_pv_output(database_connection, step_config)
+
+    # get the newly updated table data
+    results = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+    # write the results back to csv, and read the csv back (this solves the data type matching issues)
+    results.to_csv(TEST_DATA_DIR + 'update_survey_data_pvs_result_results.csv', index=False)
+    results = pd.read_csv(TEST_DATA_DIR + 'update_survey_data_pvs_result_results.csv')
+
+    # clean test data before actually testing results
+    cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+    # read the test results from the csv
+    # test_results = pd.read_pickle(TEST_DATA_DIR + 'update_survey_data_pvs_result.pkl')
+    test_results = pd.read_csv(TEST_DATA_DIR + 'update_survey_data_pvs_result.csv')
+    test_results = test_results.drop(test_results.columns[0], axis=1)
+
+    assert_frame_equal(results, test_results, check_dtype=False)
+
+    # check that spv_table has been deleted
+    results_2 = cf.get_table_values(step_config['spv_table'])
+    assert len(results_2) == 0
+
+    # TODO: delete - should not be required
+    #results = cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE)
+    #assert len(results) == 0
+
+#TODO: use an Oracle dataset to verify the test works
+@pytest.mark.usefixtures("database_connection")
+def test_update_survey_data_with_step_pv_output_with_name_minimums_weight(database_connection):
+    step_config = {'name': "MINIMUMS_WEIGHT",
+                   'spv_table': '[dbo].[SAS_MINIMUMS_SPV]',
+                   "pv_columns": ["'MINS_PORT_GRP_PV'", "'MINS_CTRY_GRP_PV'", "'MINS_NAT_GRP_PV'", "'MINS_FLAG_PV'",
+                                  "'MINS_CTRY_PORT_GRP_PV'"],
+                   "weight_table": "[dbo].[SAS_MINIMUMS_WT]",
+                   "sas_ps_table": "[dbo].[SAS_PS_MINIMUMS]",
+                   }
+
+    # TODO: run_id is not used - delete
+    run_id = 'update-survey-pvs'
+
+    # delete the data in the table so that we have no data in table for test
+    cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+    # TODO: read the correct pkl file for minimums weight and test against it using the Oracle
+
+    # read and insert into the database the survey data
+    test_survey_data = pd.read_pickle(TEST_DATA_DIR + 'update_survey_data_pvs.pkl')
+    cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, test_survey_data, database_connection)
+
+    # read and insert into the database the pvs
+    test_nr_pv_data = pd.read_pickle(TEST_DATA_DIR + 'test_sw_pv_data.pkl')
+    cf.insert_dataframe_into_table(step_config['spv_table'], test_nr_pv_data, database_connection)
+
+    # call the test function
+    idm.update_survey_data_with_step_pv_output(database_connection, step_config)
+
+    # get the newly updated table data
+    results = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+    # write the results back to csv, and read the csv back (this solves the data type matching issues)
+    results.to_csv(TEST_DATA_DIR + 'update_survey_data_pvs_result_results.csv', index=False)
+    results = pd.read_csv(TEST_DATA_DIR + 'update_survey_data_pvs_result_results.csv')
+
+    # clean test data before actually testing results
+    cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+    # read the test results from the csv
+    # test_results = pd.read_pickle(TEST_DATA_DIR + 'update_survey_data_pvs_result.pkl')
+    test_results = pd.read_csv(TEST_DATA_DIR + 'update_survey_data_pvs_result.csv')
+    test_results = test_results.drop(test_results.columns[0], axis=1)
+
+    assert_frame_equal(results, test_results, check_dtype=False)
+
+    # check that spv_table has been deleted
+    results_2 = cf.get_table_values(step_config['spv_table'])
+    assert len(results_2) == 0
+
+    # TODO: delete - should not be required
+    # results = cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE)
+    # assert len(results) == 0
+
+#TODO: remove
+@pytest.mark.usefixtures("database_connection")
+def test_copy_step_pvs_for_step_data(database_connection):
+    step_config = {'name': '[dbo].[SHIFT_DATA]'
+                   , 'pv_table': '[dbo].[SAS_SHIFT_PV]'
+                   , 'pv_columns': ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'"]
+                   , 'order': 0
+                   }
+    run_id = 'copy-step-pvs-for-step-data'
+
+    # read test data and insert into remote database table
+    test_data = pd.read_pickle(TEST_DATA_DIR + 'copy_shift_weight_pvs_for_shift_data.pkl')
+    cf.insert_dataframe_into_table("PROCESS_VARIABLE_PY", test_data, database_connection)
+
+    # run the test function
+    idm.copy_step_pvs_for_step_data(run_id, database_connection, step_config)
+    results = cf.get_table_values('SAS_PROCESS_VARIABLE')
+
+    # write the results back to csv, and read the csv back (this solves the data type matching issues)
+    results.to_csv(TEST_DATA_DIR + 'copy_shift_weight_pvs_for_shift_data_results.csv', index=False)
+    results = pd.read_csv(TEST_DATA_DIR + 'copy_shift_weight_pvs_for_shift_data_results.csv')
+
+    # Assert step_configuration["pv_table"] has 0 records
+    result = cf.get_table_values(step_config['pv_table'])
+    assert len(result) == 0
+
+    # Cleanse tables before continuing
+    cf.delete_from_table(idm.SAS_PROCESS_VARIABLES_TABLE)
+    cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
+
+    # Pickle some test results
+    test_results = pd.read_pickle(TEST_DATA_DIR + 'copy_shift_weight_pvs_for_shift_data_results.pkl')
+
+    # Assert equal
+    assert_frame_equal(results, test_results, check_dtype=False)
+
+@pytest.mark.usefixtures("database_connection")
+class TestIpsDataManagement:
+
+    def get_rec_id(value, table, database_connection):
+        # value = 'min' or 'max'
+        # table = table name
+        # Retrieve rec_id
+
+        cur = database_connection.cursor()
+        sql = """
+            SELECT {}([REC_ID])
+              FROM {}
+              """.format(value, table)
+
+        result = cur.execute(sql).fetchone()
+        return result[0]
+
+    def amend_rec_id(dataframe, rec_id, ascend=True):
+        '''
+        This function retrieves REC_ID from text file and inputs to test result dataframe.
+        '''
+
+        if ascend==True:
+            for row in range(0, len(dataframe['REC_ID'])):
+                dataframe['REC_ID'][row] = rec_id
+                rec_id = rec_id + 1
+        else:
+            for row in range(0, len(dataframe['REC_ID'])):
+                dataframe['REC_ID'][row] = rec_id
+                rec_id = rec_id - 1
+
+        return dataframe
+
+    def import_data_into_database(self):
+        '''
+        This function prepares all the data necessary to run all 14 steps.
+        The input files have been edited to make sure data types match the database tables.
+        Note that no process variables are uploaded and are expected to be present in the database.
+        :return:
+        '''
+        run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
+
+        version_id = 1891
+
+        # Import data paths (these will be passed in through the user)
+        survey_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec_Data\ips1712bv4_amtspnd.sas7bdat"
+        shift_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Possible shifts Q1 2017.csv'
+        nr_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Non Response Q1 2017.csv'
+        sea_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Sea Traffic Q1 2017 - Copy.csv'
+        tunnel_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Tunnel Traffic Q1 2017 - Copy.csv'
+        air_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\CAA Q1 2017 - Copy.csv'
+        unsampled_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Unsampled Traffic Q1 2017.csv'
+
+        # Import survey data function to go here
+        import_data.import_survey_data(survey_data_path, run_id, version_id)
+
+        # Import Shift Data
+        import_traffic_data.import_traffic_data(run_id, shift_data_path)
+        import_traffic_data.import_traffic_data(run_id, nr_data_path)
+        import_traffic_data.import_traffic_data(run_id, sea_data_path)
+        import_traffic_data.import_traffic_data(run_id, tunnel_data_path)
+        import_traffic_data.import_traffic_data(run_id, air_data_path)
+        import_traffic_data.import_traffic_data(run_id, unsampled_data_path)
+
+    def test_update_survey_data_with_step_pv_output_with_name_shift_weight(self, database_connection):
+
+        step_config = {'name': "SHIFT_WEIGHT",
+                       'spv_table': '[dbo].[SAS_SHIFT_SPV]',
+                       "pv_columns": ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'", "'SHIFT_FLAG_PV'",
+                                      "'CROSSINGS_FLAG_PV'"]
+                       }
+        # TODO: run_id is not used - delete
+        run_id = 'update-survey-pvs'
+
+        # delete the data in the table so that we have no data in table for test
+        cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+        # read and insert into the database the survey data
+        test_survey_data = pd.read_pickle(TEST_DATA_DIR + 'update_survey_data_pvs.pkl')
+        cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, test_survey_data, database_connection)
+
+        # read and insert into the database the pvs
+        test_nr_pv_data = pd.read_pickle(TEST_DATA_DIR + 'test_sw_pv_data.pkl')
+        cf.insert_dataframe_into_table(step_config['spv_table'], test_nr_pv_data, database_connection)
+
+        # call the test function
+        idm.update_survey_data_with_step_pv_output(database_connection, step_config)
+
+        # get the newly updated table data
+        results = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+        # write the results back to csv, and read the csv back (this solves the data type matching issues)
+        results.to_csv(TEST_DATA_DIR + 'update_survey_data_pvs_result_results.csv', index=False)
+        results = pd.read_csv(TEST_DATA_DIR + 'update_survey_data_pvs_result_results.csv')
+
+        # clean test data before actually testing results
+        cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+        # read the test results from the csv
+        # test_results = pd.read_pickle(TEST_DATA_DIR + 'update_survey_data_pvs_result.pkl')
+        test_results = pd.read_csv(TEST_DATA_DIR + 'update_survey_data_pvs_result.csv')
+        test_results = test_results.drop(test_results.columns[0], axis=1)
+
+        assert_frame_equal(results, test_results, check_dtype=False)
+
+        # check that spv_table has been deleted
+        results_2 = cf.get_table_values(step_config['spv_table'])
+        assert len(results_2) == 0
+
+        # TODO: delete - should not be required
+        # results = cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE)
+        # assert len(results) == 0
+
+    def test_copy_step_pvs_for_step_data(self, database_connection):
+        step_config = {'name': '[dbo].[SHIFT_DATA]'
+            , 'pv_table': '[dbo].[SAS_SHIFT_PV]'
+            , 'pv_columns': ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'"]
+            , 'order': 0
+                       }
+        run_id = 'copy-step-pvs-for-step-data'
+
+        # read test data and insert into remote database table
+        test_data = pd.read_pickle(TEST_DATA_DIR + 'copy_shift_weight_pvs_for_shift_data.pkl')
+        cf.insert_dataframe_into_table("PROCESS_VARIABLE_PY", test_data, database_connection)
+
+        # run the test function
+        idm.copy_step_pvs_for_step_data(run_id, database_connection, step_config)
+        results = cf.get_table_values('SAS_PROCESS_VARIABLE')
+
+        # write the results back to csv, and read the csv back (this solves the data type matching issues)
+        results.to_csv(TEST_DATA_DIR + 'copy_shift_weight_pvs_for_shift_data_results.csv', index=False)
+        results = pd.read_csv(TEST_DATA_DIR + 'copy_shift_weight_pvs_for_shift_data_results.csv')
+
+        # Assert step_configuration["pv_table"] has 0 records
+        result = cf.get_table_values(step_config['pv_table'])
+        assert len(result) == 0
+
+        # Cleanse tables before continuing
+        cf.delete_from_table(idm.SAS_PROCESS_VARIABLES_TABLE)
+        cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
+
+        # Pickle some test results
+        test_results = pd.read_pickle(TEST_DATA_DIR + 'copy_shift_weight_pvs_for_shift_data_results.pkl')
+
+        # Assert equal
+        assert_frame_equal(results, test_results, check_dtype=False)
+
 #     def test_nullify_survey_subsample_pv_values(database_connection):
 #         test_data = pd.read_pickle(TEST_DATA_DIR + 'nullify_pv_survey_data.pkl')
 #         # test to make sure our test data is different from the data after applying the function
@@ -358,7 +583,7 @@
 #
 #         # Pickle some test results
 #         test_results = pd.read_pickle(TEST_DATA_DIR + 'copy_shift_weight_pvs_for_shift_data_results.pkl')
-# #=======
+#
 #     def test_populate_survey_data_for_step(database_connection):
 #         # this is an integration of the above tests so we will keep things simple
 #         # cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE)
@@ -524,8 +749,6 @@
 #
 #         assert_frame_equal(results, test_results, check_dtype=False)
 #
-# #<<<<<<< HEAD
-#
 #     def test_store_step_summary(database_connection):
 #         # step_config and variables
 #         step_config = {"ps_table": "[dbo].[PS_SHIFT_DATA]",
@@ -582,7 +805,8 @@
 #                        }
 #
 #         shift_weight_step('9e5c1872-3f8e-4ae5-85dc-c67a602d011e', database_connection, step_config)
-#     #=======
+#
+#
 #     def test_copy_step_pvs_for_survey_data(database_connection):
 #         step_config = {'name': "SHIFT_WEIGHT",
 #                        "spv_table": "[dbo].[SAS_SHIFT_SPV]",
@@ -615,6 +839,7 @@
 #         assert len(results) == 0
 #
 #
+#     # Nassir
 #     @pytest.mark.xfail
 #     def test_update_survey_data_with_step_pv_output(database_connection):
 #         step_config = {'name': "SHIFT_WEIGHT",
@@ -623,17 +848,21 @@
 #                        }
 #         run_id = 'update-survey-pvs'
 #
+#         # delete the data in the table so that we have no data in table for test
 #         cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 #
-#         # set up test data/tables
+#         # read and insert into the database the survey data
 #         test_survey_data = pd.read_pickle(TEST_DATA_DIR + 'update_survey_data_pvs.pkl')
 #         cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, test_survey_data, database_connection)
 #
+#         # read and insert into the database the pvs
 #         test_nr_pv_data = pd.read_pickle(TEST_DATA_DIR + 'test_sw_pv_data.pkl')
 #         cf.insert_dataframe_into_table(step_config['spv_table'], test_nr_pv_data, database_connection)
 #
-#         idm.copy_step_pvs_for_survey_data(run_id, database_connection, step_config)
+#         # is this calling the right function?
+#         idm.update_survey_data_with_step_pv_output(database_connection, step_config)
 #
+#         # get the newly updated table data
 #         results = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 #
 #         # clean test data before actually testing results
@@ -643,13 +872,15 @@
 #         test_results = pd.read_csv(TEST_DATA_DIR + 'update_survey_data_pvs_result.csv')
 #         assert_frame_equal(results, test_results, check_dtype=False)
 #
-#         results = cf.get_table_values(step_config['spv_table'])
-#         assert len(results) == 0
+#         # check that spv_table has been deleted
+#         results_2 = cf.get_table_values(step_config['spv_table'])
+#         assert len(results_2) == 0
 #
-#         results = cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE)
-#         assert len(results) == 0
+#         # should not be required
+#         #results = cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE)
+#         #assert len(results) == 0
 #
-#
+#     # Nassir
 #     def test_copy_step_pvs_for_step_data(database_connection):
 #         step_config = {'name': '[dbo].[SHIFT_DATA]'
 #                        , 'pv_table': '[dbo].[SAS_SHIFT_PV]'
@@ -679,198 +910,198 @@
 #
 #         # Assert equal
 #         assert_frame_equal(results, test_results, check_dtype=False)
+
+# Nassir
+# def test_update_step_data_with_step_pv_output(database_connection):
+#     # step_config and variables
+#     step_config = {"pv_columns2": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]"],
+#                    "pv_table": "[dbo].[SAS_SHIFT_PV]",
+#                    "data_table": "[dbo].[SAS_SHIFT_DATA]",
+#                    "weight_table": "[dbo].[SAS_SHIFT_WT]",
+#                    "sas_ps_table": "[dbo].[SAS_PS_SHIFT_DATA]"}
+#
+#     # Set up test data/tables
+#     test_shift_pv_data = pd.read_pickle(TEST_DATA_DIR + 'test_shift_pv_data.pkl')
+#
+#     # Get rec_id and amend test dataframe
+#     rec_id = get_rec_id("MAX", step_config["data_table"], database_connection)
+#     test_shift_pv_data = amend_rec_id(test_shift_pv_data, rec_id, ascend=False)
+#
+#     cf.insert_dataframe_into_table(step_config['pv_table'], test_shift_pv_data, database_connection)
+#
+#     idm.update_step_data_with_step_pv_output(database_connection, step_config)
+#     sql = """
+#     SELECT TOP(5)[REC_ID]
+#       ,[PORTROUTE]
+#       ,[WEEKDAY]
+#       ,[ARRIVEDEPART]
+#       ,[TOTAL]
+#       ,[AM_PM_NIGHT]
+#       ,[SHIFT_PORT_GRP_PV]
+#       ,[AM_PM_NIGHT_PV]
+#       ,[WEEKDAY_END_PV]
+#     FROM [ips_test].[dbo].[SAS_SHIFT_DATA]
+#     ORDER BY REC_ID DESC
+#     """
+#     results = pd.read_sql(sql, database_connection)
+#
+#     # Create expected test results and assert equal
+#     test_results = pd.read_pickle(TEST_DATA_DIR + 'update_shift_data_pvs_result.pkl')
+#     test_results = amend_rec_id(test_results, rec_id, ascend=False)
+#
+#     print("results: {}".format(results))
+#     print("test_results: {}".format(test_results))
+#
+#     assert_frame_equal(results, test_results, check_dtype=False)
+#
+#     # Assert temp tables had been cleanse in function
+#     results = cf.get_table_values(step_config['pv_table'])
+#     assert len(results) == 0
+#
+#     results = cf.get_table_values(step_config['weight_table'])
+#     assert len(results) == 0
+#
+#     results = cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE)
+#     assert len(results) == 0
+#
+#     results = cf.get_table_values(step_config['sas_ps_table'])
+#     assert len(results) == 0
+#
+
+# def test_update_survey_data_with_step_results(database_connection):
+#     # step_config and variables
+#     step_config = {"name": "SHIFT_WEIGHT",
+#                    "weight_table": "[dbo].[SAS_SHIFT_WT]",
+#                    "results_columns": ["[SHIFT_WT]"]}
+#
+#     # set up test data/tables - export fake data into SAS_SURVEY_SUBSAMPLE
+#     sas_survey_subsample_input = pd.read_pickle(TEST_DATA_DIR + 'sas_survey_subsample_test_input.pkl')
+#     cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection)
+#
+#     # and SAS_SHIFT_WT with matching SERIAL numbers
+#     sas_shift_wt_input = pd.read_pickle(TEST_DATA_DIR + 'sas_shift_wt_test_input.pkl')
+#     cf.insert_dataframe_into_table(step_config["weight_table"], sas_shift_wt_input, database_connection)
+#
+#     # Run that badger
+#     idm.update_survey_data_with_step_results(database_connection, step_config)
+#     results = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+#     results.to_csv(TEST_DATA_DIR + 'results_of_update_survey_data_with_step_results.csv', index=False)
+#
+#     # Create expected test results and test against result
+#     test_results = pd.read_pickle(TEST_DATA_DIR + 'test_results_of_update_survey_data_with_step_results.pkl')
+#     results = pd.read_csv(TEST_DATA_DIR + 'results_of_update_survey_data_with_step_results.csv')
+#
+#     assert_frame_equal(results, test_results, check_dtype=False)
+#
+#     # Assert temp tables had been cleansed in function
+#     result = cf.get_table_values(step_config['weight_table'])
+#     assert len(result) == 0
 #
 #
-#     def test_update_step_data_with_step_pv_output(database_connection):
-#         # step_config and variables
-#         step_config = {"pv_columns2": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]"],
-#                        "pv_table": "[dbo].[SAS_SHIFT_PV]",
-#                        "data_table": "[dbo].[SAS_SHIFT_DATA]",
-#                        "weight_table": "[dbo].[SAS_SHIFT_WT]",
-#                        "sas_ps_table": "[dbo].[SAS_PS_SHIFT_DATA]"}
+# def test_store_survey_data_with_step_results(database_connection):
+#     # step_config and variables
+#     step_config = {"name": "SHIFT_WEIGHT",
+#                    "nullify_pvs": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[SHIFT_FLAG_PV]",
+#                                    "[CROSSINGS_FLAG_PV]", "[SHIFT_WT]"],
+#                    "ps_table": "[dbo].[PS_SHIFT_DATA]"}
+#     run_id = 'tst-store-survey-data-with-shift-wt-res'
 #
-#         # Set up test data/tables
-#         test_shift_pv_data = pd.read_pickle(TEST_DATA_DIR + 'test_shift_pv_data.pkl')
+#     # Set up records in SURVEY_SUBSAMPLE with above run_id
+#     survey_subsample_input = pd.read_pickle(TEST_DATA_DIR + 'survey_subsample_test_input.pkl')
+#     cf.insert_dataframe_into_table(idm.SURVEY_SUBSAMPLE_TABLE, survey_subsample_input, database_connection)
 #
-#         # Get rec_id and amend test dataframe
-#         rec_id = get_rec_id("MAX", step_config["data_table"], database_connection)
-#         test_shift_pv_data = amend_rec_id(test_shift_pv_data, rec_id, ascend=False)
+#     # Set up records in SAS)SURVEY_SUBSAMPLE with same SERIAL as above
+#     sas_survey_subsample_input = pd.read_pickle(TEST_DATA_DIR + 'sas_survey_subsample_test_store_input.pkl')
+#     cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection)
 #
-#         cf.insert_dataframe_into_table(step_config['pv_table'], test_shift_pv_data, database_connection)
+#     # run that badger
+#     idm.store_survey_data_with_step_results(run_id, database_connection, step_config)
 #
-#         idm.update_step_data_with_step_pv_output(database_connection, step_config)
-#         sql = """
-#         SELECT TOP(5)[REC_ID]
-#           ,[PORTROUTE]
-#           ,[WEEKDAY]
-#           ,[ARRIVEDEPART]
-#           ,[TOTAL]
-#           ,[AM_PM_NIGHT]
-#           ,[SHIFT_PORT_GRP_PV]
-#           ,[AM_PM_NIGHT_PV]
-#           ,[WEEKDAY_END_PV]
-#         FROM [ips_test].[dbo].[SAS_SHIFT_DATA]
-#         ORDER BY REC_ID DESC
-#         """
-#         results = pd.read_sql(sql, database_connection)
+#     # Assert temp tables had been cleansed in function
+#     sql = """
+#     SELECT * FROM {}
+#     WHERE RUN_ID = '{}'""".format(step_config['ps_table'], run_id)
 #
-#         # Create expected test results and assert equal
-#         test_results = pd.read_pickle(TEST_DATA_DIR + 'update_shift_data_pvs_result.pkl')
-#         test_results = amend_rec_id(test_results, rec_id, ascend=False)
+#     cur = database_connection.cursor()
+#     result = cur.execute(sql).fetchone()
+#     assert result == None
 #
-#         print("results: {}".format(results))
-#         print("test_results: {}".format(test_results))
+#     result = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+#     assert len(result) == 0
 #
-#         assert_frame_equal(results, test_results, check_dtype=False)
+#     # Retrieve results produced by function
+#     sql = """
+#     SELECT * FROM {}
+#     WHERE SERIAL IN ('999999999991', '999999999992', '999999999993', '999999999994', '999999999995')
+#     AND RUN_ID = '{}'
+#     """.format(idm.SURVEY_SUBSAMPLE_TABLE, run_id)
+#     results = pd.read_sql(sql, database_connection)
+#     results.to_csv(TEST_DATA_DIR + 'results_store_survey_data_with_step_results.csv', index=False)
 #
-#         # Assert temp tables had been cleanse in function
-#         results = cf.get_table_values(step_config['pv_table'])
-#         assert len(results) == 0
+#     # Cleanse and delete from_survey_subsample where run_id = run_id
+#     cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', run_id)
 #
-#         results = cf.get_table_values(step_config['weight_table'])
-#         assert len(results) == 0
+#     # Create expected test results and test against result
+#     test_results = pd.read_pickle(TEST_DATA_DIR + 'test_results_store_survey_data_with_step_results.pkl')
+#     results = pd.read_csv(TEST_DATA_DIR + 'results_store_survey_data_with_step_results.csv')
 #
-#         results = cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE)
-#         assert len(results) == 0
-#
-#         results = cf.get_table_values(step_config['sas_ps_table'])
-#         assert len(results) == 0
+#     assert_frame_equal(results, test_results, check_dtype=False)
 #
 #
-#     def test_update_survey_data_with_step_results(database_connection):
-#         # step_config and variables
-#         step_config = {"name": "SHIFT_WEIGHT",
-#                        "weight_table": "[dbo].[SAS_SHIFT_WT]",
-#                        "results_columns": ["[SHIFT_WT]"]}
+# def test_store_step_summary(database_connection):
+#     # step_config and variables
+#     step_config = {"ps_table": "[dbo].[PS_SHIFT_DATA]",
+#                    "sas_ps_table": "[dbo].[SAS_PS_SHIFT_DATA]",
+#                    "ps_columns": ["[RUN_ID]", "[SHIFT_PORT_GRP_PV]", "[ARRIVEDEPART]", "[WEEKDAY_END_PV]",
+#                                   "[AM_PM_NIGHT_PV]", "[MIGSI]", "[POSS_SHIFT_CROSS]", "[SAMP_SHIFT_CROSS]",
+#                                   "[MIN_SH_WT]", "[MEAN_SH_WT]", "[MAX_SH_WT]", "[COUNT_RESPS]", "[SUM_SH_WT]"]}
+#     run_id = 'store-shift-data-summary'
 #
-#         # set up test data/tables - export fake data into SAS_SURVEY_SUBSAMPLE
-#         sas_survey_subsample_input = pd.read_pickle(TEST_DATA_DIR + 'sas_survey_subsample_test_input.pkl')
-#         cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection)
+#     # set up test data/tables
+#     test_ps_data = pd.read_pickle(TEST_DATA_DIR + 'store_ps_summary.pkl')
+#     cf.insert_dataframe_into_table(step_config["sas_ps_table"], test_ps_data, database_connection)
 #
-#         # and SAS_SHIFT_WT with matching SERIAL numbers
-#         sas_shift_wt_input = pd.read_pickle(TEST_DATA_DIR + 'sas_shift_wt_test_input.pkl')
-#         cf.insert_dataframe_into_table(step_config["weight_table"], sas_shift_wt_input, database_connection)
+#     # Run function return results
+#     idm.store_step_summary(run_id, database_connection, step_config)
+#     results = cf.get_table_values(step_config["ps_table"])
 #
-#         # Run that badger
-#         idm.update_survey_data_with_step_results(database_connection, step_config)
-#         results = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-#         results.to_csv(TEST_DATA_DIR + 'results_of_update_survey_data_with_step_results.csv', index=False)
+#     # Create expected test results and test against result
+#     test_results = pd.read_pickle(TEST_DATA_DIR + 'store_shift_data_summary_test_result.pkl')
+#     assert_frame_equal(results, test_results, check_dtype=False)
 #
-#         # Create expected test results and test against result
-#         test_results = pd.read_pickle(TEST_DATA_DIR + 'test_results_of_update_survey_data_with_step_results.pkl')
-#         results = pd.read_csv(TEST_DATA_DIR + 'results_of_update_survey_data_with_step_results.csv')
+#     # Assert temp tables had been cleansed in function
+#     results = cf.get_table_values(step_config['sas_ps_table'])
+#     assert len(results) == 0
+
+
+# @pytest.mark.skip('this takes very long')
+# def test_shift_weight_step(database_connection):
 #
-#         assert_frame_equal(results, test_results, check_dtype=False)
+#     # import the necessary data into the database
+#     # note that this has not been tested to work repeatedly
+#     import_data_into_database()
 #
-#         # Assert temp tables had been cleansed in function
-#         result = cf.get_table_values(step_config['weight_table'])
-#         assert len(result) == 0
+#     step_config = {"nullify_pvs": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[SHIFT_FLAG_PV]", "[CROSSINGS_FLAG_PV]", "[SHIFT_WT]"],
+#                    'name': 'SHIFT_WEIGHT',
+#                    'delete_tables': ["[dbo].[SAS_SHIFT_WT]", "[dbo].[SAS_PS_SHIFT_DATA]"],
+#                    "table_name": "[dbo].[SHIFT_DATA]",
+#                    "data_table": "[dbo].[SAS_SHIFT_DATA]",
+#                    "insert_to_populate": ["[PORTROUTE]", "[WEEKDAY]", "[ARRIVEDEPART]", "[TOTAL]",
+#                                           "[AM_PM_NIGHT]"],
+#                    "spv_table": "[dbo].[SAS_SHIFT_SPV]",
+#                    "pv_columns": ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'"],
+#                    "pv_columns2": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]"],
+#                    "order": 0,
+#                    "pv_table": "[dbo].[SAS_SHIFT_PV]",
+#                    "weight_table": "[dbo].[SAS_SHIFT_WT]",
+#                    "sas_ps_table": "[dbo].[SAS_PS_SHIFT_DATA]",
+#                    "results_columns": ["[SHIFT_WT]"],
+#                    "ps_table": "[dbo].[PS_SHIFT_DATA]",
+#                    "ps_columns": ["[RUN_ID]", "[SHIFT_PORT_GRP_PV]", "[ARRIVEDEPART]", "[WEEKDAY_END_PV]",
+#                                   "[AM_PM_NIGHT_PV]", "[MIGSI]", "[POSS_SHIFT_CROSS]", "[SAMP_SHIFT_CROSS]",
+#                                   "[MIN_SH_WT]", "[MEAN_SH_WT]", "[MAX_SH_WT]", "[COUNT_RESPS]", "[SUM_SH_WT]"],
 #
+#                    }
 #
-#     def test_store_survey_data_with_step_results(database_connection):
-#         # step_config and variables
-#         step_config = {"name": "SHIFT_WEIGHT",
-#                        "nullify_pvs": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[SHIFT_FLAG_PV]",
-#                                        "[CROSSINGS_FLAG_PV]", "[SHIFT_WT]"],
-#                        "ps_table": "[dbo].[PS_SHIFT_DATA]"}
-#         run_id = 'tst-store-survey-data-with-shift-wt-res'
-#
-#         # Set up records in SURVEY_SUBSAMPLE with above run_id
-#         survey_subsample_input = pd.read_pickle(TEST_DATA_DIR + 'survey_subsample_test_input.pkl')
-#         cf.insert_dataframe_into_table(idm.SURVEY_SUBSAMPLE_TABLE, survey_subsample_input, database_connection)
-#
-#         # Set up records in SAS)SURVEY_SUBSAMPLE with same SERIAL as above
-#         sas_survey_subsample_input = pd.read_pickle(TEST_DATA_DIR + 'sas_survey_subsample_test_store_input.pkl')
-#         cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection)
-#
-#         # run that badger
-#         idm.store_survey_data_with_step_results(run_id, database_connection, step_config)
-#
-#         # Assert temp tables had been cleansed in function
-#         sql = """
-#         SELECT * FROM {}
-#         WHERE RUN_ID = '{}'""".format(step_config['ps_table'], run_id)
-#
-#         cur = database_connection.cursor()
-#         result = cur.execute(sql).fetchone()
-#         assert result == None
-#
-#         result = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-#         assert len(result) == 0
-#
-#         # Retrieve results produced by function
-#         sql = """
-#         SELECT * FROM {}
-#         WHERE SERIAL IN ('999999999991', '999999999992', '999999999993', '999999999994', '999999999995')
-#         AND RUN_ID = '{}'
-#         """.format(idm.SURVEY_SUBSAMPLE_TABLE, run_id)
-#         results = pd.read_sql(sql, database_connection)
-#         results.to_csv(TEST_DATA_DIR + 'results_store_survey_data_with_step_results.csv', index=False)
-#
-#         # Cleanse and delete from_survey_subsample where run_id = run_id
-#         cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', run_id)
-#
-#         # Create expected test results and test against result
-#         test_results = pd.read_pickle(TEST_DATA_DIR + 'test_results_store_survey_data_with_step_results.pkl')
-#         results = pd.read_csv(TEST_DATA_DIR + 'results_store_survey_data_with_step_results.csv')
-#
-#         assert_frame_equal(results, test_results, check_dtype=False)
-#
-#
-#     def test_store_step_summary(database_connection):
-#         # step_config and variables
-#         step_config = {"ps_table": "[dbo].[PS_SHIFT_DATA]",
-#                        "sas_ps_table": "[dbo].[SAS_PS_SHIFT_DATA]",
-#                        "ps_columns": ["[RUN_ID]", "[SHIFT_PORT_GRP_PV]", "[ARRIVEDEPART]", "[WEEKDAY_END_PV]",
-#                                       "[AM_PM_NIGHT_PV]", "[MIGSI]", "[POSS_SHIFT_CROSS]", "[SAMP_SHIFT_CROSS]",
-#                                       "[MIN_SH_WT]", "[MEAN_SH_WT]", "[MAX_SH_WT]", "[COUNT_RESPS]", "[SUM_SH_WT]"]}
-#         run_id = 'store-shift-data-summary'
-#
-#         # set up test data/tables
-#         test_ps_data = pd.read_pickle(TEST_DATA_DIR + 'store_ps_summary.pkl')
-#         cf.insert_dataframe_into_table(step_config["sas_ps_table"], test_ps_data, database_connection)
-#
-#         # Run function return results
-#         idm.store_step_summary(run_id, database_connection, step_config)
-#         results = cf.get_table_values(step_config["ps_table"])
-#
-#         # Create expected test results and test against result
-#         test_results = pd.read_pickle(TEST_DATA_DIR + 'store_shift_data_summary_test_result.pkl')
-#         assert_frame_equal(results, test_results, check_dtype=False)
-#
-#         # Assert temp tables had been cleansed in function
-#         results = cf.get_table_values(step_config['sas_ps_table'])
-#         assert len(results) == 0
-#
-#
-#     @pytest.mark.skip('this takes very long')
-#     def test_shift_weight_step(database_connection):
-#
-#         # import the necessary data into the database
-#         # note that this has not been tested to work repeatedly
-#         import_data_into_database()
-#
-#         step_config = {"nullify_pvs": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[SHIFT_FLAG_PV]", "[CROSSINGS_FLAG_PV]", "[SHIFT_WT]"],
-#                        'name': 'SHIFT_WEIGHT',
-#                        'delete_tables': ["[dbo].[SAS_SHIFT_WT]", "[dbo].[SAS_PS_SHIFT_DATA]"],
-#                        "table_name": "[dbo].[SHIFT_DATA]",
-#                        "data_table": "[dbo].[SAS_SHIFT_DATA]",
-#                        "insert_to_populate": ["[PORTROUTE]", "[WEEKDAY]", "[ARRIVEDEPART]", "[TOTAL]",
-#                                               "[AM_PM_NIGHT]"],
-#                        "spv_table": "[dbo].[SAS_SHIFT_SPV]",
-#                        "pv_columns": ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'"],
-#                        "pv_columns2": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]"],
-#                        "order": 0,
-#                        "pv_table": "[dbo].[SAS_SHIFT_PV]",
-#                        "weight_table": "[dbo].[SAS_SHIFT_WT]",
-#                        "sas_ps_table": "[dbo].[SAS_PS_SHIFT_DATA]",
-#                        "results_columns": ["[SHIFT_WT]"],
-#                        "ps_table": "[dbo].[PS_SHIFT_DATA]",
-#                        "ps_columns": ["[RUN_ID]", "[SHIFT_PORT_GRP_PV]", "[ARRIVEDEPART]", "[WEEKDAY_END_PV]",
-#                                       "[AM_PM_NIGHT_PV]", "[MIGSI]", "[POSS_SHIFT_CROSS]", "[SAMP_SHIFT_CROSS]",
-#                                       "[MIN_SH_WT]", "[MEAN_SH_WT]", "[MAX_SH_WT]", "[COUNT_RESPS]", "[SUM_SH_WT]"],
-#
-#                        }
-#
-#         shift_weight_step('9e5c1872-3f8e-4ae5-85dc-c67a602d011e', database_connection, step_config)
-#     #>>>>>>> e5958e2ef7e850979435b67e27f927076db8eabd
+#     shift_weight_step('9e5c1872-3f8e-4ae5-85dc-c67a602d011e', database_connection, step_config)
+# # e5958e2ef7e850979435b67e27f927076db8eabd
