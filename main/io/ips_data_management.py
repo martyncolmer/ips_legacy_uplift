@@ -459,9 +459,6 @@ def sql_update_statement(table_to_update_from, columns_to_update):
             ON SSS.SERIAL = temp.SERIAL            
             """.format(SAS_SURVEY_SUBSAMPLE_TABLE, columns, SAS_SURVEY_SUBSAMPLE_TABLE, table_to_update_from)
 
-    print(sql)
-    print("")
-
     return sql
 
 
