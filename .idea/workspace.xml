@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="4adba1fe-e380-44ab-91a5-146552aff6ce" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/tests/io/test_ips_data_management.py" afterPath="$PROJECT_DIR$/tests/io/ips_data_management/test_ips_data_management.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -502,7 +501,14 @@
       <option name="project" value="LOCAL" />
       <updated>1531910053825</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Moved test function">
+      <created>1531910123895</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1531910123895</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -595,7 +601,8 @@
     <MESSAGE value="Conflict resolution with GES data" />
     <MESSAGE value="Fixed get_sql_connection references" />
     <MESSAGE value="Renamed nullify function in ips_data_management&#10;&#10;Populate step data function rewritten" />
-    <option name="LAST_COMMIT_MESSAGE" value="Renamed nullify function in ips_data_management&#10;&#10;Populate step data function rewritten" />
+    <MESSAGE value="Moved test function" />
+    <option name="LAST_COMMIT_MESSAGE" value="Moved test function" />
   </component>
   <component name="WindowStateProjectService">
     <state width="581" height="685" key="Git.Branch.Popup" />
