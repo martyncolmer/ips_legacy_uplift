@@ -7,7 +7,7 @@ from main.io.CommonFunctions import get_sql_connection
 from main.io.ips_data_management import SURVEY_SUBSAMPLE_TABLE
 
 
-TEST_DATA_DIR = '../../../tests/data/ips_data_management/'
+TEST_DATA_DIR = 'tests/data/ips_data_management/'
 
 # This function establishes a database connection to be used in the test functions
 @pytest.fixture(scope='module')
