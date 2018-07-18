@@ -314,9 +314,9 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
     conn.commit()
 
     # Cleanse temp tables
-    #delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
-    #print(delete_statement)
-    #print("")
+    delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
+    print(delete_statement)
+    print("")
 
     delete_statement = cf.delete_from_table(spv_table)
     print(delete_statement)
@@ -438,8 +438,6 @@ def update_step_data_with_step_pv_output(conn, step_configuration):
     print(delete_statement)
     delete_statement = cf.delete_from_table(step_configuration["sas_ps_table"])
     print(delete_statement)
-
-
 
 def sql_update_statement(table_to_update_from, columns_to_update):
     """
