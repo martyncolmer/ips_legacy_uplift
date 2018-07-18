@@ -404,7 +404,7 @@ def check_table(table_name):
     """
     
     # Oracle connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor()
      
     # Create and execute SQL query
@@ -446,7 +446,7 @@ def drop_table(table_name):
     function_name = str(inspect.stack()[0][3])
 
     # Oracle connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor()
     
     # Create and execute SQL query
@@ -494,7 +494,7 @@ def delete_from_table(table_name, condition1=None, operator=None
     """
     
     # Oracle connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor() 
     
     # Create and execute SQL query
@@ -537,13 +537,15 @@ def select_data(column_name, table_name, condition1, condition2):
     """
 
     # Connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     # cur = conn.cursor()
 
     # Create SQL statement
-    sql = ("SELECT " + column_name
-           + " FROM " + table_name
-           + " WHERE " + condition1 + " = '" + condition2 + "'")
+    sql = """
+        SELECT {} 
+        FROM {}
+        WHERE {} = '{}'
+        """.format(column_name, table_name, condition1, condition2)
 
     try:
         result = pandas.read_sql(sql, conn)
@@ -580,7 +582,7 @@ def unload_parameters(parameter_id = False):
     """
    
     # Connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor()
     
     # If no ID provided, fetch latest ID from SAS_PARAMETERS 
@@ -643,7 +645,7 @@ def get_table_values(table_name):
     """
 
     # Connection to the database
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     
     # Create SQL statement
     sql = "SELECT * from " + table_name
@@ -670,7 +672,7 @@ def insert_into_table(table_name, column_list, value_list):
     """
      
     # Oracle connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor()     
     
     # Re-format column_list and value_lists as strings    
@@ -705,7 +707,7 @@ def insert_into_table_many(table_name,dataframe,connection = False):
 
     if(connection == False):
         print("Getting Connection")
-        connection = get_oracle_connection()
+        connection = get_sql_connection()
     
     cur = connection.cursor()
 
@@ -769,7 +771,7 @@ def insert_list_into_table(table_name,columns,values,connection = False):
     
     if(connection == False):
         print("Getting Connection")
-        connection = get_oracle_connection()
+        connection = get_sql_connection()
     cur = connection.cursor()
 
     # Create column header string for SQL
@@ -830,7 +832,7 @@ def commit_to_audit_log(action, process_object, audit_msg):
     params = {}
     
     # Oracle connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor()       
     
     # Assign 'audit_id' by returning max audit_id and incrementing by 1
@@ -953,7 +955,7 @@ def insert_dataframe_into_table_rbr(table_name, dataframe, connection=False):
     # Check if connection to database exists and creates one if necessary.
     if not connection:
         print("Getting Connection")
-        connection = get_oracle_connection()
+        connection = get_sql_connection()
 
     cur = connection.cursor()
 
@@ -1020,7 +1022,7 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False):
     # Check if connection to database exists and creates one if necessary.
     if not connection:
         print("Getting Connection")
-        connection = get_oracle_connection()
+        connection = get_sql_connection()
 
     cur = connection.cursor()
 
