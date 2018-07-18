@@ -8,7 +8,9 @@ from main.io import import_traffic_data
 from main.io.CommonFunctions import get_sql_connection
 from main.main import shift_weight_step
 
-TEST_DATA_DIR = 'tests/data/ips_data_management/shift_weight/update_survey_data_with_step_results/'
+import sys
+
+TEST_DATA_DIR = 'tests/data/ips_data_management/shift_weight/'
 
 
 @pytest.fixture(scope='module')
@@ -418,32 +420,30 @@ def test_update_survey_data_with_step_results(database_connection):
     sas_survey_subsample_input = pd.read_csv(TEST_DATA_DIR + 'sas_survey_subsample_test_input.csv', dtype=object)
     cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection)
 
-    cf.delete_from_table(idm.step_config["weight_table"])
+    cf.delete_from_table(step_config["weight_table"])
     sas_shift_wt_input = pd.read_csv(TEST_DATA_DIR + 'sas_shift_wt_test_input.csv', dtype=object)
     cf.insert_dataframe_into_table(step_config["weight_table"], sas_shift_wt_input, database_connection)
 
+    # Run that badger
+    idm.update_survey_data_with_step_results(database_connection, step_config)
 
-    #
-    # # Run that badger
-    # idm.update_survey_data_with_step_results(database_connection, step_config)
-    # results = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-    # results.to_csv(TEST_DATA_DIR + 'update_survey_data_results.csv', index=False)
-    #
-    # # Create expected test results and test against result
-    # test_results = pd.read_csv(TEST_DATA_DIR + 'test_results_of_update_survey_data_with_step_results.csv', dtype=object)
-    # results = pd.read_csv(TEST_DATA_DIR + 'update_survey_data_results.csv', dtype=object)
-    # assert_frame_equal(results, test_results, check_dtype=False)
-    #
-    # # Assert temp tables had been cleansed in function
-    # result = cf.get_table_values(step_config['weight_table'])
-    # assert len(result) == 0
+    # Get and format results
+    results = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    results.to_csv(TEST_DATA_DIR + 'actual_results_update_survey_data_with_shift_wt_results.csv', index=False)
+    results = pd.read_csv(TEST_DATA_DIR + 'actual_results_update_survey_data_with_shift_wt_results.csv', dtype=object)
+    test_results = pd.read_csv(TEST_DATA_DIR + 'expected_results_update_survey_data_with_shift_wt_results.csv', dtype=object)
 
-    # step_config and variables
-    step_config = {"name": "SHIFT_WEIGHT",
-                   "weight_table": "[dbo].[SAS_SHIFT_WT]",
-                   "results_columns": ["[SHIFT_WT]"]}
+    results.sort_values(by=["SERIAL"], inplace=True)
+    results.index = range(0, len(results))
 
+    test_results.sort_values(by=["SERIAL"], inplace=True)
+    test_results.index = range(0, len(test_results))
 
+    assert_frame_equal(results, test_results, check_dtype=False)
+
+    # Assert temp tables had been cleansed in function
+    result = cf.get_table_values(step_config['weight_table'])
+    assert len(result) == 0
 
 
 def test_store_survey_data_with_step_results(database_connection):
@@ -452,20 +452,19 @@ def test_store_survey_data_with_step_results(database_connection):
                    "nullify_pvs": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[SHIFT_FLAG_PV]",
                                    "[CROSSINGS_FLAG_PV]", "[SHIFT_WT]"],
                    "ps_table": "[dbo].[PS_SHIFT_DATA]"}
-    run_id = 'tst-store-survey-data-with-shift-wt-res'
+    run_id = 'store-surveydata-with-shift-wt-results'
 
     # Set up records in SURVEY_SUBSAMPLE with above run_id
     survey_subsample_input = pd.read_csv(TEST_DATA_DIR + 'survey_subsample_test_input.csv', dtype=object)
     cf.insert_dataframe_into_table(idm.SURVEY_SUBSAMPLE_TABLE, survey_subsample_input, database_connection)
 
-    # Set up records in SAS_SURVEY_SUBSAMPLE with same SERIAL as above
-    sas_survey_subsample_input = pd.read_csv(TEST_DATA_DIR + 'sas_survey_subsample_test_store_input.csv', dtype=object)
-    cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection)
+    # Set up records in ps_table with above run_id
+    ps_shift_data_input = pd.read_csv(TEST_DATA_DIR + 'ps_shift_data_test_input.csv', dtype=object)
+    cf.insert_dataframe_into_table(step_config['ps_table'], ps_shift_data_input, database_connection)
 
     # run that badger
     idm.store_survey_data_with_step_results(run_id, database_connection, step_config)
 
-    # Assert temp tables had been cleansed in function
     sql = """
     SELECT * FROM {}
     WHERE RUN_ID = '{}'""".format(step_config['ps_table'], run_id)
@@ -478,24 +477,31 @@ def test_store_survey_data_with_step_results(database_connection):
     assert len(result) == 0
 
     # Retrieve results produced by function
-    # TODO: retrieve all results, don't fudge it!
     sql = """
     SELECT * FROM {}
     WHERE RUN_ID = '{}'
     """.format(idm.SURVEY_SUBSAMPLE_TABLE, run_id)
     results = pd.read_sql(sql, database_connection)
-    results.to_csv(TEST_DATA_DIR + 'store_survey_data_results.csv', index=False)
+    results.to_csv(TEST_DATA_DIR + 'actual_results_store_survey_data_with_step_results.csv', index=False)
 
-    # Cleanse and delete from_survey_subsample where run_id = run_id
+    # Cleanse and delete from survey_subsample where run_id = run_id
     cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', run_id)
 
-    # Create expected test results and test against result
-    test_results = pd.read_csv(TEST_DATA_DIR + 'test_results_store_survey_data_with_step_results.csv', dtype=object)
-    results = pd.read_csv(TEST_DATA_DIR + 'store_survey_data_results.csv', dtype=object)
+    # Get and format results
+    results = pd.read_csv(TEST_DATA_DIR + 'actual_results_store_survey_data_with_step_results.csv', dtype=object)
+    test_results = pd.read_csv(TEST_DATA_DIR + 'expected_result_store_survey_data_with_step_results.csv',
+                               dtype=object)
+
+    results.sort_values(by=["SERIAL"], inplace=True)
+    results.index = range(0, len(results))
+
+    test_results.sort_values(by=["SERIAL"], inplace=True)
+    test_results.index = range(0, len(test_results))
 
     assert_frame_equal(results, test_results, check_dtype=False)
 
 
+@pytest.mark.skip('For El to complete')
 def test_store_step_summary(database_connection):
     # step_config and variables
     step_config = {"ps_table": "[dbo].[PS_SHIFT_DATA]",
