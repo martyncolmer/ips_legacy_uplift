@@ -356,8 +356,8 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
     print("")
 
     # Construct and execute SQL statements as applicable
-    if step_configuration["name"] == "UNSAMPLED_WEIGHT":
-        order = step_configuration["order"]
+    if step_configuration["name"] == '[dbo].[UNSAMPLED_WEIGHT]':
+        order = step_configuration["order"] + 1
         for item in step_configuration["pv_columns"]:
             sql = ("""
                  INSERT INTO {}
