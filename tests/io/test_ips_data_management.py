@@ -7,6 +7,7 @@ from main.io import import_data
 from main.io import import_traffic_data
 from main.io.CommonFunctions import get_sql_connection
 from main.main import shift_weight_step
+import numpy.testing as npt
 
 import sys
 
@@ -250,40 +251,101 @@ class TestIpsDataManagement:
         results = cf.get_table_values(step_config["sas_ps_table"])
         assert len(results) == 0
 
-    # def test_copy_step_pvs_for_step_data(self, database_connection):
-    #     step_config = {'name': '[dbo].[SHIFT_DATA]'
-    #         , 'pv_table': '[dbo].[SAS_SHIFT_PV]'
-    #         , 'pv_columns': ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'"]
-    #         , 'order': 0
-    #                    }
-    #     run_id = 'copy-step-pvs-for-step-data'
-    #
-    #     # read test data and insert into remote database table
-    #     test_data = pd.read_pickle(TEST_DATA_DIR + 'copy_shift_weight_pvs_for_shift_data.pkl')
-    #     cf.insert_dataframe_into_table("PROCESS_VARIABLE_PY", test_data, database_connection)
-    #
-    #     # run the test function
-    #     idm.copy_step_pvs_for_step_data(run_id, database_connection, step_config)
-    #     results = cf.get_table_values('SAS_PROCESS_VARIABLE')
-    #
-    #     # write the results back to csv, and read the csv back (this solves the data type matching issues)
-    #     results.to_csv(TEST_DATA_DIR + 'copy_shift_weight_pvs_for_shift_data_results.csv', index=False)
-    #     results = pd.read_csv(TEST_DATA_DIR + 'copy_shift_weight_pvs_for_shift_data_results.csv')
-    #
-    #     # Assert step_configuration["pv_table"] has 0 records
-    #     result = cf.get_table_values(step_config['pv_table'])
-    #     assert len(result) == 0
-    #
-    #     # Cleanse tables before continuing
-    #     cf.delete_from_table(idm.SAS_PROCESS_VARIABLES_TABLE)
-    #     cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
-    #
-    #     # Pickle some test results
-    #     test_results = pd.read_pickle(TEST_DATA_DIR + 'copy_shift_weight_pvs_for_shift_data_results.pkl')
-    #
-    #     # Assert equal
-    #     assert_frame_equal(results, test_results, check_dtype=False)
-    #
+    def test_copy_step_pvs_for_step_data_shift_weight(self, database_connection):
+        step_config = {'name': '[dbo].[SHIFT_DATA]'
+            , 'pv_table': '[dbo].[SAS_SHIFT_PV]'
+            , 'pv_columns': ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'"]
+            , 'order': 0
+                       }
+        run_id = 'copy-step-pvs-for-step-data'
+
+        # clean the tables before putting in data
+        cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
+        cf.delete_from_table(idm.SAS_PROCESS_VARIABLES_TABLE)
+
+        # read test data and insert into remote database table
+        test_data = pd.read_pickle(TEST_DATA_DIR + 'shift_weight/copy_shift_weight_pvs_for_shift_data.pkl')
+        cf.insert_dataframe_into_table("PROCESS_VARIABLE_PY", test_data, database_connection)
+
+        # run the test function (this inserts into 'SAS_PROCESS_VARIABLE' table in remote database)
+        idm.copy_step_pvs_for_step_data(run_id, database_connection, step_config)
+
+        # clean the table with matching run_id before testing
+        cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
+
+        # write the results back to csv, and read the csv back (this solves the data type matching issues)
+        results = cf.get_table_values('SAS_PROCESS_VARIABLE')
+        results.to_csv(TEST_DATA_DIR + 'shift_weight/copy_shift_weight_pvs_for_shift_data_results.csv', index=False)
+        results = pd.read_csv(TEST_DATA_DIR + 'shift_weight/copy_shift_weight_pvs_for_shift_data_results.csv')
+
+        # TODO: check that only required pvs are copied over
+
+        # from the test data make a dataframe of the expected results
+        pv_cols = [item.replace("'", "") for item in step_config['pv_columns']]
+        test_inserted_data = test_data[test_data['PV_NAME'].isin(pv_cols)]
+        test_inserted_data_2 = test_inserted_data[['PV_NAME', 'PV_DEF']]
+
+        test_results = results[['PROCVAR_NAME', 'PROCVAR_RULE']]
+
+        # check that the PROCVAR_NAME and PROCVAR_RULE string match the ones from test data for the required pvs only
+        #assert_frame_equal(test_inserted_data_2, test_results, check_names=False)
+        npt.assert_array_equal(test_inserted_data_2,test_results)
+
+        # Assert step_configuration["pv_table"] has 0 records
+        result = cf.get_table_values(step_config['pv_table'])
+        assert len(result) == 0
+
+        # Cleanse tables before continuing
+        cf.delete_from_table(idm.SAS_PROCESS_VARIABLES_TABLE)
+        cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
+
+    def test_copy_step_pvs_for_step_data_unsampled_weight(self, database_connection):
+        step_config = {'name': '[dbo].[UNSAMPLED_WEIGHT]'
+            , 'pv_table': '[dbo].[SAS_UNSAMPLED_OOH_PV]'
+            , 'pv_columns': ["[RUN_ID]", "[UNSAMP_PORT_GRP_PV]", "[ARRIVEDEPART]", "[UNSAMP_REGION_GRP_PV]", "[CASES]", "[SUM_PRIOR_WT]", "[SUM_UNSAMP_TRAFFIC_WT]", "[UNSAMP_TRAFFIC_WT]"]
+            , 'order': 0
+                       }
+        run_id = 'copy-step-pvs-for-step-data'
+
+        # clean the tables before putting in data
+        cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
+        cf.delete_from_table(idm.SAS_PROCESS_VARIABLES_TABLE)
+
+        # read test data and insert into remote database table
+        test_data = pd.read_pickle(TEST_DATA_DIR + 'shift_weight/copy_shift_weight_pvs_for_shift_data.pkl')
+        cf.insert_dataframe_into_table("PROCESS_VARIABLE_PY", test_data, database_connection)
+
+        # run the test function (this inserts into 'SAS_PROCESS_VARIABLE' table in remote database)
+        idm.copy_step_pvs_for_step_data(run_id, database_connection, step_config)
+
+        # clean the table with matching run_id before testing
+        cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
+
+        # write the results back to csv, and read the csv back (this solves the data type matching issues)
+        results = cf.get_table_values('SAS_PROCESS_VARIABLE')
+        results.to_csv(TEST_DATA_DIR + 'shift_weight/copy_shift_weight_pvs_for_shift_data_results.csv', index=False)
+        results = pd.read_csv(TEST_DATA_DIR + 'shift_weight/copy_shift_weight_pvs_for_shift_data_results.csv')
+
+        # TODO: check that only required pvs are copied over
+
+        # from the test data make a dataframe of the expected results
+        pv_cols = [item.replace("'", "") for item in step_config['pv_columns']]
+        test_inserted_data = test_data[test_data['PV_NAME'].isin(pv_cols)]
+        test_inserted_data_2 = test_inserted_data[['PV_NAME', 'PV_DEF']]
+
+        test_results = results[['PROCVAR_NAME', 'PROCVAR_RULE']]
+
+        # check that the PROCVAR_NAME and PROCVAR_RULE string match the ones from test data for the required pvs only
+        #assert_frame_equal(test_inserted_data_2, test_results, check_names=False)
+        npt.assert_array_equal(test_inserted_data_2,test_results)
+
+        # Assert step_configuration["pv_table"] has 0 records
+        result = cf.get_table_values(step_config['pv_table'])
+        assert len(result) == 0
+
+        # Cleanse tables before continuing
+        cf.delete_from_table(idm.SAS_PROCESS_VARIABLES_TABLE)
+        cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
     # # TODO: use oracle to get the actual data
     # def test_update_step_data_with_step_pv_output(self, database_connection):
     #     # step_config and variables #TODO: might be worth checking against original XML

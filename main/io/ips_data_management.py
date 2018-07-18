@@ -276,7 +276,7 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
             cur.execute(sql)
             conn.commit()
 
-# Nassir
+# Nassir - Done
 def update_survey_data_with_step_pv_output(conn, step_configuration):
     """
     Author       : Elinor Thorne
