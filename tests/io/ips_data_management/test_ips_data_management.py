@@ -489,6 +489,7 @@ def test_store_survey_data_with_step_results(database_connection):
 
     # Cleanse and delete from survey_subsample where run_id = run_id
     cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', run_id)
+    cf.delete_from_table(step_config['ps_table'], 'RUN_ID', '=', run_id)
 
     # Get and format results
     results = pd.read_csv(TEST_DATA_DIR + 'actual_results_store_survey_data_with_step_results.csv', dtype=object)
@@ -506,6 +507,7 @@ def test_store_survey_data_with_step_results(database_connection):
 
 # @pytest.mark.skip('For El to complete')
 def test_store_step_summary(database_connection):
+
     # step_config and variables
     step_config = {"ps_table": "[dbo].[PS_SHIFT_DATA]",
                    "sas_ps_table": "[dbo].[SAS_PS_SHIFT_DATA]",
@@ -515,20 +517,41 @@ def test_store_step_summary(database_connection):
     run_id = 'shift-wt-idm-test'
 
     # set up test data/tables
-    test_ps_data = pd.read_pickle(TEST_DATA_DIR + 'store_ps_summary.pkl')
+    test_ps_data = pd.read_csv(TEST_DATA_DIR + 'sas_ps_shift_data_test_input.csv')
     cf.insert_dataframe_into_table(step_config["sas_ps_table"], test_ps_data, database_connection)
 
     # Run function return results
     idm.store_step_summary(run_id, database_connection, step_config)
-    results = cf.get_table_values(step_config["ps_table"])
+    sql = """
+    SELECT * FROM {}
+    WHERE RUN_ID = '{}'
+    """.format(step_config["ps_table"], run_id)
+    results = pd.read_sql(sql, database_connection)
+    results.to_csv(TEST_DATA_DIR + 'actual_results_store_step_summary.csv', index=False)
 
-    # Create expected test results and test against result
-    test_results = pd.read_pickle(TEST_DATA_DIR + 'store_shift_data_summary_test_result.pkl')
+    # Get and format results
+    results = pd.read_csv(TEST_DATA_DIR + 'actual_results_store_step_summary.csv', dtype=object)
+    test_results = pd.read_csv(TEST_DATA_DIR + 'expected_results_store_step_summary.csv',
+                               dtype=object)
+
+    results.sort_values(by=["SHIFT_PORT_GRP_PV", "ARRIVEDEPART"], inplace=True)
+    results.index = range(0, len(results))
+
+    test_results.sort_values(by=["SHIFT_PORT_GRP_PV", "ARRIVEDEPART"], inplace=True)
+    test_results.index = range(0, len(test_results))
+
+    results.to_csv(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\El's Temp VDI Folder\XML\testing\results.csv", index=False)
+    test_results.to_csv(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\El's Temp VDI Folder\XML\testing\test_results.csv",
+                        index=False)
+
     assert_frame_equal(results, test_results, check_dtype=False)
 
     # Assert temp tables had been cleansed in function
     results = cf.get_table_values(step_config['sas_ps_table'])
     assert len(results) == 0
+
+    # Cleanse again
+    cf.delete_from_table(step_config['ps_table'], 'RUN_ID', '=', run_id)
 
 
 @pytest.mark.skip('this takes very long')
