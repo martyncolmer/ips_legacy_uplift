@@ -3,39 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="4adba1fe-e380-44ab-91a5-146552aff6ce" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/main/io/generic_xml_steps.py" afterPath="$PROJECT_DIR$/main/io/ips_data_management.py" />
-      <change beforePath="$PROJECT_DIR$/main/main.py" afterPath="$PROJECT_DIR$/main/main.py" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/copy_pvs_shift_weight_result.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/copy_pvs_shift_weight_result.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/copy_pvs_stay_imp_result.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/copy_pvs_stay_imp_result.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/copy_pvs_unsampled_weight_result.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/copy_pvs_unsampled_weight_result.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/copy_shift_weight_pvs_for_shift_data.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/copy_shift_weight_pvs_for_shift_data.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/copy_shift_weight_pvs_for_shift_data_results.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/copy_shift_weight_pvs_for_shift_data_results.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/move_survey_subsample.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/move_survey_subsample.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/move_survey_subsample_result.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/move_survey_subsample_result.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/move_survey_subsample_traffic_result.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/move_survey_subsample_traffic_result.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/nullify_pv_survey_data.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/nullify_pv_survey_data.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/populate_step_data.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/populate_step_data.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/populate_step_data_result.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/populate_step_data_result.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/process_variables.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/process_variables.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/record_id.txt" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/record_id.txt" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/sas_shift_wt_test_in.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/sas_shift_wt_test_in.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/sas_shift_wt_test_input.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/sas_shift_wt_test_input.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/sas_survey_subsample.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/sas_survey_subsample.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/sas_survey_subsample_test_input.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/sas_survey_subsample_test_input.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/sas_survey_subsample_test_store_input.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/sas_survey_subsample_test_store_input.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/scratch.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/scratch.csv" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/store_ps_summary.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/store_ps_summary.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/store_sas_survey_subsample_test_in.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/store_sas_survey_subsample_test_in.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/store_shift_data_summary_test_result.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/store_shift_data_summary_test_result.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/survey_subsample_test_input.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/survey_subsample_test_input.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/test_nr_pv_data.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/test_nr_pv_data.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/test_results_of_update_survey_data_with_step_results.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/test_results_of_update_survey_data_with_step_results.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/test_results_store_survey_data_with_step_results.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/test_results_store_survey_data_with_step_results.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/test_shift_pv_data.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/test_shift_pv_data.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/update_shift_data_pvs.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/update_shift_data_pvs.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/update_survey_data_pvs.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/update_survey_data_pvs.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/update_survey_data_pvs_result.pkl" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/update_survey_data_pvs_result.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/io/test_generic_xml_steps.py" afterPath="$PROJECT_DIR$/tests/io/test_ips_data_management.py" />
+      <change beforePath="$PROJECT_DIR$/tests/io/test_ips_data_management.py" afterPath="$PROJECT_DIR$/tests/io/ips_data_management/test_ips_data_management.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -44,25 +12,123 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="DockManager">
+    <window id="1">
+      <content type="file-editors">
+        <state>
+          <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+            <file leaf-file-name="xml_steps_configuration.json" pinned="false" current-in-tab="true">
+              <entry file="file://$PROJECT_DIR$/data/xml_steps_configuration.json">
+                <provider selected="true" editor-type-id="text-editor">
+                  <state relative-caret-position="68">
+                    <caret line="4" column="123" lean-forward="false" selection-start-line="4" selection-start-column="82" selection-end-line="4" selection-end-column="123" />
+                    <folding>
+                      <element signature="n#!!block;n#NON_RESPONSE#0;n#!!top" expanded="false" />
+                      <element signature="n#!!block;n#MINIMUMS_WEIGHT#0;n#!!top" expanded="false" />
+                      <element signature="n#!!block;n#TRAFFIC_WEIGHT#0;n#!!top" expanded="false" />
+                      <element signature="n#!!block;n#UNSAMPLED_WEIGHT#0;n#!!top" expanded="false" />
+                    </folding>
+                  </state>
+                </provider>
+              </entry>
+            </file>
+          </leaf>
+        </state>
+      </content>
+    </window>
+  </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="test_ips_data_management.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/tests/io/test_ips_data_management.py">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="test_idm_populate_survey_data.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_populate_survey_data.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="21">
-              <caret line="1" column="23" lean-forward="false" selection-start-line="1" selection-start-column="23" selection-end-line="1" selection-end-column="23" />
+            <state relative-caret-position="286">
+              <caret line="185" column="31" lean-forward="false" selection-start-line="185" selection-start-column="20" selection-end-line="185" selection-end-column="31" />
               <folding>
-                <element signature="e#24246#25967#0" expanded="false" />
-                <element signature="e#24246#24291#0" expanded="false" />
-                <element signature="e#24403#25870#0" expanded="false" />
-                <element signature="e#24829#24945#0" expanded="false" />
-                <element signature="e#25553#25847#0" expanded="false" />
+                <element signature="e#0#13#0" expanded="true" />
+                <element signature="e#531#803#0" expanded="false" />
+                <element signature="e#1237#1657#0" expanded="false" />
+                <element signature="e#1744#4513#0" expanded="false" />
+                <element signature="e#4608#7021#0" expanded="false" />
+                <element signature="e#10661#11602#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ips_data_management.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/main/io/ips_data_management.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="372">
+              <caret line="140" column="57" lean-forward="false" selection-start-line="140" selection-start-column="57" selection-end-line="140" selection-end-column="57" />
+              <folding>
+                <element signature="e#260#3816#0" expanded="false" />
+                <element signature="e#3885#4556#0" expanded="false" />
+                <element signature="e#3885#4053#1" expanded="false" />
+                <element signature="e#4294#4364#0" expanded="false" />
+                <element signature="e#4628#4796#1" expanded="false" />
+                <element signature="e#5635#5920#1" expanded="false" />
+                <element signature="e#6576#7779#0" expanded="false" />
+                <element signature="e#7855#11946#0" expanded="false" />
+                <element signature="e#7855#8082#1" expanded="false" />
+                <element signature="e#9341#9415#0" expanded="false" />
+                <element signature="e#12023#13588#0" expanded="false" />
+                <element signature="e#12023#12285#1" expanded="false" />
+                <element signature="e#12695#12842#0" expanded="false" />
+                <element signature="e#13329#13588#0" expanded="false" />
+                <element signature="e#13662#15736#0" expanded="false" />
+                <element signature="e#13662#13944#1" expanded="false" />
+                <element signature="e#14389#15060#0" expanded="false" />
+                <element signature="e#14491#15060#0" expanded="false" />
+                <element signature="e#14498#14840#0" expanded="false" />
+                <element signature="e#15079#15736#0" expanded="false" />
+                <element signature="e#15235#15539#0" expanded="false" />
+                <element signature="e#15811#17277#0" expanded="false" />
+                <element signature="e#15811#16069#1" expanded="false" />
+                <element signature="e#16504#16675#0" expanded="false" />
+                <element signature="e#17352#18037#0" expanded="false" />
+                <element signature="e#17352#17550#1" expanded="false" />
+                <element signature="e#17730#17897#0" expanded="false" />
+                <element signature="e#18112#21414#0" expanded="false" />
+                <element signature="e#18112#18357#1" expanded="false" />
+                <element signature="e#18497#18700#0" expanded="false" />
+                <element signature="e#18715#18855#0" expanded="false" />
+                <element signature="e#18874#19033#0" expanded="false" />
+                <element signature="e#19207#19260#0" expanded="false" />
+                <element signature="e#19525#19755#0" expanded="false" />
+                <element signature="e#19592#19720#0" expanded="false" />
+                <element signature="e#19800#20231#0" expanded="false" />
+                <element signature="e#19867#20161#0" expanded="false" />
+                <element signature="e#20277#20759#0" expanded="false" />
+                <element signature="e#20284#20650#0" expanded="false" />
+                <element signature="e#20778#21112#0" expanded="false" />
+                <element signature="e#20785#21045#0" expanded="false" />
+                <element signature="e#21217#21272#0" expanded="false" />
+                <element signature="e#21496#23075#0" expanded="false" />
+                <element signature="e#21496#21749#1" expanded="false" />
+                <element signature="e#22178#22306#0" expanded="false" />
+                <element signature="e#22591#22770#0" expanded="false" />
+                <element signature="e#22816#22960#0" expanded="false" />
+                <element signature="e#23140#24439#0" expanded="false" />
+                <element signature="e#23140#23398#1" expanded="false" />
+                <element signature="e#24011#24078#0" expanded="false" />
+                <element signature="e#24186#24252#0" expanded="false" />
+                <element signature="e#24473#24965#0" expanded="false" />
+                <element signature="e#24577#24852#0" expanded="false" />
+                <element signature="e#24714#24830#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
     </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
@@ -72,6 +138,10 @@
       <find>test_update</find>
       <find>test_update_step_data_with_step_pv_output</find>
       <find>gxs</find>
+      <find>get</find>
+      <find>head</find>
+      <find>get_oracle_connection</find>
+      <find>'file.pkl',</find>
     </findStrings>
     <replaceStrings>
       <replace>idm</replace>
@@ -81,7 +151,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="LU-201-and-202-Step13" />
+        <entry key="$PROJECT_DIR$" value="LU-628-Test-Refactored_Final-Weight" />
       </map>
     </option>
   </component>
@@ -91,16 +161,22 @@
         <option value="$PROJECT_DIR$/IPSTransformation/CommonFunctions.py" />
         <option value="$PROJECT_DIR$/IPS_Stored_Procedures/calculate_town_and_stay_expenditure.py" />
         <option value="$PROJECT_DIR$/tests/io/test_generic_xml_steps.py" />
-        <option value="$PROJECT_DIR$/tests/io/test_ips_data_management.py" />
         <option value="$PROJECT_DIR$/main/main.py" />
+        <option value="$PROJECT_DIR$/tests/io/test_ips_data_management_final_weight.py" />
+        <option value="$PROJECT_DIR$/tests/io/test_ips_data_management.py" />
+        <option value="$PROJECT_DIR$/main/io/CommonFunctions.py" />
+        <option value="$PROJECT_DIR$/tests/io/ips_data_management/test_ips_data_management_final_weight.py" />
+        <option value="$PROJECT_DIR$/main/io/ips_data_management.py" />
+        <option value="$PROJECT_DIR$/data/xml_steps_configuration.json" />
+        <option value="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_populate_survey_data.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
-    <option name="x" value="260" />
-    <option name="y" value="20" />
-    <option name="width" value="1400" />
-    <option name="height" value="992" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="-65" />
+    <option name="y" value="73" />
+    <option name="width" value="1936" />
+    <option name="height" value="1056" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="1" id="Add" />
@@ -141,13 +217,60 @@
             <path>
               <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
               <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
               <item name="tests" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
               <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
               <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="ips_data_management" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="ips_data_management" type="462c0819:PsiDirectoryNode" />
+              <item name="populate_step_data" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="ips_data_management" type="462c0819:PsiDirectoryNode" />
+              <item name="populate_survey_data" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
               <item name="io" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="io" type="462c0819:PsiDirectoryNode" />
+              <item name="ips_data_management" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="utils" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -163,7 +286,14 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\ips_data_management" />
+      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\ips_data_management\populate_survey_data" />
+      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\io\ips_data_management" />
       <recent name="C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\shift_weight" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\ips_data_management\populate_external_data" />
+      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\ips_data_management\populate_survey_data" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -178,7 +308,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python tests.1py.test in test_ips_data_management.py">
+  <component name="RunManager" selected="Python tests.IDM Tests">
     <configuration default="true" type="tests" factoryName="Nosetests">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -254,7 +384,47 @@
       <module name="IPS_Legacy_Uplift" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/io/test_ips_data_management.py&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/io/ips_data_management/test_ips_data_management.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+    </configuration>
+    <configuration name="All Tests" type="tests" factoryName="py.test">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="DB_NAME" value="ips_test" />
+        <env name="DB_SERVER" value="CR1VWSQL14-D-01" />
+        <env name="DB_USER_NAME" value="ips_dev" />
+        <env name="DB_PASSWORD" value="ips_dev" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Python36\python.exe" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="IPS_Legacy_Uplift" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+    </configuration>
+    <configuration name="IDM Tests" type="tests" factoryName="py.test">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="DB_NAME" value="ips_test" />
+        <env name="DB_SERVER" value="CR1VWSQL14-D-01" />
+        <env name="DB_USER_NAME" value="ips_dev" />
+        <env name="DB_PASSWORD" value="ips_dev" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Python36\python.exe" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="IPS_Legacy_Uplift" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/io/ips_data_management&quot;" />
       <option name="_new_targetType" value="&quot;PATH&quot;" />
     </configuration>
     <configuration name="py.test in test_ips_data_management.py" type="tests" factoryName="py.test" temporary="true">
@@ -277,9 +447,11 @@
       <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/io/test_ips_data_managementV!.py&quot;" />
       <option name="_new_targetType" value="&quot;PATH&quot;" />
     </configuration>
-    <list size="2">
-      <item index="0" class="java.lang.String" itemvalue="Python tests.py.test in test_ips_data_management.py" />
-      <item index="1" class="java.lang.String" itemvalue="Python tests.1py.test in test_ips_data_management.py" />
+    <list size="4">
+      <item index="0" class="java.lang.String" itemvalue="Python tests.All Tests" />
+      <item index="1" class="java.lang.String" itemvalue="Python tests.IDM Tests" />
+      <item index="2" class="java.lang.String" itemvalue="Python tests.py.test in test_ips_data_management.py" />
+      <item index="3" class="java.lang.String" itemvalue="Python tests.1py.test in test_ips_data_management.py" />
     </list>
     <recent_temporary>
       <list size="2">
@@ -302,82 +474,92 @@
       <option name="presentableId" value="Default" />
       <updated>1522156885372</updated>
     </task>
+    <task id="LOCAL-00001" summary="Changed env default to point at systems Python36 instead of venv.">
+      <created>1531909626550</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1531909626550</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Conflict resolution with GES data">
+      <created>1531909770986</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1531909770986</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Fixed get_sql_connection references">
+      <created>1531909905661</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1531909905661</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Renamed nullify function in ips_data_management&#10;&#10;Populate step data function rewritten">
+      <created>1531910053825</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1531910053825</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="1py_test_in_test_ips_data_management_py - 2018.07.09 at 10h 44m 37s.xml">
-      <configuration name="1py.test in test_ips_data_management.py" configurationId="tests" />
+    <history-entry file="IDM_Tests - 2018.07.18 at 09h 12m 40s.xml">
+      <configuration name="IDM Tests" configurationId="tests" />
     </history-entry>
-    <history-entry file="1py_test_in_test_ips_data_management_py - 2018.07.09 at 10h 45m 18s.xml">
-      <configuration name="1py.test in test_ips_data_management.py" configurationId="tests" />
+    <history-entry file="IDM_Tests - 2018.07.18 at 09h 22m 19s.xml">
+      <configuration name="IDM Tests" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_test_generic_xml_steps_py - 2018.07.09 at 10h 32m 21s.xml">
-      <configuration name="py.test in test_generic_xml_steps.py" configurationId="tests" />
+    <history-entry file="IDM_Tests - 2018.07.18 at 09h 27m 57s.xml">
+      <configuration name="IDM Tests" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_test_generic_xml_steps_py - 2018.07.09 at 10h 33m 37s.xml">
-      <configuration name="py.test in test_generic_xml_steps.py" configurationId="tests" />
+    <history-entry file="IDM_Tests - 2018.07.18 at 09h 34m 58s.xml">
+      <configuration name="IDM Tests" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_test_generic_xml_steps_py - 2018.07.09 at 10h 34m 01s.xml">
-      <configuration name="py.test in test_generic_xml_steps.py" configurationId="tests" />
+    <history-entry file="IDM_Tests - 2018.07.18 at 09h 36m 27s.xml">
+      <configuration name="IDM Tests" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_test_generic_xml_steps_py - 2018.07.09 at 10h 39m 59s.xml">
-      <configuration name="py.test in test_generic_xml_steps.py" configurationId="tests" />
+    <history-entry file="IDM_Tests - 2018.07.18 at 09h 37m 59s.xml">
+      <configuration name="IDM Tests" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_test_generic_xml_steps_py - 2018.07.09 at 10h 40m 18s.xml">
-      <configuration name="py.test in test_generic_xml_steps.py" configurationId="tests" />
+    <history-entry file="IDM_Tests - 2018.07.18 at 09h 39m 28s.xml">
+      <configuration name="IDM Tests" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_test_ips_data_management_py - 2018.07.09 at 10h 32m 03s.xml">
-      <configuration name="py.test in test_ips_data_management.py" configurationId="tests" />
+    <history-entry file="IDM_Tests - 2018.07.18 at 09h 45m 07s.xml">
+      <configuration name="IDM Tests" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_test_ips_data_management_py - 2018.07.09 at 10h 42m 52s.xml">
-      <configuration name="py.test in test_ips_data_management.py" configurationId="tests" />
+    <history-entry file="IDM_Tests - 2018.07.18 at 10h 22m 06s.xml">
+      <configuration name="IDM Tests" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_test_ips_data_management_py - 2018.07.09 at 10h 43m 03s.xml">
-      <configuration name="py.test in test_ips_data_management.py" configurationId="tests" />
+    <history-entry file="IDM_Tests - 2018.07.18 at 11h 16m 28s.xml">
+      <configuration name="IDM Tests" configurationId="tests" />
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-9" y="-9" width="1938" height="1048" extended-state="7" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23691168" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16965227" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25766176" sideWeight="0.50185084" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25766176" sideWeight="0.50185084" order="11" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3485342" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25655645" sideWeight="0.49814913" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3280363" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.5336374" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3280363" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24960339" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3291714" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3291714" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39196527" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
-    <layout-to-restore>
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25766176" sideWeight="0.50185084" order="8" side_tool="true" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28848347" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25655645" sideWeight="0.49814913" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3280363" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32839224" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.31517714" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295325" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24960339" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.54899645" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-    </layout-to-restore>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -408,97 +590,26 @@
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Changed env default to point at systems Python36 instead of venv." />
+    <MESSAGE value="Conflict resolution with GES data" />
+    <MESSAGE value="Fixed get_sql_connection references" />
+    <MESSAGE value="Renamed nullify function in ips_data_management&#10;&#10;Populate step data function rewritten" />
+    <option name="LAST_COMMIT_MESSAGE" value="Renamed nullify function in ips_data_management&#10;&#10;Populate step data function rewritten" />
+  </component>
   <component name="WindowStateProjectService">
     <state width="581" height="685" key="Git.Branch.Popup" />
     <state width="581" height="685" key="Git.Branch.Popup/1920.1080/1920.1080/1920.1080" />
+    <state width="581" height="685" key="Git.Branch.Popup@1920.1080" />
     <state width="581" height="685" key="Git.Branch.Popup@1920.1080@120dpi" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager />
+    <breakpoint-manager>
+      <option name="time" value="40" />
+    </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/tests/data/generic_xml_steps/update_shift_data_pvs.csv" />
-    <entry file="file://$PROJECT_DIR$/tests/data/generic_xml_steps/test_shift_pv_data.csv" />
-    <entry file="file://$PROJECT_DIR$/tests/data/generic_xml_steps/sas_survey_subsample_in.csv" />
-    <entry file="file://$PROJECT_DIR$/tests/data/generic_xml_steps/sas_survey_subsample_test_output.csv" />
-    <entry file="file://$PROJECT_DIR$/tests/data/generic_xml_steps/sas_shift_wt_test_input.csv" />
-    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/test_results_of_update_survey_data_with_step_results.pkl" />
-    <entry file="file://$PROJECT_DIR$/tests/data/generic_xml_steps/test_results_of_update_survey_data_with_step_results.csv" />
-    <entry file="file://$PROJECT_DIR$/tests/data/generic_xml_steps/sas_survey_subsample_test_input.csv" />
-    <entry file="file://$PROJECT_DIR$/venv/Lib/site-packages/_pytest/python.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="117">
-          <caret line="192" column="0" lean-forward="false" selection-start-line="192" selection-start-column="0" selection-end-line="192" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/utils/ips_ges_weighting.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
-          <caret line="9" column="14" lean-forward="true" selection-start-line="9" selection-start-column="14" selection-end-line="9" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/update_shift_data_pvs_result.csv" />
-    <entry file="file://$PROJECT_DIR$/data/xml_steps_configuration.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
-          <caret line="4" column="123" lean-forward="false" selection-start-line="4" selection-start-column="22" selection-end-line="4" selection-end-column="123" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main/io/ips_data_management.py" />
-    <entry file="file://$PROJECT_DIR$/tests/utils/generic_xml_steps.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="384">
-          <caret line="210" column="23" lean-forward="false" selection-start-line="210" selection-start-column="23" selection-end-line="210" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/process_variables.csv" />
-    <entry file="file://$PROJECT_DIR$/main/io/CommonFunctions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="21310">
-          <caret line="1119" column="46" lean-forward="false" selection-start-line="1119" selection-start-column="46" selection-end-line="1119" selection-end-column="46" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/copy_pvs_stay_imp_result.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="5" column="55" lean-forward="false" selection-start-line="5" selection-start-column="55" selection-end-line="5" selection-end-column="55" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/sas_process_variable.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="147">
-          <caret line="7" column="34" lean-forward="false" selection-start-line="7" selection-start-column="34" selection-end-line="7" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main/utils/csv_printer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="6" column="10" lean-forward="false" selection-start-line="6" selection-start-column="10" selection-end-line="6" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main/utils/PickleRick.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="168">
-          <caret line="9" column="137" lean-forward="false" selection-start-line="9" selection-start-column="137" selection-end-line="9" selection-end-column="137" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/shift_weight/copy_pvs_shift_data_result.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="21">
-          <caret line="1" column="103" lean-forward="false" selection-start-line="1" selection-start-column="103" selection-end-line="1" selection-end-column="103" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/IPS_Stored_Procedures/calculate_town_and_stay_expenditure.py" />
     <entry file="file://C:/Python36/Lib/site-packages/survey_support/__init__.py" />
     <entry file="file://C:/Python36/Lib/site-packages/survey_support/functions.py" />
@@ -531,37 +642,249 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/tests/io/test_ips_data_managementV!.py" />
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/nullify_test_import.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/populate_result.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/survey_subsample_10.csv" />
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/survey_subsample.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="36" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.PyCharmCE2017.3/system/python_stubs/-1184660488/builtins.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="4167" column="8" lean-forward="false" selection-start-line="4167" selection-start-column="8" selection-end-line="4167" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data_result.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data_expected.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Python36/Lib/site-packages/pluggy/callers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="114">
+          <caret line="179" column="0" lean-forward="false" selection-start-line="179" selection-start-column="0" selection-end-line="179" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Python36/Lib/site-packages/_pytest/python.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="154" column="0" lean-forward="false" selection-start-line="154" selection-start-column="0" selection-end-line="154" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/xml_steps_configuration.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="123" lean-forward="false" selection-start-line="4" selection-start-column="82" selection-end-line="4" selection-end-column="123" />
+          <folding>
+            <element signature="n#!!block;n#NON_RESPONSE#0;n#!!top" expanded="false" />
+            <element signature="n#!!block;n#MINIMUMS_WEIGHT#0;n#!!top" expanded="false" />
+            <element signature="n#!!block;n#TRAFFIC_WEIGHT#0;n#!!top" expanded="false" />
+            <element signature="n#!!block;n#UNSAMPLED_WEIGHT#0;n#!!top" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/shift_data_result.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="6" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/utils/process_variables.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="291">
+          <caret line="64" column="6" lean-forward="false" selection-start-line="64" selection-start-column="6" selection-end-line="64" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/main/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="12" column="57" lean-forward="true" selection-start-line="12" selection-start-column="57" selection-end-line="12" selection-end-column="57" />
+        <state relative-caret-position="87">
+          <caret line="26" column="62" lean-forward="false" selection-start-line="26" selection-start-column="62" selection-end-line="26" selection-end-column="62" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/non_response_data.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/sas_shift_data.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/io/CommonFunctions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="259">
+          <caret line="648" column="4" lean-forward="true" selection-start-line="648" selection-start-column="4" selection-end-line="648" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_ips_data_management.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="169">
+          <caret line="184" column="14" lean-forward="false" selection-start-line="184" selection-start-column="8" selection-end-line="184" selection-end-column="14" />
+          <folding>
+            <element signature="e#538#830#0" expanded="false" />
+            <element signature="e#1773#3565#0" expanded="false" />
+            <element signature="e#3645#5008#0" expanded="false" />
+            <element signature="e#5089#5948#0" expanded="false" />
+            <element signature="e#6044#6927#0" expanded="false" />
+            <element signature="e#9281#9576#0" expanded="false" />
+            <element signature="e#10079#10393#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/shift_data.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="14" column="49" lean-forward="false" selection-start-line="14" selection-start-column="49" selection-end-line="14" selection-end-column="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/non_response_data_result.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="38" lean-forward="false" selection-start-line="1" selection-start-column="38" selection-end-line="1" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/sas_non_response_data.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="99" lean-forward="false" selection-start-line="0" selection-start-column="99" selection-end-line="0" selection-end-column="99" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/unsampled_ooh_data_result.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="72" lean-forward="false" selection-start-line="0" selection-start-column="72" selection-end-line="0" selection-end-column="72" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/traffic_data.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main/io/ips_data_management.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
-          <caret line="4" column="28" lean-forward="true" selection-start-line="4" selection-start-column="28" selection-end-line="4" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/io/test_ips_data_managementV!.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="21">
-          <caret line="402" column="0" lean-forward="false" selection-start-line="402" selection-start-column="0" selection-end-line="402" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/io/test_ips_data_management.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="21">
-          <caret line="1" column="23" lean-forward="false" selection-start-line="1" selection-start-column="23" selection-end-line="1" selection-end-column="23" />
+        <state relative-caret-position="372">
+          <caret line="140" column="57" lean-forward="false" selection-start-line="140" selection-start-column="57" selection-end-line="140" selection-end-column="57" />
           <folding>
-            <element signature="e#24246#25967#0" expanded="false" />
-            <element signature="e#24246#24291#0" expanded="false" />
-            <element signature="e#24403#25870#0" expanded="false" />
-            <element signature="e#24829#24945#0" expanded="false" />
-            <element signature="e#25553#25847#0" expanded="false" />
+            <element signature="e#260#3816#0" expanded="false" />
+            <element signature="e#3885#4556#0" expanded="false" />
+            <element signature="e#3885#4053#1" expanded="false" />
+            <element signature="e#4294#4364#0" expanded="false" />
+            <element signature="e#4628#4796#1" expanded="false" />
+            <element signature="e#5635#5920#1" expanded="false" />
+            <element signature="e#6576#7779#0" expanded="false" />
+            <element signature="e#7855#11946#0" expanded="false" />
+            <element signature="e#7855#8082#1" expanded="false" />
+            <element signature="e#9341#9415#0" expanded="false" />
+            <element signature="e#12023#13588#0" expanded="false" />
+            <element signature="e#12023#12285#1" expanded="false" />
+            <element signature="e#12695#12842#0" expanded="false" />
+            <element signature="e#13329#13588#0" expanded="false" />
+            <element signature="e#13662#15736#0" expanded="false" />
+            <element signature="e#13662#13944#1" expanded="false" />
+            <element signature="e#14389#15060#0" expanded="false" />
+            <element signature="e#14491#15060#0" expanded="false" />
+            <element signature="e#14498#14840#0" expanded="false" />
+            <element signature="e#15079#15736#0" expanded="false" />
+            <element signature="e#15235#15539#0" expanded="false" />
+            <element signature="e#15811#17277#0" expanded="false" />
+            <element signature="e#15811#16069#1" expanded="false" />
+            <element signature="e#16504#16675#0" expanded="false" />
+            <element signature="e#17352#18037#0" expanded="false" />
+            <element signature="e#17352#17550#1" expanded="false" />
+            <element signature="e#17730#17897#0" expanded="false" />
+            <element signature="e#18112#21414#0" expanded="false" />
+            <element signature="e#18112#18357#1" expanded="false" />
+            <element signature="e#18497#18700#0" expanded="false" />
+            <element signature="e#18715#18855#0" expanded="false" />
+            <element signature="e#18874#19033#0" expanded="false" />
+            <element signature="e#19207#19260#0" expanded="false" />
+            <element signature="e#19525#19755#0" expanded="false" />
+            <element signature="e#19592#19720#0" expanded="false" />
+            <element signature="e#19800#20231#0" expanded="false" />
+            <element signature="e#19867#20161#0" expanded="false" />
+            <element signature="e#20277#20759#0" expanded="false" />
+            <element signature="e#20284#20650#0" expanded="false" />
+            <element signature="e#20778#21112#0" expanded="false" />
+            <element signature="e#20785#21045#0" expanded="false" />
+            <element signature="e#21217#21272#0" expanded="false" />
+            <element signature="e#21496#23075#0" expanded="false" />
+            <element signature="e#21496#21749#1" expanded="false" />
+            <element signature="e#22178#22306#0" expanded="false" />
+            <element signature="e#22591#22770#0" expanded="false" />
+            <element signature="e#22816#22960#0" expanded="false" />
+            <element signature="e#23140#24439#0" expanded="false" />
+            <element signature="e#23140#23398#1" expanded="false" />
+            <element signature="e#24011#24078#0" expanded="false" />
+            <element signature="e#24186#24252#0" expanded="false" />
+            <element signature="e#24473#24965#0" expanded="false" />
+            <element signature="e#24577#24852#0" expanded="false" />
+            <element signature="e#24714#24830#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_populate_survey_data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="286">
+          <caret line="185" column="31" lean-forward="false" selection-start-line="185" selection-start-column="20" selection-end-line="185" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#531#803#0" expanded="false" />
+            <element signature="e#1237#1657#0" expanded="false" />
+            <element signature="e#1744#4513#0" expanded="false" />
+            <element signature="e#4608#7021#0" expanded="false" />
+            <element signature="e#10661#11602#0" expanded="false" />
           </folding>
         </state>
       </provider>
