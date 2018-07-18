@@ -22,6 +22,7 @@ def database_connection():
     '''
     return get_sql_connection()
 
+
 def get_rec_id(value, table, database_connection):
     # value = 'min' or 'max'
     # table = table name
@@ -35,6 +36,7 @@ def get_rec_id(value, table, database_connection):
 
     result = cur.execute(sql).fetchone()
     return result[0]
+
 
 def amend_rec_id(dataframe, rec_id, ascend=True):
     '''
@@ -51,6 +53,7 @@ def amend_rec_id(dataframe, rec_id, ascend=True):
             rec_id = rec_id - 1
 
     return dataframe
+
 
 def import_data_into_database():
     '''
@@ -452,7 +455,7 @@ def test_store_survey_data_with_step_results(database_connection):
                    "nullify_pvs": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[SHIFT_FLAG_PV]",
                                    "[CROSSINGS_FLAG_PV]", "[SHIFT_WT]"],
                    "ps_table": "[dbo].[PS_SHIFT_DATA]"}
-    run_id = 'store-surveydata-with-shift-wt-results'
+    run_id = 'shift-wt-idm-test'
 
     # Set up records in SURVEY_SUBSAMPLE with above run_id
     survey_subsample_input = pd.read_csv(TEST_DATA_DIR + 'survey_subsample_test_input.csv', dtype=object)
@@ -501,7 +504,7 @@ def test_store_survey_data_with_step_results(database_connection):
     assert_frame_equal(results, test_results, check_dtype=False)
 
 
-@pytest.mark.skip('For El to complete')
+# @pytest.mark.skip('For El to complete')
 def test_store_step_summary(database_connection):
     # step_config and variables
     step_config = {"ps_table": "[dbo].[PS_SHIFT_DATA]",
@@ -509,7 +512,7 @@ def test_store_step_summary(database_connection):
                    "ps_columns": ["[RUN_ID]", "[SHIFT_PORT_GRP_PV]", "[ARRIVEDEPART]", "[WEEKDAY_END_PV]",
                                   "[AM_PM_NIGHT_PV]", "[MIGSI]", "[POSS_SHIFT_CROSS]", "[SAMP_SHIFT_CROSS]",
                                   "[MIN_SH_WT]", "[MEAN_SH_WT]", "[MAX_SH_WT]", "[COUNT_RESPS]", "[SUM_SH_WT]"]}
-    run_id = 'store-shift-data-summary'
+    run_id = 'shift-wt-idm-test'
 
     # set up test data/tables
     test_ps_data = pd.read_pickle(TEST_DATA_DIR + 'store_ps_summary.pkl')
