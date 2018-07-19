@@ -2,7 +2,7 @@ import pandas as pd
 import sys
 import unittest
 import numpy as np
-from IPS_XML import shift_weight
+#from IPS_XML import shift_weight
 from main.utils import process_variables
 from main.io import CommonFunctions as cf
 
@@ -20,7 +20,7 @@ def test_shift_wt_pvs():
     # Exit as testing will commence during
     return True
 
-    conn = cf.get_oracle_connection()
+    conn = cf.get_sql_connection()
 
     # Clears tables ready for processing
     cf.delete_from_table('SAS_SURVEY_SUBSAMPLE')

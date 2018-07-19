@@ -144,7 +144,7 @@ def validate_file(xfile, current_working_file, function_name):
 #         return conn
 #
 #
-# def get_oracle_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials_SQLServer.json"):
+# def get_sql_connection(credentials_file = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials_SQLServer.json"):
 #     """
 #     Author       : Thomas Mahoney
 #     Date         : 03 / 04 / 2018
@@ -175,10 +175,10 @@ def validate_file(xfile, current_working_file, function_name):
 #     else:
 #         return conn
 
-def get_oracle_connection():
+def get_sql_connection():
     """
-    Author       : Thomas Mahoney
-    Date         : 03 / 04 / 2018
+    Author       : Thomas Mahoney / Nassir Mohammad (edits)
+    Date         : 11 / 07 / 2018
     Purpose      : Establishes a connection to the SQL Server database and returns the connection object.
     Parameters   : in_table_name - the IPS survey records for the period.
                    credentials_file  - file containing the server and login credentials used for connection.
@@ -197,6 +197,7 @@ def get_oracle_connection():
     try:
         conn = pyodbc.connect(driver="{SQL Server}", server=server, database=database, uid=username, pwd=password, autocommit=True)
     except Exception as err:
+        # print("computer says no")
         database_logger().error(err, exc_info = True)
         return False
     else:
@@ -353,12 +354,12 @@ def create_table(table_name, column_list):
     Returns       : True/False  
     Requirements  : None
     Dependencies  : check_table(),
-                    get_oracle_connection(),
+                    get_sql_connection(),
                     database_logger()
     """
     
     # Oracle connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor()
     
     # Re-format column_list as string
@@ -403,7 +404,7 @@ def check_table(table_name):
     """
     
     # Oracle connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor()
      
     # Create and execute SQL query
@@ -445,7 +446,7 @@ def drop_table(table_name):
     function_name = str(inspect.stack()[0][3])
 
     # Oracle connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor()
     
     # Create and execute SQL query
@@ -493,7 +494,7 @@ def delete_from_table(table_name, condition1=None, operator=None
     """
     
     # Oracle connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor() 
     
     # Create and execute SQL query
@@ -517,63 +518,53 @@ def delete_from_table(table_name, condition1=None, operator=None
     try:
         cur.execute(sql)
     except Exception as err:
+        print("bla!")
         #database_logger().error(err, exc_info = True)
         return False
     else:
-        return True
+        return sql
         
 
 def select_data(column_name, table_name, condition1, condition2):
     """
     Author        : Elinor Thorne
     Date          : 21 Dec 2017
-    Purpose       : Uses SQL query to retrieve value from Oracle table  
+    Purpose       : Uses SQL query to retrieve values from database
     Parameters    : column_name, table_name, condition1, condition2, i.e:
                   : "SELECT column_name FROM table_name WHERE condition1 = condition2" (no 'AND'/'OR' clause)
-    Returns       : Result (String)  
+    Returns       : Data Frame for multiple values, scalar/string for single values
     Requirements  : None
-    Dependencies  : get_oracle_connection(),
-                    database_logger()
     """
-    
+
     # Connection variables
-    conn = get_oracle_connection()
-    cur = conn.cursor()
-    
+    conn = get_sql_connection()
+    # cur = conn.cursor()
+
     # Create SQL statement
-    sql = ("SELECT " + column_name 
-           + " FROM " + table_name 
-           + " WHERE " + condition1 
-           + " = '" + condition2 + "'")
+    sql = """
+        SELECT {} 
+        FROM {}
+        WHERE {} = '{}'
+        """.format(column_name, table_name, condition1, condition2)
 
     try:
-        # Execute
-        cur.execute(sql)
+        result = pandas.read_sql(sql, conn)
+        print("Result: {}".format(result))
     except Exception as err:
+        print(err)
         # Return False to indicate error
-        #database_logger().error(err, exc_info = True)
+        # database_logger().error(err, exc_info = True)
         return False
-    else:
-        #val = cur.fetchall()
-        row = cur.fetchone()
-        if row:
-            result = row[0]
-        else:
-            result = row
-        
-    # 0 = frame object, 1 = filename, 3 = function name. 
-    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
-    current_working_file = str(inspect.stack()[0][1])
-    function_name = str(inspect.stack()[0][3]) 
-    
-    if row == 'None':
-        err_msg = "ERROR: SQL query failed to return result."
-        database_logger().error(standard_log_message(err_msg
-                                                     , current_working_file
-                                                     , function_name))
-        return False
-    else:
-        return result
+
+    # if an empty data frame is returned
+    if len(result) == 0:
+        # err_msg = "ERROR: SQL query failed to return result."
+        result = False
+    elif len(result) == 1:
+        # if a single value is returned we don't want it to be a data frame
+        result = result.loc[0, column_name]
+
+    return result
 
 
 def unload_parameters(parameter_id = False):
@@ -591,7 +582,7 @@ def unload_parameters(parameter_id = False):
     """
    
     # Connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor()
     
     # If no ID provided, fetch latest ID from SAS_PARAMETERS 
@@ -654,7 +645,7 @@ def get_table_values(table_name):
     """
 
     # Connection to the database
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     
     # Create SQL statement
     sql = "SELECT * from " + table_name
@@ -681,7 +672,7 @@ def insert_into_table(table_name, column_list, value_list):
     """
      
     # Oracle connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor()     
     
     # Re-format column_list and value_lists as strings    
@@ -716,7 +707,7 @@ def insert_into_table_many(table_name,dataframe,connection = False):
 
     if(connection == False):
         print("Getting Connection")
-        connection = get_oracle_connection()
+        connection = get_sql_connection()
     
     cur = connection.cursor()
 
@@ -780,7 +771,7 @@ def insert_list_into_table(table_name,columns,values,connection = False):
     
     if(connection == False):
         print("Getting Connection")
-        connection = get_oracle_connection()
+        connection = get_sql_connection()
     cur = connection.cursor()
 
     # Create column header string for SQL
@@ -841,7 +832,7 @@ def commit_to_audit_log(action, process_object, audit_msg):
     params = {}
     
     # Oracle connection variables
-    conn = get_oracle_connection()
+    conn = get_sql_connection()
     cur = conn.cursor()       
     
     # Assign 'audit_id' by returning max audit_id and incrementing by 1
@@ -964,7 +955,7 @@ def insert_dataframe_into_table_rbr(table_name, dataframe, connection=False):
     # Check if connection to database exists and creates one if necessary.
     if not connection:
         print("Getting Connection")
-        connection = get_oracle_connection()
+        connection = get_sql_connection()
 
     cur = connection.cursor()
 
@@ -1031,11 +1022,14 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False):
     # Check if connection to database exists and creates one if necessary.
     if not connection:
         print("Getting Connection")
-        connection = get_oracle_connection()
+        connection = get_sql_connection()
 
     cur = connection.cursor()
 
+
     dataframe = dataframe.where((pandas.notnull(dataframe)), None)
+    print(dataframe)
+    print(list(dataframe.columns.values))
 
     # Extract the dataframe values into a collection of rows
     rows = [tuple(x) for x in dataframe.values]
@@ -1069,11 +1063,12 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False):
     print("Rows to insert - " + str(len(rows)))
 
     # Debugging
-    # for rec in rows:
-    #    print (rec)
+    for rec in rows:
+       print(rec)
 
     start_time = time.time()
     print("Start - " + str(start_time))
+
     cur.executemany(sql, rows)
 
     end_time = time.time()
@@ -1106,7 +1101,37 @@ def beep():
     print("boop-beep!")
 
 
+def execute_sql_query(connection, sql_statement):
+    cur = connection.cursor()
+    cur.execute(sql_statement)
+    connection.commit()
+
+
+def unpickle_rick(file):
+    # File location
+    path = r"C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\generic_xml_steps"
+
+    # Pickle in and CSV out
+    in_file = "\{}.pkl".format(file)
+    out_file = "{}.csv".format(file)
+
+    # Read pickle in as df
+    df = pandas.read_pickle(path+in_file)
+
+    # Send to CSV
+    df.to_csv(r"{}\{}".format(path, out_file))
+    beep()
+
+
+def create_fake_data():
+    data = {'REC_ID':[9,8,7],
+            'SHIFT_PORT_GRP_PV':['1','2','3'],
+            'AM_PM_NIGHT_PV':[4,5,6],
+            'WEEKDAY_END_PV':[7,8,9]}
+    df = pandas.DataFrame(data)
+    df.to_csv(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\El's Temp VDI Folder\XML\Generic\unpickled_update_shift_data_with_shift_data_pv_output.csv")
+    beep()
+
 if __name__ == "__main__":
-    print (delete_from_table("SAS_IMBALANCE_WT"))
-    print (delete_from_table("SAS_PS_IMBALANCE"))
-#    pprint(unload_parameters(279))
+    unpickle_rick("update_survey_data_pvs")
+    # create_fake_data()

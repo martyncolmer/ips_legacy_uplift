@@ -110,12 +110,12 @@ def import_traffic_data(run_id, filename):
         # ...check if run_id currently exists...
         table_run_id = cf.select_data("RUN_ID", table_name, "RUN_ID", run_id)
         #...and delete if it does
-        if ("'" + run_id + "'") == table_run_id:
+        if run_id in table_run_id["RUN_ID"].values:
             cf.delete_from_table(table_name, "RUN_ID", "=", table_run_id)
-        
+
     # If table_name == "TRAFFIC_DATA" insert "VEHICLE" column with empty values
     if table_name == "TRAFFIC_DATA":
-        dataframe["VEHICLE"] = pandas.Series("", index = dataframe.index) 
+        dataframe["VEHICLE"] = 0
    
     # Insert dataframe to table
     cf.insert_dataframe_into_table(table_name, dataframe)

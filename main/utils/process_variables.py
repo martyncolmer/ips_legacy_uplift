@@ -44,7 +44,7 @@ def get_pvs(conn=None):
 
     # Connect to the database
     if conn is None:
-        conn = cf.get_oracle_connection()
+        conn = cf.get_sql_connection()
 
     # Create a cursor object from the connection
     cur = conn.cursor()
@@ -101,7 +101,7 @@ def process(in_table_name, out_table_name, in_id, dataset):
 
     # Generate a column list from the in_id column and the pvs for the current run
     columns = [in_id] + updated_columns
-
+    columns = [col.upper() for col in columns]
     # Create a new dataframe from the modified data using the columns specified
     df_out = df_data[columns]
 

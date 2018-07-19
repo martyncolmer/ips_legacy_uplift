@@ -1,0 +1,871 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="e9c10ffe-f2a0-439f-9527-ed37db9c05da" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight/survey_subsample.csv" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight/test_result.csv" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/non_response_data_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/non_response_data_result.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/shift_data_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/shift_data_result.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/traffic_data_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/traffic_data_result.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/unsampled_ooh_data_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/unsampled_ooh_data_result.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/test_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/test_result.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps-1-2-3.py" afterPath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps-1-2-3.py" />
+    </list>
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DockManager">
+    <window id="1">
+      <content type="file-editors">
+        <state>
+          <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+            <file leaf-file-name="xml_steps_configuration.json" pinned="false" current-in-tab="true">
+              <entry file="file://$PROJECT_DIR$/data/xml_steps_configuration.json">
+                <provider selected="true" editor-type-id="text-editor">
+                  <state relative-caret-position="260">
+                    <caret line="117" column="21" lean-forward="false" selection-start-line="117" selection-start-column="21" selection-end-line="118" selection-end-column="105" />
+                    <folding />
+                  </state>
+                </provider>
+              </entry>
+            </file>
+          </leaf>
+        </state>
+      </content>
+    </window>
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="test_idm_steps-1-2-3.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps-1-2-3.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="323">
+              <caret line="19" column="21" lean-forward="false" selection-start-line="19" selection-start-column="21" selection-end-line="19" selection-end-column="21" />
+              <folding>
+                <element signature="e#0#13#0" expanded="true" />
+                <element signature="e#932#3701#0" expanded="false" />
+                <element signature="e#3765#6842#0" expanded="false" />
+                <element signature="e#6935#9616#0" expanded="false" />
+                <element signature="e#9729#10670#0" expanded="false" />
+                <element signature="e#10810#13880#0" expanded="false" />
+                <element signature="e#13944#15988#0" expanded="false" />
+                <element signature="e#16090#17386#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CommonFunctions.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/main/io/CommonFunctions.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="203">
+              <caret line="185" column="21" lean-forward="false" selection-start-line="185" selection-start-column="21" selection-end-line="185" selection-end-column="21" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test_ips_data_management.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_ips_data_management.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2635">
+              <caret line="268" column="32" lean-forward="false" selection-start-line="268" selection-start-column="32" selection-end-line="268" selection-end-column="32" />
+              <folding>
+                <element signature="e#538#830#0" expanded="false" />
+                <element signature="e#1773#3565#0" expanded="false" />
+                <element signature="e#3645#5008#0" expanded="false" />
+                <element signature="e#5089#5948#0" expanded="false" />
+                <element signature="e#6044#6927#0" expanded="false" />
+                <element signature="e#9281#9576#0" expanded="false" />
+                <element signature="e#10079#10393#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="traffic_data_result.csv" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/traffic_data_result.csv">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="sas_traffic_data.csv" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/sas_traffic_data.csv">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ips_data_management.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/main/io/ips_data_management.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="714">
+              <caret line="112" column="4" lean-forward="false" selection-start-line="112" selection-start-column="4" selection-end-line="112" selection-end-column="4" />
+              <folding>
+                <element signature="e#260#3816#0" expanded="false" />
+                <element signature="e#3885#4556#0" expanded="false" />
+                <element signature="e#3885#4053#1" expanded="false" />
+                <element signature="e#4294#4364#0" expanded="false" />
+                <element signature="e#4628#4796#1" expanded="false" />
+                <element signature="e#5635#5920#1" expanded="false" />
+                <element signature="e#6576#7779#0" expanded="false" />
+                <element signature="e#7855#8082#1" expanded="false" />
+                <element signature="e#9341#9415#0" expanded="false" />
+                <element signature="e#12023#13588#0" expanded="false" />
+                <element signature="e#12023#12285#1" expanded="false" />
+                <element signature="e#12695#12842#0" expanded="false" />
+                <element signature="e#13329#13588#0" expanded="false" />
+                <element signature="e#13662#15736#0" expanded="false" />
+                <element signature="e#13662#13944#1" expanded="false" />
+                <element signature="e#14389#15060#0" expanded="false" />
+                <element signature="e#14491#15060#0" expanded="false" />
+                <element signature="e#14498#14840#0" expanded="false" />
+                <element signature="e#15079#15736#0" expanded="false" />
+                <element signature="e#15235#15539#0" expanded="false" />
+                <element signature="e#15811#17277#0" expanded="false" />
+                <element signature="e#15811#16069#1" expanded="false" />
+                <element signature="e#16504#16675#0" expanded="false" />
+                <element signature="e#17352#18037#0" expanded="false" />
+                <element signature="e#17352#17550#1" expanded="false" />
+                <element signature="e#17730#17897#0" expanded="false" />
+                <element signature="e#18112#21414#0" expanded="false" />
+                <element signature="e#18112#18357#1" expanded="false" />
+                <element signature="e#18497#18700#0" expanded="false" />
+                <element signature="e#18715#18855#0" expanded="false" />
+                <element signature="e#18874#19033#0" expanded="false" />
+                <element signature="e#19207#19260#0" expanded="false" />
+                <element signature="e#19525#19755#0" expanded="false" />
+                <element signature="e#19592#19720#0" expanded="false" />
+                <element signature="e#19800#20231#0" expanded="false" />
+                <element signature="e#19867#20161#0" expanded="false" />
+                <element signature="e#20277#20759#0" expanded="false" />
+                <element signature="e#20284#20650#0" expanded="false" />
+                <element signature="e#20778#21112#0" expanded="false" />
+                <element signature="e#20785#21045#0" expanded="false" />
+                <element signature="e#21217#21272#0" expanded="false" />
+                <element signature="e#21496#23075#0" expanded="false" />
+                <element signature="e#21496#21749#1" expanded="false" />
+                <element signature="e#22178#22306#0" expanded="false" />
+                <element signature="e#22591#22770#0" expanded="false" />
+                <element signature="e#22816#22960#0" expanded="false" />
+                <element signature="e#23140#24439#0" expanded="false" />
+                <element signature="e#23140#23398#1" expanded="false" />
+                <element signature="e#24011#24078#0" expanded="false" />
+                <element signature="e#24186#24252#0" expanded="false" />
+                <element signature="e#24473#24965#0" expanded="false" />
+                <element signature="e#24577#24852#0" expanded="false" />
+                <element signature="e#24714#24830#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps-1-2-3.py" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+      <manualOrder />
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scratches">
+        <subPane>
+          <expand>
+            <path>
+              <item name="Scratches and Consoles" type="1a2a3e82:ScratchProjectViewPane$MyProjectNode" />
+              <item name="Scratches" type="d62648e6:ScratchProjectViewPane$MyRootNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="ips_data_management" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="io" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="io" type="462c0819:PsiDirectoryNode" />
+              <item name="ips_data_management" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="utils" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Python tests.All_Tests">
+    <configuration name="1py.test in test_ips_data_management.py" type="tests" factoryName="py.test" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="DB_NAME" value="ips_test" />
+        <env name="DB_SERVER" value="CR1VWSQL14-D-01" />
+        <env name="DB_USER_NAME" value="ips_dev" />
+        <env name="DB_PASSWORD" value="ips_dev" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="IPS_Legacy_Uplift" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/io/ips_data_management/test_ips_data_management.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+    </configuration>
+    <configuration name="All_Tests" type="tests" factoryName="py.test">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="DB_NAME" value="ips_test" />
+        <env name="DB_SERVER" value="CR1VWSQL14-D-01" />
+        <env name="DB_USER_NAME" value="ips_dev" />
+        <env name="DB_PASSWORD" value="ips_dev" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Python36\python.exe" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="IPS_Legacy_Uplift" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+    </configuration>
+    <configuration name="py.test for test_calculate_ips_shift_weight.TestCalculateFactor" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="C:\Python36\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/calculations" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="IPS_Legacy_Uplift" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_calculate_ips_shift_weight.TestCalculateFactor&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+    </configuration>
+    <configuration name="py.test for test_import_data.test_import_survey_data" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="C:\Python36\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/io" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="IPS_Legacy_Uplift" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_import_data.test_import_survey_data&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+    </configuration>
+    <configuration name="py.test in test_calculate_ips_shift_weight.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="C:\Python36\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/calculations" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="IPS_Legacy_Uplift" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/calculations/test_calculate_ips_shift_weight.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+    </configuration>
+    <configuration name="py.test in test_ips_data_management.py" type="tests" factoryName="py.test" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="DB_NAME" value="ips_test" />
+        <env name="DB_SERVER" value="CR1VWSQL14-D-01" />
+        <env name="DB_USER_NAME" value="ips_dev" />
+        <env name="DB_PASSWORD" value="ips_dev" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="IPS_Legacy_Uplift" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/io/test_ips_data_managementV!.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+    </configuration>
+    <list size="6">
+      <item index="0" class="java.lang.String" itemvalue="Python tests.All_Tests" />
+      <item index="1" class="java.lang.String" itemvalue="Python tests.py.test for test_import_data.test_import_survey_data" />
+      <item index="2" class="java.lang.String" itemvalue="Python tests.py.test for test_calculate_ips_shift_weight.TestCalculateFactor" />
+      <item index="3" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_shift_weight.py" />
+      <item index="4" class="java.lang.String" itemvalue="Python tests.py.test in test_ips_data_management.py" />
+      <item index="5" class="java.lang.String" itemvalue="Python tests.1py.test in test_ips_data_management.py" />
+    </list>
+    <recent_temporary>
+      <list size="5">
+        <item index="0" class="java.lang.String" itemvalue="Python tests.1py.test in test_ips_data_management.py" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.py.test in test_ips_data_management.py" />
+        <item index="2" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_shift_weight.py" />
+        <item index="3" class="java.lang.String" itemvalue="Python tests.py.test for test_calculate_ips_shift_weight.TestCalculateFactor" />
+        <item index="4" class="java.lang.String" itemvalue="Python tests.py.test for test_import_data.test_import_survey_data" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false">
+    <option name="remove_strategy" value="false" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <servers />
+  </component>
+  <component name="TestHistory">
+    <history-entry file="All_Tests - 2018.07.18 at 14h 16m 57s.xml">
+      <configuration name="All_Tests" configurationId="tests" />
+    </history-entry>
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <layout>
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16965227" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.50316125" order="11" side_tool="true" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.49683878" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.5081433" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2562432" sideWeight="0.49814913" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3280363" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24960339" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3291714" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39196527" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+    </layout>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="RECENTLY_FILTERED_USER_GROUPS">
+                <collection />
+              </option>
+              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+                <collection />
+              </option>
+              <option name="COLUMN_ORDER">
+                <list>
+                  <option value="0" />
+                  <option value="1" />
+                  <option value="2" />
+                  <option value="3" />
+                </list>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <option name="time" value="46" />
+    </breakpoint-manager>
+    <watches-manager />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/IPS_Stored_Procedures/calculate_town_and_stay_expenditure.py" />
+    <entry file="file://$PROJECT_DIR$/IPS_Stored_Procedures/calculate_ips_imb_weight.py" />
+    <entry file="file://$PROJECT_DIR$/IPS_Stored_Procedures/calculate_town_and_stay_expenditure.py" />
+    <entry file="file://$PROJECT_DIR$/IPS_Stored_Procedures/calculate_ips_imb_weight.py" />
+    <entry file="file://$PROJECT_DIR$/IPS_Stored_Procedures/calculate_town_and_stay_expenditure.py" />
+    <entry file="file://C:/Python36/Lib/traceback.py" />
+    <entry file="file://$PROJECT_DIR$/IPS_Logger/log_db_handler.py" />
+    <entry file="file://$PROJECT_DIR$/IPS_Stored_Procedures/calculate_ips_imb_weight.py" />
+    <entry file="file://$PROJECT_DIR$/IPSTransformation/CommonFunctions.py" />
+    <entry file="file://C:/Python36/Lib/site-packages/survey_support/functions.py" />
+    <entry file="file://C:/Python36/Lib/site-packages/survey_support/__init__.py" />
+    <entry file="file://$PROJECT_DIR$/IPS_Stored_Procedures/calculate_town_and_stay_expenditure.py" />
+    <entry file="file://$PROJECT_DIR$/main/utils/UnpickleRick.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="378">
+          <caret line="18" column="36" lean-forward="true" selection-start-line="18" selection-start-column="36" selection-end-line="18" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/io/test_ips_data_managementV!.py" />
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/nullify_test_import.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/survey_subsample_10.csv" />
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/survey_subsample.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="36" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.PyCharmCE2017.3/system/python_stubs/-1184660488/builtins.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="4167" column="8" lean-forward="false" selection-start-line="4167" selection-start-column="8" selection-end-line="4167" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data_result.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data_expected.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Python36/Lib/site-packages/pluggy/callers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="114">
+          <caret line="179" column="0" lean-forward="false" selection-start-line="179" selection-start-column="0" selection-end-line="179" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Python36/Lib/site-packages/_pytest/python.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="154" column="0" lean-forward="false" selection-start-line="154" selection-start-column="0" selection-end-line="154" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/shift_data_result.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="6" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/utils/process_variables.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="291">
+          <caret line="64" column="6" lean-forward="false" selection-start-line="64" selection-start-column="6" selection-end-line="64" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/non_response_data.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/sas_shift_data.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/shift_data.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="14" column="49" lean-forward="false" selection-start-line="14" selection-start-column="49" selection-end-line="14" selection-end-column="49" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/non_response_data_result.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="38" lean-forward="false" selection-start-line="1" selection-start-column="38" selection-end-line="1" selection-end-column="38" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/sas_non_response_data.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="99" lean-forward="false" selection-start-line="0" selection-start-column="99" selection-end-line="0" selection-end-column="99" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/unsampled_ooh_data_result.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="72" lean-forward="false" selection-start-line="0" selection-start-column="72" selection-end-line="0" selection-end-column="72" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/traffic_data.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/populate_result.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/test_result.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/populate_result_traffic_unsampled.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1139">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="408">
+          <caret line="38" column="29" lean-forward="false" selection-start-line="38" selection-start-column="29" selection-end-line="38" selection-end-column="29" />
+          <folding>
+            <element signature="e#0#57#1" expanded="false" />
+            <element signature="e#59#69#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IPS_XML/fares_imputation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1530">
+          <caret line="91" column="4" lean-forward="false" selection-start-line="91" selection-start-column="4" selection-end-line="91" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/utils/ips_ges_weighting.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="14" column="56" lean-forward="false" selection-start-line="14" selection-start-column="56" selection-end-line="14" selection-end-column="56" />
+          <folding>
+            <element signature="e#0#10#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_minimums_weight.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="782">
+          <caret line="49" column="37" lean-forward="false" selection-start-line="49" selection-start-column="37" selection-end-line="49" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/calculations/ips_impute.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1836">
+          <caret line="109" column="63" lean-forward="false" selection-start-line="109" selection-start-column="63" selection-end-line="109" selection-end-column="63" />
+          <folding>
+            <element signature="e#0#18#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_stay_imputation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1394">
+          <caret line="88" column="12" lean-forward="false" selection-start-line="88" selection-start-column="12" selection-end-line="88" selection-end-column="12" />
+          <folding>
+            <element signature="e#0#14#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_spend_imputation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1853">
+          <caret line="116" column="26" lean-forward="false" selection-start-line="116" selection-start-column="26" selection-end-line="116" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_rail_imputation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="459">
+          <caret line="34" column="7" lean-forward="false" selection-start-line="34" selection-start-column="7" selection-end-line="34" selection-end-column="7" />
+          <folding>
+            <element signature="e#0#14#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_regional_weights.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2482">
+          <caret line="151" column="33" lean-forward="false" selection-start-line="151" selection-start-column="33" selection-end-line="151" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IPS_XML/shift_weight.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="149" column="52" lean-forward="true" selection-start-line="149" selection-start-column="52" selection-end-line="149" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_ips_data_management.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2635">
+          <caret line="268" column="32" lean-forward="false" selection-start-line="268" selection-start-column="32" selection-end-line="268" selection-end-column="32" />
+          <folding>
+            <element signature="e#538#830#0" expanded="false" />
+            <element signature="e#1773#3565#0" expanded="false" />
+            <element signature="e#3645#5008#0" expanded="false" />
+            <element signature="e#5089#5948#0" expanded="false" />
+            <element signature="e#6044#6927#0" expanded="false" />
+            <element signature="e#9281#9576#0" expanded="false" />
+            <element signature="e#10079#10393#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/traffic_data_result.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/sas_traffic_data.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/io/ips_data_management.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="714">
+          <caret line="112" column="4" lean-forward="false" selection-start-line="112" selection-start-column="4" selection-end-line="112" selection-end-column="4" />
+          <folding>
+            <element signature="e#260#3816#0" expanded="false" />
+            <element signature="e#3885#4556#0" expanded="false" />
+            <element signature="e#3885#4053#1" expanded="false" />
+            <element signature="e#4294#4364#0" expanded="false" />
+            <element signature="e#4628#4796#1" expanded="false" />
+            <element signature="e#5635#5920#1" expanded="false" />
+            <element signature="e#6576#7779#0" expanded="false" />
+            <element signature="e#7855#8082#1" expanded="false" />
+            <element signature="e#9341#9415#0" expanded="false" />
+            <element signature="e#12023#13588#0" expanded="false" />
+            <element signature="e#12023#12285#1" expanded="false" />
+            <element signature="e#12695#12842#0" expanded="false" />
+            <element signature="e#13329#13588#0" expanded="false" />
+            <element signature="e#13662#15736#0" expanded="false" />
+            <element signature="e#13662#13944#1" expanded="false" />
+            <element signature="e#14389#15060#0" expanded="false" />
+            <element signature="e#14491#15060#0" expanded="false" />
+            <element signature="e#14498#14840#0" expanded="false" />
+            <element signature="e#15079#15736#0" expanded="false" />
+            <element signature="e#15235#15539#0" expanded="false" />
+            <element signature="e#15811#17277#0" expanded="false" />
+            <element signature="e#15811#16069#1" expanded="false" />
+            <element signature="e#16504#16675#0" expanded="false" />
+            <element signature="e#17352#18037#0" expanded="false" />
+            <element signature="e#17352#17550#1" expanded="false" />
+            <element signature="e#17730#17897#0" expanded="false" />
+            <element signature="e#18112#21414#0" expanded="false" />
+            <element signature="e#18112#18357#1" expanded="false" />
+            <element signature="e#18497#18700#0" expanded="false" />
+            <element signature="e#18715#18855#0" expanded="false" />
+            <element signature="e#18874#19033#0" expanded="false" />
+            <element signature="e#19207#19260#0" expanded="false" />
+            <element signature="e#19525#19755#0" expanded="false" />
+            <element signature="e#19592#19720#0" expanded="false" />
+            <element signature="e#19800#20231#0" expanded="false" />
+            <element signature="e#19867#20161#0" expanded="false" />
+            <element signature="e#20277#20759#0" expanded="false" />
+            <element signature="e#20284#20650#0" expanded="false" />
+            <element signature="e#20778#21112#0" expanded="false" />
+            <element signature="e#20785#21045#0" expanded="false" />
+            <element signature="e#21217#21272#0" expanded="false" />
+            <element signature="e#21496#23075#0" expanded="false" />
+            <element signature="e#21496#21749#1" expanded="false" />
+            <element signature="e#22178#22306#0" expanded="false" />
+            <element signature="e#22591#22770#0" expanded="false" />
+            <element signature="e#22816#22960#0" expanded="false" />
+            <element signature="e#23140#24439#0" expanded="false" />
+            <element signature="e#23140#23398#1" expanded="false" />
+            <element signature="e#24011#24078#0" expanded="false" />
+            <element signature="e#24186#24252#0" expanded="false" />
+            <element signature="e#24473#24965#0" expanded="false" />
+            <element signature="e#24577#24852#0" expanded="false" />
+            <element signature="e#24714#24830#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/xml_steps_configuration.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="260">
+          <caret line="117" column="21" lean-forward="false" selection-start-line="117" selection-start-column="21" selection-end-line="118" selection-end-column="105" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps-1-2-3.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="19" column="21" lean-forward="false" selection-start-line="19" selection-start-column="21" selection-end-line="19" selection-end-column="21" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#932#3701#0" expanded="false" />
+            <element signature="e#3765#6842#0" expanded="false" />
+            <element signature="e#6935#9616#0" expanded="false" />
+            <element signature="e#9729#10670#0" expanded="false" />
+            <element signature="e#10810#13880#0" expanded="false" />
+            <element signature="e#13944#15988#0" expanded="false" />
+            <element signature="e#16090#17386#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/io/CommonFunctions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="203">
+          <caret line="185" column="21" lean-forward="false" selection-start-line="185" selection-start-column="21" selection-end-line="185" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
