@@ -279,7 +279,7 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
 # Nassir - Done
 def update_survey_data_with_step_pv_output(conn, step_configuration):
     """
-    Author       : Elinor Thorne
+    Author       : Elinor Thorne / Nassir Mohammad
     Date         : Apr 2018
     Purpose      : Updates survey_data with the process variable outputs
     Parameters   : conn - connection object pointing at the database
@@ -332,11 +332,11 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
         print(delete_statement)
         print("")
 
-# Nassir
+# Nassir - Done
 def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
     """
-    Author       : Elinor Thorne
-    Date         : April 2018
+    Author       : Elinor Thorne / Nassir Mohammad
+    Date         : July 2018
     Purpose      : Copies the process variables for the step.
     Parameters   : run_id -
                  : conn - connection object pointing at the database.
@@ -396,8 +396,8 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
 # Nassir
 def update_step_data_with_step_pv_output(conn, step_configuration):
     """
-    Author       : Elinor Thorne
-    Date         : April 2018
+    Author       : Elinor Thorne / Nassir Mohammad
+    Date         : July 2018
     Purpose      : Updates data with the process variable output.
     Parameters   : conn - connection object pointing at the database.
                  : step -
