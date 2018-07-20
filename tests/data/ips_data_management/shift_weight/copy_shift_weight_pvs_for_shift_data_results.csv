@@ -1,4 +1,4 @@
 PROCVAR_NAME,PROCVAR_RULE,PROCVAR_ORDER
-UNSAMP_PORT_GRP_PV,some kind of string,1.0
-UNSAMP_REGION_GRP_PV,some other kind of string,2.0
-UNSAMP_REGION_GRP_PV,another kind of string,2.0
+SHIFT_PORT_GRP_PV,some kind of string,0.0
+WEEKDAY_END_PV,some other kind of string,0.0
+AM_PM_NIGHT_PV,another kind of string,0.0

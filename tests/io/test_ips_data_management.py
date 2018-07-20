@@ -14,6 +14,7 @@ import sys
 TEST_DATA_DIR = 'tests/data/ips_data_management/'
 STEP_PV_OUTPUT_PATH = TEST_DATA_DIR + 'update_survey_data_with_step_pv_output/'
 COPY_PV_PATH = TEST_DATA_DIR + 'copy_step_pvs_for_step_data/'
+UPDATE_STEP_DATA_WITH_STEP_PV_OUTPUT_PATH = TEST_DATA_DIR + "update_step_data_with_step_pv_output/"
 
 @pytest.fixture()
 def database_connection():
@@ -161,7 +162,8 @@ class TestIpsDataManagement:
         test_dummy_1 = results[stripped_pv_cols]
 
         # TODO: select from the results the columns with corresponding matching serial columns and compare
-        # TODO: test with different NaN/None values in columns and rows
+        # TODO: test with different NaN/None values in columns and rows. Probably best to just ignore rows
+        # TODO: with NaNs only
         assert_frame_equal(test_dummy_1.head(test_dummy_1.shape[0] - 1), test_nr_pv_data, check_dtype=False,
                            check_like=True)
 
@@ -349,6 +351,104 @@ class TestIpsDataManagement:
         # Cleanse tables before continuing
         cf.delete_from_table(idm.SAS_PROCESS_VARIABLES_TABLE)
         cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
+
+    def test_update_step_data_with_step_pv_output(self, database_connection):
+        # step_config and variables
+        step_config = {"pv_columns2": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]"],
+                       "pv_table": "[dbo].[SAS_SHIFT_PV]",
+                       "data_table": "[dbo].[SAS_SHIFT_DATA]",
+                       "weight_table": "[dbo].[SAS_SHIFT_WT]",
+                       "sas_ps_table": "[dbo].[SAS_PS_SHIFT_DATA]"}
+
+        # Set up test data/tables
+        test_shift_pv_data = pd.read_csv(UPDATE_STEP_DATA_WITH_STEP_PV_OUTPUT_PATH + '/test_shift_pv_data.csv')
+
+        # Get rec_id and amend test dataframe
+        rec_id = self.get_rec_id("MAX", step_config["data_table"], database_connection)
+        test_shift_pv_data = self.amend_rec_id(test_shift_pv_data, rec_id, ascend=False)
+
+        cf.insert_dataframe_into_table(step_config['pv_table'], test_shift_pv_data, database_connection)
+
+        # run the test function
+        idm.update_step_data_with_step_pv_output(database_connection, step_config)
+
+        # write the results back to csv, and read the csv back (this solves the data type matching issues)
+        results = cf.get_table_values(step_config['data_table'])
+        results.to_csv(UPDATE_STEP_DATA_WITH_STEP_PV_OUTPUT_PATH + 'copy_update_step_data_with_step_pv_output.csv', index=False)
+        results = pd.read_csv(UPDATE_STEP_DATA_WITH_STEP_PV_OUTPUT_PATH + 'copy_update_step_data_with_step_pv_output.csv')
+
+        # get the unique REC_ID of the test_shift_pv_data
+        rec_id = test_shift_pv_data["REC_ID"]
+
+        # select all rows with matching updated rec_id
+        results_1 = results[results['REC_ID'].isin(rec_id)]
+
+        # create column list
+        cols_temp = [item.replace("[", "") for item in step_config['pv_columns2']]
+        cols_to_keep = [item.replace("]", "") for item in cols_temp]
+        cols_to_keep.insert(0, "REC_ID")
+
+        # select only the required columns from results_1
+        results_2 = results_1[cols_to_keep]
+        results_3 = results_2.reset_index(drop=True)
+
+        #results_2 = results_1[['REC_ID', 'SHIFT_PORT_GRP_PV', 'WEEKDAY_END_PV', 'AM_PM_NIGHT_PV']]
+
+        # sort rows in test_shift_pv_data by REC_ID
+        sorted_test_shift_pv_data_1 = test_shift_pv_data.sort_values(by=['REC_ID'])
+        sorted_test_shift_pv_data_2 = sorted_test_shift_pv_data_1.reset_index(drop=True)
+
+        # check that the two dataframes match
+        assert_frame_equal(results_3, sorted_test_shift_pv_data_2, check_names=False, check_like=True, check_dtype=False)
+
+        #npt.assert_array_equal(results_2, sorted_test_shift_pv_data)
+
+        # # from the updated results table get the dataframe of the expected results
+        # pv_cols = [item.replace("'", "") for item in step_config['pv_columns2']]
+        # test_results = results[results['REC_ID'].isin(pv_cols)]
+        # test_inserted_data_2 = test_inserted_data[['PV_NAME', 'PV_DEF']]
+        #
+        # test_results = results[['PROCVAR_NAME', 'PROCVAR_RULE']]
+
+
+        # sql = """
+        # SELECT TOP(5)[REC_ID]
+        #   ,[PORTROUTE]
+        #   ,[WEEKDAY]
+        #   ,[ARRIVEDEPART]
+        #   ,[TOTAL]
+        #   ,[AM_PM_NIGHT]
+        #   ,[SHIFT_PORT_GRP_PV]
+        #   ,[AM_PM_NIGHT_PV]
+        #   ,[WEEKDAY_END_PV]
+        # FROM [ips_test].[dbo].[SAS_SHIFT_DATA]
+        # ORDER BY REC_ID DESC
+        # """
+        # results = pd.read_sql(sql, database_connection)
+        #
+        # # Create expected test results and assert equal
+        # test_results = pd.read_pickle(TEST_DATA_DIR + 'update_shift_data_pvs_result.pkl')
+        # test_results = amend_rec_id(test_results, rec_id, ascend=False)
+
+        # print("results: {}".format(results))
+        # print("test_results: {}".format(test_results))
+        #
+        # assert_frame_equal(results, test_results, check_dtype=False)
+
+        # Assert temp tables had been cleanse in function
+        results = cf.get_table_values(step_config['pv_table'])
+        assert len(results) == 0
+
+        results = cf.get_table_values(step_config['weight_table'])
+        assert len(results) == 0
+
+        results = cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE)
+        assert len(results) == 0
+
+        results = cf.get_table_values(step_config['sas_ps_table'])
+        assert len(results) == 0
+
+
     # # TODO: use oracle to get the actual data
     # def test_update_step_data_with_step_pv_output(self, database_connection):
     #     # step_config and variables #TODO: might be worth checking against original XML
