@@ -541,9 +541,11 @@ def select_data(column_name, table_name, condition1, condition2):
     # cur = conn.cursor()
 
     # Create SQL statement
-    sql = ("SELECT " + column_name
-           + " FROM " + table_name
-           + " WHERE " + condition1 + " = '" + condition2 + "'")
+    sql = """
+        SELECT {} 
+        FROM {}
+        WHERE {} = '{}'
+        """.format(column_name, table_name, condition1, condition2)
 
     try:
         result = pandas.read_sql(sql, conn)
