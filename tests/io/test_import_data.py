@@ -18,7 +18,7 @@ def test_import_survey_data():
     import_data.import_survey_data(test_data_path, 'TEST-RUN-ID', 1234)
 
     # Connect to the database and pull the generated data from oracle (it is added to the database during import)
-    conn = cf.get_oracle_connection()
+    conn = cf.get_sql_connection()
     cur = conn.cursor()
     df_test_result = cur.execute("SELECT distinct * from SURVEY_SUBSAMPLE where RUN_ID = 'TEST-RUN-ID'")
 

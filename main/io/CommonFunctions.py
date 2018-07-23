@@ -100,7 +100,7 @@ def validate_file(xfile, current_working_file, function_name):
         return True         
 
 
-# def get_oracle_connection(credentials_file =
+# def get_sql_connection(credentials_file =
 #                           r"\\nsdata3\Social_Surveys_team\CASPA\IPS\IPSCredentials.json"):
 #     """
 #     Author     : thorne1
@@ -399,7 +399,7 @@ def check_table(table_name):
     Parameters    : table_name - name of table to check if exists
     Returns       : True - Table exists / False - Table does not exist (bool)  
     Requirements  : None
-    Dependencies  : get_oracle_connection()
+    Dependencies  : get_sql_connection()
                   : database_logger()
     """
     
@@ -436,7 +436,7 @@ def drop_table(table_name):
     Returns       : True/False (bool)  
     Requirements  : None
     Dependencies  : check_table()
-                  : get_oracle_connection()
+                  : get_sql_connection()
                   : database_logger()
     """
 
@@ -490,7 +490,7 @@ def delete_from_table(table_name, condition1=None, operator=None
     Returns         : True/False (bool)   
     Requirements    : None
     Dependencies    : check_table(),
-                      get_oracle_connection,
+                      get_sql_connection,
     """
     
     # Oracle connection variables
@@ -577,7 +577,7 @@ def unload_parameters(parameter_id = False):
                     extract specific parameter sets.
     Returns       : A dictionary of parameters  
     Requirements  : None
-    Dependencies  : get_oracle_connection(),
+    Dependencies  : get_sql_connection(),
                     cx_Oracle,
     """
    

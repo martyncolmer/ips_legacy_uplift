@@ -53,7 +53,7 @@ def calculate(SurveyData, var_serialNum, var_shiftWeight, var_NRWeight, var_minW
 
     # following code only required when connecting to Oracle database
     # Connect to Oracle and unload parameter list
-    # conn = cf.get_oracle_connection()
+    # conn = cf.get_sql_connection()
     # global parameters
     # parameters = cf.unload_parameters(205)
 

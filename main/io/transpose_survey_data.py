@@ -108,7 +108,7 @@ def transpose(survey_data_path,version_id=9999):
     get_sas_column_properties(sasFile, version_id)
     
     # Establish a connection to the oracle database.
-    connection = cf.get_oracle_connection()
+    connection = cf.get_sql_connection()
     
     # Generate and export the value data
     process_value_dataframe(df, connection)

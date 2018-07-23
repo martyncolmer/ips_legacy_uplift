@@ -294,10 +294,9 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
     #         cur.execute(sql)
     #         conn.commit()
 
-
 def update_survey_data_with_step_pv_output(conn, step_configuration):
     """
-    Author       : Elinor Thorne
+    Author       : Elinor Thorne / Nassir Mohammad
     Date         : Apr 2018
     Purpose      : Updates survey_data with the process variable outputs
     Parameters   : conn - connection object pointing at the database
@@ -335,10 +334,13 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
     delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
     print(delete_statement)
     print("")
+
     delete_statement = cf.delete_from_table(spv_table)
     print(delete_statement)
     print("")
 
+    # code specific to minimums weight function/step
+    # TODO: consider moving this out to another function called by minimum weight
     if step_configuration["name"] == "MINIMUMS_WEIGHT":
         delete_statement = cf.delete_from_table(step_configuration["weight_table"])
         print(delete_statement)
@@ -347,11 +349,11 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
         print(delete_statement)
         print("")
 
-
+# Nassir - Done
 def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
     """
-    Author       : Elinor Thorne
-    Date         : April 2018
+    Author       : Elinor Thorne / Nassir Mohammad
+    Date         : July 2018
     Purpose      : Copies the process variables for the step.
     Parameters   : run_id -
                  : conn - connection object pointing at the database.
@@ -371,8 +373,8 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
     print("")
 
     # Construct and execute SQL statements as applicable
-    if step_configuration["name"] == "UNSAMPLED_WEIGHT":
-        order = step_configuration["order"]
+    if step_configuration["name"] == '[dbo].[UNSAMPLED_WEIGHT]':
+        order = step_configuration["order"] + 1
         for item in step_configuration["pv_columns"]:
             sql = ("""
                  INSERT INTO {}
@@ -408,11 +410,10 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
         cur.execute(sql)
         conn.commit()
 
-
 def update_step_data_with_step_pv_output(conn, step_configuration):
     """
-    Author       : Elinor Thorne
-    Date         : April 2018
+    Author       : Elinor Thorne / Nassir Mohammad
+    Date         : July 2018
     Purpose      : Updates data with the process variable output.
     Parameters   : conn - connection object pointing at the database.
                  : step -
@@ -453,8 +454,6 @@ def update_step_data_with_step_pv_output(conn, step_configuration):
     print(delete_statement)
     delete_statement = cf.delete_from_table(step_configuration["sas_ps_table"])
     print(delete_statement)
-
-
 
 def sql_update_statement(table_to_update_from, columns_to_update):
     """
@@ -684,7 +683,7 @@ def store_step_summary(run_id, conn, step_configuration):
 
 if __name__ == "__main__":
     run_id = 'update-step-data-with-step-pv-output'
-    conn = cf.get_oracle_connection()
+    conn = cf.get_sql_connection()
     step_config = {"table_name": "[dbo].[SHIFT_DATA]",
                    "data_table": "[dbo].[SAS_SHIFT_DATA]",
                    "insert_to_populate": ["[PORTROUTE]", "[WEEKDAY]", "[ARRIVEDEPART]", "[TOTAL]",

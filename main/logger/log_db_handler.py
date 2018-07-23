@@ -21,7 +21,7 @@ class IPS_Log_Handler(logging.Handler):
         """
         
         # Setup DB connection
-        self.conn = cf.get_oracle_connection()
+        self.conn = cf.get_sql_connection()
  
         # Set starting instance params
         self.params = {}
