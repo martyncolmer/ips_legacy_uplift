@@ -1122,43 +1122,72 @@ def unpickle_rick(file):
 
 
 def do_testing_stuff():
-    sas_survey_subsample_input = pandas.read_sas(
-        r'S:\CASPA\IPS\Testing\Oct Data\Calculate_IPS_Shift_Weight\do ips shiftweight calculation\UI\surveydata.sas7bdat')
-    sas_survey_subsample_input.to_csv(
-        r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\shift_weight\update_survey_data_with_step_results\sas_survey_subsample_test_input.csv',
+    # set up test data/tables
+    # delete_from_table("SURVEY_SUBSAMPLE")
+    run_id = 'store-surveydata-with-imb-wt-results'
+
+    df2 = pandas.read_csv(
+        r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\update_survey_data_with_step_results\spend_imp_sas_survey_subsample_test_input.csv',
         dtype=object)
+    insert_dataframe_into_table("SURVEY_SUBSAMPLE", df2)
 
+    # delete_from_table("PS_UNSAMPLED_OOH")
+    df1 = pandas.read_csv(
+        r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\store_survey_data_with_step_results\imb_wt_summary_table_test_input.csv',
+        dtype=object)
+    insert_dataframe_into_table("PS_UNSAMPLED_OOH", df1)
 
-    # Convert r'S:\CASPA\IPS\Testing\Oct Data\Calculate_IPS_Shift_Weight\do ips shiftweight calculation\UI\out_final.sas7bdat' to CSV and store in testing/data
-    sas_shift_wt_input = pandas.read_sas(
-        r'S:\CASPA\IPS\Testing\Oct Data\Calculate_IPS_Shift_Weight\do ips shiftweight calculation\UI\out_final.sas7bdat')
-    sas_shift_wt_input.to_csv(r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\update_survey_data_with_step_results\shift_weight\sas_shift_wt_test_input.csv', dtype=object)
+    # RUN SQL QUERY TO GENERATE EXPECTED RESULTS
+    sql1 = """
+    UPDATE SURVEY_SUBSAMPLE      
+	set UNSAMP_PORT_GRP_PV = temp.UNSAMP_PORT_GRP_PV, 
+	    UNSAMP_REGION_GRP_PV = temp.UNSAMP_REGION_GRP_PV
+	    UNSAMP_TRAFFIC_WT = temp.UNSAMP_TRAFFIC_WT        
+	(select sss.UNSAMP_PORT_GRP_PV, sss.UNSAMP_REGION_GRP_PV, sss.UNSAMP_TRAFFIC_WT        
+	from sas_survey_subsample sss         
+	where sss.SERIAL = ss.SERIAL       )       
+	where ss.RUN_ID = '{RID}'
+    """
+    print(sql1)
 
-    ###UPDATE_SURVEY_DATA_WITH_SHIFT_WEIGHT_RESULTS###
-    # delete_from_table("SAS_SHIFT_WT")
-    # sas_shift_wt_df = pd.read_sas(r'S:\CASPA\IPS\Testing\Oct Data\Calculate_IPS_Shift_Weight\do ips shiftweight calculation\UI\out_final.sas7bdat')
-    # insert_dataframe_into_table("SAS_SHIFT_WT", sas_shift_wt_df)
-
-    # delete_from_table("SAS_SURVEY_SUBSAMPLE")
-    # sas_survey_subsample_df = pd.read_sas(r'S:\CASPA\IPS\Testing\Oct Data\Calculate_IPS_Shift_Weight\do ips shiftweight calculation\UI\surveydata.sas7bdat')
-    # insert_dataframe_into_table("SAS_SURVEY_SUBSAMPLE", sas_survey_subsample_df)
-
-    # sql = """
-    # update sas_survey_subsample sss
-    # set (sss.SHIFT_WT ) =
-    # (select ssw.SHIFT_WT
-    # from sas_shift_wt ssw
-    # where sss.SERIAL = ssw.SERIAL)
+    # sql1a = """
+    #
+    #         UPDATE [dbo].[SAS_SURVEY_SUBSAMPLE]
+    #         SET [SPENDK] = temp.[SPENDK]
+    #         FROM [dbo].[SAS_SURVEY_SUBSAMPLE] as SSS
+    #         JOIN [dbo].[SAS_SPEND_IMP] as temp
+    #         ON SSS.SERIAL = temp.SERIAL
     # """
+    # print(sql1a)
+    #
+    conn = get_sql_connection()
+    cur = conn.cursor()
+    cur.execute(sql1)
+    # cur.execute(sql1a)
+    #
+    # GET AND STORE EXPECTED RESULTS
+    sql2 = """SELECT *
+    FROM [ips_test].[dbo].[SURVEY_SUBSAMPLE]
+    WHERE RUN_ID = '{}'
+    ORDER BY SERIAL
+    """.format(run_id)
 
-    # conn = get_sql_connection
-    # cur = conn.cursor()
-    # expected_results = get_table_values(sas_survey_subsample)
+    expected_results = pandas.read_sql(sql2, conn)
+    expected_results.to_csv(r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\store_survey_data_with_step_results\imb_wt_expected_result.csv', index=False)
 
-    # expected_results.to_csv(r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\shift_weight\expected_results_update_survey_data_with_shift_wt_results.csv', index=False)
+    sql2 = """ 
+    delete from survey_subsample
+    where run_id = '{}'
+    """ .format(run_id)
 
+    sql3 = """ 
+        delete from PS_UNSAMPLED_OOH
+        where run_id = '{}'
+        """.format(run_id)
+
+    cur.execute(sql2)
+    cur.execute(sql3)
 
 
 if __name__ == "__main__":
-    unpickle_rick("update_survey_data_pvs")
-    # create_fake_data()
+    do_testing_stuff()

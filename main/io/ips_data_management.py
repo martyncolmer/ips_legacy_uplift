@@ -322,7 +322,7 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
     print("")
 
     if step_configuration["name"] == "MINIMUMS_WEIGHT":
-        delete_statement = cf.delete_from_table(step_configuration["weight_table"])
+        delete_statement = cf.delete_from_table(step_configuration["temp_table"])
         print(delete_statement)
         print("")
         delete_statement = cf.delete_from_table(step_configuration["sas_ps_table"])
@@ -429,7 +429,7 @@ def update_step_data_with_step_pv_output(conn, step_configuration):
     # Cleanse temporary tables
     delete_statement = cf.delete_from_table(step_configuration["pv_table"])
     print(delete_statement)
-    delete_statement = cf.delete_from_table(step_configuration["weight_table"])
+    delete_statement = cf.delete_from_table(step_configuration["temp_table"])
     print(delete_statement)
     delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
     print(delete_statement)
@@ -486,7 +486,7 @@ def update_survey_data_with_step_results(conn, step_configuration):
                    "STAY_IMPUTATION", "SPEND_IMPUTATION", "AIR_MILES"]
 
     if step in weights:
-        table = step_configuration["weight_table"]
+        table = step_configuration["temp_table"]
     elif step in imputations:
         table = step_configuration["temp_table"]
     else:
