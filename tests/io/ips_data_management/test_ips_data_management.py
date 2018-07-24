@@ -417,7 +417,7 @@ def test_update_step_data_with_step_pv_output(database_connection):
                           # ("UNSAMPLED_WEIGHT", '[dbo].[SAS_UNSAMPLED_OOH_WT]', ["[UNSAMP_TRAFFIC_WT]"], '/unsampled_wt_'),
                           # ("FARES_IMPUTATION", '[dbo].[SAS_FARES_IMP]', ["[FARE]", "[FAREK]", "[SPEND]", "[SPENDIMPREASON]"], '/fares_imp_'),
                           # ("IMBALANCE_WEIGHT", '[dbo].[SAS_IMBALANCE_WT]', ["[IMBAL_WT]"], '/imb_wt_'),
-                          ("STAY_IMPUTATION", '[dbo].[SAS_STAY_IMP]', ["[STAY]", "[STAYK]"], '/stay_imp_'),
+                          # ("STAY_IMPUTATION", '[dbo].[SAS_STAY_IMP]', ["[STAY]", "[STAYK]"], '/stay_imp_'),
                           ("SPEND_IMPUTATION", '[dbo].[SAS_SPEND_IMP]', ["[SPENDK]"], '/spend_imp_')])
 def test_update_survey_data_with_step_results(step_name, temp_table, results_columns, prefix, database_connection):
     # step_config and variables
@@ -516,7 +516,6 @@ def test_store_survey_data_with_step_results(step_name, nullify_pvs, ps_table, p
     """.format(idm.SURVEY_SUBSAMPLE_TABLE, run_id)
     results = pd.read_sql(sql, database_connection)
     results.to_csv(TEST_DATA_DIR + folder + prefix + 'actual_results.csv', index=False)
-
 
     # Get and format results
     results = pd.read_csv(TEST_DATA_DIR + folder + prefix + 'actual_results.csv', dtype=object)
