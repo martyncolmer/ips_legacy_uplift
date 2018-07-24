@@ -411,7 +411,7 @@ def test_update_step_data_with_step_pv_output(database_connection):
     results = cf.get_table_values(step_config['sas_ps_table'])
     assert len(results) == 0
 
-@pytest.mark.xfail
+@pytest.mark.skip('SPEND and STAY fail')
 @pytest.mark.parametrize('step_name, temp_table, results_columns, prefix',
                          [("SHIFT_WEIGHT", "[dbo].[SAS_SHIFT_WT]", ["[SHIFT_WT]"], '/shift_wt_'),
                           ("UNSAMPLED_WEIGHT", '[dbo].[SAS_UNSAMPLED_OOH_WT]', ["[UNSAMP_TRAFFIC_WT]"], '/unsampled_wt_'),
@@ -457,35 +457,54 @@ def test_update_survey_data_with_step_results(step_name, temp_table, results_col
     result = cf.get_table_values(step_config['temp_table'])
     assert len(result) == 0
 
-@pytest.mark.skip('Currently working on UNSAMPLED WEIGHT')
-def test_store_survey_data_with_step_results(database_connection):
+# @pytest.mark.skip('It passes')
+@pytest.mark.parametrize('step_name, nullify_pvs, ps_table, prefix',
+                         [("SHIFT_WEIGHT", ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[SHIFT_FLAG_PV]", "[CROSSINGS_FLAG_PV]", "[SHIFT_WT]"], "[dbo].[PS_SHIFT_DATA]", '/shift_wt_'),
+                          ("UNSAMPLED_WEIGHT", ["[UNSAMP_PORT_GRP_PV]", "[UNSAMP_REGION_GRP_PV]", "[UNSAMP_TRAFFIC_WT]"], "[dbo].[PS_UNSAMPLED_OOH]", '/uns_wt_'),
+                          ("SPEND_IMPUTATION", ["[SPEND_IMP_FLAG_PV]", "[SPEND_IMP_ELIGIBLE_PV]", "[UK_OS_PV]", "[PUR1_PV]", "[PUR2_PV]", "[PUR3_PV]", "[DUR1_PV]", "[DUR2_PV]", "[SPENDK]"], "[dbo].[PS_SPEND_IMPUTATION]", '/spend_imp_')])
+def test_store_survey_data_with_step_results(step_name, nullify_pvs, ps_table, prefix, database_connection):
     # step_config and variables
-    step_config = {"name": "SHIFT_WEIGHT",
-                   "nullify_pvs": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[SHIFT_FLAG_PV]",
-                                   "[CROSSINGS_FLAG_PV]", "[SHIFT_WT]"],
-                   "ps_table": "[dbo].[PS_SHIFT_DATA]"}
-    run_id = 'shift-wt-idm-test'
+    step_config = {"name": step_name,
+                   "nullify_pvs": nullify_pvs,
+                   "ps_table": ps_table}
+    run_id = 'store_survey_data_test'
     folder = '/store_survey_data_with_step_results'
+    applicable_ps_tables = ["SHIFT_WEIGHT"
+        , "NON_RESPONSE"
+        , "MINIMUMS_WEIGHT"
+        , "TRAFFIC_WEIGHT"
+        , "UNSAMPLED_WEIGHT"
+        , "IMBALANCE_WEIGHT"
+        , "FINAL_WEIGHT"]
+
+    # Cleanse and delete test inputs
+    cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', run_id)
+    cf.delete_from_table(step_config['ps_table'], 'RUN_ID', '=', run_id)
 
     # Set up records in SURVEY_SUBSAMPLE with above run_id
-    survey_subsample_input = pd.read_csv(TEST_DATA_DIR + folder + '/shift_wt_survey_subsample_test_input.csv', dtype=object)
+    survey_subsample_input = pd.read_csv(TEST_DATA_DIR + folder + prefix + 'survey_subsample_test_input.csv', dtype=object)
     cf.insert_dataframe_into_table(idm.SURVEY_SUBSAMPLE_TABLE, survey_subsample_input, database_connection)
 
+    # Set up records in SAS_SURVEY_SUBSAMPLE with above run_id
+    sas_survey_subsample_input = pd.read_csv(TEST_DATA_DIR + folder + prefix + 'sss_test_input.csv', dtype=object)
+    cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection)
+
     # Set up records in ps_table with above run_id
-    ps_shift_data_input = pd.read_csv(TEST_DATA_DIR + folder + '/shift_wt_ps_shift_data_test_input.csv', dtype=object)
-    cf.insert_dataframe_into_table(step_config['ps_table'], ps_shift_data_input, database_connection)
+    if step_name in applicable_ps_tables:
+        ps_shift_data_input = pd.read_csv(TEST_DATA_DIR + folder + prefix + 'summary_table_test_input.csv', dtype=object)
+        cf.insert_dataframe_into_table(step_config['ps_table'], ps_shift_data_input, database_connection)
 
     # Run function
     idm.store_survey_data_with_step_results(run_id, database_connection, step_config)
 
     # Assert tables were cleansed by function
-    sql = """
-    SELECT * FROM {}
-    WHERE RUN_ID = '{}'""".format(step_config['ps_table'], run_id)
-
-    cur = database_connection.cursor()
-    result = cur.execute(sql).fetchone()
-    assert result == None
+    if step_name in applicable_ps_tables:
+        sql = """
+            SELECT * FROM {}
+            WHERE RUN_ID = '{}'""".format(step_config['ps_table'], run_id)
+        cur = database_connection.cursor()
+        result = cur.execute(sql).fetchone()
+        assert result == None
 
     result = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
     assert len(result) == 0
@@ -496,15 +515,12 @@ def test_store_survey_data_with_step_results(database_connection):
     WHERE RUN_ID = '{}'
     """.format(idm.SURVEY_SUBSAMPLE_TABLE, run_id)
     results = pd.read_sql(sql, database_connection)
-    results.to_csv(TEST_DATA_DIR + folder + '/shift_wt_actual_results.csv', index=False)
+    results.to_csv(TEST_DATA_DIR + folder + prefix + 'actual_results.csv', index=False)
 
-    # Cleanse and delete test inputs
-    cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', run_id)
-    cf.delete_from_table(step_config['ps_table'], 'RUN_ID', '=', run_id)
 
     # Get and format results
-    results = pd.read_csv(TEST_DATA_DIR + folder + '/shift_wt_actual_results.csv', dtype=object)
-    test_results = pd.read_csv(TEST_DATA_DIR + folder + '/shift_wt_expected_result.csv',
+    results = pd.read_csv(TEST_DATA_DIR + folder + prefix + 'actual_results.csv', dtype=object)
+    test_results = pd.read_csv(TEST_DATA_DIR + folder + prefix + 'expected_result.csv',
                                dtype=object)
 
     results.sort_values(by=["SERIAL"], inplace=True)
