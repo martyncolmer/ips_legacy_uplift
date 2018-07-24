@@ -7,7 +7,6 @@ from main.io import import_data
 from main.io import import_traffic_data
 from main.io.CommonFunctions import get_sql_connection
 from main.main import shift_weight_step
-<<<<<<< HEAD
 
 import sys
 
@@ -412,12 +411,12 @@ def test_update_step_data_with_step_pv_output(database_connection):
     results = cf.get_table_values(step_config['sas_ps_table'])
     assert len(results) == 0
 
-@pytest.mark.skip('SPEND and STAY fail')
+# @pytest.mark.skip('SPEND and STAY fail')
 @pytest.mark.parametrize('step_name, temp_table, results_columns, prefix',
                          [("SHIFT_WEIGHT", "[dbo].[SAS_SHIFT_WT]", ["[SHIFT_WT]"], '/shift_wt_'),
-                          ("UNSAMPLED_WEIGHT", '[dbo].[SAS_UNSAMPLED_OOH_WT]', ["[UNSAMP_TRAFFIC_WT]"], '/unsampled_wt_'),
-                          ("FARES_IMPUTATION", '[dbo].[SAS_FARES_IMP]', ["[FARE]", "[FAREK]", "[SPEND]", "[SPENDIMPREASON]"], '/fares_imp_'),
-                          ("IMBALANCE_WEIGHT", '[dbo].[SAS_IMBALANCE_WT]', ["[IMBAL_WT]"], '/imb_wt_'),
+                          # ("UNSAMPLED_WEIGHT", '[dbo].[SAS_UNSAMPLED_OOH_WT]', ["[UNSAMP_TRAFFIC_WT]"], '/unsampled_wt_'),
+                          # ("FARES_IMPUTATION", '[dbo].[SAS_FARES_IMP]', ["[FARE]", "[FAREK]", "[SPEND]", "[SPENDIMPREASON]"], '/fares_imp_'),
+                          # ("IMBALANCE_WEIGHT", '[dbo].[SAS_IMBALANCE_WT]', ["[IMBAL_WT]"], '/imb_wt_'),
                           ("STAY_IMPUTATION", '[dbo].[SAS_STAY_IMP]', ["[STAY]", "[STAYK]"], '/stay_imp_'),
                           ("SPEND_IMPUTATION", '[dbo].[SAS_SPEND_IMP]', ["[SPENDK]"], '/spend_imp_')])
 def test_update_survey_data_with_step_results(step_name, temp_table, results_columns, prefix, database_connection):
@@ -458,7 +457,7 @@ def test_update_survey_data_with_step_results(step_name, temp_table, results_col
     result = cf.get_table_values(step_config['temp_table'])
     assert len(result) == 0
 
-# @pytest.mark.skip('It passes')
+@pytest.mark.skip('It passes')
 @pytest.mark.parametrize('step_name, nullify_pvs, ps_table, prefix',
                          [("SHIFT_WEIGHT", ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[SHIFT_FLAG_PV]", "[CROSSINGS_FLAG_PV]", "[SHIFT_WT]"], "[dbo].[PS_SHIFT_DATA]", '/shift_wt_'),
                           ("UNSAMPLED_WEIGHT", ["[UNSAMP_PORT_GRP_PV]", "[UNSAMP_REGION_GRP_PV]", "[UNSAMP_TRAFFIC_WT]"], "[dbo].[PS_UNSAMPLED_OOH]", '/uns_wt_'),
@@ -532,7 +531,7 @@ def test_store_survey_data_with_step_results(step_name, nullify_pvs, ps_table, p
 
     assert_frame_equal(results, test_results, check_dtype=False)
 
-@pytest.mark.skip('Currently working on UNSAMPLED WEIGHT')
+@pytest.mark.skip('It passes')
 def test_store_step_summary(database_connection):
     # step_config and variables
     step_config = {"ps_table": "[dbo].[PS_SHIFT_DATA]",
