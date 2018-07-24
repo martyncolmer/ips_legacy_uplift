@@ -1,0 +1,5 @@
+RUN_ID,PROCESS_VARIABLE_ID,PV_NAME,PV_DESC,PV_DEF
+copy-step-pvs-for-step-data,1,UNSAMP_PORT_GRP_PV,ukport1_pv,some kind of string
+copy-step-pvs-for-step-data,2,UNSAMP_REGION_GRP_PV,ukport2_pv,some other kind of string
+copy-step-pvs-for-step-data,3,UNSAMP_REGION_GRP_PV,ukport3_pv,another kind of string
+copy-step-pvs-for-step-data,4,SOME_FAKE_PV,ukport4_pv,a different kind of string

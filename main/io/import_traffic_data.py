@@ -18,7 +18,7 @@ def import_traffic_data(run_id, filename):
     Requirements  : pip install pandas
     Dependencies  : CommonFunctions.import_csv()
                     CommonFunctions.validate_csv() 
-                    CommonFunctions.get_oracle_connection()                
+                    CommonFunctions.get_sql_connection()
                     CommonFunctions.select_data()
     """
     
@@ -86,7 +86,7 @@ def import_traffic_data(run_id, filename):
     dataframe['DATA_SOURCE_ID'].replace([datasource],datasource_id,inplace=True)
         
     # Oracle connection variables
-    conn = cf.get_oracle_connection()
+    conn = cf.get_sql_connection()
     cur = conn.cursor()
     
     # Key = datasource / Value = table name    

@@ -7,6 +7,7 @@ from main.io import import_data
 from main.io import import_traffic_data
 from main.io.CommonFunctions import get_sql_connection
 from main.main import shift_weight_step
+<<<<<<< HEAD
 
 import sys
 

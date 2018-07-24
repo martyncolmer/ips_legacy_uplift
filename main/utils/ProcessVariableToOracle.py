@@ -84,7 +84,7 @@ def read_pv_table(pv_name = None,conn = None):
         print(process_variables[0][1])
         print("")
         
-    print len(process_variables)
+    print(len(process_variables))
 
 """"""
 
