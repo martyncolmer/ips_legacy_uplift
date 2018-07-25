@@ -1123,15 +1123,73 @@ def unpickle_rick(file):
     beep()
 
 
-def create_fake_data():
-    data = {'REC_ID':[9,8,7],
-            'SHIFT_PORT_GRP_PV':['1','2','3'],
-            'AM_PM_NIGHT_PV':[4,5,6],
-            'WEEKDAY_END_PV':[7,8,9]}
-    df = pandas.DataFrame(data)
-    df.to_csv(r"\\nsdata3\Social_Surveys_team\CASPA\IPS\El's Temp VDI Folder\XML\Generic\unpickled_update_shift_data_with_shift_data_pv_output.csv")
-    beep()
+def do_testing_stuff():
+    # set up test data/tables
+    # delete_from_table("SURVEY_SUBSAMPLE")
+    run_id = 'store-surveydata-with-imb-wt-results'
+
+    df2 = pandas.read_csv(
+        r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\update_survey_data_with_step_results\spend_imp_sas_survey_subsample_test_input.csv',
+        dtype=object)
+    insert_dataframe_into_table("SURVEY_SUBSAMPLE", df2)
+
+    # delete_from_table("PS_UNSAMPLED_OOH")
+    df1 = pandas.read_csv(
+        r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\store_survey_data_with_step_results\imb_wt_summary_table_test_input.csv',
+        dtype=object)
+    insert_dataframe_into_table("PS_UNSAMPLED_OOH", df1)
+
+    # RUN SQL QUERY TO GENERATE EXPECTED RESULTS
+    sql1 = """
+    UPDATE SURVEY_SUBSAMPLE      
+	set UNSAMP_PORT_GRP_PV = temp.UNSAMP_PORT_GRP_PV, 
+	    UNSAMP_REGION_GRP_PV = temp.UNSAMP_REGION_GRP_PV
+	    UNSAMP_TRAFFIC_WT = temp.UNSAMP_TRAFFIC_WT        
+	(select sss.UNSAMP_PORT_GRP_PV, sss.UNSAMP_REGION_GRP_PV, sss.UNSAMP_TRAFFIC_WT        
+	from sas_survey_subsample sss         
+	where sss.SERIAL = ss.SERIAL       )       
+	where ss.RUN_ID = '{RID}'
+    """
+    print(sql1)
+
+    # sql1a = """
+    #
+    #         UPDATE [dbo].[SAS_SURVEY_SUBSAMPLE]
+    #         SET [SPENDK] = temp.[SPENDK]
+    #         FROM [dbo].[SAS_SURVEY_SUBSAMPLE] as SSS
+    #         JOIN [dbo].[SAS_SPEND_IMP] as temp
+    #         ON SSS.SERIAL = temp.SERIAL
+    # """
+    # print(sql1a)
+    #
+    conn = get_sql_connection()
+    cur = conn.cursor()
+    cur.execute(sql1)
+    # cur.execute(sql1a)
+    #
+    # GET AND STORE EXPECTED RESULTS
+    sql2 = """SELECT *
+    FROM [ips_test].[dbo].[SURVEY_SUBSAMPLE]
+    WHERE RUN_ID = '{}'
+    ORDER BY SERIAL
+    """.format(run_id)
+
+    expected_results = pandas.read_sql(sql2, conn)
+    expected_results.to_csv(r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\store_survey_data_with_step_results\imb_wt_expected_result.csv', index=False)
+
+    sql2 = """ 
+    delete from survey_subsample
+    where run_id = '{}'
+    """ .format(run_id)
+
+    sql3 = """ 
+        delete from PS_UNSAMPLED_OOH
+        where run_id = '{}'
+        """.format(run_id)
+
+    cur.execute(sql2)
+    cur.execute(sql3)
+
 
 if __name__ == "__main__":
-    unpickle_rick("update_survey_data_pvs")
-    # create_fake_data()
+    do_testing_stuff()
