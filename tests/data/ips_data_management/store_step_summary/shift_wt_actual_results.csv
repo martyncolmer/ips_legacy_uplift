@@ -1,6 +1,4 @@
 RUN_ID,SHIFT_PORT_GRP_PV,ARRIVEDEPART,WEEKDAY_END_PV,AM_PM_NIGHT_PV,MIGSI,POSS_SHIFT_CROSS,SAMP_SHIFT_CROSS,MIN_SH_WT,MEAN_SH_WT,MAX_SH_WT,COUNT_RESPS,SUM_SH_WT
-shift-wt-idm-test,145,2.0,1.0,1.0,,130.0,,,,,,
-shift-wt-idm-test,145,2.0,2.0,1.0,,50.0,,,,,,
 shift-wt-idm-test,151,1.0,,,,,20.0,71.429,157.624,200.0,2463.0,388228.571
 shift-wt-idm-test,151,2.0,,,,,31.0,111.111,116.22,118.182,2422.0,281484.848
 shift-wt-idm-test,151,1.0,1.0,1.0,10.0,130.0,13.0,100.0,100.0,100.0,293.0,29300.0
@@ -99,3 +97,5 @@ shift-wt-idm-test,144,2.0,1.0,1.0,,130.0,,,,,,
 shift-wt-idm-test,144,2.0,2.0,1.0,,50.0,,,,,,
 shift-wt-idm-test,145,1.0,1.0,1.0,,130.0,,,,,,
 shift-wt-idm-test,145,1.0,2.0,1.0,,50.0,,,,,,
+shift-wt-idm-test,145,2.0,1.0,1.0,,130.0,,,,,,
+shift-wt-idm-test,145,2.0,2.0,1.0,,50.0,,,,,,

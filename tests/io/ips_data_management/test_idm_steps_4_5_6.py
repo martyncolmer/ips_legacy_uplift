@@ -160,7 +160,7 @@ class TestIpsDataManagement:
                        'spv_table': '[dbo].[SAS_MINIMUMS_SPV]',
                        "pv_columns": ["'MINS_FLAG_PV'", "'MINS_PORT_GRP_PV'", "'MINS_CTRY_GRP_PV'", "'MINS_NAT_GRP_PV'",
                                       "'MINS_CTRY_PORT_GRP_PV'"],
-                       "weight_table": "[dbo].[SAS_MINIMUMS_WT]",
+                       "temp_table": "[dbo].[SAS_MINIMUMS_WT]",
                        "sas_ps_table": "[dbo].[SAS_PS_MINIMUMS]",
                        }
 
@@ -226,7 +226,7 @@ class TestIpsDataManagement:
         results = cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE)
         assert len(results) == 0
 
-        results = cf.get_table_values(step_config["weight_table"])
+        results = cf.get_table_values(step_config["temp_table"])
         assert len(results) == 0
 
         results = cf.get_table_values(step_config["sas_ps_table"])
@@ -331,7 +331,7 @@ class TestIpsDataManagement:
         step_config = {"pv_columns2": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]"],
                        "pv_table": "[dbo].[SAS_SHIFT_PV]",
                        "data_table": "[dbo].[SAS_SHIFT_DATA]",
-                       "weight_table": "[dbo].[SAS_SHIFT_WT]",
+                       "temp_table": "[dbo].[SAS_SHIFT_WT]",
                        "sas_ps_table": "[dbo].[SAS_PS_SHIFT_DATA]"}
 
         # Set up test data/tables
@@ -380,7 +380,7 @@ class TestIpsDataManagement:
         results = cf.get_table_values(step_config['pv_table'])
         assert len(results) == 0
 
-        results = cf.get_table_values(step_config['weight_table'])
+        results = cf.get_table_values(step_config['temp_table'])
         assert len(results) == 0
 
         results = cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE)
