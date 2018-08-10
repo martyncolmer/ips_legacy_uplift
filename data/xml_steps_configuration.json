@@ -13,7 +13,7 @@
       "data_table": "[dbo].[SAS_SHIFT_DATA]",
       "sas_ps_table": "[dbo].[SAS_PS_SHIFT_DATA]",
       "ps_table": "[dbo].[PS_SHIFT_DATA]",
-      "weight_table": "[dbo].[SAS_SHIFT_WT]",
+      "temp_table": "[dbo].[SAS_SHIFT_WT]",
       "table_name": "[dbo].[SHIFT_DATA]",
       "count": 0,
       "order": 0
@@ -31,7 +31,7 @@
       "data_table": "[dbo].[SAS_NON_RESPONSE_DATA]",
       "sas_ps_table": "[dbo].[SAS_PS_NON_RESPONSE]",
       "ps_table": "[dbo].[PS_NON_RESPONSE]",
-      "weight_table": "[dbo].[SAS_NON_RESPONSE_WT]",
+      "temp_table": "[dbo].[SAS_NON_RESPONSE_WT]",
       "table_name": "[dbo].[NON_RESPONSE_DATA]",
       "insert_to_populate": ["[PORTROUTE]", "[WEEKDAY]", "[ARRIVEDEPART]", "[AM_PM_NIGHT]", "[SAMPINTERVAL]", "[MIGTOTAL]", "[ORDTOTAL]"],
       "count": 0,
@@ -47,7 +47,7 @@
       "delete_tables": ["[dbo].[SAS_MINIMUMS_WT]", "[dbo].[SAS_PS_MINIMUMS]"],
       "spv_table": "[dbo].[SAS_MINIMUMS_SPV]",
       "ps_table": "[dbo].[PS_MINIMUMS]",
-      "weight_table": "[dbo].[SAS_MINIMUMS_WT]",
+      "temp_table": "[dbo].[SAS_MINIMUMS_WT]",
       "sas_ps_table": "[dbo].[SAS_PS_MINIMUMS]",
       "count": 0
     },
@@ -62,7 +62,7 @@
       "spv_table": "[dbo].[SAS_TRAFFIC_SPV]",
       "pv_table": "[dbo].[SAS_TRAFFIC_PV]",
       "data_table": "[dbo].[SAS_TRAFFIC_DATA]",
-      "weight_table": "[dbo].[SAS_TRAFFIC_WT]",
+      "temp_table": "[dbo].[SAS_TRAFFIC_WT]",
       "sas_ps_table": "[dbo].[SAS_PS_TRAFFIC]",
       "ps_table": "[dbo].[PS_TRAFFIC]",
       "table_name": "[dbo].[TRAFFIC_DATA]",
@@ -84,7 +84,7 @@
       "data_table": "[dbo].[SAS_UNSAMPLED_OOH_DATA]",
       "sas_ps_table": "[dbo].[SAS_PS_UNSAMPLED_OOH]",
       "ps_table": "[dbo].[PS_UNSAMPLED_OOH]",
-      "weight_table": "[dbo].[SAS_UNSAMPLED_OOH_WT]",
+      "temp_table": "[dbo].[SAS_UNSAMPLED_OOH_WT]",
       "table_name": "[dbo].[UNSAMPLED_OOH_DATA]",
       "insert_to_populate": ["[PORTROUTE]", "[REGION]", "[ARRIVEDEPART]", "[UNSAMP_TOTAL]"],
       "count": 2,
@@ -100,7 +100,7 @@
       "spv_table": "[dbo].[SAS_IMBALANCE_SPV]",
       "ps_table": "[dbo].[PS_IMBALANCE]",
       "sas_ps_table": "[dbo].[SAS_PS_IMBALANCE]",
-      "weight_table": "[dbo].[SAS_IMBALANCE_WT]",
+      "temp_table": "[dbo].[SAS_IMBALANCE_WT]",
       "count": 4
     },
   "FINAL_WEIGHT":
@@ -111,7 +111,7 @@
       "delete_tables": ["[dbo].[SAS_FINAL_WT]", "[dbo].[SAS_PS_FINAL]"],
       "ps_table": "[dbo].[PS_FINAL]",
       "sas_ps_table": "[dbo].[SAS_PS_FINAL]",
-      "weight_table": "[dbo].[SAS_FINAL_WT]"
+      "temp_table": "[dbo].[SAS_FINAL_WT]"
     },
   "STAY_IMPUTATION":
     {

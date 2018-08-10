@@ -321,7 +321,7 @@ def update_survey_data_with_step_pv_output(conn, step):
     print("")
 
     if step == "MINIMUMS_WEIGHT":
-        delete_statement = cf.delete_from_table(DATA[step]["weight_table"])
+        delete_statement = cf.delete_from_table(DATA[step]["temp_table"])
         print(delete_statement)
         print("")
         delete_statement = cf.delete_from_table(DATA[step]["sas_ps_table"])
@@ -426,7 +426,7 @@ def update_step_data_with_step_pv_output(conn, step):
 
     delete_statement = cf.delete_from_table(DATA[step]["pv_table"])
     print(delete_statement)
-    delete_statement = cf.delete_from_table(DATA[step]["weight_table"])
+    delete_statement = cf.delete_from_table(DATA[step]["temp_table"])
     print(delete_statement)
     delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
     print(delete_statement)
@@ -480,7 +480,7 @@ def update_survey_data_with_step_results(conn, step):
                    "STAY_IMPUTATION", "SPEND_IMPUTATION", "AIR_MILES"]
 
     if step in weights:
-        table = DATA[step]["weight_table"]
+        table = DATA[step]["temp_table"]
     elif step in imputations:
         table = DATA[step]["temp_table"]
     else:
@@ -728,9 +728,9 @@ if __name__ == "__main__":
     # store_survey_data_with_step_results(run_id, connection, step)
     # store_step_summary(run_id, connection, step)
     #
-    step = "FINAL_WEIGHT"
-    print("***{}***".format(step))
-    populate_survey_data_for_step(connection, step)
+    # step = "FINAL_WEIGHT"
+    # print("***{}***".format(step))
+    # populate_survey_data_for_step(connection, step)
     # update_survey_data_with_step_results(connection, step)
     # store_survey_data_with_step_results(run_id, connection, step)
     # store_step_summary(run_id, connection, step)
@@ -752,12 +752,12 @@ if __name__ == "__main__":
     # update_survey_data_with_step_results(connection, step)
     # store_survey_data_with_step_results(run_id, connection, step)
     #
-    # step = "SPEND_IMPUTATION"
-    # print("***{}***".format(step))
+    step = "SPEND_IMPUTATION"
+    print("***{}***".format(step))
     # populate_survey_data_for_step(connection, step)
     # copy_step_pvs_for_survey_data(run_id, connection, step)
     # update_survey_data_with_step_pv_output(connection, step)
-    # update_survey_data_with_step_results(connection, step)
+    update_survey_data_with_step_results(connection, step)
     # store_survey_data_with_step_results(run_id, connection, step)
     #
     # step = "RAIL_IMPUTATION"

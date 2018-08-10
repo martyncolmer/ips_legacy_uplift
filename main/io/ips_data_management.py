@@ -342,7 +342,7 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
     # code specific to minimums weight function/step
     # TODO: consider moving this out to another function called by minimum weight
     if step_configuration["name"] == "MINIMUMS_WEIGHT":
-        delete_statement = cf.delete_from_table(step_configuration["weight_table"])
+        delete_statement = cf.delete_from_table(step_configuration["temp_table"])
         print(delete_statement)
         print("")
         delete_statement = cf.delete_from_table(step_configuration["sas_ps_table"])
@@ -448,7 +448,7 @@ def update_step_data_with_step_pv_output(conn, step_configuration):
     # Cleanse temporary tables
     delete_statement = cf.delete_from_table(step_configuration["pv_table"])
     print(delete_statement)
-    delete_statement = cf.delete_from_table(step_configuration["weight_table"])
+    delete_statement = cf.delete_from_table(step_configuration["temp_table"])
     print(delete_statement)
     delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
     print(delete_statement)
@@ -475,9 +475,6 @@ def sql_update_statement(table_to_update_from, columns_to_update):
             JOIN {} as temp
             ON SSS.SERIAL = temp.SERIAL            
             """.format(SAS_SURVEY_SUBSAMPLE_TABLE, columns, SAS_SURVEY_SUBSAMPLE_TABLE, table_to_update_from)
-
-    print(sql)
-    print("")
 
     return sql
 
@@ -506,7 +503,7 @@ def update_survey_data_with_step_results(conn, step_configuration):
                    "STAY_IMPUTATION", "SPEND_IMPUTATION", "AIR_MILES"]
 
     if step in weights:
-        table = step_configuration["weight_table"]
+        table = step_configuration["temp_table"]
     elif step in imputations:
         table = step_configuration["temp_table"]
     else:
@@ -529,23 +526,18 @@ def update_survey_data_with_step_results(conn, step_configuration):
     elif step == "STAY_IMPUTATION":
         sql1 = sql_update_statement(table, results_columns)
         sql2 = """
-                UPDATE {}
-                SET [STAY] = (SELECT temp.[NUMNIGHTS]
-                    FROM {} AS temp
-                    WHERE [SERIAL] = temp.[SERIAL])
-                    WHERE [SERIAL] NOT IN (SELECT imp.[SERIAL]
-                        FROM {} AS imp)
-                """.format(SAS_SURVEY_SUBSAMPLE_TABLE, SAS_SURVEY_SUBSAMPLE_TABLE, table)
+                update sas_survey_subsample
+                set STAY = NUMNIGHTS
+                WHERE SERIAL NOT IN (SELECT SERIAL FROM SAS_STAY_IMP)"""
     elif step == "SPEND_IMPUTATION":
         sql1 = """
-                    UPDATE {}
-                    SET [SPEND] = (SELECT temp.[NEWSPEND]
-                        FROM {} as temp
-                        WHERE [SERIAL] = temp.[SERIAL])
-                    WHERE [SERIAL] IN (SELECT temp2.[SERIAL]
-                        FROM {} AS temp2
-                        WHERE temp2.[NEWSPEND] >= 0)
-                    """.format(SAS_SURVEY_SUBSAMPLE_TABLE, table, table)
+        UPDATE sss
+            SET sss.SPEND = ssi.NEWSPEND
+            from SAS_SURVEY_SUBSAMPLE as sss
+	        inner join SAS_SPEND_IMP as ssi on
+	        sss.SERIAL = ssi.SERIAL
+        WHERE sss.SERIAL in (select ssi2.serial from sas_spend_imp ssi2 where ssi2.newspend >= 0)
+        """
         sql2 = sql_update_statement(table, results_columns)
     else:
         sql1 = """
