@@ -16,6 +16,7 @@ RUN_ID = 'test-idm-integration-final-wt'
 TEST_DATA_DIR = r'tests\data\ips_data_management\final_weight_integration'
 STEP_NAME = 'FINAL_WEIGHT'
 EXPECTED_LEN = 19980
+
 START_TIME = time.time()
 print("Module level start time: {}".format(START_TIME))
 
@@ -30,9 +31,6 @@ def database_connection():
 
 def setup_module(module):
     """ Setup any state specific to the execution of the given module. """
-
-    # Print start time for performance
-    print("setup_module() start time: {}".format(time.time()))
 
     # Assign variables
     december_survey_data_path = (TEST_DATA_DIR + r'\surveydata.csv')
@@ -57,20 +55,18 @@ def teardown_module(module):
 
     # Play audio notification to indicate test is complete and print duration for performance
     cf.beep()
-    duration = time.time() - START_TIME
-    durationf = time.strftime("%H:%M:%S", time.gmtime(duration))
-    print("Duration: {}".format(durationf))
+    print("Duration: {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time() - START_TIME))))
 
 
 def import_survey_data(survey_data_path):
     """
-        Author       : (pinched from) Thomas Mahoney (modified by) Elinor Thorne
-        Date         : (26/04/ 2018) 23/08/2018
-        Purpose      : Loads the import data into 'SURVEY_SUBSAMPLE' table on the connected database.
-        Parameters   : survey_data_path - the dataframe containing all of the import data.
-        Returns      : NA
-        Requirements : Datafile is of type '.csv', '.pkl' or '.sas7bdat'
-        """
+    Author       : (pinched from) Thomas Mahoney (modified by) Elinor Thorne
+    Date         : (26/04/ 2018) 23/08/2018
+    Purpose      : Loads the import data into 'SURVEY_SUBSAMPLE' table on the connected database.
+    Parameters   : survey_data_path - the dataframe containing all of the import data.
+    Returns      : NA
+    Requirements : Datafile is of type '.csv', '.pkl' or '.sas7bdat'
+    """
 
     starttime = time.time()
 
@@ -88,9 +84,8 @@ def import_survey_data(survey_data_path):
     # Insert the imported data into the survey_subsample table on the database.
     cf.insert_dataframe_into_table('SURVEY_SUBSAMPLE', df_survey_data)
 
-    runtime = time.time() - starttime
-
-    print("Import runtime: {}".format((time.time() - starttime)))
+    # Print Import runtime to record performance
+    print("Import runtime: {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time() - starttime))))
 
 
 def reset_tables():
@@ -103,7 +98,6 @@ def reset_tables():
     # already empty, and continue deleting from tables in list.
     for table in tables_to_unconditionally_cleanse:
         try:
-            print("cf.delete_from_table({})".format(table))
             cf.delete_from_table(table)
         except Exception:
             continue
@@ -116,7 +110,6 @@ def reset_tables():
     # assume table is already empty, and continue deleting from tables in list
     for table in tables_to_cleanse:
         try:
-            print("cf.delete_from_table({}, 'RUN_ID', '=', RUN_ID)".format(table))
             cf.delete_from_table(table, 'RUN_ID', '=', RUN_ID)
         except Exception:
             continue
