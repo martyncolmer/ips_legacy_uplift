@@ -1,6 +1,6 @@
 import pandas as pd
 from sas7bdat import SAS7BDAT
-from main.io.CommonFunctions import insert_dataframe_into_table
+from main.io.CommonFunctions import insert_dataframe_into_table, get_sql_connection
 
 
 def extract_data(df):
@@ -65,7 +65,7 @@ def import_survey_data(survey_data_path, run_id, version_id):
 
     # Check the survey_data_path's suffix to see what it matches then extract using the appropriate method.
     if survey_data_path[-3:] == "csv":
-        df = pd.read_csv(survey_data_path)
+        df = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
     elif survey_data_path[-3:] == 'pkl':
         df = pd.read_pickle(survey_data_path)
     else:

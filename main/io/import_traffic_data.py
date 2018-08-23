@@ -100,22 +100,19 @@ def import_traffic_data(run_id, filename):
     table_name = table_name_dict[datasource]
     
     # Get the row count from the table
-    sql = "SELECT * FROM " + table_name 
-    row_count = cur.execute(sql)
-    row_count = cur.fetchall()
-    row_count = cur.rowcount 
+    sql = "SELECT * FROM [ips_test].[dbo].[" + table_name +"] where RUN_ID = '" + run_id + "'"
+    cur.execute(sql)
+    row_count = len(cur.fetchall())
 
-    # If table is not empty...
-    if row_count != 0:
-        # ...check if run_id currently exists...
-        table_run_id = cf.select_data("RUN_ID", table_name, "RUN_ID", run_id)
-        #...and delete if it does
-        if run_id in table_run_id["RUN_ID"].values:
-            cf.delete_from_table(table_name, "RUN_ID", "=", table_run_id)
+    if row_count > 0:
+        cf.delete_from_table(table_name, "RUN_ID", "=", run_id)
 
     # If table_name == "TRAFFIC_DATA" insert "VEHICLE" column with empty values
     if table_name == "TRAFFIC_DATA":
+        # Traffic data needs some columns set up and for nulls to be added as numeric values (else we get a conversion error in SQL)
         dataframe["VEHICLE"] = 0
+        dataframe['AM_PM_NIGHT'] = dataframe[['AM_PM_NIGHT']].convert_objects(convert_numeric=True).replace("", float('nan'))
+
    
     # Insert dataframe to table
     cf.insert_dataframe_into_table(table_name, dataframe)
