@@ -196,6 +196,8 @@ def do_ips_minweight_calculation(df_surveydata, var_serialNum, var_shiftWeight, 
 
     df_out = df_out.sort_values(var_serialNum)
 
+    df_summary["MINS_CTRY_GRP_PV"] = df_summary["MINS_CTRY_GRP_PV"].replace(0, float('nan'))
+
     return df_out, df_summary
 
 
