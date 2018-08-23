@@ -3,7 +3,6 @@ import json
 import pandas as pd
 import time
 
-from sas7bdat import SAS7BDAT
 from pandas.util.testing import assert_frame_equal
 from main.io import CommonFunctions as cf
 from main.io import ips_data_management as idm
@@ -41,9 +40,6 @@ def setup_module(module):
     # Deletes data from tables as necessary
     reset_tables()
 
-    # Populates test data within pv table
-    populate_test_pv_table()
-
 
 def teardown_module(module):
     """ Teardown any state that was previously setup with a setup_module method. """
@@ -71,12 +67,7 @@ def import_survey_data(survey_data_path):
     starttime = time.time()
 
     # Check the survey_data_path's suffix to see what it matches then extract using the appropriate method.
-    if survey_data_path[-3:] == "csv":
-        df_survey_data = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
-    elif survey_data_path[-3:] == 'pkl':
-        df_survey_data = pd.read_pickle(survey_data_path)
-    else:
-        df_survey_data = SAS7BDAT(survey_data_path).to_data_frame()
+    df_survey_data = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
 
     # Add the generated run id to the dataset.
     df_survey_data['RUN_ID'] = pd.Series(RUN_ID, index=df_survey_data.index)
@@ -121,38 +112,6 @@ def reset_tables():
             cf.delete_from_table(table)
         except Exception:
             continue
-
-
-def populate_test_pv_table():
-    """ Set up table to run and test copy_step_pvs_for_survey_data()
-        Note: Had to break up sql statements due to following error:
-        'pyodbc.Error: ('HY000', '[HY000] [Microsoft][ODBC SQL Server Driver]Connection is busy with results for
-             another hstmt (0) (SQLExecDirectW)')'
-        Error explained in http://sourceitsoftware.blogspot.com/2008/06/connection-is-busy-with-results-for.html """
-
-    conn = database_connection()
-    cur = conn.cursor()
-
-    sql1 = """
-    INSERT INTO [ips_test].[dbo].[PROCESS_VARIABLE_TESTING]
-    SELECT * FROM [ips_test].[dbo].[PROCESS_VARIABLE_PY]
-    WHERE [RUN_ID] = 'TEMPLATE'
-    """
-
-    sql2 = """
-    UPDATE [ips_test].[dbo].[PROCESS_VARIABLE_TESTING]
-    SET [RUN_ID] = '{}'
-    """.format(RUN_ID)
-
-    sql3 = """
-    INSERT INTO [ips_test].[dbo].[PROCESS_VARIABLE_PY]
-    SELECT * FROM [ips_test].[dbo].[PROCESS_VARIABLE_TESTING]
-    WHERE RUN_ID = '{}'
-    """.format(RUN_ID)
-
-    cur.execute(sql1)
-    cur.execute(sql2)
-    cur.execute(sql3)
 
 
 def test_final_weight_step():
