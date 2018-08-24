@@ -136,11 +136,11 @@ def test_final_weight_step():
         assert result[column_name].isnull().sum() == len(result)
 
     # Check table has been populated
-    table_len = len(cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE))
+    sas_survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    table_len = len(sas_survey_data.index)
     assert table_len == EXPECTED_LEN
 
-    # Get and test Survey Data before importing to calculation function
-    sas_survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    # Save the Survey Data before importing to calculation function
     sas_survey_data.to_csv(TEST_DATA_DIR + '\sas_survey_data_actual.csv', index=False)
 
     actual_results = pd.read_csv(TEST_DATA_DIR + '\sas_survey_data_actual.csv')

@@ -61,7 +61,7 @@ def shift_weight_step(run_id, connection, step_configuration):
                                                                                              sas_shift_data,
                                                                                              var_serialNum='SERIAL',
                                                                                              var_shiftWeight='SHIFT_WT')
-    cf.insert_dataframe_into_table(step_configuration["weight_table"], surveydata_out)
+    cf.insert_dataframe_into_table(step_configuration["temp_table"], surveydata_out)
     cf.insert_dataframe_into_table(step_configuration["sas_ps_table"], summary_out)
 
     ips_data_management.update_survey_data_with_step_results(connection, step_configuration)

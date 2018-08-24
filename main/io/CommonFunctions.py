@@ -548,6 +548,7 @@ def select_data(column_name, table_name, condition1, condition2):
         """.format(column_name, table_name, condition1, condition2)
 
     try:
+        print(sql)
         result = pandas.read_sql(sql, conn)
         print("Result: {}".format(result))
     except Exception as err:
@@ -960,6 +961,7 @@ def insert_dataframe_into_table_rbr(table_name, dataframe, connection=False):
     cur = connection.cursor()
 
     dataframe = dataframe.where((pandas.notnull(dataframe)), None)
+    dataframe = dataframe.replace(r'\s+', 'None', regex=True)
 
     # Extract the dataframe values into a collection of rows
     rows = [tuple(x) for x in dataframe.values]
@@ -1026,10 +1028,9 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False):
 
     cur = connection.cursor()
 
-
     dataframe = dataframe.where((pandas.notnull(dataframe)), None)
-    print(dataframe)
-    print(list(dataframe.columns.values))
+    # print(dataframe)
+    # print(list(dataframe.columns.values))
 
     # Extract the dataframe values into a collection of rows
     rows = [tuple(x) for x in dataframe.values]
@@ -1061,10 +1062,6 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False):
 
     print(sql)
     print("Rows to insert - " + str(len(rows)))
-
-    # Debugging
-    for rec in rows:
-       print(rec)
 
     start_time = time.time()
     print("Start - " + str(start_time))
