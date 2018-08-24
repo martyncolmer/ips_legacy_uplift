@@ -4,12 +4,27 @@
     <bookmark url="file://$PROJECT_DIR$/main/calculations/calculate_ips_minimums_weight.py" line="199" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e9c10ffe-f2a0-439f-9527-ed37db9c05da" name="Default" comment="Add test script for IPS minimums weight integration">
-      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/sas_survey_data_actual.csv" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/summary_out_actual.csv" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/surveydata_out_actual.csv" />
+    <list default="true" id="e9c10ffe-f2a0-439f-9527-ed37db9c05da" name="Default" comment="Pre Merge File changes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/main/io/import_traffic_data.py" afterPath="$PROJECT_DIR$/main/io/import_traffic_data.py" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/sas_survey_data_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/sas_survey_data_actual.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/summary_out_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/summary_out_actual.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/surveydata_out_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/surveydata_out_actual.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/non_response_data_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/non_response_data_result.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/shift_data_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/shift_data_result.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/traffic_data_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/traffic_data_result.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/unsampled_ooh_data_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/unsampled_ooh_data_result.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/test_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/test_result.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/store_survey_data_with_step_results/shift_wt_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/store_survey_data_with_step_results/shift_wt_actual_results.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/store_survey_data_with_step_results/spend_imp_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/store_survey_data_with_step_results/spend_imp_actual_results.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/store_survey_data_with_step_results/uns_wt_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/store_survey_data_with_step_results/uns_wt_actual_results.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/update_step_data_with_step_pv_output/copy_update_step_data_with_step_pv_output.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/update_step_data_with_step_pv_output/copy_update_step_data_with_step_pv_output.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/fares_imp_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/fares_imp_actual_results.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/imb_wt_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/imb_wt_actual_results.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/shift_wt_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/shift_wt_actual_results.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/spend_imp_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/spend_imp_actual_results.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/stay_imp_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/stay_imp_actual_results.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/unsampled_wt_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/unsampled_wt_actual_results.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_minimums_weight_xml_integration.py" afterPath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_minimums_weight_xml_integration.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -20,11 +35,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="test_minimums_weight_xml_integration.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="test_minimums_weight_xml_integration.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_minimums_weight_xml_integration.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="623">
-              <caret line="269" column="0" lean-forward="false" selection-start-line="269" selection-start-column="0" selection-end-line="269" selection-end-column="0" />
+            <state relative-caret-position="242">
+              <caret line="161" column="72" lean-forward="false" selection-start-line="161" selection-start-column="72" selection-end-line="161" selection-end-column="72" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
                 <element signature="e#643#918#0" expanded="false" />
@@ -41,17 +56,17 @@
                 <element signature="e#3837#3991#0" expanded="false" />
                 <element signature="e#4157#6202#0" expanded="false" />
                 <element signature="e#4157#4423#1" expanded="false" />
-                <element signature="e#6243#11774#0" expanded="false" />
+                <element signature="e#6300#11831#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="import_traffic_data.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="import_traffic_data.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main/io/import_traffic_data.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="124">
-              <caret line="32" column="53" lean-forward="true" selection-start-line="32" selection-start-column="53" selection-end-line="32" selection-end-column="53" />
+            <state relative-caret-position="527">
+              <caret line="37" column="63" lean-forward="false" selection-start-line="37" selection-start-column="63" selection-end-line="37" selection-end-column="63" />
               <folding />
             </state>
           </provider>
@@ -82,7 +97,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="LU-628-XML-Integration-Testing-Final_Weight" />
+        <entry key="$PROJECT_DIR$" value="development" />
       </map>
     </option>
   </component>
@@ -96,8 +111,8 @@
         <option value="$PROJECT_DIR$/main/io/CommonFunctions.py" />
         <option value="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/minimums_table_prep.py" />
         <option value="$PROJECT_DIR$/main/calculations/calculate_ips_minimums_weight.py" />
-        <option value="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_minimums_weight_xml_integration.py" />
         <option value="$PROJECT_DIR$/main/io/import_traffic_data.py" />
+        <option value="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_minimums_weight_xml_integration.py" />
       </list>
     </option>
   </component>
@@ -223,7 +238,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python tests.py.test in test_minimums_weight_xml_integration.py">
+  <component name="RunManager" selected="Python tests.All_Tests">
     <configuration name="minimums_table_prep" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -270,7 +285,7 @@
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
-        <env name="DB_NAME" value="ips_test" />
+        <env name="DB_NAME" value="ips_test3" />
         <env name="DB_SERVER" value="CR1VWSQL14-D-01" />
         <env name="DB_USER_NAME" value="ips_dev" />
         <env name="DB_PASSWORD" value="ips_dev" />
@@ -408,18 +423,25 @@
       <option name="project" value="LOCAL" />
       <updated>1535030102506</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Pre Merge File changes">
+      <created>1535104285568</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1535104285568</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="py_test_in_test_final_weight_xml_integration_py - 2018.08.24 at 08h 14m 10s.xml">
-      <configuration name="py.test in test_final_weight_xml_integration.py" configurationId="tests" />
+    <history-entry file="All_Tests - 2018.08.24 at 10h 56m 34s.xml">
+      <configuration name="All_Tests" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_test_final_weight_xml_integration_py - 2018.08.24 at 08h 15m 27s.xml">
-      <configuration name="py.test in test_final_weight_xml_integration.py" configurationId="tests" />
+    <history-entry file="All_Tests - 2018.08.24 at 10h 57m 09s.xml">
+      <configuration name="All_Tests" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_test_final_weight_xml_integration_py - 2018.08.24 at 08h 32m 36s.xml">
-      <configuration name="py.test in test_final_weight_xml_integration.py" configurationId="tests" />
+    <history-entry file="All_Tests - 2018.08.24 at 11h 22m 36s.xml">
+      <configuration name="All_Tests" configurationId="tests" />
     </history-entry>
     <history-entry file="py_test_in_test_minimums_weight_xml_integration_py - 2018.08.23 at 11h 33m 05s.xml">
       <configuration name="py.test in test_minimums_weight_xml_integration.py" configurationId="tests" />
@@ -454,26 +476,35 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20337197" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.50316125" order="11" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23452769" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2562432" sideWeight="0.49814913" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.4820847" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25515744" sideWeight="0.49814913" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3280363" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24960339" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3291714" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23995657" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.52443" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.50316125" order="11" side_tool="true" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23452769" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2562432" sideWeight="0.49814913" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3280363" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3291714" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20337197" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32790446" sideWeight="0.49683878" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24960339" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23995657" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -511,7 +542,8 @@
     <MESSAGE value="Modify import to deal with ANSI encoding and fix external import issue&#10;&#10;Extra conditions added to the import scripts and casting added to the AM_PM_NIGHT column which bypasses an error being caused due to inconsistent data types going into the traffic_data table." />
     <MESSAGE value="Removed prints from common functions that were flooding the console. Small tweak to minimums weight (changed 0's to nan)" />
     <MESSAGE value="Add test script for IPS minimums weight integration" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add test script for IPS minimums weight integration" />
+    <MESSAGE value="Pre Merge File changes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Pre Merge File changes" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -530,13 +562,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/unsampled_ooh_data_result.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="72" lean-forward="false" selection-start-line="0" selection-start-column="72" selection-end-line="0" selection-end-column="72" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/traffic_data.csv">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -701,6 +726,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="154" column="0" lean-forward="false" selection-start-line="154" selection-start-column="0" selection-end-line="154" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -758,15 +784,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main/io/ips_data_management.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="536">
-          <caret line="624" column="4" lean-forward="false" selection-start-line="624" selection-start-column="4" selection-end-line="624" selection-end-column="4" />
+        <state relative-caret-position="130">
+          <caret line="75" column="4" lean-forward="false" selection-start-line="75" selection-start-column="4" selection-end-line="75" selection-end-column="4" />
           <folding>
             <element signature="e#260#3816#0" expanded="false" />
             <element signature="e#3885#4556#0" expanded="false" />
             <element signature="e#3885#4053#1" expanded="false" />
             <element signature="e#4294#4364#0" expanded="false" />
             <element signature="e#4628#4796#1" expanded="false" />
-            <element signature="e#5635#6511#0" expanded="false" />
             <element signature="e#5635#5920#1" expanded="false" />
             <element signature="e#6195#6344#0" expanded="false" />
             <element signature="e#6576#7779#0" expanded="false" />
@@ -849,8 +874,9 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/data/xml_steps_configuration.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="26" column="39" lean-forward="false" selection-start-line="26" selection-start-column="39" selection-end-line="26" selection-end-column="39" />
+        <state relative-caret-position="-1105">
+          <caret line="38" column="17" lean-forward="false" selection-start-line="38" selection-start-column="17" selection-end-line="38" selection-end-column="17" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -880,16 +906,34 @@
     <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/minimums_table_prep.py" />
     <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_final_weight_xml_integration.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="559">
-          <caret line="228" column="27" lean-forward="true" selection-start-line="228" selection-start-column="27" selection-end-line="228" selection-end-column="27" />
+        <state relative-caret-position="130">
+          <caret line="84" column="0" lean-forward="false" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_minimums_weight.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="958">
+          <caret line="61" column="72" lean-forward="false" selection-start-line="61" selection-start-column="72" selection-end-line="61" selection-end-column="72" />
+          <folding>
+            <element signature="e#59#78#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/io/import_traffic_data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="527">
+          <caret line="37" column="63" lean-forward="false" selection-start-line="37" selection-start-column="63" selection-end-line="37" selection-end-column="63" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_minimums_weight_xml_integration.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="623">
-          <caret line="269" column="0" lean-forward="false" selection-start-line="269" selection-start-column="0" selection-end-line="269" selection-end-column="0" />
+        <state relative-caret-position="242">
+          <caret line="161" column="72" lean-forward="false" selection-start-line="161" selection-start-column="72" selection-end-line="161" selection-end-column="72" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
             <element signature="e#643#918#0" expanded="false" />
@@ -906,16 +950,8 @@
             <element signature="e#3837#3991#0" expanded="false" />
             <element signature="e#4157#6202#0" expanded="false" />
             <element signature="e#4157#4423#1" expanded="false" />
-            <element signature="e#6243#11774#0" expanded="false" />
+            <element signature="e#6300#11831#0" expanded="false" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main/io/import_traffic_data.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="124">
-          <caret line="32" column="53" lean-forward="true" selection-start-line="32" selection-start-column="53" selection-end-line="32" selection-end-column="53" />
-          <folding />
         </state>
       </provider>
     </entry>

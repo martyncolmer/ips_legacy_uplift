@@ -162,7 +162,7 @@ def import_data_into_database():
     import_traffic_data.import_traffic_data(RUN_ID, unsampled_data_path)
 
 
-@pytest.skip("Rounding error causes test to fail.")
+@pytest.mark.skip("Rounding error causes test to fail.")
 def test_minimums_weight_step():
 
     # Get database connection
