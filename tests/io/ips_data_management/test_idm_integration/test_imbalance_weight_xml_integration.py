@@ -237,7 +237,7 @@ def test_imbalance_weight_step():
     expected_results.index = range(0, len(expected_results))
     expected_results['SHIFT_PORT_GRP_PV'] = actual_results['SHIFT_PORT_GRP_PV'].astype(str)
 
-    # TODO: Ask Dave about sas_survey_data_expected_original[37] (what is the significance of the ? marks?) and handle
+    # TODO: Check actual[37] and expected[37] and work out why there are ? marks
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
     # Run the next step and test
