@@ -93,28 +93,28 @@ def populate_test_pv_table():
     cur = conn.cursor()
 
     sql1 = """
-    DELETE from[ips_test3].[dbo].[PROCESS_VARIABLE_TESTING]
+    DELETE from [dbo].[PROCESS_VARIABLE_TESTING]
     """
 
     sql2 = """
-    DELETE from[ips_test3].[dbo].[PROCESS_VARIABLE_PY]
+    DELETE from [dbo].[PROCESS_VARIABLE_PY]
     WHERE RUN_ID = '{}'
     """.format(RUN_ID)
 
     sql3 = """
-    INSERT INTO [ips_test3].[dbo].[PROCESS_VARIABLE_TESTING]
-    SELECT * FROM [ips_test3].[dbo].[PROCESS_VARIABLE_PY]
+    INSERT INTO [dbo].[PROCESS_VARIABLE_TESTING]
+    SELECT * FROM [dbo].[PROCESS_VARIABLE_PY]
     WHERE [RUN_ID] = 'TEMPLATE'
     """
 
     sql4 = """
-    UPDATE [ips_test3].[dbo].[PROCESS_VARIABLE_TESTING]
+    UPDATE [dbo].[PROCESS_VARIABLE_TESTING]
     SET [RUN_ID] = '{}'
     """.format(RUN_ID)
 
     sql5 = """
-    INSERT INTO [ips_test3].[dbo].[PROCESS_VARIABLE_PY]
-    SELECT * FROM [ips_test3].[dbo].[PROCESS_VARIABLE_TESTING]
+    INSERT INTO [dbo].[PROCESS_VARIABLE_PY]
+    SELECT * FROM [dbo].[PROCESS_VARIABLE_TESTING]
     WHERE RUN_ID = '{}'
     """.format(RUN_ID)
 
