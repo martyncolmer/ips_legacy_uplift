@@ -100,7 +100,7 @@ def import_traffic_data(run_id, filename):
     table_name = table_name_dict[datasource]
     
     # Get the row count from the table
-    sql = "SELECT * FROM [ips_test].[dbo].[" + table_name +"] where RUN_ID = '" + run_id + "'"
+    sql = "SELECT * FROM [dbo].[" + table_name +"] where RUN_ID = '" + run_id + "'"
     cur.execute(sql)
     row_count = len(cur.fetchall())
 
