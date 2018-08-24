@@ -49,7 +49,7 @@ def extract_data(df):
     return df_new
 
 
-def import_survey_data(survey_data_path, run_id, version_id):
+def import_survey_data(survey_data_path, run_id):
     """
     Author       : Thomas Mahoney
     Date         : 26 / 04 / 2018
@@ -64,29 +64,21 @@ def import_survey_data(survey_data_path, run_id, version_id):
     """
 
     # Check the survey_data_path's suffix to see what it matches then extract using the appropriate method.
-    if survey_data_path[-3:] == "csv":
-        df = pd.read_csv(survey_data_path)
-    elif survey_data_path[-3:] == 'pkl':
-        df = pd.read_pickle(survey_data_path)
-    else:
-        # Attempt the faster pandas based import, if not possible use the SAS7BDAT method.
-        try:
-            df = pd.read_sas(survey_data_path)
-        except:
-            df = SAS7BDAT(survey_data_path).to_data_frame()
+    df_survey_data = pd.read_csv(survey_data_path, encoding = 'ANSI', dtype = str)
 
     # Call the extract data function to select only the needed columns.
-    df_survey_data = extract_data(df)
+    # df_survey_data = extract_data(df)
 
     # Add the generated run id to the dataset.
     df_survey_data['RUN_ID'] = pd.Series(run_id, index=df_survey_data.index)
 
     # Insert the imported data into the survey_subsample table on the database.
-    insert_dataframe_into_table('SURVEY_SUBSAMPLE', df_survey_data)
+    # insert_dataframe_into_table('SURVEY_SUBSAMPLE', df_survey_data)
+
 
 
 if __name__ == '__main__':
-    survey_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec Data\ips1712bv4_amtspnd.sas7bdat"
-    version_id = 1891
+    survey_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec_Data\ips1712bv4_amtspnd.csv"
+    run_id = 'test-idm-integration-nassir-test'
 
-    import_survey_data(survey_data_path, version_id)
+    import_survey_data(survey_data_path, run_id)
