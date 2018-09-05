@@ -1121,9 +1121,13 @@ def unpickle_rick(file):
 
 
 def do_testing_stuff():
-    expected_results = pandas.read_pickle(r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\spend_imputation_integration\sas_survey_data_expected.pkl')
-    expected_results.drop([0,0])
-    print(expected_results.head(1))
+    from main.io import ips_data_management as idm
+    RUN_ID = 'test-idm-integration-spend-imp'
+
+    fares_output = pandas.read_csv(r'S:\CASPA\IPS\Testing\Dec_Data\Fares\output_final.csv')
+    insert_dataframe_into_table('SAS_FARES_IMP', fares_output)
+
+    idm.update_survey_data_with_step_results()
 
 
 if __name__ == "__main__":

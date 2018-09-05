@@ -51,6 +51,7 @@ def do_ips_spend_imputation(df_survey_data, var_serial, measure):
     df_eligible = df_survey_data.copy()
     df_eligible[STAYDAYS_VARIABLE] = np.where(df_eligible[ELIGIBLE_FLAG_VARIABLE] == 1.0,
                                               (df_eligible[STAY_VARIABLE] + 1.0), np.NaN)
+    df_eligible.to_csv(r'S:\CASPA\IPS\Testing\Integration\df_eligible.csv')
     df_eligible.drop(df_eligible[df_eligible[ELIGIBLE_FLAG_VARIABLE] != 1.0].index,
                      inplace=True)
     
