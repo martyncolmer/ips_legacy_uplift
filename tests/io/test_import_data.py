@@ -13,6 +13,7 @@ RUN_ID = 'import_test'
 CLEAN_UP_BEFORE = True
 CLEAN_UP_AFTER = False
 
+
 @pytest.fixture(scope='module')
 def database_connection():
     '''
@@ -38,32 +39,43 @@ def teardown_module(module):
 
 
 def reset_tables():
+    """
+    Author        : Thomas Mahoney
+    Date          : 7 Sep 2018
+    Purpose       : Deletes records from tables associated with the import test.
+    Parameters    : NA
+    Returns       : NA
+    """
+
     """ Deletes records from tables associated with the import test. """
 
     print("Deleting records from tables associated with the import test...")
-    # cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID)
-    # cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID + "_OCTOBER_2017")
-    # cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID + "_NOVEMBER_2017")
-    # cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID + "_DECEMBER_2017")
-    # cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID + "_Q3_2017")
 
-    tables_to_delete = [idm.SURVEY_SUBSAMPLE_TABLE,
+    tables_to_delete_run_id = [idm.SURVEY_SUBSAMPLE_TABLE,
                         "TRAFFIC_DATA",
                         "SHIFT_DATA",
                         "NON_RESPONSE_DATA",
                         "UNSAMPLED_OOH_DATA"]
 
-    for table in tables_to_delete:
+    for table in tables_to_delete_run_id:
         cf.delete_from_table(table, 'RUN_ID', '=', RUN_ID)
         cf.delete_from_table(table, 'RUN_ID', '=', RUN_ID + "_OCTOBER_2017")
         cf.delete_from_table(table, 'RUN_ID', '=', RUN_ID + "_NOVEMBER_2017")
         cf.delete_from_table(table, 'RUN_ID', '=', RUN_ID + "_DECEMBER_2017")
         cf.delete_from_table(table, 'RUN_ID', '=', RUN_ID + "_Q3_2017")
 
-    cf.delete_from_table("SAS_SURVEY_SUBSAMPLE")
+    tables_to_delete_all = [
+        'SAS_SURVEY_SUBSAMPLE',
+        'SAS_SHIFT_DATA',
+        'SAS_NON_RESPONSE_DATA',
+        'SAS_TRAFFIC_DATA',
+        'SAS_UNSAMPLED_OOH_DATA',
+    ]
+
+    for table in tables_to_delete_all:
+        cf.delete_from_table(table)
 
     print("Import table test records deleted.")
-
 
 
 @pytest.mark.parametrize('dataset, data_path, table_name, step', [
@@ -86,17 +98,32 @@ def reset_tables():
     ('_DECEMBER_2017', r'tests\data\calculations\december_2017\town_and_stay\input_townspend.csv', 'SAS_SURVEY_SUBSAMPLE', 'town_stay_and_exp_imputation'),
     ])
 def test_insert_step_data(dataset, data_path, table_name, step):
+    """
+    Author        : Thomas Mahoney
+    Date          : 7 Sep 2018
+    Purpose       : Tests unit test data can be loaded into correct tables for processing.
+    Parameters    : dataset - Used as a suffix in cases where a RUN_ID is needed.
+                    data_path - The import file path.
+                    table_name - The name of the import's target table
+                    step = Used as part of a suffix where a RUN_ID is needed.
+    Returns       : NA
+    """
 
-    # Get CSV content
+    # Clear the tables before importing the test data
+    reset_tables()
+
+    # Generate a dataframe from the csv file
     df = pd.read_csv(data_path, engine='python')
-    
+
+    # If the data contains a REC_ID column, drop it as the value is generated once the record is added to the SQL table.
     if 'REC_ID' in df.columns:
         df.drop(['REC_ID'], axis=1, inplace=True)
 
+    # Insert the dataframe into the target SQL Server table
     cf.insert_dataframe_into_table(table_name, df)
 
-    print('imported.')
-
+    # Assert that the number of records in the table matches the number of records in our import dataset.
+    assert len(df.index) == len(cf.get_table_values(table_name))
 
 
 @pytest.mark.parametrize('dataset, data_path', [
@@ -106,34 +133,21 @@ def test_insert_step_data(dataset, data_path, table_name, step):
     ('_Q3_2017', r'tests\data\ips_data_management\import_data\survey\quarter32017.csv'),
     ])
 def test_import_survey_data(dataset, data_path):
+    """
+    Author        : Thomas Mahoney
+    Date          : 7 Sep 2018
+    Purpose       : Tests running the import_survey_data function correctly inserts a dataset into SQL Server from
+                    a csv source file.
+    Parameters    : dataset - This value specifies the period the data was collected in, it is used in RUN_ID creation.
+                    data_path - The import file path.
+    Returns       : NA
+    """
 
+    # Run the import script using the specified data and the test RUN_ID
     import_data.import_survey_data(data_path, RUN_ID + dataset)
 
-    assert True
-
-#
-# def test_import_survey_data_november_2017():
-#     survey_data_path = r'tests\data\ips_data_management\import_data\survey\ips1711h_1.csv'
-#
-#     import_data.import_survey_data(survey_data_path, RUN_ID + "_NOVEMBER_2017")
-#
-#     assert True
-#
-#
-# def test_import_survey_data_december_2017():
-#     survey_data_path = r'tests\data\ips_data_management\import_data\survey\ips1712bv4_amtspnd.csv'
-#
-#     import_data.import_survey_data(survey_data_path, RUN_ID + "_DECEMBER_2017")
-#
-#     assert True
-#
-#
-# def test_import_survey_data_q3_2017():
-#     survey_data_path = r'tests\data\ips_data_management\import_data\survey\quarter32017.csv'
-#
-#     import_data.import_survey_data(survey_data_path, RUN_ID + "_Q3_2017")
-#
-#     assert True
+    # Assert that records were added to the SURVEY_SUBSAMPLE table under the given RUN_ID.
+    assert len(cf.select_data('*', 'SURVEY_SUBSAMPLE', 'RUN_ID', RUN_ID + dataset)) > 0
 
 
 @pytest.mark.parametrize('dataset, data_path', [
@@ -143,11 +157,21 @@ def test_import_survey_data(dataset, data_path):
     ('_Q3_2017', r'tests\data\ips_data_management\import_data\external\q3\Possible shifts Q3 2017.csv'),
     ])
 def test_import_shift_data(dataset, data_path):
+    """
+    Author        : Thomas Mahoney
+    Date          : 7 Sep 2018
+    Purpose       : Tests that running the import_traffic_data function with shift data correctly inserts a dataset into
+                    SQL Server from a csv source file.
+    Parameters    : dataset - This value specifies the period the data was collected in, it is used in RUN_ID creation.
+                    data_path - The import file path.
+    Returns       : NA
+    """
 
-    import_traffic_data.import_traffic_data( RUN_ID + dataset, data_path)
+    # Run the import script using the specified data and the test RUN_ID
+    import_traffic_data.import_traffic_data(RUN_ID + dataset, data_path)
 
-    assert True
-    pass
+    # Assert that records were added to the SURVEY_SUBSAMPLE table under the given RUN_ID.
+    assert len(cf.select_data('*', 'SHIFT_DATA', 'RUN_ID', RUN_ID + dataset)) > 0
 
 
 @pytest.mark.parametrize('dataset, data_path', [
@@ -157,10 +181,21 @@ def test_import_shift_data(dataset, data_path):
     ('_Q3_2017', r'tests\data\ips_data_management\import_data\external\q3\Non Response Q3 2017.csv'),
     ])
 def test_import_non_response_data(dataset, data_path):
+    """
+    Author        : Thomas Mahoney
+    Date          : 7 Sep 2018
+    Purpose       : Tests that running the import_traffic_data function with non response data correctly inserts a
+                    dataset into SQL Server from a csv source file.
+    Parameters    : dataset - This value specifies the period the data was collected in, it is used in RUN_ID creation.
+                    data_path - The import file path.
+    Returns       : NA
+    """
 
+    # Run the import script using the specified data and the test RUN_ID
     import_traffic_data.import_traffic_data(RUN_ID + dataset, data_path)
 
-    assert True
+    # Assert that records were added to the SURVEY_SUBSAMPLE table under the given RUN_ID.
+    assert len(cf.select_data('*', 'NON_RESPONSE_DATA', 'RUN_ID', RUN_ID + dataset)) > 0
 
 
 @pytest.mark.parametrize('dataset, data_path', [
@@ -170,10 +205,21 @@ def test_import_non_response_data(dataset, data_path):
     ('_Q3_2017', r'tests\data\ips_data_management\import_data\external\q3\Sea Traffic Q3 2017.csv'),
     ])
 def test_import_sea_data(dataset, data_path):
+    """
+    Author        : Thomas Mahoney
+    Date          : 7 Sep 2018
+    Purpose       : Tests that running the import_traffic_data function with sea data correctly inserts a dataset into
+                    SQL Server from a csv source file.
+    Parameters    : dataset - This value specifies the period the data was collected in, it is used in RUN_ID creation.
+                    data_path - The import file path.
+    Returns       : NA
+    """
 
+    # Run the import script using the specified data and the test RUN_ID
     import_traffic_data.import_traffic_data(RUN_ID + dataset, data_path)
 
-    assert True
+    # Assert that records were added to the SURVEY_SUBSAMPLE table under the given RUN_ID.
+    assert len(cf.select_data('*', 'TRAFFIC_DATA', 'RUN_ID', RUN_ID + dataset)) > 0
 
 
 @pytest.mark.parametrize('dataset, data_path', [
@@ -183,10 +229,21 @@ def test_import_sea_data(dataset, data_path):
     ('_Q3_2017', r'tests\data\ips_data_management\import_data\external\q3\Tunnel Traffic Q3 2017.csv'),
     ])
 def test_import_tunnel_data(dataset, data_path):
+    """
+    Author        : Thomas Mahoney
+    Date          : 7 Sep 2018
+    Purpose       : Tests that running the import_traffic_data function with tunnel data correctly inserts a dataset
+                    into SQL Server from a csv source file.
+    Parameters    : dataset - This value specifies the period the data was collected in, it is used in RUN_ID creation.
+                    data_path - The import file path.
+    Returns       : NA
+    """
 
+    # Run the import script using the specified data and the test RUN_ID
     import_traffic_data.import_traffic_data(RUN_ID + dataset, data_path)
 
-    assert True
+    # Assert that records were added to the SURVEY_SUBSAMPLE table under the given RUN_ID.
+    assert len(cf.select_data('*', 'TRAFFIC_DATA', 'RUN_ID', RUN_ID + dataset)) > 0
 
 
 @pytest.mark.parametrize('dataset, data_path', [
@@ -196,89 +253,42 @@ def test_import_tunnel_data(dataset, data_path):
     ('_Q3_2017', r'tests\data\ips_data_management\import_data\external\q3\CAA Q3 2017.csv'),
     ])
 def test_import_air_data(dataset, data_path):
+    """
+    Author        : Thomas Mahoney
+    Date          : 7 Sep 2018
+    Purpose       : Tests that running the import_traffic_data function with air data correctly inserts a dataset into
+                    SQL Server from a csv source file.
+    Parameters    : dataset - This value specifies the period the data was collected in, it is used in RUN_ID creation.
+                    data_path - The import file path.
+    Returns       : NA
+    """
 
+    # Run the import script using the specified data and the test RUN_ID
     import_traffic_data.import_traffic_data(RUN_ID + dataset, data_path)
 
-    assert True
+    # Assert that records were added to the SURVEY_SUBSAMPLE table under the given RUN_ID.
+    assert len(cf.select_data('*', 'TRAFFIC_DATA', 'RUN_ID', RUN_ID + dataset)) > 0
 
 
 @pytest.mark.parametrize('dataset, data_path', [
-    ('_OCTOBER_2017', r'tests\data\ips_data_management\import_data\external\october\Unsampled Traffic Oct 2017'),
-    ('_NOVEMBER_2017', r'tests\data\ips_data_management\import_data\external\november\Unsampled Traffic Nov 2017'),
+    ('_OCTOBER_2017', r'tests\data\ips_data_management\import_data\external\october\Unsampled Traffic Oct 20172nd.csv'),
+    ('_NOVEMBER_2017', r'tests\data\ips_data_management\import_data\external\november\Unsampled Traffic Nov 2017.csv'),
     ('_DECEMBER_2017', r'tests\data\ips_data_management\import_data\external\december\Unsampled Traffic Dec 2017.csv'),
-    ('_Q3_2017', r'tests\data\ips_data_management\import_data\external\q3\Unsampled Traffic Q3 2017'),
+    ('_Q3_2017', r'tests\data\ips_data_management\import_data\external\q3\Unsampled Traffic Q3 2017.csv'),
     ])
 def test_import_unsampled_data(dataset, data_path):
+    """
+    Author        : Thomas Mahoney
+    Date          : 7 Sep 2018
+    Purpose       : Tests that running the import_traffic_data function with unsampled data correctly inserts a dataset
+                    into SQL Server from a csv source file.
+    Parameters    : dataset - This value specifies the period the data was collected in, it is used in RUN_ID creation.
+                    data_path - The import file path.
+    Returns       : NA
+    """
 
+    # Run the import script using the specified data and the test RUN_ID
     import_traffic_data.import_traffic_data(RUN_ID + dataset, data_path)
 
-    assert True
-
-
-@pytest.mark.skip
-def test_import_data_into_database():
-    '''
-    This function prepares all the data necessary to run all 14 steps.
-    The input files have been edited to make sure data types match the database tables.
-    Note that no process variables are uploaded and are expected to be present in the database.
-    '''
-
-    cf.delete_from_table('SURVEY_SUBSAMPLE', 'RUN_ID', '=', RUN_ID)
-    cf.delete_from_table('SAS_SURVEY_SUBSAMPLE')
-
-    # Import data paths (these will be passed in through the user)
-    survey_data_path = r'tests\data\ips_data_management\import_data\minimums_weight\surveydata.csv'
-    shift_data_path = r'tests\data\ips_data_management\import_data\external\Poss shifts Dec 2017.csv'
-    nr_data_path = r'tests\data\ips_data_management\import_data\external\Dec17_NR.csv'
-    sea_data_path = r'tests\data\ips_data_management\import_data\external\Sea Traffic Dec 2017.csv'
-    tunnel_data_path = r'tests\data\ips_data_management\import_data\external\Tunnel Traffic Dec 2017.csv'
-    air_data_path = r'tests\data\ips_data_management\import_data\external\Air Sheet Dec 2017 VBA.csv'
-    unsampled_data_path = r'tests\data\ips_data_management\import_data\external\Unsampled Traffic Dec 2017.csv'
-
-    # Get CSV content
-    df = pd.read_csv(survey_data_path)
-
-    # Add the generated run id to the dataset.
-    df['RUN_ID'] = pd.Series(RUN_ID, index=df.index)
-
-    # Insert the imported data into the survey_subsample table on the database.
-    cf.insert_dataframe_into_table('SURVEY_SUBSAMPLE', df)
-
-    # Import the external files into the database.
-    import_traffic_data.import_traffic_data(RUN_ID, shift_data_path)
-    import_traffic_data.import_traffic_data(RUN_ID, nr_data_path)
-    import_traffic_data.import_traffic_data(RUN_ID, sea_data_path)
-    import_traffic_data.import_traffic_data(RUN_ID, tunnel_data_path)
-    import_traffic_data.import_traffic_data(RUN_ID, air_data_path)
-    import_traffic_data.import_traffic_data(RUN_ID, unsampled_data_path)
-
-@pytest.mark.skip
-def test_import_survey_data_old():
-    # Import data paths (these will be passed in through the user)
-    survey_data_path = r'tests\data\ips_data_management\import_data\minimums_weight\surveydata.csv'
-    shift_data_path = r'tests\data\ips_data_management\import_data\external\Poss shifts Dec 2017.csv'
-    nr_data_path = r'tests\data\ips_data_management\import_data\external\Dec17_NR.csv'
-    sea_data_path = r'tests\data\ips_data_management\import_data\external\Sea Traffic Dec 2017.csv'
-    tunnel_data_path = r'tests\data\ips_data_management\import_data\external\Tunnel Traffic Dec 2017.csv'
-    air_data_path = r'tests\data\ips_data_management\import_data\external\Air Sheet Dec 2017 VBA.csv'
-    unsampled_data_path = r'tests\data\ips_data_management\import_data\external\Unsampled Traffic Dec 2017.csv'
-
-    # Delete table content
-    cf.delete_from_table('SURVEY_SUBSAMPLE', 'RUN_ID', '=', RUN_ID)
-    cf.delete_from_table('SAS_SURVEY_SUBSAMPLE')
-
-    df = pd.read_csv(survey_data_path)
-
-    # Add the generated run id to the dataset.
-    df['RUN_ID'] = pd.Series(RUN_ID, index=df.index)
-
-    # Insert the imported data into the survey_subsample table on the database.
-    cf.insert_dataframe_into_table('SURVEY_SUBSAMPLE', df)
-
-    # Import the external files into the database.
-    cf.import_traffic_data.import_traffic_data(RUN_ID, shift_data_path)
-    cf.import_traffic_data.import_traffic_data(RUN_ID, nr_data_path)
-    cf.import_traffic_data.import_traffic_data(RUN_ID, sea_data_path)
-    cf.import_traffic_data.import_traffic_data(RUN_ID, tunnel_data_path)
-    cf.import_traffic_data.import_traffic_data(RUN_ID, air_data_path)
-    cf.import_traffic_data.import_traffic_data(RUN_ID, unsampled_data_path)
+    # Assert that records were added to the SURVEY_SUBSAMPLE table under the given RUN_ID.
+    assert len(cf.select_data('*', 'UNSAMPLED_OOH_DATA', 'RUN_ID', RUN_ID + dataset)) > 0
