@@ -902,7 +902,7 @@ def compare_datasets(test_name, sas_file, py_df):
 
 
 def compare_dfs(test_name, sas_file, df, col_list = False):
-    sas_root = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Oct Data\Town and Stay Imputation"
+    sas_root = r"S:\CASPA\IPS\Testing\Dec_Data\Imbalance"
 
     try:
         csv = pandas.read_sas(sas_root + "\\" + sas_file)
@@ -911,7 +911,7 @@ def compare_dfs(test_name, sas_file, df, col_list = False):
 
     csv.columns = csv.columns.str.upper()
     
-    fdir = r"H:\My Documents\Documents\Git Repo\Misc and Admin\Legacy Uplift\Compare"
+    fdir = r"S:\CASPA\IPS\Testing\Integration\Imbalance Intermediate Steps"
     sas = "_sas.csv"
     py = "_py.csv"
     
