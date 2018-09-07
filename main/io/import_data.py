@@ -49,7 +49,7 @@ def extract_data(df):
     return df_new
 
 
-def import_survey_data(survey_data_path, run_id, version_id):
+def import_survey_data(survey_data_path, run_id):
     """
     Author       : Thomas Mahoney
     Date         : 26 / 04 / 2018
@@ -65,15 +65,7 @@ def import_survey_data(survey_data_path, run_id, version_id):
 
     # Check the survey_data_path's suffix to see what it matches then extract using the appropriate method.
     if survey_data_path[-3:] == "csv":
-        df = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
-    elif survey_data_path[-3:] == 'pkl':
-        df = pd.read_pickle(survey_data_path)
-    else:
-        # Attempt the faster pandas based import, if not possible use the SAS7BDAT method.
-        try:
-            df = pd.read_sas(survey_data_path)
-        except:
-            df = SAS7BDAT(survey_data_path).to_data_frame()
+        df = pd.read_csv(survey_data_path, engine='python')
 
     # Call the extract data function to select only the needed columns.
     df_survey_data = extract_data(df)
