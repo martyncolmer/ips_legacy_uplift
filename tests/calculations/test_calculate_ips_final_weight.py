@@ -1,58 +1,74 @@
-'''
-Created on 17 April 2018
-
-@author: Nassir Mohammad
-'''
-
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
-from main.calculations.calculate_ips_final_weight import calculate, do_ips_final_wt_calculation
+from main.calculations.calculate_ips_final_weight import do_ips_final_wt_calculation
 import pytest
-import tests.config
-path_to_data = r"tests/data/calculations/" + tests.config.TEST_MONTH + "/final_weight"
+import main.io.CommonFunctions as cf
+
+OUTPUT_TABLE_NAME = 'SAS_FINAL_WT'
+SUMMARY_TABLE_NAME = 'SAS_PS_FINAL'
 
 
-def test_calculate():
-    (surveydata_dataframe, summary_dataframe) = calculate(SurveyData='SAS_SURVEY_SUBSAMPLE'
-                                                                      , var_serialNum='SERIAL'
-                                                                      , var_shiftWeight='SHIFT_WT'
-                                                                      , var_NRWeight='NON_RESPONSE_WT'
-                                                                      , var_minWeight='MINS_WT'
-                                                                      , var_trafficWeight='TRAFFIC_WT'
-                                                                      , var_unsampWeight='UNSAMP_TRAFFIC_WT'
-                                                                      , var_imbWeight='IMBAL_WT'
-                                                                      , var_finalWeight='FINAL_WT')
+@pytest.mark.parametrize('data_path', [
+    r'tests\data\calculations\december_2017\final_weight',
+    r'tests\data\calculations\november_2017\final_weight',
+    r'tests\data\calculations\october_2017\final_weight',
+    ])
+def test_calculate(data_path):
+    """
+    Author        : Thomas Mahoney
+    Date          : 7 Sep 2018
+    Purpose       : Tests the calculation function of the final weight step works as expected.
+    Parameters    : data_path - The file path to the data folder (contains import and expected results csv files).
+    Returns       : NA
+    """
 
-    path_to_test = path_to_data + r"/output_final.pkl"
-    test_df_output_final = pd.read_pickle(path_to_test)
-    test_df_output_final.columns = test_df_output_final.columns.str.upper()
-    assert_frame_equal(surveydata_dataframe, test_df_output_final, check_dtype=False)
+    # Clear the survey import table
+    cf.delete_from_table('SAS_SURVEY_SUBSAMPLE')
+    cf.delete_from_table(OUTPUT_TABLE_NAME)
+    cf.delete_from_table(SUMMARY_TABLE_NAME)
+
+    # Read the test input data in and write it to the import table
+    path_to_surveydata = data_path + r"\surveydata.csv"
+    df_surveydata = pd.read_csv(path_to_surveydata, engine='python')
+    cf.insert_dataframe_into_table('SAS_SURVEY_SUBSAMPLE', df_surveydata)
+
+    # Read the data from SQL (as it will in the production ready system)
+    df_surveydata = cf.get_table_values('SAS_SURVEY_SUBSAMPLE')
+
+    # Run the calculation step
+    surveydata_out, summary_out = do_ips_final_wt_calculation(df_surveydata,
+                                                              var_serialNum='SERIAL',
+                                                              var_shiftWeight='SHIFT_WT',
+                                                              var_NRWeight='NON_RESPONSE_WT',
+                                                              var_minWeight='MINS_WT',
+                                                              var_trafficWeight='TRAFFIC_WT',
+                                                              var_unsampWeight='UNSAMP_TRAFFIC_WT',
+                                                              var_imbWeight='IMBAL_WT',
+                                                              var_finalWeight='FINAL_WT')
+
+    def convert_dataframe_to_sql_format(table_name, dataframe):
+        cf.insert_dataframe_into_table(table_name, dataframe)
+        return cf.get_table_values(table_name)
+
+    # Write the test result data to SQL then pull it back for comparison
+    df_survey_result = convert_dataframe_to_sql_format(OUTPUT_TABLE_NAME, surveydata_out)
+    df_summary_result = convert_dataframe_to_sql_format(SUMMARY_TABLE_NAME, summary_out)
+
+    # Clear down the result tables
+    cf.delete_from_table(OUTPUT_TABLE_NAME)
+    cf.delete_from_table(SUMMARY_TABLE_NAME)
+
+    # Write the expected result data to SQL then pull it back for comparison
+    path_to_survey_result = data_path + r"\output_final.csv"
+    df_survey_expected = pd.read_csv(path_to_survey_result, engine='python')
+    df_survey_expected = convert_dataframe_to_sql_format(OUTPUT_TABLE_NAME, df_survey_expected)
+
+    # Sort the dataframes for comparison
+    df_survey_result = df_survey_result.sort_values('SERIAL')
+    df_survey_result.index = range(0, len(df_survey_result))
+    df_survey_expected = df_survey_expected.sort_values('SERIAL')
+    df_survey_expected.index = range(0, len(df_survey_expected))
+
+    assert_frame_equal(df_survey_result, df_survey_expected)
 
     # unable to test summary_dataframe as it contains a random sample
-
-
-def test_do_ips_final_wt_calculation():
-
-    # Setup path to the base directory containing data files
-    path_to_surveydata = path_to_data + r"\surveydata.pkl"
-    df_surveydata = pd.read_pickle(path_to_surveydata)
-    df_surveydata.columns = df_surveydata.columns.str.upper()
-
-    (df_output, df_summary) = do_ips_final_wt_calculation(df_surveydata
-                                                            , var_serialNum = 'SERIAL'
-                                                            , var_shiftWeight = 'SHIFT_WT'
-                                                            , var_NRWeight = 'NON_RESPONSE_WT'
-                                                            , var_minWeight = 'MINS_WT'
-                                                            , var_trafficWeight = 'TRAFFIC_WT'
-                                                            , var_unsampWeight = 'UNSAMP_TRAFFIC_WT'
-                                                            , var_imbWeight = 'IMBAL_WT'
-                                                            , var_finalWeight = 'FINAL_WT')
-
-    path_to_test = path_to_data + r"/output_final.pkl"
-    test_df_output_final = pd.read_pickle(path_to_test)
-    test_df_output_final.columns = test_df_output_final.columns.str.upper()
-    assert_frame_equal(df_output, test_df_output_final, check_dtype=False)
-
-    # unable to test df_summary as it contains a random sample
-
-
