@@ -1004,6 +1004,7 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False):
         connection = get_sql_connection()
 
     cur = connection.cursor()
+    cur.fast_executemany = True
 
     dataframe = dataframe.where((pandas.notnull(dataframe)), None)
 
@@ -1160,5 +1161,5 @@ def unpickle_rick(file):
     # cur.execute(sql3)
 
 
-if __name__ == "__main__":
-    do_testing_stuff()
+# if __name__ == "__main__":
+#     do_testing_stuff()

@@ -5,7 +5,6 @@ Created on 7 Feb 2018
 '''
 import inspect
 import pandas as pd
-import sys
 
 from main.io import CommonFunctions as cf
 
@@ -47,16 +46,8 @@ def do_ips_imbweight_calculation(df_survey_data, var_serialNum, var_shiftWeight,
     df_output_data.loc[df_output_data[ELIGIBLE_FLAG_COLUMN] == 1.0,
                        var_imbalanceWeight] = 1.0
 
-    # # ===========================================================================
-    # # ===========================================================================
-    # TODO: Check ELIGIBLE_FLAG_COLUMN and var_imbalanceWeight
-    cf.compare_dfs("in_1", "in_1.sas7bdat", df_output_data)
-    # # ===========================================================================
-    # # ===========================================================================
-
     # Create total traffic dataframe
-    df_total_traffic = df_output_data[[ELIGIBLE_FLAG_COLUMN,
-                                       PORTROUTE_COLUMN,
+    df_total_traffic = df_output_data[[PORTROUTE_COLUMN,
                                        FLOW_COLUMN]].copy()
     df_total_traffic.sort_values(by=[PORTROUTE_COLUMN, FLOW_COLUMN])
 
@@ -70,24 +61,11 @@ def do_ips_imbweight_calculation(df_survey_data, var_serialNum, var_shiftWeight,
         .agg({"TOT_NI_TRAFFIC": 'sum'})
     df_total_traffic.reset_index(inplace=True)
 
-    # # ===========================================================================
-    # # ===========================================================================
-    cf.compare_dfs("temp1", "temp1.sas7bdat", df_total_traffic)
-    # # ===========================================================================
-    # # ===========================================================================
-
     # Update output with provisional imbalance weight for overseas departures
     flow_condition = (df_output_data[FLOW_COLUMN] == 1) | (df_output_data[FLOW_COLUMN] == 5)
     arrivedepart_condition = df_output_data[DIRECTION_COLUMN] == 2
     df_output_data.loc[flow_condition & arrivedepart_condition,
                        var_imbalanceWeight] = df_output_data[PG_FACTOR_COLUMN]
-
-    # # ===========================================================================
-    # # ===========================================================================
-    # TODO: Check dis
-    cf.compare_dfs("in_update1", "in_update1.sas7bdat", df_output_data)
-    # # ===========================================================================
-    # # ===========================================================================
 
     # Update output with provisional imbalance weight for overseas arrivals
     flow_condition = (df_output_data[FLOW_COLUMN] == 3) | (df_output_data[FLOW_COLUMN] == 7)
@@ -95,23 +73,10 @@ def do_ips_imbweight_calculation(df_survey_data, var_serialNum, var_shiftWeight,
     df_output_data.loc[flow_condition & arrivedepart_condition,
                        var_imbalanceWeight] = df_output_data[PG_FACTOR_COLUMN]
 
-    # # ===========================================================================
-    # # ===========================================================================
-    cf.compare_dfs("in_update2", "in_update2.sas7bdat", df_output_data)
-    # # ===========================================================================
-    # # ===========================================================================
-
     # Update overseas departures with country imbalance
     flow_condition = (df_output_data[FLOW_COLUMN] == 1) | (df_output_data[FLOW_COLUMN] == 5)
     df_output_data.loc[flow_condition, var_imbalanceWeight] = (df_output_data[var_imbalanceWeight]
                                                                * df_output_data[CG_FACTOR_COLUMN])
-
-    # ===========================================================================
-    # ===========================================================================
-    # TODO: Check dis
-    cf.compare_dfs("in_update3", "in_update3.sas7bdat", df_output_data)
-    # ===========================================================================
-    # ===========================================================================
 
     # Calculate the pre and post sums for overseas residents
     df_prepost = df_output_data.copy()
@@ -129,12 +94,6 @@ def do_ips_imbweight_calculation(df_survey_data, var_serialNum, var_shiftWeight,
                                       * df_prepost[var_trafficWeight]
                                       * df_prepost[var_OOHWeight])
 
-    # ===========================================================================
-    # ===========================================================================
-    cf.compare_dfs("prepost", "prepost.sas7bdat", df_prepost)
-    # ===========================================================================
-    # ===========================================================================
-
     # Summarise. Group by PORTROUTE & FLOW, & total the pre & post imbalanace weights
     df_prepost.sort_values(by=[PORTROUTE_COLUMN, FLOW_COLUMN])
     df_overseas_residents = df_prepost.groupby([PORTROUTE_COLUMN, FLOW_COLUMN]).agg({
@@ -145,13 +104,7 @@ def do_ips_imbweight_calculation(df_survey_data, var_serialNum, var_shiftWeight,
                                                    "PRE_IMB_WEIGHTS",
                                                    "POST_IMB_WEIGHTS"]]
 
-    # ===========================================================================
-    # ===========================================================================
-    cf.compare_dfs("temp2", "temp2.sas7bdat", df_overseas_residents)
-    # ===========================================================================
-    # ===========================================================================
-
-    # Calculate the difference between pre & post imbalance weighting for departures  
+    # Calculate the difference between pre & post imbalance weighting for departures
     # & calculate the ratio of the difference for departures at each port.
     df_calc_departures = df_overseas_residents.copy()
     df_calc_departures[FLOW_COLUMN + 'Extra'] = df_calc_departures[FLOW_COLUMN] + 1
@@ -170,12 +123,6 @@ def do_ips_imbweight_calculation(df_survey_data, var_serialNum, var_shiftWeight,
                              "TOT_NI_TRAFFIC", FLOW_COLUMN + 'Extra'],
                             axis=1, inplace=True)
     df_calc_departures.rename(columns={FLOW_COLUMN + "_x": FLOW_COLUMN}, inplace=True)
-
-    # ===========================================================================
-    # ===========================================================================
-    cf.compare_dfs("temp3", "temp3.sas7bdat", df_calc_departures)
-    # ===========================================================================
-    # ===========================================================================
 
     # Calculate the imbalance weight
     # First, find ratio
@@ -199,30 +146,6 @@ def do_ips_imbweight_calculation(df_survey_data, var_serialNum, var_shiftWeight,
     df_survey_data = df_survey_data_concat.reindex_axis(df_survey_data.columns, axis=1)
     df_survey_data.loc[df_survey_data[var_imbalanceWeight].isnull(), var_imbalanceWeight] = 1
 
-    # #    #===========================================================================
-    # #    #===========================================================================
-    # from sas7bdat import SAS7BDAT
-    # sas = SAS7BDAT(
-    #     r"S:\CASPA\IPS\Testing\Oct Data\Imbalance Weight\surveydata_merge_in.sas7bdat").to_data_frame()
-    # sas.columns = sas.columns.str.upper()
-    # sas.to_csv(r"S:\CASPA\IPS\Testing\Integration\Oct\surveydata_merge_in_SAS.csv")
-    # df_survey_data.to_csv(
-    #     r"S:\CASPA\IPS\Testing\Integration\Oct\surveydata_merge_in_PY.csv")
-    # #    cf.beep()
-    # #    sys.exit()
-    # #    #===========================================================================
-    # #    #===========================================================================
-
-    # TODO: Workout if I need FLOW_x, FLOW_y or FLOWExtra and drop/rename accordingly
-    # Drop Difference and Ratio.
-    # df_calc_departures.drop(["PRE_IMB_WEIGHTS"
-    #                             , "POST_IMB_WEIGHTS"
-    #                             , "FLOW_y"
-    #                             , "TOT_NI_TRAFFIC"
-    #                             , var_flow + 'Extra']
-    #                         , axis=1, inplace=True)
-
-
     # Create the summary output
     df_survey_data[PRIOR_SUM_COLUMN] = pd.Series(df_survey_data[var_shiftWeight]
                                                  * df_survey_data[var_NRWeight]
@@ -242,21 +165,14 @@ def do_ips_imbweight_calculation(df_survey_data, var_serialNum, var_shiftWeight,
         PRIOR_SUM_COLUMN: 'sum', POST_SUM_COLUMN: 'sum'})
     df_summary_data = df_summary_data.reset_index()
 
-    # ===========================================================================
-    # ===========================================================================
-    cf.compare_dfs("summary_final", "summary_final.sas7bdat", df_summary_data)
-    # ===========================================================================
-    # ===========================================================================
-
     # Cleanse dataframes before returning
-    df_survey_data = df_survey_data[['SERIAL', 'IMBAL_WT']].copy()
+    df_survey_data = df_output_data[['SERIAL', 'IMBAL_WT']].copy()
     df_survey_data.sort_values(by=[var_serialNum], inplace=True)
-    df_survey_data.to_csv(r'S:\CASPA\IPS\Testing\Integration\Imbalance Intermediate Steps\df_survey_data.csv')
 
     return df_survey_data, df_summary_data
 
 
-def calculate(SurveyData, var_serialNum, var_shiftWeight, var_NRWeight, var_minWeight
+def calculate(var_serialNum, var_shiftWeight, var_NRWeight, var_minWeight
               , var_trafficWeight, var_OOHWeight, var_imbalanceWeight):
     """
     Author        : thorne1
@@ -303,17 +219,3 @@ def calculate(SurveyData, var_serialNum, var_shiftWeight, var_NRWeight, var_minW
     # Log success message in SAS_RESPONSE and AUDIT_LOG
     logger.info("SUCCESS - Completed Imbalance Weight Calculation.")
     cf.commit_to_audit_log("Create", "ImbalanceWeight", audit_message)
-
-
-# if __name__ == '__main__':
-#     df_survey_data = pd.read_csv(r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\imbalance_weight_integration\sas_survey_data_actual_altered.csv')
-#     var_serialNum = 'SERIAL'
-#     var_shiftWeight = 'SHIFT_WT'
-#     var_NRWeight = 'NON_RESPONSE_WT'
-#     var_minWeight = 'MINS_WT'
-#     var_trafficWeight = 'TRAFFIC_WT'
-#     var_OOHWeight = 'UNSAMP_TRAFFIC_WT'
-#     var_imbalanceWeight = 'IMBAL_WT'
-#
-#     do_ips_imbweight_calculation(df_survey_data, var_serialNum, var_shiftWeight, var_NRWeight, var_minWeight
-#                                  , var_trafficWeight, var_OOHWeight, var_imbalanceWeight)

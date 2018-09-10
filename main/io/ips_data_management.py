@@ -580,16 +580,3 @@ def store_step_summary(run_id, conn, step_configuration):
 
     # Cleanse temporary summary table
     cf.delete_from_table(sas_ps_table)
-
-
-if __name__ == "__main__":
-    run_id = 'update-step-data-with-step-pv-output'
-    conn = cf.get_sql_connection()
-    step_config = {"table_name": "[dbo].[SHIFT_DATA]",
-                   "data_table": "[dbo].[SAS_SHIFT_DATA]",
-                   "insert_to_populate": ["[PORTROUTE]", "[WEEKDAY]", "[ARRIVEDEPART]", "[TOTAL]",
-                                          "[AM_PM_NIGHT]"],
-                   }
-
-    # update_step_data_with_step_pv_output(conn, step_config)
-    populate_step_data(run_id, conn, step_config)
