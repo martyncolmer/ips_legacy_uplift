@@ -489,9 +489,6 @@ def update_survey_data_with_step_results(conn, step_configuration):
     Returns      : NA
     """
 
-    print(str(inspect.stack()[0][3]).upper())
-    print("")
-
     step = step_configuration["name"]
 
     # Assign variables

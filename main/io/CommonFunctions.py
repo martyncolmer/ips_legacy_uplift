@@ -1027,6 +1027,7 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False):
         connection = get_sql_connection()
 
     cur = connection.cursor()
+    cur.fast_executemany = True
 
     dataframe = dataframe.where((pandas.notnull(dataframe)), None)
     # print(dataframe)
