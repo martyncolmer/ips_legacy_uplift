@@ -519,6 +519,7 @@ def delete_from_table(table_name, condition1=None, operator=None
         cur.execute(sql)
     except Exception as err:
         print("bla!")
+        print(err)
         #database_logger().error(err, exc_info = True)
         return False
     else:
@@ -1009,7 +1010,7 @@ def insert_dataframe_into_table_rbr(table_name, dataframe, connection=False):
     return len(rows)
 
 
-def insert_dataframe_into_table(table_name, dataframe, connection=False):
+def insert_dataframe_into_table(table_name, dataframe, connection=False, fast=True):
     """
     Author       : Thomas Mahoney
     Date         : 02 Jan 2018
@@ -1027,6 +1028,7 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False):
         connection = get_sql_connection()
 
     cur = connection.cursor()
+    cur.fast_executemany = fast
 
     dataframe = dataframe.where((pandas.notnull(dataframe)), None)
     # print(dataframe)
