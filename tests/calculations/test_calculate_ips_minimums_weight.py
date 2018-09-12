@@ -15,6 +15,8 @@ SUMMARY_TABLE_NAME = 'SAS_PS_MINIMUMS'
 # October is missing the final summary output of the step stopping us
 # from comparing the summaries produced.
 
+# @TODO: sort out the december expected data to be with the new rounding (files are in the folder from the integration test, find out whats different and rejig it to fit with the unit test)
+
 @pytest.mark.parametrize('data_path', [
     r'tests\data\calculations\december_2017\min_weight',
     #r'tests\data\calculations\november_2017\min_weight',
@@ -80,9 +82,9 @@ def test_calculate(data_path):
     df_summary_expected = convert_dataframe_to_sql_format(SUMMARY_TABLE_NAME, df_summary_expected)
 
     # Sort the dataframes for comparison
-    df_summary_result = df_summary_result.sort_values('SERIAL')
+    df_summary_result = df_summary_result.sort_values(['MINS_PORT_GRP_PV','ARRIVEDEPART','MINS_CTRY_GRP_PV'])
     df_summary_result.index = range(0, len(df_summary_result))
-    df_summary_expected = df_summary_expected.sort_values('SERIAL')
+    df_summary_expected = df_summary_expected.sort_values(['MINS_PORT_GRP_PV','ARRIVEDEPART','MINS_CTRY_GRP_PV'])
     df_summary_expected.index = range(0, len(df_summary_expected))
 
     assert_frame_equal(df_summary_result, df_summary_expected)
