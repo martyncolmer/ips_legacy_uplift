@@ -1,21 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/main/calculations/calculate_ips_minimums_weight.py" line="199" />
-  </component>
   <component name="ChangeListManager">
-    <list default="true" id="e9c10ffe-f2a0-439f-9527-ed37db9c05da" name="Default" comment="Pre Merge File changes">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/sas_survey_data_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/sas_survey_data_actual.csv" />
-      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/summary_out_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/summary_out_actual.csv" />
-      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/surveydata_out_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/surveydata_out_actual.csv" />
-      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/ps_minimums_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/ps_minimums_actual.csv" />
-      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/survey_subsample_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/survey_subsample_actual.csv" />
+    <list default="true" id="e9c10ffe-f2a0-439f-9527-ed37db9c05da" name="Default" comment="">
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/air_miles/airmiles.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/air_miles/airmiles_output.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/fares/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/final_weight/output_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/final_weight/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/output_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/result.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/summary_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/min_weight/outputdata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/min_weight/summarydata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/min_weight/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/non_response_weight/nonresponsedata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/non_response_weight/outputdata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/non_response_weight/summarydata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/non_response_weight/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/rail/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/regional_weights/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/shift_weight/outputdata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/shift_weight/shiftsdata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/shift_weight/summarydata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/shift_weight/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/spend/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/stay/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/town_and_stay/input_townspend.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/traffic_weight/survey_input.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/traffic_weight/trtotals.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/unsampled_weight/survey_input.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/unsampled_weight/ustotals.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/november_2017/final_weight/output_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/november_2017/final_weight/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/november_2017/min_weight/outputdata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/november_2017/min_weight/summarydata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/november_2017/min_weight/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/air_miles/airmiles.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/air_miles/airmiles_output.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/final_weight/output_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/final_weight/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/min_weight/outputdata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/min_weight/summarydata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/min_weight/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/sas_survey_data_actual.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/sas_survey_data_expected.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/summary_out_actual.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/summary_out_expected.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/surveydata.sas7bdat" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/surveydata_out_actual.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/surveydata_out_expected.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/december/Air Sheet Dec 2017 VBA.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/december/Dec17_NR.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/december/Poss shifts Dec 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/december/Sea Traffic Dec 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/december/Tunnel Traffic Dec 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/december/Unsampled Traffic Dec 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/november/Air Sheet Nov 2017 VBA.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/november/Nov_NRMFS.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/november/Poss shifts Nov 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/november/Sea Traffic Nov 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/november/Tunnel Traffic Nov 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/november/Unsampled Traffic Nov 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/october/Air Sheet Oct 2017 VBA2nd.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/october/Oct_NRMFS.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/october/Poss shifts Oct 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/october/Sea Traffic Oct 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/october/Tunnel Traffic Oct 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/october/Unsampled Traffic Oct 20172nd.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/q3/CAA Q3 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/q3/Non Response Q3 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/q3/Possible shifts Q3 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/q3/Sea Traffic Q3 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/q3/Tunnel Traffic Q3 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/q3/Unsampled Traffic Q3 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/minimums_weight/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/survey/ips1710b_1.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/survey/ips1711h_1.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/survey/ips1712bv4_amtspnd.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/survey/quarter32017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/ps_minimums_actual.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/ps_minimums_target.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/ps_minimums_target_new_rounding.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/survey_subsample_actual.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/survey_subsample_target.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/survey_subsample_target_new_rounding.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_final_weight_xml_integration.py" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_minimums_weight_xml_integration.py" />
+      <change beforePath="$PROJECT_DIR$/main/calculations/calculate_ips_final_weight.py" afterPath="$PROJECT_DIR$/main/calculations/calculate_ips_final_weight.py" />
+      <change beforePath="$PROJECT_DIR$/main/calculations/calculate_ips_minimums_weight.py" afterPath="$PROJECT_DIR$/main/calculations/calculate_ips_minimums_weight.py" />
+      <change beforePath="$PROJECT_DIR$/main/io/CommonFunctions.py" afterPath="$PROJECT_DIR$/main/io/CommonFunctions.py" />
+      <change beforePath="$PROJECT_DIR$/main/io/import_data.py" afterPath="$PROJECT_DIR$/main/io/import_data.py" />
+      <change beforePath="$PROJECT_DIR$/main/io/import_traffic_data.py" afterPath="$PROJECT_DIR$/main/io/import_traffic_data.py" />
+      <change beforePath="$PROJECT_DIR$/main/main.py" afterPath="$PROJECT_DIR$/main/main.py" />
+      <change beforePath="$PROJECT_DIR$/main/utils/process_variables.py" afterPath="$PROJECT_DIR$/main/utils/process_variables.py" />
+      <change beforePath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_final_weight.py" afterPath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_final_weight.py" />
+      <change beforePath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_minimums_weight.py" afterPath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_minimums_weight.py" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/imbalance_weight_integration/sas_ps_imbalance_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/imbalance_weight_integration/sas_ps_imbalance_actual.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/imbalance_weight_integration/sas_survey_subsample_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/imbalance_weight_integration/sas_survey_subsample_actual.csv" />
       <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/non_response_data_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/non_response_data_result.csv" />
       <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/shift_data_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/shift_data_result.csv" />
       <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/traffic_data_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/traffic_data_result.csv" />
       <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/unsampled_ooh_data_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/unsampled_ooh_data_result.csv" />
       <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/test_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/test_result.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/store_step_summary/shift_wt_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/store_step_summary/shift_wt_actual_results.csv" />
       <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/store_survey_data_with_step_results/shift_wt_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/store_survey_data_with_step_results/shift_wt_actual_results.csv" />
       <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/store_survey_data_with_step_results/spend_imp_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/store_survey_data_with_step_results/spend_imp_actual_results.csv" />
       <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/store_survey_data_with_step_results/uns_wt_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/store_survey_data_with_step_results/uns_wt_actual_results.csv" />
@@ -26,7 +115,10 @@
       <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/spend_imp_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/spend_imp_actual_results.csv" />
       <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/stay_imp_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/stay_imp_actual_results.csv" />
       <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/unsampled_wt_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/unsampled_wt_actual_results.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps_1_2_3.py" afterPath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps_1_2_3.py" />
       <change beforePath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps_7_8_9.py" afterPath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps_7_8_9.py" />
+      <change beforePath="$PROJECT_DIR$/tests/io/test_import_data.py" afterPath="$PROJECT_DIR$/tests/io/test_import_data.py" />
+      <change beforePath="$PROJECT_DIR$/tests/utils/create_and_store_input.py" afterPath="$PROJECT_DIR$/tests/utils/create_and_store_input.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -35,312 +127,138 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="DockManager">
-    <window id="2">
-      <content type="file-editors">
-        <state>
-          <leaf>
-            <file leaf-file-name="test_final_weight_xml_integration.py" pinned="false" current-in-tab="true">
-              <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_final_weight_xml_integration.py">
-                <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="357">
-                    <caret line="32" column="0" lean-forward="false" selection-start-line="32" selection-start-column="0" selection-end-line="32" selection-end-column="0" />
-                    <folding>
-                      <element signature="e#692#960#0" expanded="false" />
-                      <element signature="e#692#924#1" expanded="false" />
-                      <element signature="e#1069#1097#0" expanded="false" />
-                      <element signature="e#1365#1841#0" expanded="false" />
-                      <element signature="e#1890#2918#0" expanded="false" />
-                      <element signature="e#1890#2298#1" expanded="false" />
-                      <element signature="e#2945#4281#0" expanded="false" />
-                      <element signature="e#3067#3173#0" expanded="false" />
-                      <element signature="e#3179#3257#0" expanded="false" />
-                      <element signature="e#3382#3473#0" expanded="false" />
-                      <element signature="e#3555#3647#0" expanded="false" />
-                      <element signature="e#3653#3731#0" expanded="false" />
-                      <element signature="e#3855#3969#0" expanded="false" />
-                      <element signature="e#3975#4053#0" expanded="false" />
-                      <element signature="e#4190#4281#0" expanded="false" />
-                      <element signature="e#4318#10277#0" expanded="false" />
-                      <element signature="e#4677#4754#0" expanded="false" />
-                      <element signature="e#4871#5081#0" expanded="false" />
-                      <element signature="e#9341#9409#0" expanded="false" />
-                      <element signature="e#9647#9703#0" expanded="false" />
-                    </folding>
-                  </state>
-                </provider>
-              </entry>
-            </file>
-          </leaf>
-        </state>
-      </content>
-    </window>
-  </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="test_imbalance_weight_xml_integration.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_imbalance_weight_xml_integration.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="300">
+              <caret line="265" column="47" lean-forward="false" selection-start-line="265" selection-start-column="47" selection-end-line="265" selection-end-column="47" />
+              <folding>
+                <element signature="e#772#1040#0" expanded="false" />
+                <element signature="e#772#1004#1" expanded="false" />
+                <element signature="e#1073#1451#0" expanded="false" />
+                <element signature="e#1487#1966#0" expanded="false" />
+                <element signature="e#2015#3072#0" expanded="false" />
+                <element signature="e#2015#2423#1" expanded="false" />
+                <element signature="e#3099#4440#0" expanded="false" />
+                <element signature="e#3223#3329#0" expanded="false" />
+                <element signature="e#3335#3413#0" expanded="false" />
+                <element signature="e#3538#3629#0" expanded="false" />
+                <element signature="e#3712#3804#0" expanded="false" />
+                <element signature="e#3810#3888#0" expanded="false" />
+                <element signature="e#4013#4127#0" expanded="false" />
+                <element signature="e#4133#4211#0" expanded="false" />
+                <element signature="e#4349#4440#0" expanded="false" />
+                <element signature="e#4477#5487#0" expanded="false" />
+                <element signature="e#4477#4891#1" expanded="false" />
+                <element signature="e#4962#5122#0" expanded="false" />
+                <element signature="e#5135#5225#0" expanded="false" />
+                <element signature="e#5253#5405#0" expanded="false" />
+                <element signature="e#5842#5919#0" expanded="false" />
+                <element signature="e#6126#6265#0" expanded="false" />
+                <element signature="e#7608#7765#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test_idm_steps_1_2_3.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps_1_2_3.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-3763">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#13#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="CommonFunctions.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main/io/CommonFunctions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-222">
-              <caret line="1012" column="4" lean-forward="false" selection-start-line="1012" selection-start-column="4" selection-end-line="1012" selection-end-column="4" />
+            <state relative-caret-position="10421">
+              <caret line="1078" column="0" lean-forward="false" selection-start-line="1078" selection-start-column="0" selection-end-line="1078" selection-end-column="0" />
               <folding>
                 <element signature="e#0#54#1" expanded="false" />
-                <element signature="e#403#880#0" expanded="false" />
-                <element signature="e#403#689#1" expanded="false" />
-                <element signature="e#694#717#0" expanded="false" />
-                <element signature="e#955#1706#0" expanded="false" />
-                <element signature="e#955#1441#1" expanded="false" />
-                <element signature="e#1447#1481#0" expanded="false" />
-                <element signature="e#1776#3428#0" expanded="false" />
-                <element signature="e#1776#2330#1" expanded="false" />
-                <element signature="e#2363#2666#0" expanded="false" />
-                <element signature="e#2709#3009#0" expanded="false" />
-                <element signature="e#3054#3343#0" expanded="false" />
-                <element signature="e#3429#3521#0" expanded="false" />
-                <element signature="e#6541#7567#0" expanded="false" />
-                <element signature="e#6541#7026#1" expanded="false" />
-                <element signature="e#7435#7537#0" expanded="false" />
-                <element signature="e#7614#8611#0" expanded="false" />
-                <element signature="e#7614#7904#1" expanded="false" />
-                <element signature="e#7909#7962#0" expanded="false" />
-                <element signature="e#8222#8580#0" expanded="false" />
-                <element signature="e#8269#8366#0" expanded="false" />
-                <element signature="e#8412#8518#0" expanded="false" />
-                <element signature="e#8659#9716#0" expanded="false" />
-                <element signature="e#8659#8984#1" expanded="false" />
-                <element signature="e#8997#9050#0" expanded="false" />
-                <element signature="e#9341#9716#0" expanded="false" />
-                <element signature="e#9414#9681#0" expanded="false" />
-                <element signature="e#9451#9681#0" expanded="false" />
-                <element signature="e#9749#11115#0" expanded="false" />
-                <element signature="e#9749#10121#1" expanded="false" />
-                <element signature="e#10131#10184#0" expanded="false" />
-                <element signature="e#10457#11115#0" expanded="false" />
-                <element signature="e#10557#10663#0" expanded="false" />
-                <element signature="e#10690#11115#0" expanded="false" />
-                <element signature="e#10726#11064#0" expanded="false" />
-                <element signature="e#11154#12129#0" expanded="false" />
-                <element signature="e#11154#11523#1" expanded="false" />
-                <element signature="e#11533#11586#0" expanded="false" />
-                <element signature="e#11839#12098#0" expanded="false" />
-                <element signature="e#11856#11982#0" expanded="false" />
-                <element signature="e#12028#12098#0" expanded="false" />
-                <element signature="e#12179#13901#0" expanded="false" />
-                <element signature="e#12179#12997#1" expanded="false" />
-                <element signature="e#13189#13222#0" expanded="false" />
-                <element signature="e#13387#13454#0" expanded="false" />
-                <element signature="e#13678#13711#0" expanded="false" />
-                <element signature="e#13730#13901#0" expanded="false" />
-                <element signature="e#13937#15015#0" expanded="false" />
-                <element signature="e#13937#14329#1" expanded="false" />
-                <element signature="e#14576#14624#0" expanded="false" />
-                <element signature="e#14662#14838#0" expanded="false" />
-                <element signature="e#14681#14762#0" expanded="false" />
-                <element signature="e#14857#15015#0" expanded="false" />
-                <element signature="e#14888#14976#0" expanded="false" />
-                <element signature="e#15050#16411#0" expanded="false" />
-                <element signature="e#15050#15413#1" expanded="false" />
-                <element signature="e#15419#15471#0" expanded="false" />
-                <element signature="e#15886#16043#0" expanded="false" />
-                <element signature="e#15886#15967#0" expanded="false" />
-                <element signature="e#16062#16411#0" expanded="false" />
-                <element signature="e#16110#16347#0" expanded="false" />
-                <element signature="e#16374#16411#0" expanded="false" />
-                <element signature="e#16550#18532#0" expanded="false" />
-                <element signature="e#16550#17520#1" expanded="false" />
-                <element signature="e#17692#17760#0" expanded="false" />
-                <element signature="e#17798#18021#0" expanded="false" />
-                <element signature="e#18040#18314#0" expanded="false" />
-                <element signature="e#18395#18503#0" expanded="false" />
-                <element signature="e#18613#19908#0" expanded="false" />
-                <element signature="e#18613#19051#1" expanded="false" />
-                <element signature="e#19116#19137#0" expanded="false" />
-                <element signature="e#19176#19250#0" expanded="false" />
-                <element signature="e#19325#19422#0" expanded="false" />
-                <element signature="e#19460#19588#0" expanded="false" />
-                <element signature="e#19479#19511#0" expanded="false" />
-                <element signature="e#19664#19742#0" expanded="false" />
-                <element signature="e#19778#19889#0" expanded="false" />
-                <element signature="e#19960#22134#0" expanded="false" />
-                <element signature="e#19960#20416#1" expanded="false" />
-                <element signature="e#20609#20713#0" expanded="false" />
-                <element signature="e#20980#21087#0" expanded="false" />
-                <element signature="e#21107#21184#0" expanded="false" />
-                <element signature="e#21194#21247#0" expanded="false" />
-                <element signature="e#21504#21786#0" expanded="false" />
-                <element signature="e#21894#22109#0" expanded="false" />
-                <element signature="e#21928#22036#0" expanded="false" />
-                <element signature="e#22175#22781#0" expanded="false" />
-                <element signature="e#22175#22508#1" expanded="false" />
-                <element signature="e#22652#22725#0" expanded="false" />
-                <element signature="e#22848#24289#0" expanded="false" />
-                <element signature="e#22848#23579#1" expanded="false" />
-                <element signature="e#24365#26209#0" expanded="false" />
-                <element signature="e#24365#24771#1" expanded="false" />
-                <element signature="e#24810#24879#0" expanded="false" />
-                <element signature="e#25775#25785#0" expanded="false" />
-                <element signature="e#26290#27977#0" expanded="false" />
-                <element signature="e#26290#26823#1" expanded="false" />
-                <element signature="e#26866#26935#0" expanded="false" />
-                <element signature="e#27133#27155#0" expanded="false" />
-                <element signature="e#28044#30688#0" expanded="false" />
-                <element signature="e#28044#28833#1" expanded="false" />
-                <element signature="e#29011#29078#0" expanded="false" />
-                <element signature="e#29457#29485#0" expanded="false" />
-                <element signature="e#29634#29688#0" expanded="false" />
-                <element signature="e#30174#30379#0" expanded="false" />
-                <element signature="e#30446#30617#0" expanded="false" />
-                <element signature="e#30745#31462#0" expanded="false" />
-                <element signature="e#30745#31137#1" expanded="false" />
-                <element signature="e#31349#31414#0" expanded="false" />
-                <element signature="e#31529#32321#0" expanded="false" />
-                <element signature="e#32074#32151#0" expanded="false" />
-                <element signature="e#32170#32267#0" expanded="false" />
-                <element signature="e#32406#34567#0" expanded="false" />
-                <element signature="e#32406#32811#1" expanded="false" />
-                <element signature="e#32919#32988#0" expanded="false" />
-                <element signature="e#33929#34019#0" expanded="false" />
-                <element signature="e#34259#34270#0" expanded="false" />
-                <element signature="e#34345#34385#0" expanded="false" />
-                <element signature="e#34466#34486#0" expanded="false" />
-                <element signature="e#34659#35064#1" expanded="false" />
-                <element signature="e#35172#35241#0" expanded="false" />
-                <element signature="e#35377#35395#0" expanded="false" />
-                <element signature="e#36219#36309#0" expanded="false" />
-                <element signature="e#36843#36863#0" expanded="false" />
-                <element signature="e#36973#37015#0" expanded="false" />
-                <element signature="e#37059#37070#0" expanded="false" />
-                <element signature="e#37089#37270#0" expanded="false" />
-                <element signature="e#37327#37407#0" expanded="false" />
-                <element signature="e#37439#37798#0" expanded="false" />
-                <element signature="e#37829#40111#0" expanded="false" />
-                <element signature="e#37829#37854#0" expanded="false" />
-                <element signature="e#38613#39021#0" expanded="false" />
-                <element signature="e#39043#39056#0" expanded="false" />
-                <element signature="e#39419#39439#0" expanded="false" />
-                <element signature="e#39494#39602#0" expanded="false" />
-                <element signature="e#39872#39941#0" expanded="false" />
-                <element signature="e#39970#40051#0" expanded="false" />
+                <element signature="e#415#892#0" expanded="false" />
+                <element signature="e#415#701#1" expanded="false" />
+                <element signature="e#706#729#0" expanded="false" />
+                <element signature="e#967#1718#0" expanded="false" />
+                <element signature="e#967#1453#1" expanded="false" />
+                <element signature="e#1459#1493#0" expanded="false" />
+                <element signature="e#1788#3440#0" expanded="false" />
+                <element signature="e#1788#2342#1" expanded="false" />
+                <element signature="e#2375#2678#0" expanded="false" />
+                <element signature="e#2721#3021#0" expanded="false" />
+                <element signature="e#3066#3355#0" expanded="false" />
+                <element signature="e#3441#3533#0" expanded="false" />
+                <element signature="e#6553#7579#0" expanded="false" />
+                <element signature="e#6553#7038#1" expanded="false" />
+                <element signature="e#7447#7549#0" expanded="false" />
+                <element signature="e#7625#8622#0" expanded="false" />
+                <element signature="e#7625#7915#1" expanded="false" />
+                <element signature="e#7920#7973#0" expanded="false" />
+                <element signature="e#8233#8591#0" expanded="false" />
+                <element signature="e#8280#8377#0" expanded="false" />
+                <element signature="e#8423#8529#0" expanded="false" />
+                <element signature="e#8670#9727#0" expanded="false" />
+                <element signature="e#8670#8995#1" expanded="false" />
+                <element signature="e#9008#9061#0" expanded="false" />
+                <element signature="e#9352#9727#0" expanded="false" />
+                <element signature="e#9425#9692#0" expanded="false" />
+                <element signature="e#9462#9692#0" expanded="false" />
+                <element signature="e#9760#11126#0" expanded="false" />
+                <element signature="e#9760#10132#1" expanded="false" />
+                <element signature="e#10142#10195#0" expanded="false" />
+                <element signature="e#10468#11126#0" expanded="false" />
+                <element signature="e#10568#10674#0" expanded="false" />
+                <element signature="e#10701#11126#0" expanded="false" />
+                <element signature="e#10737#11075#0" expanded="false" />
+                <element signature="e#11165#12140#0" expanded="false" />
+                <element signature="e#11165#11534#1" expanded="false" />
+                <element signature="e#11544#11597#0" expanded="false" />
+                <element signature="e#11850#12109#0" expanded="false" />
+                <element signature="e#11867#11993#0" expanded="false" />
+                <element signature="e#12039#12109#0" expanded="false" />
+                <element signature="e#12190#13912#0" expanded="false" />
+                <element signature="e#12190#13008#1" expanded="false" />
+                <element signature="e#13200#13233#0" expanded="false" />
+                <element signature="e#13398#13465#0" expanded="false" />
+                <element signature="e#13689#13722#0" expanded="false" />
+                <element signature="e#13741#13912#0" expanded="false" />
+                <element signature="e#13948#15026#0" expanded="false" />
+                <element signature="e#13948#14340#1" expanded="false" />
+                <element signature="e#14587#14635#0" expanded="false" />
+                <element signature="e#14673#14849#0" expanded="false" />
+                <element signature="e#14692#14773#0" expanded="false" />
+                <element signature="e#14868#15026#0" expanded="false" />
+                <element signature="e#14899#14987#0" expanded="false" />
+                <element signature="e#15061#16422#0" expanded="false" />
+                <element signature="e#15061#15424#1" expanded="false" />
+                <element signature="e#15430#15482#0" expanded="false" />
+                <element signature="e#15897#16054#0" expanded="false" />
+                <element signature="e#15897#15978#0" expanded="false" />
+                <element signature="e#16073#16422#0" expanded="false" />
+                <element signature="e#16121#16358#0" expanded="false" />
+                <element signature="e#16385#16422#0" expanded="false" />
+                <element signature="e#16561#17531#1" expanded="false" />
+                <element signature="e#17703#17771#0" expanded="false" />
+                <element signature="e#17809#18032#0" expanded="false" />
+                <element signature="e#18051#18325#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="test_minimums_weight_xml_integration.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_minimums_weight_xml_integration.py">
+      <file leaf-file-name="calculate_ips_imb_weight.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_imb_weight.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="277">
-              <caret line="93" column="112" lean-forward="false" selection-start-line="93" selection-start-column="27" selection-end-line="93" selection-end-column="112" />
+            <state relative-caret-position="3077">
+              <caret line="184" column="0" lean-forward="false" selection-start-line="184" selection-start-column="0" selection-end-line="184" selection-end-column="0" />
               <folding>
-                <element signature="e#723#998#0" expanded="false" />
-                <element signature="e#723#963#1" expanded="false" />
-                <element signature="e#1031#1246#0" expanded="false" />
-                <element signature="e#1282#1407#0" expanded="false" />
-                <element signature="e#1434#2913#0" expanded="false" />
-                <element signature="e#1556#1662#0" expanded="false" />
-                <element signature="e#1668#1746#0" expanded="false" />
-                <element signature="e#1871#2022#0" expanded="false" />
-                <element signature="e#1888#1975#0" expanded="false" />
-                <element signature="e#2104#2196#0" expanded="false" />
-                <element signature="e#2202#2280#0" expanded="false" />
-                <element signature="e#2404#2601#0" expanded="false" />
-                <element signature="e#2421#2554#0" expanded="false" />
-                <element signature="e#2607#2685#0" expanded="false" />
-                <element signature="e#2822#2913#0" expanded="false" />
-                <element signature="e#3443#3503#0" expanded="false" />
-                <element signature="e#3516#3595#0" expanded="false" />
-                <element signature="e#3623#3761#0" expanded="false" />
-                <element signature="e#3774#3853#0" expanded="false" />
-                <element signature="e#3881#4011#0" expanded="false" />
-                <element signature="e#4177#6110#0" expanded="false" />
-                <element signature="e#4177#4443#1" expanded="false" />
-                <element signature="e#6151#11593#0" expanded="false" />
-                <element signature="e#6446#6523#0" expanded="false" />
-                <element signature="e#6648#6858#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="test_idm_steps_1_2_3.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps_1_2_3.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="173">
-              <caret line="26" column="13" lean-forward="false" selection-start-line="26" selection-start-column="4" selection-end-line="26" selection-end-column="13" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="test_idm_steps_4_5_6.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps_4_5_6.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="481">
-              <caret line="234" column="81" lean-forward="false" selection-start-line="234" selection-start-column="81" selection-end-line="234" selection-end-column="81" />
-              <folding>
-                <element signature="e#727#1019#0" expanded="false" />
-                <element signature="e#727#983#1" expanded="false" />
-                <element signature="e#1168#1473#0" expanded="false" />
-                <element signature="e#1168#1192#0" expanded="false" />
-                <element signature="e#1306#1381#0" expanded="false" />
-                <element signature="e#1543#2005#0" expanded="false" />
-                <element signature="e#1543#1649#1" expanded="false" />
-                <element signature="e#1688#1820#0" expanded="false" />
-                <element signature="e#1751#1820#0" expanded="false" />
-                <element signature="e#1847#1979#0" expanded="false" />
-                <element signature="e#1910#1979#0" expanded="false" />
-                <element signature="e#2056#3848#0" expanded="false" />
-                <element signature="e#2056#2355#1" expanded="false" />
-                <element signature="e#3962#7202#0" expanded="false" />
-                <element signature="e#3976#4267#0" expanded="false" />
-                <element signature="e#4099#4242#0" expanded="false" />
-                <element signature="e#7318#11071#0" expanded="false" />
-                <element signature="e#7332#7765#0" expanded="false" />
-                <element signature="e#7461#7609#0" expanded="false" />
-                <element signature="e#11163#13374#0" expanded="false" />
-                <element signature="e#11177#11397#0" expanded="false" />
-                <element signature="e#13470#15645#0" expanded="false" />
-                <element signature="e#13484#13705#0" expanded="false" />
-                <element signature="e#15733#18627#0" expanded="false" />
-                <element signature="e#15783#16114#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="test_idm_steps_7_8_9.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps_7_8_9.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="303">
-              <caret line="53" column="87" lean-forward="true" selection-start-line="53" selection-start-column="87" selection-end-line="53" selection-end-column="87" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="python.py" pinned="false" current-in-tab="false">
-        <entry file="file://C:/Python36/Lib/site-packages/_pytest/python.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="308">
-              <caret line="154" column="0" lean-forward="false" selection-start-line="154" selection-start-column="0" selection-end-line="154" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="calculate_ips_town_and_stay_expenditure.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_town_and_stay_expenditure.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1082">
-              <caret line="275" column="0" lean-forward="false" selection-start-line="275" selection-start-column="0" selection-end-line="275" selection-end-column="0" />
-              <folding>
-                <element signature="e#0#52#1" expanded="false" />
-                <element signature="e#893#1850#0" expanded="false" />
-                <element signature="e#13551#13598#0" expanded="false" />
-                <element signature="e#13837#13888#0" expanded="false" />
-                <marker date="1536746524720" expanded="true" signature="2132:2234" ph="..." />
-                <marker date="1536746524720" expanded="true" signature="2166:2234" ph="..." />
-                <marker date="1536746524720" expanded="true" signature="2221:2234" ph="..." />
+                <element signature="e#48#62#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -348,43 +266,24 @@
       </file>
     </leaf>
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Python Script" />
-      </list>
-    </option>
-  </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>RESULT:</find>
-      <find>start</find>
-      <find>check_like</find>
-      <find>survey_subsample_target</find>
-      <find>sas_survey_data_actual</find>
-      <find>ps_min</find>
-      <find>actual</find>
-      <find>time</find>
+      <find>SHIFT_WT</find>
+      <find>NON_RESPONSE_WT</find>
+      <find>var_NRWeight</find>
+      <find>r'</find>
       <find>TEST_DATA_DIR</find>
-      <find>STEP_NAME</find>
-      <find>chunker</find>
-      <find>integration_import_data</find>
-      <find>bla</find>
-      <find>END_LON_SEC</find>
-      <find>AIRMILES_COLUMNS</find>
-      <find>path_to_data</find>
-      <find>assert_frame</find>
-      <find>cf.delete</find>
+      <find>Calculate the pre and post sums for overseas residents</find>
+      <find>EXPENDCODE</find>
+      <find># Insert the data generated by the calculate function into the database</find>
+      <find>insert_dataframe_into_table</find>
     </findStrings>
-    <replaceStrings>
-      <replace>import_data</replace>
-    </replaceStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="LU-624-test-minimums-weight-xml" />
+        <entry key="$PROJECT_DIR$" value="master" />
       </map>
     </option>
   </component>
@@ -392,34 +291,22 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps-1-2-3.py" />
-        <option value="$PROJECT_DIR$/main/utils/process_variables.py" />
-        <option value="$PROJECT_DIR$/main/main.py" />
-        <option value="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/minimums_table_prep.py" />
-        <option value="$PROJECT_DIR$/main/calculations/calculate_ips_minimums_weight.py" />
-        <option value="$PROJECT_DIR$/main/io/import_traffic_data.py" />
-        <option value="$APPLICATION_CONFIG_DIR$/scratches/test_import.py" />
-        <option value="$PROJECT_DIR$/main/io/import_data.py" />
-        <option value="$PROJECT_DIR$/main/io/CommonFunctions.py" />
-        <option value="$PROJECT_DIR$/main/calculations/calculate_ips_airmiles.py" />
-        <option value="$PROJECT_DIR$/tests/calculations/test_calculate_ips_airmiles.py" />
-        <option value="$PROJECT_DIR$/main/calculations/calculate_ips_final_weight.py" />
-        <option value="$PROJECT_DIR$/tests/calculations/test_calculate_ips_imb_weights.py" />
-        <option value="$PROJECT_DIR$/tests/io/test_import_data.py" />
-        <option value="$PROJECT_DIR$/tests/calculations/test_calculate_ips_final_weight.py" />
-        <option value="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_final_weight_xml_integration.py" />
-        <option value="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps_1_2_3.py" />
-        <option value="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_minimums_weight_xml_integration.py" />
+        <option value="$PROJECT_DIR$/main/utils/UnpickleRick.py" />
+        <option value="$PROJECT_DIR$/tests/data/ips_data_management/imbalance_weight_integration/ps_imbalance_target.csv" />
+        <option value="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/oct_imb.py" />
         <option value="$PROJECT_DIR$/tests/config.py" />
-        <option value="$PROJECT_DIR$/tests/calculations/test_calculate_ips_minimums_weight.py" />
-        <option value="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps_7_8_9.py" />
+        <option value="$PROJECT_DIR$/main/io/ips_data_management.py" />
+        <option value="$PROJECT_DIR$/main/calculations/calculate_ips_imb_weight.py" />
+        <option value="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_imbalance_weight_xml_integration.py" />
+        <option value="$PROJECT_DIR$/main/io/CommonFunctions.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-33" />
-    <option name="y" value="81" />
-    <option name="width" value="1918" />
-    <option name="height" value="1040" />
+    <option name="x" value="-9" />
+    <option name="y" value="-9" />
+    <option name="width" value="1938" />
+    <option name="height" value="1050" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="1" id="Add" />
@@ -439,22 +326,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope">
-        <subPane subId="Project Files">
-          <expand>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="IPS_Legacy_Uplift" type="cbb8eebc:String" user="IPS_Legacy_Uplift" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="IPS_Legacy_Uplift" type="cbb8eebc:String" user="IPS_Legacy_Uplift" />
-              <item name="main" type="cbb8eebc:String" user="main" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
       <pane id="Scratches">
         <subPane>
           <expand>
@@ -482,7 +353,22 @@
               <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
               <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
               <item name="tests" type="462c0819:PsiDirectoryNode" />
-              <item name="calculations" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="ips_data_management" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="ips_data_management" type="462c0819:PsiDirectoryNode" />
+              <item name="imbalance_weight_integration" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
@@ -509,26 +395,15 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="Git.Branch.Popup.ShowAllRemotes" value="true" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\calculations\december_2017\min_weight" />
-      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\calculations\december_2017\traffic_weight" />
-      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\ips_data_management\import_data\step\december\min_weight" />
-      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\ips_data_management\import_data\step\shift_weight" />
-      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\ips_data_management\import_data\external\q3" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\calculations\december_2017\imbalance_weight" />
-      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\calculations\december_2017\shift_weight" />
-      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\calculations\december_2017\non_response_weight" />
-      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\calculations\december_2017\min_weight" />
-      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\ips_data_management\import_data\step\december\nr_weight" />
+      <recent name="C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\imbalance_weight_integration" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -543,12 +418,50 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python tests.py.test in test_calculate_ips_final_weight.py">
+  <component name="RunManager" selected="Python tests.py.test in ips_data_management">
+    <configuration name="UnpickleRick" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/main/utils" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="IPS_Legacy_Uplift" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main/utils/UnpickleRick.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="1py.test in test_ips_data_management.py" type="tests" factoryName="py.test" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="DB_NAME" value="ips_test" />
+        <env name="DB_SERVER" value="CR1VWSQL14-D-01" />
+        <env name="DB_USER_NAME" value="ips_dev" />
+        <env name="DB_PASSWORD" value="ips_dev" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="IPS_Legacy_Uplift" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/io/ips_data_management/test_ips_data_management.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+    </configuration>
     <configuration name="All_Tests" type="tests" factoryName="py.test">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
-        <env name="DB_NAME" value="ips_test3" />
+        <env name="DB_NAME" value="ips_test" />
         <env name="DB_SERVER" value="CR1VWSQL14-D-01" />
         <env name="DB_USER_NAME" value="ips_dev" />
         <env name="DB_PASSWORD" value="ips_dev" />
@@ -584,55 +497,10 @@
       <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/io/ips_data_management&quot;" />
       <option name="_new_targetType" value="&quot;PATH&quot;" />
     </configuration>
-    <configuration name="py.test in test_calculate_ips_airmiles.py" type="tests" factoryName="py.test">
+    <configuration name="py.test in test_calculate_ips_imb_weights.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="DB_NAME" value="ips_test3" />
-        <env name="DB_SERVER" value="CR1VWSQL14-D-01" />
-        <env name="DB_USER_NAME" value="ips_dev" />
-        <env name="DB_PASSWORD" value="ips_dev" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="IPS_Legacy_Uplift" />
-      <option name="_new_keywords" value="&quot;&quot;" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/calculations/test_calculate_ips_airmiles.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-    </configuration>
-    <configuration name="py.test in test_calculate_ips_final_weight.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="DB_NAME" value="ips_test3" />
-        <env name="DB_SERVER" value="CR1VWSQL14-D-01" />
-        <env name="DB_USER_NAME" value="ips_dev" />
-        <env name="DB_PASSWORD" value="ips_dev" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="IPS_Legacy_Uplift" />
-      <option name="_new_keywords" value="&quot;&quot;" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/calculations/test_calculate_ips_final_weight.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-    </configuration>
-    <configuration name="py.test in test_calculate_ips_imb_weights.py" type="tests" factoryName="py.test">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="DB_NAME" value="ips_test3" />
-        <env name="DB_SERVER" value="CR1VWSQL14-D-01" />
-        <env name="DB_USER_NAME" value="ips_dev" />
-        <env name="DB_PASSWORD" value="ips_dev" />
-      </envs>
+      <envs />
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -644,11 +512,11 @@
       <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/calculations/test_calculate_ips_imb_weights.py&quot;" />
       <option name="_new_targetType" value="&quot;PATH&quot;" />
     </configuration>
-    <configuration name="py.test in test_calculate_ips_minimums_weight.py" type="tests" factoryName="py.test">
+    <configuration name="py.test in test_imbalance_weight_xml_integration.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
-        <env name="DB_NAME" value="ips_test3" />
+        <env name="DB_NAME" value="ips_test" />
         <env name="DB_SERVER" value="CR1VWSQL14-D-01" />
         <env name="DB_USER_NAME" value="ips_dev" />
         <env name="DB_PASSWORD" value="ips_dev" />
@@ -661,87 +529,24 @@
       <module name="IPS_Legacy_Uplift" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/calculations/test_calculate_ips_minimums_weight.py&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_imbalance_weight_xml_integration.py&quot;" />
       <option name="_new_targetType" value="&quot;PATH&quot;" />
     </configuration>
-    <configuration name="py.test in test_final_weight_xml_integration.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="DB_NAME" value="ips_test3" />
-        <env name="DB_SERVER" value="CR1VWSQL14-D-01" />
-        <env name="DB_USER_NAME" value="ips_dev" />
-        <env name="DB_PASSWORD" value="ips_dev" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="IPS_Legacy_Uplift" />
-      <option name="_new_keywords" value="&quot;&quot;" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_final_weight_xml_integration.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-    </configuration>
-    <configuration name="py.test in test_import_data.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="DB_NAME" value="ips_test3" />
-        <env name="DB_SERVER" value="CR1VWSQL14-D-01" />
-        <env name="DB_USER_NAME" value="ips_dev" />
-        <env name="DB_PASSWORD" value="ips_dev" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="IPS_Legacy_Uplift" />
-      <option name="_new_keywords" value="&quot;&quot;" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/io/test_import_data.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-    </configuration>
-    <configuration name="py.test in test_minimums_weight_xml_integration.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="DB_NAME" value="ips_test3" />
-        <env name="DB_SERVER" value="CR1VWSQL14-D-01" />
-        <env name="DB_USER_NAME" value="ips_dev" />
-        <env name="DB_PASSWORD" value="ips_dev" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="IPS_Legacy_Uplift" />
-      <option name="_new_keywords" value="&quot;&quot;" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_minimums_weight_xml_integration.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-    </configuration>
-    <list size="9">
+    <list size="6">
       <item index="0" class="java.lang.String" itemvalue="Python tests.All_Tests" />
-      <item index="1" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_airmiles.py" />
-      <item index="2" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_imb_weights.py" />
-      <item index="3" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_minimums_weight.py" />
-      <item index="4" class="java.lang.String" itemvalue="Python tests.py.test in test_minimums_weight_xml_integration.py" />
-      <item index="5" class="java.lang.String" itemvalue="Python tests.py.test in test_final_weight_xml_integration.py" />
-      <item index="6" class="java.lang.String" itemvalue="Python tests.py.test in test_import_data.py" />
-      <item index="7" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_final_weight.py" />
-      <item index="8" class="java.lang.String" itemvalue="Python tests.py.test in ips_data_management" />
+      <item index="1" class="java.lang.String" itemvalue="Python.UnpickleRick" />
+      <item index="2" class="java.lang.String" itemvalue="Python tests.1py.test in test_ips_data_management.py" />
+      <item index="3" class="java.lang.String" itemvalue="Python tests.py.test in test_imbalance_weight_xml_integration.py" />
+      <item index="4" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_imb_weights.py" />
+      <item index="5" class="java.lang.String" itemvalue="Python tests.py.test in ips_data_management" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_final_weight.py" />
-        <item index="1" class="java.lang.String" itemvalue="Python tests.py.test in ips_data_management" />
-        <item index="2" class="java.lang.String" itemvalue="Python tests.py.test in test_minimums_weight_xml_integration.py" />
-        <item index="3" class="java.lang.String" itemvalue="Python tests.py.test in test_final_weight_xml_integration.py" />
-        <item index="4" class="java.lang.String" itemvalue="Python tests.py.test in test_import_data.py" />
+        <item index="0" class="java.lang.String" itemvalue="Python tests.py.test in ips_data_management" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.py.test in test_imbalance_weight_xml_integration.py" />
+        <item index="2" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_imb_weights.py" />
+        <item index="3" class="java.lang.String" itemvalue="Python.UnpickleRick" />
+        <item index="4" class="java.lang.String" itemvalue="Python tests.1py.test in test_ips_data_management.py" />
       </list>
     </recent_temporary>
   </component>
@@ -754,192 +559,66 @@
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="e9c10ffe-f2a0-439f-9527-ed37db9c05da" name="Default" comment="" />
-      <created>1534142608428</created>
+      <created>1536154063503</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1534142608428</updated>
+      <updated>1536154063503</updated>
     </task>
-    <task id="LOCAL-00001" summary="Add name key to xml config file&#10;&#10;name key added to xml configuration file to allow for the referencing of the step name through the integration testing.">
-      <created>1535028985551</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1535028985551</updated>
-    </task>
-    <task id="LOCAL-00002" summary="Add test data for integration steps&#10;&#10;Test data added for multiple points in the ips process.">
-      <created>1535029387002</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1535029387002</updated>
-    </task>
-    <task id="LOCAL-00003" summary="Modify import to deal with ANSI encoding and fix external import issue&#10;&#10;Extra conditions added to the import scripts and casting added to the AM_PM_NIGHT column which bypasses an error being caused due to inconsistent data types going into the traffic_data table.">
-      <created>1535029905042</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1535029905042</updated>
-    </task>
-    <task id="LOCAL-00004" summary="Removed prints from common functions that were flooding the console. Small tweak to minimums weight (changed 0's to nan)">
-      <created>1535029994074</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1535029994074</updated>
-    </task>
-    <task id="LOCAL-00005" summary="Add test script for IPS minimums weight integration">
-      <created>1535030102506</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1535030102506</updated>
-    </task>
-    <task id="LOCAL-00006" summary="Pre Merge File changes">
-      <created>1535104285568</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1535104285568</updated>
-    </task>
-    <task id="LOCAL-00007" summary="Merge done and tests run successfully. All working, minimums wt will need testing on merge request.">
-      <created>1535106243544</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1535106243544</updated>
-    </task>
-    <task id="LOCAL-00008" summary="Import fix implemented, tests written and test data added.">
-      <created>1536305886666</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1536305886666</updated>
-    </task>
-    <task id="LOCAL-00009" summary="Add step test data to repo (csv) for import of unit test start data.">
-      <created>1536306071256</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1536306071256</updated>
-    </task>
-    <task id="LOCAL-00010" summary="Import test scripts written and commented. &#10;&#10;All importing fine for:&#10;&#10; - Survey data,&#10; - External data,&#10; - Step Unit test data">
-      <created>1536312909810</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1536312909810</updated>
-    </task>
-    <task id="LOCAL-00011" summary="Calculate Final Weight test rewritten to use SQL.">
-      <created>1536317633381</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1536317633381</updated>
-    </task>
-    <task id="LOCAL-00012" summary="Add nov and oct data for final weight step">
-      <created>1536328124314</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1536328124314</updated>
-    </task>
-    <task id="LOCAL-00013" summary="Test config changed to Oct data.&#10;Changes made to final weight integration&#10;Change made to ID in test_idm_steps_1-2-3">
-      <created>1536664750326</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1536664750326</updated>
-    </task>
-    <task id="LOCAL-00014" summary="New data for minimums weight rounding added.">
-      <created>1536664894114</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1536664894114</updated>
-    </task>
-    <task id="LOCAL-00015" summary="Minimums wt unit testing complete.&#10;&#10;Tests have been rewritten to use SQL. Data added for 3 months of testing. Nov and Oct currently being skipped due to data issue. This it in regards to the SAS files not any method used to import.">
-      <created>1536673278920</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1536673278920</updated>
-    </task>
-    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="py_test_in_ips_data_management - 2018.09.12 at 11h 13m 28s.xml">
+    <history-entry file="py_test_in_ips_data_management - 2018.09.12 at 14h 21m 33s.xml">
       <configuration name="py.test in ips_data_management" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_ips_data_management - 2018.09.12 at 11h 17m 35s.xml">
+    <history-entry file="py_test_in_ips_data_management - 2018.09.12 at 14h 34m 35s.xml">
       <configuration name="py.test in ips_data_management" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_ips_data_management - 2018.09.12 at 11h 23m 40s.xml">
-      <configuration name="py.test in ips_data_management" configurationId="tests" />
+    <history-entry file="py_test_in_test_imbalance_weight_xml_integration_py - 2018.09.10 at 08h 07m 24s.xml">
+      <configuration name="py.test in test_imbalance_weight_xml_integration.py" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_ips_data_management - 2018.09.12 at 11h 25m 01s.xml">
-      <configuration name="py.test in ips_data_management" configurationId="tests" />
+    <history-entry file="py_test_in_test_imbalance_weight_xml_integration_py - 2018.09.10 at 08h 19m 28s.xml">
+      <configuration name="py.test in test_imbalance_weight_xml_integration.py" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_ips_data_management - 2018.09.12 at 11h 29m 49s.xml">
-      <configuration name="py.test in ips_data_management" configurationId="tests" />
+    <history-entry file="py_test_in_test_imbalance_weight_xml_integration_py - 2018.09.10 at 08h 34m 03s.xml">
+      <configuration name="py.test in test_imbalance_weight_xml_integration.py" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_ips_data_management - 2018.09.12 at 11h 32m 59s.xml">
-      <configuration name="py.test in ips_data_management" configurationId="tests" />
+    <history-entry file="py_test_in_test_imbalance_weight_xml_integration_py - 2018.09.10 at 08h 46m 46s.xml">
+      <configuration name="py.test in test_imbalance_weight_xml_integration.py" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_ips_data_management - 2018.09.12 at 11h 34m 10s.xml">
-      <configuration name="py.test in ips_data_management" configurationId="tests" />
+    <history-entry file="py_test_in_test_imbalance_weight_xml_integration_py - 2018.09.10 at 08h 58m 50s.xml">
+      <configuration name="py.test in test_imbalance_weight_xml_integration.py" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_ips_data_management - 2018.09.12 at 11h 41m 47s.xml">
-      <configuration name="py.test in ips_data_management" configurationId="tests" />
+    <history-entry file="py_test_in_test_imbalance_weight_xml_integration_py - 2018.09.10 at 09h 27m 09s.xml">
+      <configuration name="py.test in test_imbalance_weight_xml_integration.py" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_test_calculate_ips_final_weight_py - 2018.09.12 at 11h 52m 45s.xml">
-      <configuration name="py.test in test_calculate_ips_final_weight.py" configurationId="tests" />
+    <history-entry file="py_test_in_test_imbalance_weight_xml_integration_py - 2018.09.10 at 09h 35m 06s.xml">
+      <configuration name="py.test in test_imbalance_weight_xml_integration.py" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_test_calculate_ips_minimums_weight_py - 2018.09.12 at 11h 44m 22s.xml">
-      <configuration name="py.test in test_calculate_ips_minimums_weight.py" configurationId="tests" />
+    <history-entry file="py_test_in_test_imbalance_weight_xml_integration_py - 2018.09.12 at 14h 20m 46s.xml">
+      <configuration name="py.test in test_imbalance_weight_xml_integration.py" configurationId="tests" />
     </history-entry>
-  </component>
-  <component name="TodoView">
-    <todo-panel id="selected-file">
-      <is-autoscroll-to-source value="true" />
-    </todo-panel>
-    <todo-panel id="all">
-      <are-packages-shown value="true" />
-      <is-autoscroll-to-source value="true" />
-    </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-9" y="-9" width="1938" height="1050" extended-state="6" />
-    <editor active="true" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20306715" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33030647" sideWeight="0.50343734" order="11" side_tool="true" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3240253" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.50316125" order="11" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.7752443" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2562432" sideWeight="0.49814913" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3280363" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.4324631" sideWeight="0.49656266" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24960339" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3291714" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.31441543" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.56867194" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.50316125" order="11" side_tool="true" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2562432" sideWeight="0.49814913" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3280363" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.8013029" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3291714" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22708113" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.40803108" sideWeight="0.49683878" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24960339" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.49683878" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.13789359" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -971,729 +650,466 @@
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="Add name key to xml config file&#10;&#10;name key added to xml configuration file to allow for the referencing of the step name through the integration testing." />
-    <MESSAGE value="Add test data for integration steps&#10;&#10;Test data added for multiple points in the ips process." />
-    <MESSAGE value="Modify import to deal with ANSI encoding and fix external import issue&#10;&#10;Extra conditions added to the import scripts and casting added to the AM_PM_NIGHT column which bypasses an error being caused due to inconsistent data types going into the traffic_data table." />
-    <MESSAGE value="Removed prints from common functions that were flooding the console. Small tweak to minimums weight (changed 0's to nan)" />
-    <MESSAGE value="Add test script for IPS minimums weight integration" />
-    <MESSAGE value="Pre Merge File changes" />
-    <MESSAGE value="Merge done and tests run successfully. All working, minimums wt will need testing on merge request." />
-    <MESSAGE value="Import fix implemented, tests written and test data added." />
-    <MESSAGE value="Add step test data to repo (csv) for import of unit test start data." />
-    <MESSAGE value="Import test scripts written and commented. &#10;&#10;All importing fine for:&#10;&#10; - Survey data,&#10; - External data,&#10; - Step Unit test data" />
-    <MESSAGE value="Calculate Final Weight test rewritten to use SQL." />
-    <MESSAGE value="Add nov and oct data for final weight step" />
-    <MESSAGE value="Test config changed to Oct data.&#10;Changes made to final weight integration&#10;Change made to ID in test_idm_steps_1-2-3" />
-    <MESSAGE value="New data for minimums weight rounding added." />
-    <MESSAGE value="Minimums wt unit testing complete.&#10;&#10;Tests have been rewritten to use SQL. Data added for 3 months of testing. Nov and Oct currently being skipped due to data issue. This it in regards to the SAS files not any method used to import." />
-    <option name="LAST_COMMIT_MESSAGE" value="Minimums wt unit testing complete.&#10;&#10;Tests have been rewritten to use SQL. Data added for 3 months of testing. Nov and Oct currently being skipped due to data issue. This it in regards to the SAS files not any method used to import." />
-  </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$APPLICATION_CONFIG_DIR$/scratches/test_import.py</url>
-          <line>42</line>
-          <option name="timeStamp" value="123" />
-        </line-breakpoint>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tests/io/test_import_data.py</url>
-          <line>53</line>
-          <option name="timeStamp" value="138" />
-        </line-breakpoint>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_shift_weight.py</url>
-          <line>7</line>
-          <option name="timeStamp" value="139" />
-        </line-breakpoint>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_airmiles.py</url>
-          <line>80</line>
-          <option name="timeStamp" value="147" />
-        </line-breakpoint>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_airmiles.py</url>
-          <line>42</line>
-          <option name="timeStamp" value="153" />
-        </line-breakpoint>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_airmiles.py</url>
-          <line>36</line>
-          <option name="timeStamp" value="154" />
-        </line-breakpoint>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_airmiles.py</url>
-          <line>26</line>
-          <option name="timeStamp" value="155" />
-        </line-breakpoint>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_airmiles.py</url>
-          <line>30</line>
-          <option name="timeStamp" value="156" />
-        </line-breakpoint>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/main/calculations/calculate_ips_airmiles.py</url>
-          <line>173</line>
-          <option name="timeStamp" value="157" />
-        </line-breakpoint>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/main/calculations/calculate_ips_airmiles.py</url>
-          <line>174</line>
-          <option name="timeStamp" value="158" />
-        </line-breakpoint>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/main/calculations/calculate_ips_airmiles.py</url>
-          <line>175</line>
-          <option name="timeStamp" value="159" />
-        </line-breakpoint>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/main/calculations/calculate_ips_airmiles.py</url>
-          <line>141</line>
-          <option name="timeStamp" value="161" />
-        </line-breakpoint>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_final_weight.py</url>
-          <line>71</line>
-          <option name="timeStamp" value="170" />
-        </line-breakpoint>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_final_weight_xml_integration.py</url>
-          <line>32</line>
-          <option name="timeStamp" value="171" />
-        </line-breakpoint>
-      </breakpoints>
-      <breakpoints-dialog>
-        <breakpoints-dialog />
-      </breakpoints-dialog>
-      <default-breakpoints>
-        <breakpoint type="python-exception">
-          <properties notifyOnTerminate="true" exception="BaseException">
-            <option name="notifyOnTerminate" value="true" />
-          </properties>
-        </breakpoint>
-      </default-breakpoints>
-      <option name="time" value="192" />
+      <option name="time" value="88" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/november/Air Sheet Nov 2017 VBA.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/november/Poss shifts Nov 2017.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/november/Unsampled Traffic Nov 2017.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/october/Unsampled Traffic Oct 20172nd.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/november/Nov_NRMFS.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/q3/Unsampled Traffic Q3 2017.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main/io/ips_data_management.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/calculations/december_2017/shift_weight/surveydata.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/calculations/december_2017/shift_weight/shiftsdata.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/calculations/december_2017/min_weight/surveydata.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main/io/import_data.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="66" column="0" lean-forward="false" selection-start-line="66" selection-start-column="0" selection-end-line="66" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/calculations/december_2017/air_miles/airmiles_input.pkl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/calculations/december_2017/traffic_weight/survey_input.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="293">
-          <caret line="273" column="0" lean-forward="false" selection-start-line="273" selection-start-column="0" selection-end-line="273" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/calculations/december_2017/final_weight/surveydata.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/calculations/december_2017/final_weight/output_final.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/calculations/december_2017/air_miles/airmiles.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python36/Lib/site-packages/pandas/core/frame.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="4932" column="0" lean-forward="false" selection-start-line="4932" selection-start-column="0" selection-end-line="4932" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python36/Lib/site-packages/pandas/util/testing.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="207">
-          <caret line="1092" column="0" lean-forward="false" selection-start-line="1092" selection-start-column="0" selection-end-line="1092" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python36/Lib/site-packages/pandas/core/dtypes/common.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="207">
-          <caret line="505" column="0" lean-forward="false" selection-start-line="505" selection-start-column="0" selection-end-line="505" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_nonresponse_weight.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="31">
-          <caret line="15" column="21" lean-forward="false" selection-start-line="15" selection-start-column="21" selection-end-line="15" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/output_final.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/summary_final.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/surveydata.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/result.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main/io/import_traffic_data.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="27" column="21" lean-forward="true" selection-start-line="27" selection-start-column="21" selection-end-line="27" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_shift_weight.py">
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/survey_subsample_10.csv" />
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/survey_subsample.csv">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
-          <caret line="118" column="35" lean-forward="false" selection-start-line="118" selection-start-column="4" selection-end-line="118" selection-end-column="35" />
-          <folding>
-            <element signature="e#724#1086#0" expanded="false" />
-            <element signature="e#1151#1564#0" expanded="false" />
-            <element signature="e#1636#1907#0" expanded="false" />
-            <element signature="e#1983#2371#0" expanded="false" />
-          </folding>
+          <caret line="1" column="36" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="36" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_final_weight.py">
+    <entry file="file://$USER_HOME$/.PyCharmCE2017.3/system/python_stubs/-1184660488/builtins.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="13" column="13" lean-forward="false" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
+        <state relative-caret-position="176">
+          <caret line="4167" column="8" lean-forward="false" selection-start-line="4167" selection-start-column="8" selection-end-line="4167" selection-end-column="8" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_imb_weights.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="544">
-          <caret line="69" column="0" lean-forward="false" selection-start-line="69" selection-start-column="0" selection-end-line="69" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_rail_impute.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="33" column="0" lean-forward="false" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/ps_minimums_actual.csv">
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data_result.csv">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/io/test_import_data.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="181" column="6" lean-forward="true" selection-start-line="181" selection-start-column="6" selection-end-line="181" selection-end-column="6" />
-          <folding>
-            <element signature="e#454#729#0" expanded="false" />
-            <element signature="e#454#694#1" expanded="false" />
-            <element signature="e#762#897#0" expanded="false" />
-            <element signature="e#933#1070#0" expanded="false" />
-            <element signature="e#1097#2403#0" expanded="false" />
-            <element signature="e#2471#4804#0" expanded="false" />
-            <element signature="e#4875#6007#0" expanded="false" />
-            <element signature="e#6057#6439#0" expanded="false" />
-            <element signature="e#6494#7240#0" expanded="false" />
-            <element signature="e#7290#7742#0" expanded="false" />
-            <element signature="e#7796#8567#0" expanded="false" />
-            <element signature="e#8617#9032#0" expanded="false" />
-            <element signature="e#9093#9878#0" expanded="false" />
-            <element signature="e#9928#10376#0" expanded="false" />
-            <element signature="e#10428#11199#0" expanded="false" />
-            <element signature="e#11249#11711#0" expanded="false" />
-            <element signature="e#11766#12540#0" expanded="false" />
-            <element signature="e#12590#13039#0" expanded="false" />
-            <element signature="e#13091#13862#0" expanded="false" />
-            <element signature="e#13912#14387#0" expanded="false" />
-            <element signature="e#14445#15228#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/setup.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/config.py">
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data_expected.csv">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_final_weight.py">
+    <entry file="file://C:/Python36/Lib/site-packages/pluggy/callers.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="4" column="7" lean-forward="true" selection-start-line="4" selection-start-column="7" selection-end-line="52" selection-end-column="36" />
-          <folding>
-            <element signature="e#2341#2441#0" expanded="false" />
-          </folding>
+        <state relative-caret-position="114">
+          <caret line="179" column="0" lean-forward="false" selection-start-line="179" selection-start-column="0" selection-end-line="179" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/shift_data_result.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="6" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/non_response_data.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/sas_shift_data.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/shift_data.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="14" column="49" lean-forward="false" selection-start-line="14" selection-start-column="49" selection-end-line="14" selection-end-column="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/non_response_data_result.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="38" lean-forward="false" selection-start-line="1" selection-start-column="38" selection-end-line="1" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/sas_non_response_data.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="99" lean-forward="false" selection-start-line="0" selection-start-column="99" selection-end-line="0" selection-end-column="99" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/unsampled_ooh_data_result.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="72" lean-forward="false" selection-start-line="0" selection-start-column="72" selection-end-line="0" selection-end-column="72" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/traffic_data.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/populate_result.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/test_result.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/populate_result_traffic_unsampled.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1139">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IPS_XML/fares_imputation.py" />
+    <entry file="file://$PROJECT_DIR$/tests/utils/ips_ges_weighting.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="14" column="56" lean-forward="false" selection-start-line="14" selection-start-column="56" selection-end-line="14" selection-end-column="56" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_minimums_weight.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1632">
-          <caret line="100" column="0" lean-forward="false" selection-start-line="100" selection-start-column="0" selection-end-line="100" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="782">
+          <caret line="49" column="37" lean-forward="false" selection-start-line="49" selection-start-column="37" selection-end-line="49" selection-end-column="37" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/calculations/december_2017/min_weight/summarydata_final.csv">
+    <entry file="file://$PROJECT_DIR$/main/calculations/ips_impute.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1836">
+          <caret line="109" column="63" lean-forward="false" selection-start-line="109" selection-start-column="63" selection-end-line="109" selection-end-column="63" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_stay_imputation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1394">
+          <caret line="88" column="12" lean-forward="false" selection-start-line="88" selection-start-column="12" selection-end-line="88" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_spend_imputation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1853">
+          <caret line="116" column="26" lean-forward="false" selection-start-line="116" selection-start-column="26" selection-end-line="116" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_rail_imputation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="459">
+          <caret line="34" column="7" lean-forward="false" selection-start-line="34" selection-start-column="7" selection-end-line="34" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_regional_weights.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2482">
+          <caret line="151" column="33" lean-forward="false" selection-start-line="151" selection-start-column="33" selection-end-line="151" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IPS_XML/shift_weight.py" />
+    <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_ips_data_management.py" />
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/traffic_data_result.csv">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/calculations/december_2017/min_weight/outputdata_final.csv">
+    <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps-1-2-3.py" />
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/sas_traffic_data.csv">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/calculations/december_2017/min_weight/summarydata_final.csv">
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/imbalance_weight_integration/sas_survey_subsample_target.csv">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="0" column="46" lean-forward="false" selection-start-line="0" selection-start-column="30" selection-end-line="0" selection-end-column="46" />
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_minimums_weight.py">
+    <entry file="file://C:/Python36/Lib/site-packages/_pytest/python.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="66" column="49" lean-forward="false" selection-start-line="66" selection-start-column="49" selection-end-line="66" selection-end-column="49" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="294">
+          <caret line="462" column="0" lean-forward="false" selection-start-line="462" selection-start-column="0" selection-end-line="462" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_airmiles.py">
+    <entry file="file://$PROJECT_DIR$/main/utils/ProcessVariableToOracle.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-136">
-          <caret line="70" column="0" lean-forward="false" selection-start-line="70" selection-start-column="0" selection-end-line="70" selection-end-column="0" />
-          <folding>
-            <element signature="e#7960#9882#0" expanded="false" />
-          </folding>
+        <state relative-caret-position="126">
+          <caret line="9" column="16" lean-forward="false" selection-start-line="9" selection-start-column="16" selection-end-line="9" selection-end-column="18" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_airmiles.py">
+    <entry file="file://C:/Python36/Lib/site-packages/pandas/core/internals.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="17" column="21" lean-forward="false" selection-start-line="17" selection-start-column="21" selection-end-line="17" selection-end-column="21" />
-          <folding>
-            <element signature="e#485#2956#0" expanded="false" />
-          </folding>
+        <state relative-caret-position="-6321">
+          <caret line="4480" column="0" lean-forward="false" selection-start-line="4480" selection-start-column="0" selection-end-line="4480" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/utils/process_variables.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="548">
+          <caret line="100" column="0" lean-forward="true" selection-start-line="100" selection-start-column="0" selection-end-line="100" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/imbalance_weight_integration/surveydata.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight/imb_weight_surveydata_output.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/imbalance_weight_integration/sas_ps_imbalance_target.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="21">
+          <caret line="1" column="0" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/imbalance_weight_integration/sas_ps_imbalance_actual.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight_new/imb_weight_surveydata_output.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-404576">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_imb_weights.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="9" column="55" lean-forward="false" selection-start-line="9" selection-start-column="55" selection-end-line="9" selection-end-column="55" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="42">
+          <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/utils/UnpickleRick.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="441">
+          <caret line="21" column="41" lean-forward="false" selection-start-line="21" selection-start-column="41" selection-end-line="21" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/oct_imb.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4431">
+          <caret line="217" column="58" lean-forward="true" selection-start-line="217" selection-start-column="58" selection-end-line="217" selection-end-column="58" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="21">
+          <caret line="71" column="0" lean-forward="false" selection-start-line="71" selection-start-column="0" selection-end-line="71" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_imb_weight.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-51">
-          <caret line="36" column="51" lean-forward="true" selection-start-line="36" selection-start-column="51" selection-end-line="36" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/io/test_common_functions_files.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="188">
-          <caret line="37" column="8" lean-forward="false" selection-start-line="37" selection-start-column="8" selection-end-line="37" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps_1_2_3.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="173">
-          <caret line="26" column="13" lean-forward="false" selection-start-line="26" selection-start-column="4" selection-end-line="26" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps_4_5_6.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="481">
-          <caret line="234" column="81" lean-forward="false" selection-start-line="234" selection-start-column="81" selection-end-line="234" selection-end-column="81" />
+        <state relative-caret-position="3077">
+          <caret line="184" column="0" lean-forward="false" selection-start-line="184" selection-start-column="0" selection-end-line="184" selection-end-column="0" />
           <folding>
-            <element signature="e#727#1019#0" expanded="false" />
-            <element signature="e#727#983#1" expanded="false" />
-            <element signature="e#1168#1473#0" expanded="false" />
-            <element signature="e#1168#1192#0" expanded="false" />
-            <element signature="e#1306#1381#0" expanded="false" />
-            <element signature="e#1543#2005#0" expanded="false" />
-            <element signature="e#1543#1649#1" expanded="false" />
-            <element signature="e#1688#1820#0" expanded="false" />
-            <element signature="e#1751#1820#0" expanded="false" />
-            <element signature="e#1847#1979#0" expanded="false" />
-            <element signature="e#1910#1979#0" expanded="false" />
-            <element signature="e#2056#3848#0" expanded="false" />
-            <element signature="e#2056#2355#1" expanded="false" />
-            <element signature="e#3962#7202#0" expanded="false" />
-            <element signature="e#3976#4267#0" expanded="false" />
-            <element signature="e#4099#4242#0" expanded="false" />
-            <element signature="e#7318#11071#0" expanded="false" />
-            <element signature="e#7332#7765#0" expanded="false" />
-            <element signature="e#7461#7609#0" expanded="false" />
-            <element signature="e#11163#13374#0" expanded="false" />
-            <element signature="e#11177#11397#0" expanded="false" />
-            <element signature="e#13470#15645#0" expanded="false" />
-            <element signature="e#13484#13705#0" expanded="false" />
-            <element signature="e#15733#18627#0" expanded="false" />
-            <element signature="e#15783#16114#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_minimums_weight_xml_integration.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="277">
-          <caret line="93" column="112" lean-forward="false" selection-start-line="93" selection-start-column="27" selection-end-line="93" selection-end-column="112" />
-          <folding>
-            <element signature="e#723#998#0" expanded="false" />
-            <element signature="e#723#963#1" expanded="false" />
-            <element signature="e#1031#1246#0" expanded="false" />
-            <element signature="e#1282#1407#0" expanded="false" />
-            <element signature="e#1434#2913#0" expanded="false" />
-            <element signature="e#1556#1662#0" expanded="false" />
-            <element signature="e#1668#1746#0" expanded="false" />
-            <element signature="e#1871#2022#0" expanded="false" />
-            <element signature="e#1888#1975#0" expanded="false" />
-            <element signature="e#2104#2196#0" expanded="false" />
-            <element signature="e#2202#2280#0" expanded="false" />
-            <element signature="e#2404#2601#0" expanded="false" />
-            <element signature="e#2421#2554#0" expanded="false" />
-            <element signature="e#2607#2685#0" expanded="false" />
-            <element signature="e#2822#2913#0" expanded="false" />
-            <element signature="e#3443#3503#0" expanded="false" />
-            <element signature="e#3516#3595#0" expanded="false" />
-            <element signature="e#3623#3761#0" expanded="false" />
-            <element signature="e#3774#3853#0" expanded="false" />
-            <element signature="e#3881#4011#0" expanded="false" />
-            <element signature="e#4177#6110#0" expanded="false" />
-            <element signature="e#4177#4443#1" expanded="false" />
-            <element signature="e#6151#11593#0" expanded="false" />
-            <element signature="e#6446#6523#0" expanded="false" />
-            <element signature="e#6648#6858#0" expanded="false" />
+            <element signature="e#48#62#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main/io/CommonFunctions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-222">
-          <caret line="1012" column="4" lean-forward="false" selection-start-line="1012" selection-start-column="4" selection-end-line="1012" selection-end-column="4" />
+        <state relative-caret-position="10421">
+          <caret line="1078" column="0" lean-forward="false" selection-start-line="1078" selection-start-column="0" selection-end-line="1078" selection-end-column="0" />
           <folding>
             <element signature="e#0#54#1" expanded="false" />
-            <element signature="e#403#880#0" expanded="false" />
-            <element signature="e#403#689#1" expanded="false" />
-            <element signature="e#694#717#0" expanded="false" />
-            <element signature="e#955#1706#0" expanded="false" />
-            <element signature="e#955#1441#1" expanded="false" />
-            <element signature="e#1447#1481#0" expanded="false" />
-            <element signature="e#1776#3428#0" expanded="false" />
-            <element signature="e#1776#2330#1" expanded="false" />
-            <element signature="e#2363#2666#0" expanded="false" />
-            <element signature="e#2709#3009#0" expanded="false" />
-            <element signature="e#3054#3343#0" expanded="false" />
-            <element signature="e#3429#3521#0" expanded="false" />
-            <element signature="e#6541#7567#0" expanded="false" />
-            <element signature="e#6541#7026#1" expanded="false" />
-            <element signature="e#7435#7537#0" expanded="false" />
-            <element signature="e#7614#8611#0" expanded="false" />
-            <element signature="e#7614#7904#1" expanded="false" />
-            <element signature="e#7909#7962#0" expanded="false" />
-            <element signature="e#8222#8580#0" expanded="false" />
-            <element signature="e#8269#8366#0" expanded="false" />
-            <element signature="e#8412#8518#0" expanded="false" />
-            <element signature="e#8659#9716#0" expanded="false" />
-            <element signature="e#8659#8984#1" expanded="false" />
-            <element signature="e#8997#9050#0" expanded="false" />
-            <element signature="e#9341#9716#0" expanded="false" />
-            <element signature="e#9414#9681#0" expanded="false" />
-            <element signature="e#9451#9681#0" expanded="false" />
-            <element signature="e#9749#11115#0" expanded="false" />
-            <element signature="e#9749#10121#1" expanded="false" />
-            <element signature="e#10131#10184#0" expanded="false" />
-            <element signature="e#10457#11115#0" expanded="false" />
-            <element signature="e#10557#10663#0" expanded="false" />
-            <element signature="e#10690#11115#0" expanded="false" />
-            <element signature="e#10726#11064#0" expanded="false" />
-            <element signature="e#11154#12129#0" expanded="false" />
-            <element signature="e#11154#11523#1" expanded="false" />
-            <element signature="e#11533#11586#0" expanded="false" />
-            <element signature="e#11839#12098#0" expanded="false" />
-            <element signature="e#11856#11982#0" expanded="false" />
-            <element signature="e#12028#12098#0" expanded="false" />
-            <element signature="e#12179#13901#0" expanded="false" />
-            <element signature="e#12179#12997#1" expanded="false" />
-            <element signature="e#13189#13222#0" expanded="false" />
-            <element signature="e#13387#13454#0" expanded="false" />
-            <element signature="e#13678#13711#0" expanded="false" />
-            <element signature="e#13730#13901#0" expanded="false" />
-            <element signature="e#13937#15015#0" expanded="false" />
-            <element signature="e#13937#14329#1" expanded="false" />
-            <element signature="e#14576#14624#0" expanded="false" />
-            <element signature="e#14662#14838#0" expanded="false" />
-            <element signature="e#14681#14762#0" expanded="false" />
-            <element signature="e#14857#15015#0" expanded="false" />
-            <element signature="e#14888#14976#0" expanded="false" />
-            <element signature="e#15050#16411#0" expanded="false" />
-            <element signature="e#15050#15413#1" expanded="false" />
-            <element signature="e#15419#15471#0" expanded="false" />
-            <element signature="e#15886#16043#0" expanded="false" />
-            <element signature="e#15886#15967#0" expanded="false" />
-            <element signature="e#16062#16411#0" expanded="false" />
-            <element signature="e#16110#16347#0" expanded="false" />
-            <element signature="e#16374#16411#0" expanded="false" />
-            <element signature="e#16550#18532#0" expanded="false" />
-            <element signature="e#16550#17520#1" expanded="false" />
-            <element signature="e#17692#17760#0" expanded="false" />
-            <element signature="e#17798#18021#0" expanded="false" />
-            <element signature="e#18040#18314#0" expanded="false" />
-            <element signature="e#18395#18503#0" expanded="false" />
-            <element signature="e#18613#19908#0" expanded="false" />
-            <element signature="e#18613#19051#1" expanded="false" />
-            <element signature="e#19116#19137#0" expanded="false" />
-            <element signature="e#19176#19250#0" expanded="false" />
-            <element signature="e#19325#19422#0" expanded="false" />
-            <element signature="e#19460#19588#0" expanded="false" />
-            <element signature="e#19479#19511#0" expanded="false" />
-            <element signature="e#19664#19742#0" expanded="false" />
-            <element signature="e#19778#19889#0" expanded="false" />
-            <element signature="e#19960#22134#0" expanded="false" />
-            <element signature="e#19960#20416#1" expanded="false" />
-            <element signature="e#20609#20713#0" expanded="false" />
-            <element signature="e#20980#21087#0" expanded="false" />
-            <element signature="e#21107#21184#0" expanded="false" />
-            <element signature="e#21194#21247#0" expanded="false" />
-            <element signature="e#21504#21786#0" expanded="false" />
-            <element signature="e#21894#22109#0" expanded="false" />
-            <element signature="e#21928#22036#0" expanded="false" />
-            <element signature="e#22175#22781#0" expanded="false" />
-            <element signature="e#22175#22508#1" expanded="false" />
-            <element signature="e#22652#22725#0" expanded="false" />
-            <element signature="e#22848#24289#0" expanded="false" />
-            <element signature="e#22848#23579#1" expanded="false" />
-            <element signature="e#24365#26209#0" expanded="false" />
-            <element signature="e#24365#24771#1" expanded="false" />
-            <element signature="e#24810#24879#0" expanded="false" />
-            <element signature="e#25775#25785#0" expanded="false" />
-            <element signature="e#26290#27977#0" expanded="false" />
-            <element signature="e#26290#26823#1" expanded="false" />
-            <element signature="e#26866#26935#0" expanded="false" />
-            <element signature="e#27133#27155#0" expanded="false" />
-            <element signature="e#28044#30688#0" expanded="false" />
-            <element signature="e#28044#28833#1" expanded="false" />
-            <element signature="e#29011#29078#0" expanded="false" />
-            <element signature="e#29457#29485#0" expanded="false" />
-            <element signature="e#29634#29688#0" expanded="false" />
-            <element signature="e#30174#30379#0" expanded="false" />
-            <element signature="e#30446#30617#0" expanded="false" />
-            <element signature="e#30745#31462#0" expanded="false" />
-            <element signature="e#30745#31137#1" expanded="false" />
-            <element signature="e#31349#31414#0" expanded="false" />
-            <element signature="e#31529#32321#0" expanded="false" />
-            <element signature="e#32074#32151#0" expanded="false" />
-            <element signature="e#32170#32267#0" expanded="false" />
-            <element signature="e#32406#34567#0" expanded="false" />
-            <element signature="e#32406#32811#1" expanded="false" />
-            <element signature="e#32919#32988#0" expanded="false" />
-            <element signature="e#33929#34019#0" expanded="false" />
-            <element signature="e#34259#34270#0" expanded="false" />
-            <element signature="e#34345#34385#0" expanded="false" />
-            <element signature="e#34466#34486#0" expanded="false" />
-            <element signature="e#34659#35064#1" expanded="false" />
-            <element signature="e#35172#35241#0" expanded="false" />
-            <element signature="e#35377#35395#0" expanded="false" />
-            <element signature="e#36219#36309#0" expanded="false" />
-            <element signature="e#36843#36863#0" expanded="false" />
-            <element signature="e#36973#37015#0" expanded="false" />
-            <element signature="e#37059#37070#0" expanded="false" />
-            <element signature="e#37089#37270#0" expanded="false" />
-            <element signature="e#37327#37407#0" expanded="false" />
-            <element signature="e#37439#37798#0" expanded="false" />
-            <element signature="e#37829#40111#0" expanded="false" />
-            <element signature="e#37829#37854#0" expanded="false" />
-            <element signature="e#38613#39021#0" expanded="false" />
-            <element signature="e#39043#39056#0" expanded="false" />
-            <element signature="e#39419#39439#0" expanded="false" />
-            <element signature="e#39494#39602#0" expanded="false" />
-            <element signature="e#39872#39941#0" expanded="false" />
-            <element signature="e#39970#40051#0" expanded="false" />
+            <element signature="e#415#892#0" expanded="false" />
+            <element signature="e#415#701#1" expanded="false" />
+            <element signature="e#706#729#0" expanded="false" />
+            <element signature="e#967#1718#0" expanded="false" />
+            <element signature="e#967#1453#1" expanded="false" />
+            <element signature="e#1459#1493#0" expanded="false" />
+            <element signature="e#1788#3440#0" expanded="false" />
+            <element signature="e#1788#2342#1" expanded="false" />
+            <element signature="e#2375#2678#0" expanded="false" />
+            <element signature="e#2721#3021#0" expanded="false" />
+            <element signature="e#3066#3355#0" expanded="false" />
+            <element signature="e#3441#3533#0" expanded="false" />
+            <element signature="e#6553#7579#0" expanded="false" />
+            <element signature="e#6553#7038#1" expanded="false" />
+            <element signature="e#7447#7549#0" expanded="false" />
+            <element signature="e#7625#8622#0" expanded="false" />
+            <element signature="e#7625#7915#1" expanded="false" />
+            <element signature="e#7920#7973#0" expanded="false" />
+            <element signature="e#8233#8591#0" expanded="false" />
+            <element signature="e#8280#8377#0" expanded="false" />
+            <element signature="e#8423#8529#0" expanded="false" />
+            <element signature="e#8670#9727#0" expanded="false" />
+            <element signature="e#8670#8995#1" expanded="false" />
+            <element signature="e#9008#9061#0" expanded="false" />
+            <element signature="e#9352#9727#0" expanded="false" />
+            <element signature="e#9425#9692#0" expanded="false" />
+            <element signature="e#9462#9692#0" expanded="false" />
+            <element signature="e#9760#11126#0" expanded="false" />
+            <element signature="e#9760#10132#1" expanded="false" />
+            <element signature="e#10142#10195#0" expanded="false" />
+            <element signature="e#10468#11126#0" expanded="false" />
+            <element signature="e#10568#10674#0" expanded="false" />
+            <element signature="e#10701#11126#0" expanded="false" />
+            <element signature="e#10737#11075#0" expanded="false" />
+            <element signature="e#11165#12140#0" expanded="false" />
+            <element signature="e#11165#11534#1" expanded="false" />
+            <element signature="e#11544#11597#0" expanded="false" />
+            <element signature="e#11850#12109#0" expanded="false" />
+            <element signature="e#11867#11993#0" expanded="false" />
+            <element signature="e#12039#12109#0" expanded="false" />
+            <element signature="e#12190#13912#0" expanded="false" />
+            <element signature="e#12190#13008#1" expanded="false" />
+            <element signature="e#13200#13233#0" expanded="false" />
+            <element signature="e#13398#13465#0" expanded="false" />
+            <element signature="e#13689#13722#0" expanded="false" />
+            <element signature="e#13741#13912#0" expanded="false" />
+            <element signature="e#13948#15026#0" expanded="false" />
+            <element signature="e#13948#14340#1" expanded="false" />
+            <element signature="e#14587#14635#0" expanded="false" />
+            <element signature="e#14673#14849#0" expanded="false" />
+            <element signature="e#14692#14773#0" expanded="false" />
+            <element signature="e#14868#15026#0" expanded="false" />
+            <element signature="e#14899#14987#0" expanded="false" />
+            <element signature="e#15061#16422#0" expanded="false" />
+            <element signature="e#15061#15424#1" expanded="false" />
+            <element signature="e#15430#15482#0" expanded="false" />
+            <element signature="e#15897#16054#0" expanded="false" />
+            <element signature="e#15897#15978#0" expanded="false" />
+            <element signature="e#16073#16422#0" expanded="false" />
+            <element signature="e#16121#16358#0" expanded="false" />
+            <element signature="e#16385#16422#0" expanded="false" />
+            <element signature="e#16561#17531#1" expanded="false" />
+            <element signature="e#17703#17771#0" expanded="false" />
+            <element signature="e#17809#18032#0" expanded="false" />
+            <element signature="e#18051#18325#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_final_weight_xml_integration.py">
+    <entry file="file://$PROJECT_DIR$/data/xml_steps_configuration.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="32" column="0" lean-forward="false" selection-start-line="32" selection-start-column="0" selection-end-line="32" selection-end-column="0" />
+        <state relative-caret-position="255">
+          <caret line="101" column="99" lean-forward="false" selection-start-line="101" selection-start-column="99" selection-end-line="101" selection-end-column="99" />
           <folding>
-            <element signature="e#692#960#0" expanded="false" />
-            <element signature="e#692#924#1" expanded="false" />
-            <element signature="e#1069#1097#0" expanded="false" />
-            <element signature="e#1365#1841#0" expanded="false" />
-            <element signature="e#1890#2918#0" expanded="false" />
-            <element signature="e#1890#2298#1" expanded="false" />
-            <element signature="e#2945#4281#0" expanded="false" />
-            <element signature="e#3067#3173#0" expanded="false" />
-            <element signature="e#3179#3257#0" expanded="false" />
-            <element signature="e#3382#3473#0" expanded="false" />
-            <element signature="e#3555#3647#0" expanded="false" />
-            <element signature="e#3653#3731#0" expanded="false" />
-            <element signature="e#3855#3969#0" expanded="false" />
-            <element signature="e#3975#4053#0" expanded="false" />
-            <element signature="e#4190#4281#0" expanded="false" />
-            <element signature="e#4318#10277#0" expanded="false" />
-            <element signature="e#4677#4754#0" expanded="false" />
-            <element signature="e#4871#5081#0" expanded="false" />
-            <element signature="e#9341#9409#0" expanded="false" />
-            <element signature="e#9647#9703#0" expanded="false" />
+            <element signature="n#!!block;n#SHIFT_WEIGHT#0;n#!!top" expanded="false" />
+            <element signature="n#!!block;n#NON_RESPONSE#0;n#!!top" expanded="false" />
+            <element signature="n#!!block;n#MINIMUMS_WEIGHT#0;n#!!top" expanded="false" />
+            <element signature="n#!!block;n#TRAFFIC_WEIGHT#0;n#!!top" expanded="false" />
+            <element signature="e#4414#4546#0" expanded="false" />
+            <element signature="n#!!block;n#UNSAMPLED_WEIGHT#0;n#!!top" expanded="false" />
+            <element signature="n#!!block;n#FINAL_WEIGHT#0;n#!!top" expanded="false" />
+            <element signature="n#!!block;n#STAY_IMPUTATION#0;n#!!top" expanded="false" />
+            <element signature="e#7159#7364#0" expanded="false" />
+            <element signature="e#7604#7789#0" expanded="false" />
+            <element signature="e#7812#7997#0" expanded="false" />
+            <element signature="n#!!block;n#FARES_IMPUTATION#0;n#!!top" expanded="false" />
+            <element signature="e#8290#8689#0" expanded="false" />
+            <element signature="e#8711#9052#0" expanded="false" />
+            <element signature="n#!!block;n#SPEND_IMPUTATION#0;n#!!top" expanded="false" />
+            <element signature="e#9429#9577#0" expanded="false" />
+            <element signature="e#9599#9736#0" expanded="false" />
+            <element signature="n#!!block;n#RAIL_IMPUTATION#0;n#!!top" expanded="false" />
+            <element signature="e#11011#11163#0" expanded="false" />
+            <element signature="n#!!block;n#TOWN_AND_STAY_EXPENDITURE#0;n#!!top" expanded="false" />
+            <element signature="e#11811#12067#0" expanded="false" />
+            <element signature="e#12089#12243#0" expanded="false" />
+            <element signature="n#!!block;n#AIR_MILES#0;n#!!top" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/Python36/Lib/site-packages/_pytest/python.py">
+    <entry file="file://$PROJECT_DIR$/main/io/ips_data_management.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="308">
-          <caret line="154" column="0" lean-forward="false" selection-start-line="154" selection-start-column="0" selection-end-line="154" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="709">
+          <caret line="571" column="23" lean-forward="false" selection-start-line="571" selection-start-column="15" selection-end-line="571" selection-end-column="23" />
+          <folding>
+            <element signature="e#260#3816#0" expanded="false" />
+            <element signature="e#3885#4053#1" expanded="false" />
+            <element signature="e#4294#4364#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps_7_8_9.py">
+    <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_imbalance_weight_xml_integration.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="303">
-          <caret line="53" column="87" lean-forward="true" selection-start-line="53" selection-start-column="87" selection-end-line="53" selection-end-column="87" />
-          <folding />
+        <state relative-caret-position="300">
+          <caret line="265" column="47" lean-forward="false" selection-start-line="265" selection-start-column="47" selection-end-line="265" selection-end-column="47" />
+          <folding>
+            <element signature="e#772#1040#0" expanded="false" />
+            <element signature="e#772#1004#1" expanded="false" />
+            <element signature="e#1073#1451#0" expanded="false" />
+            <element signature="e#1487#1966#0" expanded="false" />
+            <element signature="e#2015#3072#0" expanded="false" />
+            <element signature="e#2015#2423#1" expanded="false" />
+            <element signature="e#3099#4440#0" expanded="false" />
+            <element signature="e#3223#3329#0" expanded="false" />
+            <element signature="e#3335#3413#0" expanded="false" />
+            <element signature="e#3538#3629#0" expanded="false" />
+            <element signature="e#3712#3804#0" expanded="false" />
+            <element signature="e#3810#3888#0" expanded="false" />
+            <element signature="e#4013#4127#0" expanded="false" />
+            <element signature="e#4133#4211#0" expanded="false" />
+            <element signature="e#4349#4440#0" expanded="false" />
+            <element signature="e#4477#5487#0" expanded="false" />
+            <element signature="e#4477#4891#1" expanded="false" />
+            <element signature="e#4962#5122#0" expanded="false" />
+            <element signature="e#5135#5225#0" expanded="false" />
+            <element signature="e#5253#5405#0" expanded="false" />
+            <element signature="e#5842#5919#0" expanded="false" />
+            <element signature="e#6126#6265#0" expanded="false" />
+            <element signature="e#7608#7765#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps_1_2_3.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-3763">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

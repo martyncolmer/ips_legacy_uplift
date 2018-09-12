@@ -78,7 +78,7 @@ def import_survey_data(survey_data_path, run_id):
 
 
 if __name__ == '__main__':
-    survey_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec Data\ips1712bv4_amtspnd.sas7bdat"
-    version_id = 1891
+    survey_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec_Data\ips1712bv4_amtspnd.csv"
+    run_id = 'test-idm-integration-nassir-test'
 
-    import_survey_data(survey_data_path, version_id)
+    import_survey_data(survey_data_path, run_id)

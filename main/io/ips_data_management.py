@@ -64,9 +64,6 @@ def nullify_survey_subsample_values(run_id, conn, pv_values):
         WHERE RUN_ID = '{}'
     """.format(SURVEY_SUBSAMPLE_TABLE, columns_to_null, run_id)
 
-    print(sql)
-    print("")
-
     # Execute and commits the SQL command
     cur = conn.cursor()
     cur.execute(sql)
@@ -102,9 +99,6 @@ def move_survey_subsample_to_sas_table(run_id, conn, step_name):
             AND RESPNSE {})
     """.format(SAS_SURVEY_SUBSAMPLE_TABLE, columns, columns, SURVEY_SUBSAMPLE_TABLE, run_id, respnse)
 
-    print("{}: {}".format(str(inspect.stack()[0][3]).upper(), sql))
-    print("")
-
     cur = conn.cursor()
     cur.execute(sql)
     conn.commit()
@@ -121,18 +115,11 @@ def populate_survey_data_for_step(run_id, conn, step_configuration):
     Returns      : NA
     """
 
-    print(str(inspect.stack()[0][3]).upper())
-    print("")
-
     # Cleanse tables as applicable
-    delete_statement = cf.delete_from_table(SAS_SURVEY_SUBSAMPLE_TABLE)
-    print(delete_statement)
-    print("")
+    cf.delete_from_table(SAS_SURVEY_SUBSAMPLE_TABLE)
 
     for table in step_configuration["delete_tables"]:
-        delete_statement = cf.delete_from_table(table)
-        print("{}: {}".format(str(inspect.stack()[0][3]).upper(), delete_statement))
-        print("")
+        cf.delete_from_table(table)
 
     nullify_survey_subsample_values(run_id, conn, step_configuration["nullify_pvs"])
     move_survey_subsample_to_sas_table(run_id, conn, step_configuration["name"])
@@ -149,9 +136,6 @@ def populate_step_data(run_id, conn, step_configuration):
     Returns      : NA
     """
 
-    print(str(inspect.stack()[0][3]).upper())
-    print("")
-
     # Assign variables
     table = step_configuration["table_name"]
     data_table = step_configuration["data_table"]
@@ -163,9 +147,7 @@ def populate_step_data(run_id, conn, step_configuration):
     calc_columns = ", ".join(map(str, calc_cols))
 
     # Cleanse temp table
-    delete_statement = cf.delete_from_table(data_table)
-    print(delete_statement)
-    print("")
+    cf.delete_from_table(data_table)
 
     # Create and execute SQL statement
     sql = """
@@ -175,8 +157,6 @@ def populate_step_data(run_id, conn, step_configuration):
     FROM {} AS CALC
     WHERE RUN_ID = '{}'
     """.format(data_table, cols, calc_columns, table, run_id)
-    print("{}: {}".format(str(inspect.stack()[0][3]).upper(), sql))
-    print("")
 
     try:
         cur = conn.cursor()
@@ -198,9 +178,6 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
     Returns      : NA
     """
 
-    print(str(inspect.stack()[0][3]).upper())
-    print("")
-
     # Assign variables
     basic_insert = ["SHIFT_WEIGHT", "NON_RESPONSE", "MINIMUMS_WEIGHT", "TRAFFIC_WEIGHT"]
     multiple_inserts = ["UNSAMPLED_WEIGHT", "IMBALANCE_WEIGHT", "FARES_IMPUTATION", "SPEND_IMPUTATION", "RAIL_IMPUTATION", "REGIONAL_WEIGHTS", "TOWN_AND_STAY_EXPENDITURE"]
@@ -208,12 +185,8 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
     cur = conn.cursor()
 
     # Cleanse tables
-    delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
-    print(delete_statement)
-    print("")
-    delete_statement = cf.delete_from_table(spv_table)
-    print(delete_statement)
-    print("")
+    cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
+    cf.delete_from_table(spv_table)
 
     step = step_configuration["name"]
 
@@ -227,8 +200,6 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
             FROM PROCESS_VARIABLE_PY AS PV WHERE PV.RUN_ID = '{}' 
             AND UPPER(PV.PV_NAME) IN ({}))
         """.format(SAS_PROCESS_VARIABLES_TABLE, count, run_id, item)
-        print(sql)
-        print("")
         cur.execute(sql)
         conn.commit()
 
@@ -304,9 +275,6 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
     Returns      : NA
     """
 
-    print(str(inspect.stack()[0][3]).upper())
-    print("")
-
     # Assign variables
     spv_table = step_configuration["spv_table"]
 
@@ -323,31 +291,21 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
             JOIN {} as CALC
             ON SSS.SERIAL = CALC.SERIAL
         """.format(SAS_SURVEY_SUBSAMPLE_TABLE, set_statement, SAS_SURVEY_SUBSAMPLE_TABLE, spv_table)
-    print(sql)
-    print("")
 
     cur = conn.cursor()
     cur.execute(sql)
     conn.commit()
 
     # Cleanse temp tables
-    delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
-    print(delete_statement)
-    print("")
+    cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
 
-    delete_statement = cf.delete_from_table(spv_table)
-    print(delete_statement)
-    print("")
+    cf.delete_from_table(spv_table)
 
     # code specific to minimums weight function/step
     # TODO: consider moving this out to another function called by minimum weight
     if step_configuration["name"] == "MINIMUMS_WEIGHT":
-        delete_statement = cf.delete_from_table(step_configuration["temp_table"])
-        print(delete_statement)
-        print("")
-        delete_statement = cf.delete_from_table(step_configuration["sas_ps_table"])
-        print(delete_statement)
-        print("")
+        cf.delete_from_table(step_configuration["temp_table"])
+        cf.delete_from_table(step_configuration["sas_ps_table"])
 
 # Nassir - Done
 def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
@@ -361,16 +319,9 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
     Returns      : NA
     """
 
-    print(str(inspect.stack()[0][3]).upper())
-    print("")
-
     # Cleanse temp tables
-    delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
-    print(delete_statement)
-    print("")
-    delete_statement = cf.delete_from_table(step_configuration["pv_table"])
-    print(delete_statement)
-    print("")
+    cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
+    cf.delete_from_table(step_configuration["pv_table"])
 
     # Construct and execute SQL statements as applicable
     if step_configuration["name"] == '[dbo].[UNSAMPLED_WEIGHT]':
@@ -384,8 +335,6 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
                      WHERE pv.[RUN_ID] = '{}'
                      AND UPPER(pv.[PV_NAME]) in ({}))
                  """.format(SAS_PROCESS_VARIABLES_TABLE, order, run_id, item))
-            print(sql)
-            print("")
             cur = conn.cursor()
             cur.execute(sql)
             conn.commit()
@@ -404,8 +353,6 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
                 WHERE pv.[RUN_ID] = '{}'
                 AND UPPER(pv.[PV_NAME]) in ({})) 
         """.format(SAS_PROCESS_VARIABLES_TABLE, step_configuration["order"], run_id, pv_columns)
-        print(sql)
-        print("")
         cur = conn.cursor()
         cur.execute(sql)
         conn.commit()
@@ -419,9 +366,6 @@ def update_step_data_with_step_pv_output(conn, step_configuration):
                  : step -
     Returns      : NA
     """
-
-    print(str(inspect.stack()[0][3]).upper())
-    print("")
 
     # Construct string for SQL statement
     cols = [item.replace("'", "") for item in step_configuration["pv_columns2"]]
@@ -438,22 +382,16 @@ def update_step_data_with_step_pv_output(conn, step_configuration):
                 JOIN {} as CALC
                 ON SSS.REC_ID = CALC.REC_ID
             """.format(data_table, set_statement, data_table, pv_table)
-    print(sql)
-    print("")
 
     cur = conn.cursor()
     cur.execute(sql)
     conn.commit()
 
     # Cleanse temporary tables
-    delete_statement = cf.delete_from_table(step_configuration["pv_table"])
-    print(delete_statement)
-    delete_statement = cf.delete_from_table(step_configuration["temp_table"])
-    print(delete_statement)
-    delete_statement = cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
-    print(delete_statement)
-    delete_statement = cf.delete_from_table(step_configuration["sas_ps_table"])
-    print(delete_statement)
+    cf.delete_from_table(step_configuration["pv_table"])
+    cf.delete_from_table(step_configuration["temp_table"])
+    cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
+    cf.delete_from_table(step_configuration["sas_ps_table"])
 
 def sql_update_statement(table_to_update_from, columns_to_update):
     """
@@ -488,9 +426,6 @@ def update_survey_data_with_step_results(conn, step_configuration):
                  : step -
     Returns      : NA
     """
-
-    print(str(inspect.stack()[0][3]).upper())
-    print("")
 
     step = step_configuration["name"]
 
@@ -547,20 +482,14 @@ def update_survey_data_with_step_results(conn, step_configuration):
                    """.format(SAS_SURVEY_SUBSAMPLE_TABLE, table, table)
         sql2 = ""
 
-    print(sql1)
-    print("")
     cur = conn.cursor()
     cur.execute(sql1)
     if sql2 != "":
-        print(sql2)
-        print("")
         cur.execute(sql2)
     conn.commit()
 
     # Cleanse temporary table
-    delete_statement = cf.delete_from_table(table)
-    print(delete_statement)
-    print("")
+    cf.delete_from_table(table)
 
 
 def store_survey_data_with_step_results(run_id, conn, step_configuration):
@@ -572,9 +501,6 @@ def store_survey_data_with_step_results(run_id, conn, step_configuration):
                  : conn - connection object pointing at the database.
     Returns      : NA
     """
-
-    print(str(inspect.stack()[0][3]).upper())
-    print("")
 
     step = step_configuration["name"]
     cols = step_configuration["nullify_pvs"]
@@ -596,9 +522,6 @@ def store_survey_data_with_step_results(run_id, conn, step_configuration):
     AND SS.RUN_ID = '{}'
     """.format(SURVEY_SUBSAMPLE_TABLE, set_statement, SURVEY_SUBSAMPLE_TABLE, SAS_SURVEY_SUBSAMPLE_TABLE, run_id)
 
-    print(sql)
-    print("")
-
     cur = conn.cursor()
     cur.execute(sql)
     conn.commit()
@@ -613,13 +536,9 @@ def store_survey_data_with_step_results(run_id, conn, step_configuration):
         , "FINAL_WEIGHT"]
 
     if step in ps_tables_to_delete:
-        delete_statement = cf.delete_from_table(step_configuration["ps_table"], "RUN_ID", "=", run_id)
-        print(delete_statement)
-        print("")
+        cf.delete_from_table(step_configuration["ps_table"], "RUN_ID", "=", run_id)
 
-    delete_statement = cf.delete_from_table(SAS_SURVEY_SUBSAMPLE_TABLE)
-    print(delete_statement)
-    print("")
+    cf.delete_from_table(SAS_SURVEY_SUBSAMPLE_TABLE)
 
 
 def store_step_summary(run_id, conn, step_configuration):
@@ -633,17 +552,12 @@ def store_step_summary(run_id, conn, step_configuration):
     Returns      : NA
     """
 
-    print(str(inspect.stack()[0][3]).upper())
-    print("")
-
     # Assign variables
     ps_table = step_configuration["ps_table"]
     sas_ps_table = step_configuration["sas_ps_table"]
 
     # Cleanse summary table as applicable
-    delete_statement = cf.delete_from_table(ps_table, "RUN_ID", "=", run_id)
-    print(delete_statement)
-    print("")
+    cf.delete_from_table(ps_table, "RUN_ID", "=", run_id)
 
     # Create selection string
     selection = [col for col in step_configuration["ps_columns"] if col != "[RUN_ID]"]
@@ -657,9 +571,6 @@ def store_step_summary(run_id, conn, step_configuration):
     SELECT '{}', {} FROM {}
     """.format(ps_table, columns, run_id, selection, sas_ps_table)
 
-    print(sql)
-    print("")
-
     try:
         cur = conn.cursor()
         cur.execute(sql)
@@ -668,19 +579,4 @@ def store_step_summary(run_id, conn, step_configuration):
         print(err)
 
     # Cleanse temporary summary table
-    delete_statement = cf.delete_from_table(sas_ps_table)
-    print(delete_statement)
-    print("")
-
-
-if __name__ == "__main__":
-    run_id = 'update-step-data-with-step-pv-output'
-    conn = cf.get_sql_connection()
-    step_config = {"table_name": "[dbo].[SHIFT_DATA]",
-                   "data_table": "[dbo].[SAS_SHIFT_DATA]",
-                   "insert_to_populate": ["[PORTROUTE]", "[WEEKDAY]", "[ARRIVEDEPART]", "[TOTAL]",
-                                          "[AM_PM_NIGHT]"],
-                   }
-
-    # update_step_data_with_step_pv_output(conn, step_config)
-    populate_step_data(run_id, conn, step_config)
+    cf.delete_from_table(sas_ps_table)
