@@ -519,6 +519,7 @@ def delete_from_table(table_name, condition1=None, operator=None
         cur.execute(sql)
     except Exception as err:
         print("bla!")
+        print(err)
         #database_logger().error(err, exc_info = True)
         return False
     else:
@@ -684,7 +685,7 @@ def insert_into_table(table_name, column_list, value_list):
      
     # table_name = 'response' 
     sql = "INSERT INTO " + table_name + " (" + columns_string + ") VALUES (" + value_string + ")"
-    
+
     cur.execute(sql)
     conn.commit()
 
@@ -741,7 +742,7 @@ def insert_into_table_many(table_name,dataframe,connection = False):
          ")",
          rows
          )
-    
+
     connection.commit()
     
     # Returns number of rows added to table for validation
@@ -922,7 +923,7 @@ def compare_dfs(test_name, sas_file, df, col_list = False):
     else:
         csv[col_list].to_csv(fdir+"\\"+test_name+sas)
         df[col_list].to_csv(fdir+"\\"+test_name+py)
-    
+
 
 
 def insert_dataframe_into_table_rbr(table_name, dataframe, connection=False):
@@ -987,7 +988,7 @@ def insert_dataframe_into_table_rbr(table_name, dataframe, connection=False):
     return len(rows)
 
 
-def insert_dataframe_into_table(table_name, dataframe, connection=False):
+def insert_dataframe_into_table(table_name, dataframe, connection=False, fast=True):
     """
     Author       : Thomas Mahoney
     Date         : 02 Jan 2018
@@ -1004,7 +1005,7 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False):
         connection = get_sql_connection()
 
     cur = connection.cursor()
-    cur.fast_executemany = True
+    cur.fast_executemany = fast
 
     dataframe = dataframe.where((pandas.notnull(dataframe)), None)
 
@@ -1037,10 +1038,6 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False):
           "(" + columns_string + ") VALUES (" + value_string + ")"
     print(sql)
 
-
-    # Debugging
-    # for rec in rows:
-    #    print(rec)
 
     start_time = time.time()
 
@@ -1091,75 +1088,3 @@ def unpickle_rick(file):
     # Send to CSV
     df.to_csv(r"{}\{}".format(path, out_file))
     beep()
-
-
-# def do_testing_stuff():
-    # set up test data/tables
-    # delete_from_table("SURVEY_SUBSAMPLE")
-    # run_id = 'store-surveydata-with-imb-wt-results'
-    #
-    # df2 = pandas.read_csv(
-    #     r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\update_survey_data_with_step_results\spend_imp_sas_survey_subsample_test_input.csv',
-    #     dtype=object)
-    # insert_dataframe_into_table("SURVEY_SUBSAMPLE", df2)
-    #
-    # # delete_from_table("PS_UNSAMPLED_OOH")
-    # df1 = pandas.read_csv(
-    #     r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\store_survey_data_with_step_results\imb_wt_summary_table_test_input.csv',
-    #     dtype=object)
-    # insert_dataframe_into_table("PS_UNSAMPLED_OOH", df1)
-    #
-    # # RUN SQL QUERY TO GENERATE EXPECTED RESULTS
-    # sql1 = """
-    # UPDATE SURVEY_SUBSAMPLE
-    # set UNSAMP_PORT_GRP_PV = temp.UNSAMP_PORT_GRP_PV,
-	 #    UNSAMP_REGION_GRP_PV = temp.UNSAMP_REGION_GRP_PV
-	 #    UNSAMP_TRAFFIC_WT = temp.UNSAMP_TRAFFIC_WT
-    # (select sss.UNSAMP_PORT_GRP_PV, sss.UNSAMP_REGION_GRP_PV, sss.UNSAMP_TRAFFIC_WT
-    # from sas_survey_subsample sss
-    # where sss.SERIAL = ss.SERIAL       )
-    # where ss.RUN_ID = '{RID}'
-    # """
-    # print(sql1)
-    #
-    # # sql1a = """
-    # #
-    # #         UPDATE [dbo].[SAS_SURVEY_SUBSAMPLE]
-    # #         SET [SPENDK] = temp.[SPENDK]
-    # #         FROM [dbo].[SAS_SURVEY_SUBSAMPLE] as SSS
-    # #         JOIN [dbo].[SAS_SPEND_IMP] as temp
-    # #         ON SSS.SERIAL = temp.SERIAL
-    # # """
-    # # print(sql1a)
-    # #
-    # conn = get_sql_connection()
-    # cur = conn.cursor()
-    # cur.execute(sql1)
-    # # cur.execute(sql1a)
-    # #
-    # # GET AND STORE EXPECTED RESULTS
-    # sql2 = """SELECT *
-    # FROM [ips_test].[dbo].[SURVEY_SUBSAMPLE]
-    # WHERE RUN_ID = '{}'
-    # ORDER BY SERIAL
-    # """.format(run_id)
-    #
-    # expected_results = pandas.read_sql(sql2, conn)
-    # expected_results.to_csv(r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\store_survey_data_with_step_results\imb_wt_expected_result.csv', index=False)
-    #
-    # sql2 = """
-    # delete from survey_subsample
-    # where run_id = '{}'
-    # """ .format(run_id)
-    #
-    # sql3 = """
-    #     delete from PS_UNSAMPLED_OOH
-    #     where run_id = '{}'
-    #     """.format(run_id)
-    #
-    # cur.execute(sql2)
-    # cur.execute(sql3)
-
-
-# if __name__ == "__main__":
-#     do_testing_stuff()

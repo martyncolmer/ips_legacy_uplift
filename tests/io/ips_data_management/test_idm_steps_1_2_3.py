@@ -237,7 +237,7 @@ def test_copy_step_pvs_for_survey_data(step_name, pv_columns, spv_table, databas
                    'spv_table': spv_table,
                    'pv_columns': pv_columns}
 
-    run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
+    run_id = 'TEMPLATE'
 
     idm.copy_step_pvs_for_survey_data(run_id, database_connection, step_config)
 

@@ -1,6 +1,6 @@
 import pandas as pd
 from sas7bdat import SAS7BDAT
-from main.io.CommonFunctions import insert_dataframe_into_table
+from main.io.CommonFunctions import insert_dataframe_into_table, get_sql_connection
 
 
 def extract_data(df):
@@ -64,17 +64,17 @@ def import_survey_data(survey_data_path, run_id):
     """
 
     # Check the survey_data_path's suffix to see what it matches then extract using the appropriate method.
-    df_survey_data = pd.read_csv(survey_data_path, encoding = 'ANSI', dtype = str)
+    if survey_data_path[-3:] == "csv":
+        df = pd.read_csv(survey_data_path, engine='python')
 
     # Call the extract data function to select only the needed columns.
-    # df_survey_data = extract_data(df)
+    df_survey_data = extract_data(df)
 
     # Add the generated run id to the dataset.
     df_survey_data['RUN_ID'] = pd.Series(run_id, index=df_survey_data.index)
 
     # Insert the imported data into the survey_subsample table on the database.
-    # insert_dataframe_into_table('SURVEY_SUBSAMPLE', df_survey_data)
-
+    insert_dataframe_into_table('SURVEY_SUBSAMPLE', df_survey_data)
 
 
 if __name__ == '__main__':

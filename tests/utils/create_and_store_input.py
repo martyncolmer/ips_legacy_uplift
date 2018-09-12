@@ -10,8 +10,8 @@ df.columns = df.columns.str.upper()
 # df.sort_values(by=["UNSAMP_REGION_GRP_PV", "ARRIVEDEPART"])
 # df.index = range(0, len(df))
 # df = df.head(1)
-# df['RUN_ID'] = 'store-surveydata-with-imb-wt-results'
-df.to_csv(out_path, index=False)
+# df['RUN_ID'] = 'test-idm-integration-final-wt'
+df.to_csv(out_path, index=False, encoding='utf-8')
 
 # df.drop(["SHIFT_FACTOR", "CROSSINGS_FACTOR"], axis=1, inplace=True)
 # df.sort_values(by=["SERIAL"])
