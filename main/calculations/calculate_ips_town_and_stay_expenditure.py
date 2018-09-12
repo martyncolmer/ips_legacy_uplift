@@ -69,6 +69,7 @@ def __calculate_spends_part1(row):
     if row[NIGHTS_IN_LONDON] == 0:
         for count in range(1, 9):
             if math.isnan(row[TOWNCODE + str(count)]):
+            # if pd.isnull(row[TOWNCODE + str(count)]):
                 if (((row[NIGHTS_NOT_LONDON] != 0) & (not math.isnan(row[NIGHTS_NOT_LONDON])))
                         & (not math.isnan(row[NIGHTS + str(count)]))):
                     row[SPEND_COLUMN + str(count)] = ((row[SPEND_COLUMN]
@@ -258,9 +259,14 @@ def do_ips_town_exp_imp(df_survey_data, var_serial, var_final_wt):
     df_stay_towns7 = df_stay_towns7.apply(__calculate_spends_part2, axis=1)
 
     # Create output file ready for appending to Oracle file
-
     df_output = df_stay_towns7[[var_serial] + [SPEND_COLUMN + str(i) for i in range(1, 9)]]
-    df_output.fillna(0.0)
+
+    # TODO: Test this jiggery-pokery against more data!
+    # Commented out as did not match December test data even though I'm not entirely sure it's doing anything as inplace=False!
+    # df_output.fillna(0.0)
+    df_output.fillna('x', inplace=True)
+    df_output.replace(to_replace=0.0, value=np.nan, inplace=True)
+    df_output.replace(to_replace='x', value=0.0, inplace=True)
 
     def round_number(row):
         """
