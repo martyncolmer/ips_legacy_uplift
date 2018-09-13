@@ -13,7 +13,7 @@ import tests.config
 path_to_data = r"tests/data/calculations/" + tests.config.TEST_MONTH +  "/fares"
 
 
-@pytest.mark.skip("Known failure due to rounding")
+# @pytest.mark.skip("Known failure due to rounding")
 def test_calculate():
     test_survey = pd.read_pickle(path_to_data + '/fares_imp_input.pkl')
 

@@ -3,7 +3,7 @@ import pandas as pd
 import sys
 import random
 
-pv_name = 'weekday_end_pv'
+pv_name = 'DISCNT_PACKAGE_COST_PV'
 
 val = """
 '
@@ -89,4 +89,4 @@ def read_pv_table(pv_name = None,conn = None):
 """"""
 
 #write_pv_to_table(pv_name, val)
-read_pv_table()
+read_pv_table(pv_name)
