@@ -16,7 +16,7 @@ def test_calculate():
     test_survey = pd.read_pickle(path_to_data + '/town_and_stay/town_and_stay.pkl')
 
     # Retrieve Python output data and cleanse
-    py_survey_data = tse.do_ips_spend_imputation(df_survey_data=test_survey,
+    py_survey_data = tse.do_ips_town_exp_imp(df_survey_data=test_survey,
                                                  var_serial="SERIAL",
                                                  var_final_wt="FINAL_WT")
     py_survey_data = py_survey_data.sort_values(by='SERIAL')
