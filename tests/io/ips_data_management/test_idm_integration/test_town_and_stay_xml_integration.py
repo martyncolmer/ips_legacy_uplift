@@ -37,11 +37,11 @@ def setup_module(module):
     # Assign variables
     december_survey_data_path = (TEST_DATA_DIR + r'\surveydata.csv')
 
-    # Import survey data.
-    import_survey_data(december_survey_data_path)
-
     # Deletes data from tables as necessary.
     reset_tables()
+
+    # Import survey data.
+    import_survey_data(december_survey_data_path)
 
     # Populates test data within pv table.
     populate_test_pv_table()
@@ -87,6 +87,9 @@ def import_survey_data(survey_data_path):
 
 def reset_tables():
     """ Cleanses tables within database. """
+
+    # Cleanses Survey Subsample table.
+    cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID)
 
     # List of tables to cleanse entirely.
     tables_to_unconditionally_cleanse = [idm.SAS_SURVEY_SUBSAMPLE_TABLE,
@@ -153,7 +156,7 @@ def populate_test_pv_table():
     cur.execute(sql3)
 
 
-@pytest.mark.skip(reason="Test failing on rounding error")
+# @pytest.mark.skip(reason="Test failing on rounding error")
 def test_town_and_stay_step():
     """ Test function. """
 
@@ -246,7 +249,7 @@ def test_town_and_stay_step():
     df_survey_actual = df_survey_actual
     df_survey_target = df_survey_target
 
-    assert assert_frame_equal(df_survey_actual, df_survey_target, check_dtype=False)
+    assert_frame_equal(df_survey_actual, df_survey_target, check_dtype=False)
 
     # Run the next step and test.
     idm.update_survey_data_with_step_results(conn, STEP_CONFIGURATION[STEP_NAME])
