@@ -5,11 +5,127 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e9c10ffe-f2a0-439f-9527-ed37db9c05da" name="Default" comment="Pre Merge File changes">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/store_step_summary/shift_wt_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/store_step_summary/shift_wt_actual_results.csv" />
-      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/town_and_stay_integration/sas_survey_subsample_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/town_and_stay_integration/sas_survey_subsample_actual.csv" />
-      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/town_and_stay_integration/sas_survey_subsample_target.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/town_and_stay_integration/sas_survey_subsample_target.csv" />
-      <change beforePath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_town_and_stay_xml_integration.py" afterPath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_town_and_stay_xml_integration.py" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/air_miles/airmiles.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/air_miles/airmiles_output.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/fares/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/final_weight/output_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/final_weight/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/output_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/result.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/summary_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/min_weight/outputdata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/min_weight/summarydata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/min_weight/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/non_response_weight/nonresponsedata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/non_response_weight/outputdata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/non_response_weight/summarydata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/non_response_weight/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/rail/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/regional_weights/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/shift_weight/outputdata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/shift_weight/shiftsdata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/shift_weight/summarydata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/shift_weight/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/spend/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/stay/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/town_and_stay/input_townspend.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/traffic_weight/survey_input.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/traffic_weight/trtotals.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/unsampled_weight/survey_input.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/unsampled_weight/ustotals.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/november_2017/final_weight/output_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/november_2017/final_weight/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/november_2017/min_weight/outputdata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/november_2017/min_weight/summarydata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/november_2017/min_weight/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/air_miles/airmiles.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/air_miles/airmiles_output.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/final_weight/output_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/final_weight/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight/imb_weight_surveydata_output.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight_new/imb_weight_input.pkl" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight_new/imb_weight_summarydata_output.pkl" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight_new/imb_weight_surveydata_output.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight_new/imb_weight_surveydata_output.pkl" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/min_weight/outputdata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/min_weight/summarydata_final.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/min_weight/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/imbalance_weight_integration/sas_ps_imbalance_actual.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/imbalance_weight_integration/sas_ps_imbalance_target.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/imbalance_weight_integration/sas_survey_subsample_actual.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/imbalance_weight_integration/sas_survey_subsample_target.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/imbalance_weight_integration/surveydata.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/november/Air Sheet Nov 2017 VBA.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/november/Nov_NRMFS.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/november/Poss shifts Nov 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/november/Sea Traffic Nov 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/november/Tunnel Traffic Nov 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/november/Unsampled Traffic Nov 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/october/Air Sheet Oct 2017 VBA2nd.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/october/Oct_NRMFS.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/october/Poss shifts Oct 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/october/Sea Traffic Oct 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/october/Tunnel Traffic Oct 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/october/Unsampled Traffic Oct 20172nd.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/q3/CAA Q3 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/q3/Non Response Q3 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/q3/Possible shifts Q3 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/q3/Sea Traffic Q3 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/q3/Tunnel Traffic Q3 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/q3/Unsampled Traffic Q3 2017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/survey/ips1710b_1.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/survey/ips1711h_1.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/survey/ips1712bv4_amtspnd.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/survey/quarter32017.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/ps_minimums_target_new_rounding.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/survey_subsample_target_new_rounding.csv" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/oct_imb.py" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_imbalance_weight_xml_integration.py" />
+      <change beforePath="$PROJECT_DIR$/data/xml_steps_configuration.json" afterPath="$PROJECT_DIR$/data/xml_steps_configuration.json" />
+      <change beforePath="$PROJECT_DIR$/main/calculations/calculate_ips_final_weight.py" afterPath="$PROJECT_DIR$/main/calculations/calculate_ips_final_weight.py" />
+      <change beforePath="$PROJECT_DIR$/main/calculations/calculate_ips_imb_weight.py" afterPath="$PROJECT_DIR$/main/calculations/calculate_ips_imb_weight.py" />
+      <change beforePath="$PROJECT_DIR$/main/io/CommonFunctions.py" afterPath="$PROJECT_DIR$/main/io/CommonFunctions.py" />
+      <change beforePath="$PROJECT_DIR$/main/io/import_data.py" afterPath="$PROJECT_DIR$/main/io/import_data.py" />
+      <change beforePath="$PROJECT_DIR$/main/io/ips_data_management.py" afterPath="$PROJECT_DIR$/main/io/ips_data_management.py" />
+      <change beforePath="$PROJECT_DIR$/main/utils/UnpickleRick.py" afterPath="$PROJECT_DIR$/main/utils/UnpickleRick.py" />
+      <change beforePath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_final_weight.py" afterPath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_final_weight.py" />
+      <change beforePath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_minimums_weight.py" afterPath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_minimums_weight.py" />
+      <change beforePath="$PROJECT_DIR$/tests/config.py" afterPath="$PROJECT_DIR$/tests/config.py" />
+      <change beforePath="$PROJECT_DIR$/tests/data/generic_xml_steps/update_shift_data_pvs_result.pkl" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/sas_survey_data_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/sas_survey_data_actual.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/summary_out_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/summary_out_actual.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/surveydata_out_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/surveydata_out_actual.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/integration_import_data/external/Air Sheet Dec 2017 VBA.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/december/Air Sheet Dec 2017 VBA.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/integration_import_data/external/Dec17_NR.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/december/Dec17_NR.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/integration_import_data/external/Poss shifts Dec 2017.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/december/Poss shifts Dec 2017.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/integration_import_data/external/Sea Traffic Dec 2017.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/december/Sea Traffic Dec 2017.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/integration_import_data/external/Tunnel Traffic Dec 2017.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/december/Tunnel Traffic Dec 2017.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/integration_import_data/external/Unsampled Traffic Dec 2017.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/external/december/Unsampled Traffic Dec 2017.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/integration_import_data/minimums_weight/surveydata.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/import_data/minimums_weight/surveydata.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/ps_minimums_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/ps_minimums_actual.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/survey_subsample_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/survey_subsample_actual.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/non_response_data_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/non_response_data_result.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/shift_data_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/shift_data_result.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/traffic_data_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/traffic_data_result.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/unsampled_ooh_data_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/unsampled_ooh_data_result.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/test_result.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/populate_survey_data/test_result.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/store_survey_data_with_step_results/shift_wt_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/store_survey_data_with_step_results/shift_wt_actual_results.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/store_survey_data_with_step_results/spend_imp_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/store_survey_data_with_step_results/spend_imp_actual_results.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/store_survey_data_with_step_results/uns_wt_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/store_survey_data_with_step_results/uns_wt_actual_results.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/update_step_data_with_step_pv_output/copy_update_step_data_with_step_pv_output.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/update_step_data_with_step_pv_output/copy_update_step_data_with_step_pv_output.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/fares_imp_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/fares_imp_actual_results.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/imb_wt_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/imb_wt_actual_results.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/shift_wt_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/shift_wt_actual_results.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/spend_imp_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/spend_imp_actual_results.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/stay_imp_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/stay_imp_actual_results.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/unsampled_wt_actual_results.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/update_survey_data_with_step_results/unsampled_wt_actual_results.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_final_weight_xml_integration.py" afterPath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_final_weight_xml_integration.py" />
+      <change beforePath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_minimums_weight_xml_integration.py" afterPath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_minimums_weight_xml_integration.py" />
+      <change beforePath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps_1_2_3.py" afterPath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps_1_2_3.py" />
+      <change beforePath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps_7_8_9.py" afterPath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps_7_8_9.py" />
+      <change beforePath="$PROJECT_DIR$/tests/io/test_import_data.py" afterPath="$PROJECT_DIR$/tests/io/test_import_data.py" />
+      <change beforePath="$PROJECT_DIR$/tests/utils/create_and_store_input.py" afterPath="$PROJECT_DIR$/tests/utils/create_and_store_input.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -35,8 +151,8 @@
       <file leaf-file-name="test_town_and_stay_xml_integration.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_town_and_stay_xml_integration.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="477">
-              <caret line="250" column="0" lean-forward="true" selection-start-line="250" selection-start-column="0" selection-end-line="250" selection-end-column="0" />
+            <state relative-caret-position="2635">
+              <caret line="250" column="0" lean-forward="false" selection-start-line="250" selection-start-column="0" selection-end-line="250" selection-end-column="0" />
               <folding>
                 <element signature="e#814#1082#0" expanded="false" />
                 <element signature="e#814#1046#1" expanded="false" />
@@ -66,7 +182,7 @@
         <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/town_and_stay_integration/sas_survey_subsample_target.csv">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="442">
-              <caret line="26" column="46" lean-forward="true" selection-start-line="26" selection-start-column="46" selection-end-line="26" selection-end-column="46" />
+              <caret line="26" column="46" lean-forward="false" selection-start-line="26" selection-start-column="46" selection-end-line="26" selection-end-column="46" />
               <folding />
             </state>
           </provider>
@@ -75,8 +191,8 @@
       <file leaf-file-name="CommonFunctions.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main/io/CommonFunctions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="18581">
-              <caret line="1109" column="0" lean-forward="false" selection-start-line="1109" selection-start-column="0" selection-end-line="1109" selection-end-column="0" />
+            <state relative-caret-position="18207">
+              <caret line="1090" column="0" lean-forward="false" selection-start-line="1090" selection-start-column="0" selection-end-line="1090" selection-end-column="0" />
               <folding>
                 <element signature="e#0#54#1" expanded="false" />
               </folding>
@@ -87,7 +203,7 @@
       <file leaf-file-name="calculate_ips_imb_weight.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_imb_weight.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3009">
+            <state relative-caret-position="3060">
               <caret line="180" column="0" lean-forward="false" selection-start-line="180" selection-start-column="0" selection-end-line="180" selection-end-column="0" />
               <folding>
                 <element signature="e#48#62#0" expanded="true" />
@@ -184,22 +300,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope">
-        <subPane subId="Project Files">
-          <expand>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="IPS_Legacy_Uplift" type="cbb8eebc:String" user="IPS_Legacy_Uplift" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="IPS_Legacy_Uplift" type="cbb8eebc:String" user="IPS_Legacy_Uplift" />
-              <item name="main" type="cbb8eebc:String" user="main" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -277,6 +377,22 @@
               <item name="io" type="462c0819:PsiDirectoryNode" />
               <item name="ips_data_management" type="462c0819:PsiDirectoryNode" />
               <item name="test_idm_integration" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope">
+        <subPane subId="Project Files">
+          <expand>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="IPS_Legacy_Uplift" type="cbb8eebc:String" user="IPS_Legacy_Uplift" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="IPS_Legacy_Uplift" type="cbb8eebc:String" user="IPS_Legacy_Uplift" />
+              <item name="main" type="cbb8eebc:String" user="main" />
             </path>
           </expand>
           <select />
@@ -553,35 +669,24 @@
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3240253" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.50316125" order="11" side_tool="true" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2028451" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33030647" sideWeight="0.50343734" order="11" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33030647" sideWeight="0.49656266" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2562432" sideWeight="0.49814913" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3280363" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22258414" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24960339" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3291714" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23995657" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.31441543" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33030647" sideWeight="0.50343734" order="11" side_tool="true" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33030647" sideWeight="0.49656266" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2562432" sideWeight="0.49814913" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3280363" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3291714" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20306715" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32790446" sideWeight="0.49683878" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24960339" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23995657" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -921,8 +1026,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main/io/CommonFunctions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18581">
-          <caret line="1109" column="0" lean-forward="false" selection-start-line="1109" selection-start-column="0" selection-end-line="1109" selection-end-column="0" />
+        <state relative-caret-position="18207">
+          <caret line="1090" column="0" lean-forward="false" selection-start-line="1090" selection-start-column="0" selection-end-line="1090" selection-end-column="0" />
           <folding>
             <element signature="e#0#54#1" expanded="false" />
           </folding>
@@ -952,8 +1057,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_town_and_stay_xml_integration.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="477">
-          <caret line="250" column="0" lean-forward="true" selection-start-line="250" selection-start-column="0" selection-end-line="250" selection-end-column="0" />
+        <state relative-caret-position="2635">
+          <caret line="250" column="0" lean-forward="false" selection-start-line="250" selection-start-column="0" selection-end-line="250" selection-end-column="0" />
           <folding>
             <element signature="e#814#1082#0" expanded="false" />
             <element signature="e#814#1046#1" expanded="false" />
@@ -981,7 +1086,7 @@
     <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/town_and_stay_integration/sas_survey_subsample_target.csv">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="442">
-          <caret line="26" column="46" lean-forward="true" selection-start-line="26" selection-start-column="46" selection-end-line="26" selection-end-column="46" />
+          <caret line="26" column="46" lean-forward="false" selection-start-line="26" selection-start-column="46" selection-end-line="26" selection-end-column="46" />
           <folding />
         </state>
       </provider>
