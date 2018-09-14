@@ -4,17 +4,21 @@
     <bookmark url="file://$PROJECT_DIR$/main/calculations/calculate_ips_minimums_weight.py" line="199" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e9c10ffe-f2a0-439f-9527-ed37db9c05da" name="Default" comment="Merge changes from development into branch">
+    <list default="true" id="e9c10ffe-f2a0-439f-9527-ed37db9c05da" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_final_weight.py" afterPath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_final_weight.py" />
-      <change beforePath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_town_and_stay.py" afterPath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_town_and_stay.py" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/december_2017/final_weight/output_final.pkl" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/final_weight/pkl_files/output_final.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/december_2017/final_weight/surveydata.pkl" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/final_weight/pkl_files/surveydata.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/december_2017/min_weight/minimums_input.pkl" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/min_weight/pkl_files/minimums_input.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/december_2017/min_weight/minimums_output.pkl" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/min_weight/pkl_files/minimums_output.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/december_2017/min_weight/minimums_summary.pkl" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/min_weight/pkl_files/minimums_summary.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/december_2017/town_and_stay/input_townspend.csv" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/town_and_stay/surveydata.csv" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/november_2017/town_and_stay/town_and_stay.pkl" afterPath="$PROJECT_DIR$/tests/data/calculations/november_2017/town_and_stay/pkl_files/town_and_stay.pkl" />
+      <change beforePath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_imb_weights.py" afterPath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_imb_weights.py" />
+      <change beforePath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_minimums_weight.py" afterPath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_minimums_weight.py" />
+      <change beforePath="$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/imb_weight_input.pkl" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/imb_weight_summarydata_output.pkl" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/imb_weight_surveydata_output.pkl" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/result.csv" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/tests/data/calculations/november_2017/imbalance weight/imb_weight_input.pkl" afterPath="$PROJECT_DIR$/tests/data/calculations/november_2017/imbalance_weight/pkl_files/imb_weight_input.pkl" />
+      <change beforePath="$PROJECT_DIR$/tests/data/calculations/november_2017/imbalance weight/imb_weight_summarydata_output.pkl" afterPath="$PROJECT_DIR$/tests/data/calculations/november_2017/imbalance_weight/pkl_files/imb_weight_summarydata_output.pkl" />
+      <change beforePath="$PROJECT_DIR$/tests/data/calculations/november_2017/imbalance weight/imb_weight_surveydata_output.pkl" afterPath="$PROJECT_DIR$/tests/data/calculations/november_2017/imbalance_weight/pkl_files/imb_weight_surveydata_output.pkl" />
+      <change beforePath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight/imb_weight_input.pkl" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight/pkl_files/imb_weight_input.pkl" />
+      <change beforePath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight/imb_weight_summarydata_output.pkl" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight/pkl_files/imb_weight_summarydata_output.pkl" />
+      <change beforePath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight/imb_weight_surveydata_output.csv" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight/pkl_files/imb_weight_surveydata_output.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight/imb_weight_surveydata_output.pkl" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight/pkl_files/imb_weight_surveydata_output.pkl" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -23,13 +27,33 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="DockManager">
+    <window id="1">
+      <content type="file-editors">
+        <state>
+          <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+            <file leaf-file-name="test_calculate_ips_minimums_weight.py" pinned="false" current-in-tab="true">
+              <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_minimums_weight.py">
+                <provider selected="true" editor-type-id="text-editor">
+                  <state relative-caret-position="652">
+                    <caret line="79" column="59" lean-forward="false" selection-start-line="79" selection-start-column="59" selection-end-line="79" selection-end-column="59" />
+                    <folding />
+                  </state>
+                </provider>
+              </entry>
+            </file>
+          </leaf>
+        </state>
+      </content>
+    </window>
+  </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="test_calculate_ips_final_weight.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_final_weight.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="10" column="39" lean-forward="true" selection-start-line="10" selection-start-column="39" selection-end-line="10" selection-end-column="39" />
+            <state relative-caret-position="0">
+              <caret line="64" column="0" lean-forward="false" selection-start-line="64" selection-start-column="0" selection-end-line="64" selection-end-column="0" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -37,12 +61,27 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="test_calculate_ips_town_and_stay.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="test_calculate_ips_town_and_stay.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_town_and_stay.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="51">
-              <caret line="3" column="13" lean-forward="true" selection-start-line="3" selection-start-column="13" selection-end-line="3" selection-end-column="13" />
-              <folding />
+            <state relative-caret-position="238">
+              <caret line="14" column="30" lean-forward="false" selection-start-line="14" selection-start-column="30" selection-end-line="14" selection-end-column="30" />
+              <folding>
+                <element signature="e#0#19#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test_calculate_ips_imb_weights.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_imb_weights.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="287">
+              <caret line="90" column="0" lean-forward="false" selection-start-line="90" selection-start-column="0" selection-end-line="90" selection-end-column="0" />
+              <folding>
+                <element signature="e#48#109#0" expanded="true" />
+                <element signature="e#4359#4360#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -72,6 +111,7 @@
       <find>SPEND_COLUMN</find>
       <find>math.isnan</find>
       <find>insert_dataframe_into_table</find>
+      <find>roun</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -101,10 +141,12 @@
         <option value="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_town_and_stay_xml_integration.py" />
         <option value="$PROJECT_DIR$/tests/calculations/test_calculate_ips_final_weight.py" />
         <option value="$PROJECT_DIR$/tests/calculations/test_calculate_ips_town_and_stay.py" />
+        <option value="$PROJECT_DIR$/tests/calculations/test_calculate_ips_minimums_weight.py" />
+        <option value="$PROJECT_DIR$/tests/calculations/test_calculate_ips_imb_weights.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds">
     <option name="width" value="1918" />
     <option name="height" value="1040" />
   </component>
@@ -141,12 +183,24 @@
             <path>
               <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
               <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
               <item name="tests" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
               <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
               <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
               <item name="calculations" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -154,6 +208,8 @@
               <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
               <item name="tests" type="462c0819:PsiDirectoryNode" />
               <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="calculations" type="462c0819:PsiDirectoryNode" />
+              <item name="december_2017" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
@@ -161,6 +217,25 @@
               <item name="tests" type="462c0819:PsiDirectoryNode" />
               <item name="data" type="462c0819:PsiDirectoryNode" />
               <item name="calculations" type="462c0819:PsiDirectoryNode" />
+              <item name="december_2017" type="462c0819:PsiDirectoryNode" />
+              <item name="imbalance_weight" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="calculations" type="462c0819:PsiDirectoryNode" />
+              <item name="november_2017" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
+              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="calculations" type="462c0819:PsiDirectoryNode" />
+              <item name="november_2017" type="462c0819:PsiDirectoryNode" />
+              <item name="imbalance_weight" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
@@ -177,28 +252,7 @@
               <item name="data" type="462c0819:PsiDirectoryNode" />
               <item name="calculations" type="462c0819:PsiDirectoryNode" />
               <item name="october_2017" type="462c0819:PsiDirectoryNode" />
-              <item name="town_and_stay" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
-              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-              <item name="io" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
-              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-              <item name="io" type="462c0819:PsiDirectoryNode" />
-              <item name="ips_data_management" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
-              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-              <item name="io" type="462c0819:PsiDirectoryNode" />
-              <item name="ips_data_management" type="462c0819:PsiDirectoryNode" />
-              <item name="test_idm_integration" type="462c0819:PsiDirectoryNode" />
+              <item name="imbalance_weight" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -238,16 +292,18 @@
     <property name="Git.Branch.Popup.ShowAllRemotes" value="true" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\calculations\october_2017\imbalance_weight" />
+      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\calculations\november_2017\imbalance_weight" />
+      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\calculations\november_2017\imbalance weight\pkl_files" />
+      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\calculations\october_2017\imbalance_weight\pkl_files" />
+      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\calculations\november_2017\town_and_stay\pkl_files" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\calculations\december_2017\imbalance_weight" />
+      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\calculations\november_2017\imbalance_weight" />
       <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\ips_data_management\minimums_weight_step" />
       <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\integration" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\calculations\november_2017\town_and_stay\pkl_files" />
-      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\calculations\december_2017\final_weight\pkl_files" />
-      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\calculations\december_2017\min_weight\pkl_files" />
-      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\tests\data\ips_data_management\minimums_weight_step" />
-      <recent name="H:\My Documents\GIT_Repositories\PyCharm\IPS_Legacy_Uplift\data" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -262,7 +318,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python tests.py.test in test_calculate_ips_town_and_stay.py">
+  <component name="RunManager" selected="Python tests.py.test in test_calculate_ips_imb_weights.py">
     <configuration name="All_Tests" type="tests" factoryName="py.test">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -283,26 +339,6 @@
       <option name="_new_target" value="&quot;$PROJECT_DIR$&quot;" />
       <option name="_new_targetType" value="&quot;PATH&quot;" />
     </configuration>
-    <configuration name="py.test for test_town_and_stay_xml_integration.test_town_and_stay_step" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="DB_NAME" value="ips_test" />
-        <env name="DB_SERVER" value="CR1VWSQL14-D-01" />
-        <env name="DB_USER_NAME" value="ips_dev" />
-        <env name="DB_PASSWORD" value="ips_dev" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="IPS_Legacy_Uplift" />
-      <option name="_new_keywords" value="&quot;&quot;" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_town_and_stay_xml_integration.test_town_and_stay_step&quot;" />
-      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
-    </configuration>
     <configuration name="py.test in ips_data_management" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -321,6 +357,26 @@
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
       <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/io/ips_data_management&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+    </configuration>
+    <configuration name="py.test in test_calculate_ips_imb_weights.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="DB_NAME" value="ips_test" />
+        <env name="DB_SERVER" value="CR1VWSQL14-D-01" />
+        <env name="DB_USER_NAME" value="ips_dev" />
+        <env name="DB_PASSWORD" value="ips_dev" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="IPS_Legacy_Uplift" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/calculations/test_calculate_ips_imb_weights.py&quot;" />
       <option name="_new_targetType" value="&quot;PATH&quot;" />
     </configuration>
     <configuration name="py.test in test_calculate_ips_minimums_weight.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
@@ -380,19 +436,19 @@
     </configuration>
     <list size="6">
       <item index="0" class="java.lang.String" itemvalue="Python tests.All_Tests" />
-      <item index="1" class="java.lang.String" itemvalue="Python tests.py.test for test_town_and_stay_xml_integration.test_town_and_stay_step" />
-      <item index="2" class="java.lang.String" itemvalue="Python tests.py.test in test_town_and_stay_xml_integration.py" />
-      <item index="3" class="java.lang.String" itemvalue="Python tests.py.test in ips_data_management" />
-      <item index="4" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_minimums_weight.py" />
-      <item index="5" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_town_and_stay.py" />
+      <item index="1" class="java.lang.String" itemvalue="Python tests.py.test in test_town_and_stay_xml_integration.py" />
+      <item index="2" class="java.lang.String" itemvalue="Python tests.py.test in ips_data_management" />
+      <item index="3" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_minimums_weight.py" />
+      <item index="4" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_town_and_stay.py" />
+      <item index="5" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_imb_weights.py" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_town_and_stay.py" />
-        <item index="1" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_minimums_weight.py" />
-        <item index="2" class="java.lang.String" itemvalue="Python tests.py.test in test_town_and_stay_xml_integration.py" />
-        <item index="3" class="java.lang.String" itemvalue="Python tests.py.test in ips_data_management" />
-        <item index="4" class="java.lang.String" itemvalue="Python tests.py.test for test_town_and_stay_xml_integration.test_town_and_stay_step" />
+        <item index="0" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_imb_weights.py" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_town_and_stay.py" />
+        <item index="2" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_minimums_weight.py" />
+        <item index="3" class="java.lang.String" itemvalue="Python tests.py.test in test_town_and_stay_xml_integration.py" />
+        <item index="4" class="java.lang.String" itemvalue="Python tests.py.test in ips_data_management" />
       </list>
     </recent_temporary>
   </component>
@@ -459,39 +515,46 @@
       <option name="project" value="LOCAL" />
       <updated>1536837552334</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Merge changes from development into branch">
+      <created>1536844297621</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1536844297621</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="py_test_in_test_calculate_ips_minimums_weight_py - 2018.09.13 at 13h 19m 42s.xml">
-      <configuration name="py.test in test_calculate_ips_minimums_weight.py" configurationId="tests" />
+    <history-entry file="py_test_in_test_calculate_ips_imb_weights_py - 2018.09.13 at 15h 33m 57s.xml">
+      <configuration name="py.test in test_calculate_ips_imb_weights.py" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_test_calculate_ips_town_and_stay_py - 2018.09.13 at 13h 33m 47s.xml">
-      <configuration name="py.test in test_calculate_ips_town_and_stay.py" configurationId="tests" />
+    <history-entry file="py_test_in_test_calculate_ips_imb_weights_py - 2018.09.13 at 15h 39m 47s.xml">
+      <configuration name="py.test in test_calculate_ips_imb_weights.py" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_in_test_calculate_ips_town_and_stay_py - 2018.09.13 at 13h 37m 31s.xml">
-      <configuration name="py.test in test_calculate_ips_town_and_stay.py" configurationId="tests" />
+    <history-entry file="py_test_in_test_calculate_ips_imb_weights_py - 2018.09.13 at 15h 46m 26s.xml">
+      <configuration name="py.test in test_calculate_ips_imb_weights.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_in_test_calculate_ips_imb_weights_py - 2018.09.14 at 08h 19m 11s.xml">
+      <configuration name="py.test in test_calculate_ips_imb_weights.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_in_test_calculate_ips_imb_weights_py - 2018.09.14 at 08h 43m 56s.xml">
+      <configuration name="py.test in test_calculate_ips_imb_weights.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_in_test_calculate_ips_imb_weights_py - 2018.09.14 at 08h 58m 30s.xml">
+      <configuration name="py.test in test_calculate_ips_imb_weights.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_in_test_calculate_ips_imb_weights_py - 2018.09.14 at 09h 08m 16s.xml">
+      <configuration name="py.test in test_calculate_ips_imb_weights.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_in_test_calculate_ips_imb_weights_py - 2018.09.14 at 10h 02m 45s.xml">
+      <configuration name="py.test in test_calculate_ips_imb_weights.py" configurationId="tests" />
     </history-entry>
     <history-entry file="py_test_in_test_calculate_ips_town_and_stay_py - 2018.09.13 at 13h 49m 27s.xml">
       <configuration name="py.test in test_calculate_ips_town_and_stay.py" configurationId="tests" />
     </history-entry>
     <history-entry file="py_test_in_test_calculate_ips_town_and_stay_py - 2018.09.13 at 14h 02m 41s.xml">
       <configuration name="py.test in test_calculate_ips_town_and_stay.py" configurationId="tests" />
-    </history-entry>
-    <history-entry file="py_test_in_test_town_and_stay_xml_integration_py - 2018.09.13 at 10h 58m 40s.xml">
-      <configuration name="py.test in test_town_and_stay_xml_integration.py" configurationId="tests" />
-    </history-entry>
-    <history-entry file="py_test_in_test_town_and_stay_xml_integration_py - 2018.09.13 at 11h 06m 24s.xml">
-      <configuration name="py.test in test_town_and_stay_xml_integration.py" configurationId="tests" />
-    </history-entry>
-    <history-entry file="py_test_in_test_town_and_stay_xml_integration_py - 2018.09.13 at 11h 20m 33s.xml">
-      <configuration name="py.test in test_town_and_stay_xml_integration.py" configurationId="tests" />
-    </history-entry>
-    <history-entry file="py_test_in_test_town_and_stay_xml_integration_py - 2018.09.13 at 12h 40m 56s.xml">
-      <configuration name="py.test in test_town_and_stay_xml_integration.py" configurationId="tests" />
-    </history-entry>
-    <history-entry file="py_test_in_test_town_and_stay_xml_integration_py - 2018.09.13 at 12h 55m 24s.xml">
-      <configuration name="py.test in test_town_and_stay_xml_integration.py" configurationId="tests" />
     </history-entry>
   </component>
   <component name="TodoView" selected-index="4">
@@ -504,13 +567,13 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="true" />
+    <frame x="0" y="0" width="1918" height="1040" extended-state="0" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28082192" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28351063" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33030647" sideWeight="0.50343734" order="11" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.330076" sideWeight="0.49656266" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32790446" sideWeight="0.49683878" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.44198895" sideWeight="0.49656266" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2562432" sideWeight="0.49814913" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3280363" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24960339" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -523,7 +586,6 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32790446" sideWeight="0.49683878" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -574,6 +636,11 @@
           <line>211</line>
           <option name="timeStamp" value="105" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_imb_weights.py</url>
+          <line>91</line>
+          <option name="timeStamp" value="108" />
+        </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
@@ -585,40 +652,11 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="108" />
+      <option name="time" value="109" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/sas_traffic_data.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_steps-1-2-3.py" />
-    <entry file="file://$USER_HOME$/.PyCharmCE2017.3/system/python_stubs/-1184660488/pyodbc.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="1757" column="80" lean-forward="true" selection-start-line="1757" selection-start-column="80" selection-end-line="1757" selection-end-column="80" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python36/Lib/site-packages/pandas/core/generic.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="178">
-          <caret line="1120" column="0" lean-forward="false" selection-start-line="1120" selection-start-column="0" selection-end-line="1120" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_regional_weights.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="28" column="0" lean-forward="false" selection-start-line="28" selection-start-column="0" selection-end-line="30" selection-end-column="91" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://C:/Python36/Lib/site-packages/_pytest/assertion/rewrite.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3451">
@@ -660,7 +698,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2125">
           <caret line="154" column="0" lean-forward="false" selection-start-line="154" selection-start-column="0" selection-end-line="154" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -845,7 +882,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="130">
           <caret line="84" column="0" lean-forward="false" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -901,13 +937,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="72" column="4" lean-forward="false" selection-start-line="72" selection-start-column="4" selection-end-line="72" selection-end-column="4" />
-          <folding>
-            <element signature="e#260#3816#0" expanded="false" />
-            <element signature="e#3885#4526#0" expanded="false" />
-            <element signature="e#3885#4053#1" expanded="false" />
-            <element signature="e#4294#4364#0" expanded="false" />
-            <element signature="e#20903#21989#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -915,15 +944,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="38" column="17" lean-forward="false" selection-start-line="38" selection-start-column="17" selection-end-line="38" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_minimums_weight.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="952">
-          <caret line="61" column="34" lean-forward="false" selection-start-line="61" selection-start-column="34" selection-end-line="61" selection-end-column="34" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -931,25 +951,75 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_final_weight.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="10" column="39" lean-forward="true" selection-start-line="10" selection-start-column="39" selection-end-line="10" selection-end-column="39" />
+        <state relative-caret-position="0">
+          <caret line="64" column="0" lean-forward="false" selection-start-line="64" selection-start-column="0" selection-end-line="64" selection-end-column="0" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_minimums_weight.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="652">
+          <caret line="79" column="59" lean-forward="false" selection-start-line="79" selection-start-column="59" selection-end-line="79" selection-end-column="59" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/output_final.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_imb_weight.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1009">
+          <caret line="168" column="35" lean-forward="false" selection-start-line="168" selection-start-column="21" selection-end-line="168" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/calculations/november_2017/imbalance_weight/test_output/survey_a.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_town_and_stay.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="13" lean-forward="true" selection-start-line="3" selection-start-column="13" selection-end-line="3" selection-end-column="13" />
+        <state relative-caret-position="238">
+          <caret line="14" column="30" lean-forward="false" selection-start-line="14" selection-start-column="30" selection-end-line="14" selection-end-column="30" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/calculations/november_2017/imbalance_weight/test_output/summary_a.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_imb_weights.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="287">
+          <caret line="90" column="0" lean-forward="false" selection-start-line="90" selection-start-column="0" selection-end-line="90" selection-end-column="0" />
+          <folding>
+            <element signature="e#48#109#0" expanded="true" />
+            <element signature="e#4359#4360#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
