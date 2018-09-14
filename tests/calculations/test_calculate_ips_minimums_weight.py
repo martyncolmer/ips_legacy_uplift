@@ -44,7 +44,7 @@ def test_calculate(data_path):
     # Read the data from SQL (as it will in the production ready system)
     df_surveydata = cf.get_table_values('SAS_SURVEY_SUBSAMPLE')
 
-    # Run the test
+    # Run the calculation step
     output_data, summary_data = do_ips_minweight_calculation(df_surveydata=df_surveydata,
                                                              var_serialNum='SERIAL',
                                                              var_shiftWeight='SHIFT_WT',
