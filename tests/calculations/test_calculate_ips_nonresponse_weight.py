@@ -8,27 +8,24 @@ Modified last: 14th Sep 2018
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from main.calculations import calculate_ips_nonresponse_weight as non_resp
-import tests.config
 import main.io.ips_data_management as idm
 import main.io.CommonFunctions as cf
+import pytest
 
-path_to_data = r"tests/data/calculations/" + tests.config.TEST_MONTH + "/non_response_weight"
+# define the table names
+SAS_NON_RESPONSE_DATA_TABLE_NAME = 'SAS_NON_RESPONSE_DATA'  # the input data
+OUT_TABLE_NAME = "SAS_NON_RESPONSE_WT"  # output data
+SUMMARY_OUT_TABLE_NAME = "SAS_PS_NON_RESPONSE"  # output data
 
+# columns to sort the summary results by in order to check calculated dataframes match expected results
+NR_COLUMNS = ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'MEAN_RESPS_SH_WT',
+              'COUNT_RESPS', 'PRIOR_SUM', 'GROSS_RESP', 'GNR', 'MEAN_NR_WT']
 
 def convert_dataframe_to_sql_format(table_name, dataframe):
     cf.insert_dataframe_into_table(table_name, dataframe)
     return cf.get_table_values(table_name)
 
-def test_calculate():
-
-    # define the table names
-    SAS_NON_RESPONSE_DATA_TABLE_NAME = 'SAS_NON_RESPONSE_DATA' # the input data
-    OUT_TABLE_NAME = "SAS_NON_RESPONSE_WT" # output data
-    SUMMARY_OUT_TABLE_NAME = "SAS_PS_NON_RESPONSE" # output data
-
-    # columns to sort the summary results by in order to check calculated dataframes match expected results
-    NR_COLUMNS = ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'MEAN_RESPS_SH_WT',
-       'COUNT_RESPS', 'PRIOR_SUM', 'GROSS_RESP', 'GNR', 'MEAN_NR_WT']
+def clear_tables():
 
     # clear the input SQL server tables for the step
     cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
@@ -37,6 +34,16 @@ def test_calculate():
     # clear the output tables and summary tables
     cf.delete_from_table(OUT_TABLE_NAME)
     cf.delete_from_table(SUMMARY_OUT_TABLE_NAME)
+
+@pytest.mark.parametrize('path_to_data', [
+    r'tests\data\calculations\december_2017\non_response_weight',
+    r'tests\data\calculations\november_2017\non_response_weight',
+    r'tests\data\calculations\october_2017\non_response_weight', # ignored as summary data test unavailable
+    ])
+def test_calculate(path_to_data):
+
+    # clear the input and output tables
+    clear_tables()
 
     # read in data from csv
     df_surveydata = pd.read_csv(path_to_data + '/surveydata.csv', engine='python')
@@ -50,14 +57,12 @@ def test_calculate():
     if 'REC_ID' in df_nr_data.columns:
         df_nr_data.drop(['REC_ID'], axis=1, inplace=True)
 
-    cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, df_surveydata)
-    cf.insert_dataframe_into_table(SAS_NON_RESPONSE_DATA_TABLE_NAME, df_nr_data)
+    df_surveydata_import = convert_dataframe_to_sql_format(idm.SAS_SURVEY_SUBSAMPLE_TABLE, df_surveydata)
+    df_nr_data_import = convert_dataframe_to_sql_format(SAS_NON_RESPONSE_DATA_TABLE_NAME, df_nr_data)
 
-    # Read the data from SQL (as it will in the production ready system)
-    df_surveydata_import = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-    df_nr_data_import = cf.get_table_values(SAS_NON_RESPONSE_DATA_TABLE_NAME)
-
+    # --------------------------------------
     # run the calculation and test
+    # --------------------------------------
     result_py_data = non_resp.do_ips_nrweight_calculation(df_surveydata_import, df_nr_data_import,
                                                           'NON_RESPONSE_WT', 'SERIAL')
 
@@ -81,26 +86,9 @@ def test_calculate():
     test_result_summary_sql = test_result_summary_sql.sort_values(by=NR_COLUMNS)
     test_result_summary_sql.index = range(0, len(test_result_summary_sql))
 
-    # clear the SQL server tables
-    cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-    cf.delete_from_table(SAS_NON_RESPONSE_DATA_TABLE_NAME)
-
-    # clear the output tables and summary tables
-    cf.delete_from_table(OUT_TABLE_NAME)
-    cf.delete_from_table(SUMMARY_OUT_TABLE_NAME)
+    # clear the input and output tables
+    clear_tables()
 
     # Assert dfs are equal
     assert_frame_equal(py_survey_data, test_result_survey_sql, check_dtype=False, check_like=True, check_less_precise=True)
     assert_frame_equal(py_summary_data, test_result_summary_sql, check_dtype=False, check_like=True, check_less_precise=True)
-
-    # TEST CODE BELOW:
-    # # run the calculation tests from csv - this works
-    # result_py_data = non_resp.do_ips_nrweight_calculation(df_surveydata, df_nr_data,
-    #                                                       'NON_RESPONSE_WT', 'SERIAL')
-
-    # # read pickle files and test - this works
-    # test_survey = pd.read_pickle(path_to_data + '/surveydata.pkl')
-    # test_nr_data = pd.read_pickle(path_to_data + '/nonresponsedata.pkl')
-    # result_py_data = non_resp.do_ips_nrweight_calculation(test_survey, test_nr_data,
-    #                                                       'NON_RESPONSE_WT', 'SERIAL')
-    #
