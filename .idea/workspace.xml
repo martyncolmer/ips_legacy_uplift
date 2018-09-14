@@ -4,22 +4,7 @@
     <bookmark url="file://$PROJECT_DIR$/main/calculations/calculate_ips_minimums_weight.py" line="199" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e9c10ffe-f2a0-439f-9527-ed37db9c05da" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_imb_weights.py" afterPath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_imb_weights.py" />
-      <change beforePath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_minimums_weight.py" afterPath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_minimums_weight.py" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/imb_weight_input.pkl" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/imb_weight_summarydata_output.pkl" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/imb_weight_surveydata_output.pkl" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/december_2017/imbalance_weight/result.csv" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/november_2017/imbalance weight/imb_weight_input.pkl" afterPath="$PROJECT_DIR$/tests/data/calculations/november_2017/imbalance_weight/pkl_files/imb_weight_input.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/november_2017/imbalance weight/imb_weight_summarydata_output.pkl" afterPath="$PROJECT_DIR$/tests/data/calculations/november_2017/imbalance_weight/pkl_files/imb_weight_summarydata_output.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/november_2017/imbalance weight/imb_weight_surveydata_output.pkl" afterPath="$PROJECT_DIR$/tests/data/calculations/november_2017/imbalance_weight/pkl_files/imb_weight_surveydata_output.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight/imb_weight_input.pkl" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight/pkl_files/imb_weight_input.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight/imb_weight_summarydata_output.pkl" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight/pkl_files/imb_weight_summarydata_output.pkl" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight/imb_weight_surveydata_output.csv" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight/pkl_files/imb_weight_surveydata_output.csv" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight/imb_weight_surveydata_output.pkl" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/imbalance_weight/pkl_files/imb_weight_surveydata_output.pkl" />
-    </list>
+    <list default="true" id="e9c10ffe-f2a0-439f-9527-ed37db9c05da" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -76,11 +61,10 @@
       <file leaf-file-name="test_calculate_ips_imb_weights.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_imb_weights.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="287">
-              <caret line="90" column="0" lean-forward="false" selection-start-line="90" selection-start-column="0" selection-end-line="90" selection-end-column="0" />
+            <state relative-caret-position="355">
+              <caret line="92" column="0" lean-forward="true" selection-start-line="92" selection-start-column="0" selection-end-line="92" selection-end-column="0" />
               <folding>
                 <element signature="e#48#109#0" expanded="true" />
-                <element signature="e#4359#4360#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -522,7 +506,14 @@
       <option name="project" value="LOCAL" />
       <updated>1536844297621</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Imbalance Weight unit test written and tested. New Data also added for tests.">
+      <created>1536916592780</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1536916592781</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -568,12 +559,13 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1918" height="1040" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28351063" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33030647" sideWeight="0.50343734" order="11" side_tool="true" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32790446" sideWeight="0.49683878" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.44198895" sideWeight="0.49656266" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.44198895" sideWeight="0.49656266" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2562432" sideWeight="0.49814913" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3280363" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24960339" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -626,7 +618,8 @@
     <MESSAGE value="Add test script for IPS minimums weight integration" />
     <MESSAGE value="Pre Merge File changes" />
     <MESSAGE value="Merge changes from development into branch" />
-    <option name="LAST_COMMIT_MESSAGE" value="Merge changes from development into branch" />
+    <MESSAGE value="Imbalance Weight unit test written and tested. New Data also added for tests." />
+    <option name="LAST_COMMIT_MESSAGE" value="Imbalance Weight unit test written and tested. New Data also added for tests." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1014,11 +1007,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_imb_weights.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="287">
-          <caret line="90" column="0" lean-forward="false" selection-start-line="90" selection-start-column="0" selection-end-line="90" selection-end-column="0" />
+        <state relative-caret-position="355">
+          <caret line="92" column="0" lean-forward="true" selection-start-line="92" selection-start-column="0" selection-end-line="92" selection-end-column="0" />
           <folding>
             <element signature="e#48#109#0" expanded="true" />
-            <element signature="e#4359#4360#0" expanded="false" />
           </folding>
         </state>
       </provider>
