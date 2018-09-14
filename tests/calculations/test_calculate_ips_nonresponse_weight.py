@@ -93,23 +93,7 @@ def test_calculate():
     assert_frame_equal(py_survey_data, test_result_survey_sql, check_dtype=False, check_like=True, check_less_precise=True)
     assert_frame_equal(py_summary_data, test_result_summary_sql, check_dtype=False, check_like=True, check_less_precise=True)
 
-    # Retrieve SAS Survey Data output and cleanse
-    # test_result_survey = pd.read_csv(path_to_data + '/outputdata_final.csv', engine='python')
-    # test_result_survey.columns = test_result_survey.columns.str.upper()
-    # test_result_survey = test_result_survey.sort_values(by='SERIAL')
-    # test_result_survey.index = range(0, len(test_result_survey))
-    # test_result_survey.replace("", np.NaN, inplace=True)
-
-    # Retrieve SAS Summary Data output and cleanse
-    # test_result_summary = pd.read_csv(path_to_data + '/summarydata_final.csv', engine='python')
-    # test_result_summary.columns = test_result_summary.columns.str.upper()
-    # #test_result_summary = test_result_summary.sort_values(by=summary_columns)
-    # test_result_summary.index = range(0, len(test_result_summary))
-
-
-    # summary_columns = ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'MEAN_RESPS_SH_WT',
-    #    'COUNT_RESPS', 'PRIOR_SUM', 'GROSS_RESP', 'GNR', 'MEAN_NR_WT']
-    #49
+    # TEST CODE BELOW:
     # # run the calculation tests from csv - this works
     # result_py_data = non_resp.do_ips_nrweight_calculation(df_surveydata, df_nr_data,
     #                                                       'NON_RESPONSE_WT', 'SERIAL')
@@ -120,39 +104,3 @@ def test_calculate():
     # result_py_data = non_resp.do_ips_nrweight_calculation(test_survey, test_nr_data,
     #                                                       'NON_RESPONSE_WT', 'SERIAL')
     #
-    # # run the calculation tests from csv - this works
-    # result_py_data = non_resp.do_ips_nrweight_calculation(df_surveydata, df_nr_data,
-    #                                                       'NON_RESPONSE_WT', 'SERIAL')
-
-
-
-    # This is an integration test as it runs the entire step
-    # test_survey = pd.read_pickle(path_to_data + '/non_response_survey_data.pkl')
-    # test_nr_data = pd.read_pickle(path_to_data + '/non_response_data.pkl')
-    # result_py_data = non_resp.do_ips_nrweight_calculation(test_survey, test_nr_data,
-    #                                                       'NON_RESPONSE_WT', 'SERIAL')
-    #
-    # # Retrieve and clean Python survey data output
-    # py_survey_data = result_py_data[0]
-    # py_survey_data = py_survey_data.sort_values(by='SERIAL')
-    # py_survey_data.index = range(0, len(py_survey_data))
-    #
-    # # From Python output data, retrieve Summary Data and cleanse
-    # py_summary_data = result_py_data[1]
-    # py_summary_data.index = range(0, len(py_summary_data))
-    #
-    # # Retrieve SAS Survey Data output and cleanse
-    # test_result_survey = pd.read_pickle(path_to_data + '/non_response_weight_output.pkl')
-    # test_result_survey.columns = test_result_survey.columns.str.upper()
-    # test_result_survey = test_result_survey.sort_values(by='SERIAL')
-    # test_result_survey.index = range(0, len(test_result_survey))
-    # # test_result_survey.replace("", np.NaN, inplace=True)
-    #
-    # # Retrieve SAS Summary Data output and cleanse
-    # test_result_summary = pd.read_pickle(path_to_data + '/non_response_weight_summary.pkl')
-    # test_result_summary.columns = test_result_summary.columns.str.upper()
-    # test_result_summary.index = range(0, len(test_result_summary))
-    #
-    # # Assert dfs are equal
-    # assert_frame_equal(py_survey_data, test_result_survey, check_dtype=False, check_like=True)
-    # assert_frame_equal(py_summary_data, test_result_summary, check_dtype=False, check_like=True)
