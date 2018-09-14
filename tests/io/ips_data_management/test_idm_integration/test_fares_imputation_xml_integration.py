@@ -206,7 +206,6 @@ def test_town_and_stay_step():
 
     # Check all columns in SAS_SURVEY_SUBSAMPLE have been altered.
     sas_survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-    sas_survey_data.to_csv(r'S:\CASPA\IPS\Testing\Integration\sas_survey_data.csv')
 
     for column in STEP_CONFIGURATION[STEP_NAME]['pv_columns']:
         column_name = column.replace("'", "")
@@ -223,7 +222,8 @@ def test_town_and_stay_step():
 
     # Run the next step and test.
     # # TODO: REMOVE THIS HACK
-    sas_survey_data['DISCNT_PACKAGE_COST_PV'] = np.nan
+    # sas_survey_data['DISCNT_PACKAGE_COST_PV'].fillna(np.nan)
+    sas_survey_data[['DISCNT_PACKAGE_COST_PV', 'DVEXPEND', 'BEFAF', 'DVPERSONS', 'FARE']].fillna(np.nan)
     # # TODO: /HACK
     surveydata_out = do_ips_fares_imputation(df_input=sas_survey_data,
                                              var_serial='SERIAL',

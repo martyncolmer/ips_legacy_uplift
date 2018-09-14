@@ -3,10 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="e9c10ffe-f2a0-439f-9527-ed37db9c05da" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/main/io/CommonFunctions.py" afterPath="$PROJECT_DIR$/main/io/CommonFunctions.py" />
-      <change beforePath="$PROJECT_DIR$/main/utils/ProcessVariableToOracle.py" afterPath="$PROJECT_DIR$/main/utils/ProcessVariableToOracle.py" />
-      <change beforePath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_fares_imputation.py" afterPath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_fares_imputation.py" />
-      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/fares_imputation_integration/sas_survey_subsample_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/fares_imputation_integration/sas_survey_subsample_actual.csv" />
       <change beforePath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_fares_imputation_xml_integration.py" afterPath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_fares_imputation_xml_integration.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -24,7 +20,7 @@
             <file leaf-file-name="CommonFunctions.py" pinned="false" current-in-tab="false">
               <entry file="file://$PROJECT_DIR$/main/io/CommonFunctions.py">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="235">
+                  <state relative-caret-position="2121">
                     <caret line="1026" column="21" lean-forward="false" selection-start-line="1026" selection-start-column="21" selection-end-line="1026" selection-end-column="21" />
                     <folding>
                       <element signature="e#0#54#1" expanded="false" />
@@ -208,11 +204,24 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="calculate_ips_fares_imputation.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_fares_imputation.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="212">
+              <caret line="187" column="0" lean-forward="true" selection-start-line="187" selection-start-column="0" selection-end-line="187" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#14#0" expanded="true" />
+                <element signature="e#4116#6553#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="test_fares_imputation_xml_integration.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_fares_imputation_xml_integration.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3433">
-              <caret line="10" column="40" lean-forward="true" selection-start-line="10" selection-start-column="40" selection-end-line="10" selection-end-column="40" />
+            <state relative-caret-position="236">
+              <caret line="230" column="0" lean-forward="false" selection-start-line="230" selection-start-column="0" selection-end-line="230" selection-end-column="0" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
                 <element signature="e#819#1087#0" expanded="false" />
@@ -225,55 +234,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ProcessVariableToOracle.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/main/utils/ProcessVariableToOracle.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="42">
-              <caret line="5" column="33" lean-forward="false" selection-start-line="5" selection-start-column="11" selection-end-line="5" selection-end-column="33" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="process_variables.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/main/utils/process_variables.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1575">
-              <caret line="80" column="0" lean-forward="false" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="calculate_ips_fares_imputation.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_fares_imputation.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-395">
-              <caret line="164" column="34" lean-forward="false" selection-start-line="164" selection-start-column="34" selection-end-line="164" selection-end-column="34" />
-              <folding>
-                <element signature="e#0#14#0" expanded="true" />
-                <element signature="e#4116#6553#0" expanded="false" />
-                <element signature="e#6595#8831#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="test_calculate_ips_fares_imputation.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_fares_imputation.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="137">
-              <caret line="25" column="46" lean-forward="true" selection-start-line="25" selection-start-column="46" selection-end-line="25" selection-end-column="46" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="frame.py" pinned="false" current-in-tab="false">
         <entry file="file://C:/Python36/Lib/site-packages/pandas/core/frame.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="128">
-              <caret line="4932" column="0" lean-forward="false" selection-start-line="4932" selection-start-column="0" selection-end-line="4932" selection-end-column="0" />
+            <state relative-caret-position="107">
+              <caret line="4972" column="0" lean-forward="false" selection-start-line="4972" selection-start-column="0" selection-end-line="4972" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -327,8 +292,8 @@
         <option value="$PROJECT_DIR$/main/calculations/calculate_ips_fares_imputation.py" />
         <option value="$PROJECT_DIR$/main/utils/ProcessVariableToOracle.py" />
         <option value="$PROJECT_DIR$/main/io/CommonFunctions.py" />
-        <option value="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_fares_imputation_xml_integration.py" />
         <option value="$PROJECT_DIR$/tests/calculations/test_calculate_ips_fares_imputation.py" />
+        <option value="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_fares_imputation_xml_integration.py" />
       </list>
     </option>
   </component>
@@ -356,17 +321,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches">
-        <subPane>
-          <expand>
-            <path>
-              <item name="Scratches and Consoles" type="1a2a3e82:ScratchProjectViewPane$MyProjectNode" />
-              <item name="Scratches" type="d62648e6:ScratchProjectViewPane$MyRootNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
       <pane id="Scope">
         <subPane subId="Project Files">
           <expand>
@@ -383,23 +337,23 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scratches">
+        <subPane>
+          <expand>
+            <path>
+              <item name="Scratches and Consoles" type="1a2a3e82:ScratchProjectViewPane$MyProjectNode" />
+              <item name="Scratches" type="d62648e6:ScratchProjectViewPane$MyRootNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
       <pane id="ProjectPane">
         <subPane>
           <expand>
             <path>
               <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
               <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
-              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="IPS_Legacy_Uplift" type="b2602c69:ProjectViewProjectNode" />
-              <item name="IPS_Legacy_Uplift" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-              <item name="calculations" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -427,13 +381,13 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python tests.py.test in test_calculate_ips_fares_imputation.py">
+  <component name="RunManager" selected="Python tests.py.test in test_fares_imputation_xml_integration.py">
     <configuration name="ProcessVariableToOracle" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
-        <env name="DB_NAME" value="ips_test" />
         <env name="PYTHONUNBUFFERED" value="1" />
+        <env name="DB_NAME" value="ips_test" />
         <env name="DB_SERVER" value="CR1VWSQL14-D-01" />
         <env name="DB_USER_NAME" value="ips_dev" />
         <env name="DB_PASSWORD" value="ips_dev" />
@@ -555,8 +509,8 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_fares_imputation.py" />
-        <item index="1" class="java.lang.String" itemvalue="Python tests.py.test in test_fares_imputation_xml_integration.py" />
+        <item index="0" class="java.lang.String" itemvalue="Python tests.py.test in test_fares_imputation_xml_integration.py" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.py.test in test_calculate_ips_fares_imputation.py" />
         <item index="2" class="java.lang.String" itemvalue="Python.ProcessVariableToOracle" />
         <item index="3" class="java.lang.String" itemvalue="Python tests.py.test in ips_data_management" />
         <item index="4" class="java.lang.String" itemvalue="Python tests.py.test in test_imbalance_weight_xml_integration.py" />
@@ -580,24 +534,6 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="py_test_in_test_calculate_ips_fares_imputation_py - 2018.09.13 at 14h 15m 56s.xml">
-      <configuration name="py.test in test_calculate_ips_fares_imputation.py" configurationId="tests" />
-    </history-entry>
-    <history-entry file="py_test_in_test_calculate_ips_fares_imputation_py - 2018.09.13 at 14h 16m 31s.xml">
-      <configuration name="py.test in test_calculate_ips_fares_imputation.py" configurationId="tests" />
-    </history-entry>
-    <history-entry file="py_test_in_test_fares_imputation_xml_integration_py - 2018.09.13 at 13h 16m 51s.xml">
-      <configuration name="py.test in test_fares_imputation_xml_integration.py" configurationId="tests" />
-    </history-entry>
-    <history-entry file="py_test_in_test_fares_imputation_xml_integration_py - 2018.09.13 at 13h 21m 18s.xml">
-      <configuration name="py.test in test_fares_imputation_xml_integration.py" configurationId="tests" />
-    </history-entry>
-    <history-entry file="py_test_in_test_fares_imputation_xml_integration_py - 2018.09.13 at 13h 24m 39s.xml">
-      <configuration name="py.test in test_fares_imputation_xml_integration.py" configurationId="tests" />
-    </history-entry>
-    <history-entry file="py_test_in_test_fares_imputation_xml_integration_py - 2018.09.13 at 13h 32m 51s.xml">
-      <configuration name="py.test in test_fares_imputation_xml_integration.py" configurationId="tests" />
-    </history-entry>
     <history-entry file="py_test_in_test_fares_imputation_xml_integration_py - 2018.09.13 at 13h 35m 00s.xml">
       <configuration name="py.test in test_fares_imputation_xml_integration.py" configurationId="tests" />
     </history-entry>
@@ -610,6 +546,24 @@
     <history-entry file="py_test_in_test_fares_imputation_xml_integration_py - 2018.09.13 at 14h 08m 26s.xml">
       <configuration name="py.test in test_fares_imputation_xml_integration.py" configurationId="tests" />
     </history-entry>
+    <history-entry file="py_test_in_test_fares_imputation_xml_integration_py - 2018.09.13 at 14h 58m 40s.xml">
+      <configuration name="py.test in test_fares_imputation_xml_integration.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_in_test_fares_imputation_xml_integration_py - 2018.09.14 at 08h 53m 34s.xml">
+      <configuration name="py.test in test_fares_imputation_xml_integration.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_in_test_fares_imputation_xml_integration_py - 2018.09.14 at 08h 57m 57s.xml">
+      <configuration name="py.test in test_fares_imputation_xml_integration.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_in_test_fares_imputation_xml_integration_py - 2018.09.14 at 09h 54m 06s.xml">
+      <configuration name="py.test in test_fares_imputation_xml_integration.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_in_test_fares_imputation_xml_integration_py - 2018.09.14 at 10h 02m 12s.xml">
+      <configuration name="py.test in test_fares_imputation_xml_integration.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_in_test_fares_imputation_xml_integration_py - 2018.09.14 at 10h 25m 49s.xml">
+      <configuration name="py.test in test_fares_imputation_xml_integration.py" configurationId="tests" />
+    </history-entry>
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1050" extended-state="6" />
@@ -618,12 +572,12 @@
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3236383" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.50316125" order="11" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.476731" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.476731" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2562432" sideWeight="0.49814913" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3280363" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24960339" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3291714" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.5300795" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.5300795" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
@@ -666,21 +620,26 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_fares_imputation_xml_integration.py</url>
+          <line>227</line>
+          <option name="timeStamp" value="106" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/main/calculations/calculate_ips_fares_imputation.py</url>
+          <line>183</line>
+          <option name="timeStamp" value="107" />
+        </line-breakpoint>
+      </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="106" />
+      <option name="time" value="108" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/sas_non_response_data.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="99" lean-forward="false" selection-start-line="0" selection-start-column="99" selection-end-line="0" selection-end-column="99" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tests/data/ips_data_management/populate_step_data/unsampled_ooh_data_result.csv">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -930,27 +889,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main/utils/ProcessVariableToOracle.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="42">
-          <caret line="5" column="33" lean-forward="false" selection-start-line="5" selection-start-column="11" selection-end-line="5" selection-end-column="33" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main/utils/process_variables.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1575">
-          <caret line="80" column="0" lean-forward="false" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://C:/Python36/Lib/site-packages/pluggy/callers.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="254">
           <caret line="179" column="48" lean-forward="true" selection-start-line="179" selection-start-column="48" selection-end-line="179" selection-end-column="48" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -958,21 +900,12 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="308">
           <caret line="154" column="0" lean-forward="false" selection-start-line="154" selection-start-column="0" selection-end-line="154" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python36/Lib/site-packages/pandas/core/frame.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="128">
-          <caret line="4932" column="0" lean-forward="false" selection-start-line="4932" selection-start-column="0" selection-end-line="4932" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main/io/CommonFunctions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="235">
+        <state relative-caret-position="2121">
           <caret line="1026" column="21" lean-forward="false" selection-start-line="1026" selection-start-column="21" selection-end-line="1026" selection-end-column="21" />
           <folding>
             <element signature="e#0#54#1" expanded="false" />
@@ -1132,10 +1065,50 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://C:/Python36/Lib/site-packages/pandas/core/frame.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="107">
+          <caret line="4972" column="0" lean-forward="false" selection-start-line="4972" selection-start-column="0" selection-end-line="4972" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_fares_imputation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="25" column="46" lean-forward="false" selection-start-line="25" selection-start-column="46" selection-end-line="25" selection-end-column="46" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/utils/process_variables.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1575">
+          <caret line="80" column="0" lean-forward="false" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/utils/ProcessVariableToOracle.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="5" column="26" lean-forward="false" selection-start-line="5" selection-start-column="26" selection-end-line="5" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_town_and_stay.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="273">
+          <caret line="17" column="39" lean-forward="false" selection-start-line="17" selection-start-column="39" selection-end-line="17" selection-end-column="39" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_fares_imputation_xml_integration.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3433">
-          <caret line="10" column="40" lean-forward="true" selection-start-line="10" selection-start-column="40" selection-end-line="10" selection-end-column="40" />
+        <state relative-caret-position="236">
+          <caret line="230" column="0" lean-forward="false" selection-start-line="230" selection-start-column="0" selection-end-line="230" selection-end-column="0" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
             <element signature="e#819#1087#0" expanded="false" />
@@ -1149,21 +1122,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_fares_imputation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-395">
-          <caret line="164" column="34" lean-forward="false" selection-start-line="164" selection-start-column="34" selection-end-line="164" selection-end-column="34" />
+        <state relative-caret-position="212">
+          <caret line="187" column="0" lean-forward="true" selection-start-line="187" selection-start-column="0" selection-end-line="187" selection-end-column="0" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
             <element signature="e#4116#6553#0" expanded="false" />
-            <element signature="e#6595#8831#0" expanded="false" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_fares_imputation.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="137">
-          <caret line="25" column="46" lean-forward="true" selection-start-line="25" selection-start-column="46" selection-end-line="25" selection-end-column="46" />
-          <folding />
         </state>
       </provider>
     </entry>
