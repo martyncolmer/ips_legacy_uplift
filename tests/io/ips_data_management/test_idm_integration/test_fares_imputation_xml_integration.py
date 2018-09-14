@@ -223,7 +223,7 @@ def test_town_and_stay_step():
     # Run the next step and test.
     # # TODO: REMOVE THIS HACK
     # sas_survey_data['DISCNT_PACKAGE_COST_PV'].fillna(np.nan)
-    sas_survey_data[['DISCNT_PACKAGE_COST_PV', 'DVEXPEND', 'BEFAF', 'DVPERSONS', 'FARE']].fillna(np.nan)
+    sas_survey_data[['DISCNT_PACKAGE_COST_PV', 'DVEXPEND', 'BEFAF', 'DVPERSONS', 'FARE']].fillna(np.nan, inplace=True)
     # # TODO: /HACK
     surveydata_out = do_ips_fares_imputation(df_input=sas_survey_data,
                                              var_serial='SERIAL',
