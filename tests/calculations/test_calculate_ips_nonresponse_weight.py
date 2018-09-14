@@ -38,7 +38,7 @@ def clear_tables():
 @pytest.mark.parametrize('path_to_data', [
     r'tests\data\calculations\december_2017\non_response_weight',
     r'tests\data\calculations\november_2017\non_response_weight',
-    r'tests\data\calculations\october_2017\non_response_weight', # ignored as summary data test unavailable
+    #r'tests\data\calculations\october_2017\non_response_weight', # ignored as summary data test unavailable
     ])
 def test_calculate(path_to_data):
 
