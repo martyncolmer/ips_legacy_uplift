@@ -1,8 +1,3 @@
-'''
-Created on 6 Mar 2018
-
-@author: thorne1
-'''
 from main.calculations import calculate_ips_imb_weight as imb
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
