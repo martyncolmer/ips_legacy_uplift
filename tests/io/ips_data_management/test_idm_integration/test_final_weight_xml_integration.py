@@ -241,4 +241,3 @@ def test_final_weight_step():
 
     table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]['ps_table']))
     assert table_len == calculate_ips_final_weight.NUMBER_RECORDS_DISPLAYED
-
