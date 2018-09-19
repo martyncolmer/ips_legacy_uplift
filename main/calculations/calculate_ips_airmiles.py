@@ -1,13 +1,7 @@
-import sys
-import os
-import logging
 import inspect
 import math
 import numpy as np
 import pandas as pd
-from pandas.util.testing import assert_frame_equal
-from collections import OrderedDict
-# import survey_support
 from main.io import CommonFunctions as cf
 
 FLOW_VARIABLE = 'FLOW'
@@ -121,14 +115,6 @@ def calculate_airmiles(df_air_ext):
         if not math.isnan(atan_halfx):
             row['AIRMILES'] = round((atan_halfx * earth_diameter))
         return row
-
-    # # Decode any string values within the dataframe.
-    # str_df = df_air_ext.select_dtypes([np.object])
-    # str_df = str_df.stack().str.decode('utf-8').unstack()
-    #
-    # # Replace the columns with the decoded columns
-    # for col in str_df:
-    #     df_air_ext[col] = str_df[col]
 
     df_air_ext = df_air_ext.apply(get_airmiles, axis=1)
 
