@@ -45,6 +45,10 @@ def do_ips_nrweight_calculation(survey_data, non_response_data,  non_response_we
     Dependencies : 
     """
 
+    # drop NON_RESPONSE_WT column in survey data at start (this matches SAS log)
+    if 'NON_RESPONSE_WT' in survey_data.columns:
+        survey_data = survey_data.drop(columns=['NON_RESPONSE_WT'])
+
     logger = cf.database_logger()
 
     df_nonresponsedata_sorted = non_response_data.sort_values(SHIFTS_STRATA)
