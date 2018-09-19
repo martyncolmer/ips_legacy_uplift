@@ -131,19 +131,19 @@ def populate_test_pv_table():
     cur = conn.cursor()
 
     sql1 = """
-    INSERT INTO [ips_test].[dbo].[PROCESS_VARIABLE_TESTING]
-    SELECT * FROM [ips_test].[dbo].[PROCESS_VARIABLE_PY]
+    INSERT INTO [dbo].[PROCESS_VARIABLE_TESTING]
+    SELECT * FROM [dbo].[PROCESS_VARIABLE_PY]
     WHERE [RUN_ID] = 'TEMPLATE'
     """
 
     sql2 = """
-    UPDATE [ips_test].[dbo].[PROCESS_VARIABLE_TESTING]
+    UPDATE [dbo].[PROCESS_VARIABLE_TESTING]
     SET [RUN_ID] = '{}'
     """.format(RUN_ID)
 
     sql3 = """
-    INSERT INTO [ips_test].[dbo].[PROCESS_VARIABLE_PY]
-    SELECT * FROM [ips_test].[dbo].[PROCESS_VARIABLE_TESTING]
+    INSERT INTO [dbo].[PROCESS_VARIABLE_PY]
+    SELECT * FROM [dbo].[PROCESS_VARIABLE_TESTING]
     WHERE RUN_ID = '{}'
     """.format(RUN_ID)
 

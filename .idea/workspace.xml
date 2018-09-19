@@ -5,12 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e9c10ffe-f2a0-439f-9527-ed37db9c05da" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/main/calculations/calculate_ips_fares_imputation.py" afterPath="$PROJECT_DIR$/main/calculations/calculate_ips_fares_imputation.py" />
-      <change beforePath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_fares_imputation.py" afterPath="$PROJECT_DIR$/tests/calculations/test_calculate_ips_fares_imputation.py" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/december_2017/fares/outputdata_final.csv" afterPath="$PROJECT_DIR$/tests/data/calculations/december_2017/fares/outputdata_final.csv" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/november_2017/fares/outputdata_final.csv" afterPath="$PROJECT_DIR$/tests/data/calculations/november_2017/fares/outputdata_final.csv" />
-      <change beforePath="$PROJECT_DIR$/tests/data/calculations/october_2017/fares/outputdata_final.csv" afterPath="$PROJECT_DIR$/tests/data/calculations/october_2017/fares/outputdata_final.csv" />
+      <change beforePath="$PROJECT_DIR$/main/io/import_data.py" afterPath="$PROJECT_DIR$/main/io/import_data.py" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/sas_survey_data_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/sas_survey_data_actual.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/summary_out_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/summary_out_actual.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/surveydata_out_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/final_weight_integration/surveydata_out_actual.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/imbalance_weight_integration/sas_survey_subsample_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/imbalance_weight_integration/sas_survey_subsample_actual.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/ps_minimums_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/ps_minimums_actual.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/survey_subsample_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/minimums_weight_step/survey_subsample_actual.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/data/ips_data_management/town_and_stay_integration/sas_survey_subsample_actual.csv" afterPath="$PROJECT_DIR$/tests/data/ips_data_management/town_and_stay_integration/sas_survey_subsample_actual.csv" />
+      <change beforePath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_final_weight_xml_integration.py" afterPath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_final_weight_xml_integration.py" />
+      <change beforePath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_imbalance_weight_xml_integration.py" afterPath="$PROJECT_DIR$/tests/io/ips_data_management/test_idm_integration/test_imbalance_weight_xml_integration.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -24,8 +28,8 @@
       <file leaf-file-name="test_calculate_ips_fares_imputation.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_fares_imputation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="326">
-              <caret line="93" column="60" lean-forward="true" selection-start-line="93" selection-start-column="60" selection-end-line="93" selection-end-column="60" />
+            <state relative-caret-position="692">
+              <caret line="93" column="60" lean-forward="false" selection-start-line="93" selection-start-column="60" selection-end-line="93" selection-end-column="60" />
               <folding>
                 <element signature="e#1294#1378#0" expanded="true" />
               </folding>
@@ -36,7 +40,7 @@
       <file leaf-file-name="calculate_ips_fares_imputation.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_fares_imputation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="241">
+            <state relative-caret-position="2414">
               <caret line="150" column="44" lean-forward="false" selection-start-line="150" selection-start-column="39" selection-end-line="150" selection-end-column="44" />
               <folding />
             </state>
@@ -197,6 +201,17 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scratches">
+        <subPane>
+          <expand>
+            <path>
+              <item name="Scratches and Consoles" type="1a2a3e82:ScratchProjectViewPane$MyProjectNode" />
+              <item name="Scratches" type="d62648e6:ScratchProjectViewPane$MyRootNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
       <pane id="Scope">
         <subPane subId="Project Files">
           <expand>
@@ -208,17 +223,6 @@
               <item name="Root" type="cbb8eebc:String" user="Root" />
               <item name="IPS_Legacy_Uplift" type="cbb8eebc:String" user="IPS_Legacy_Uplift" />
               <item name="main" type="cbb8eebc:String" user="main" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-      <pane id="Scratches">
-        <subPane>
-          <expand>
-            <path>
-              <item name="Scratches and Consoles" type="1a2a3e82:ScratchProjectViewPane$MyProjectNode" />
-              <item name="Scratches" type="d62648e6:ScratchProjectViewPane$MyRootNode" />
             </path>
           </expand>
           <select />
@@ -549,25 +553,24 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="1912" y="-8" width="1936" height="1096" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28767124" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899022" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33030647" sideWeight="0.50343734" order="11" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32790446" sideWeight="0.49683878" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.4162331" sideWeight="0.49656266" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2562432" sideWeight="0.49814913" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4162331" sideWeight="0.49656266" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25598335" sideWeight="0.49814913" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3280363" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24960339" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3291714" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.49728554" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32790446" sideWeight="0.49683878" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -825,9 +828,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="18207">
           <caret line="1090" column="0" lean-forward="false" selection-start-line="1090" selection-start-column="0" selection-end-line="1090" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#54#1" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -904,7 +904,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="38" column="17" lean-forward="false" selection-start-line="38" selection-start-column="17" selection-end-line="38" selection-end-column="17" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -919,9 +918,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="64" column="0" lean-forward="false" selection-start-line="64" selection-start-column="0" selection-end-line="64" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#19#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -936,33 +932,15 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1009">
           <caret line="168" column="35" lean-forward="false" selection-start-line="168" selection-start-column="21" selection-end-line="168" selection-end-column="35" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/calculations/november_2017/imbalance_weight/test_output/survey_a.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/data/calculations/november_2017/imbalance_weight/test_output/summary_a.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/data/calculations/november_2017/imbalance_weight/test_output/survey_a.csv" />
+    <entry file="file://$PROJECT_DIR$/tests/data/calculations/november_2017/imbalance_weight/test_output/summary_a.csv" />
     <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_town_and_stay.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="238">
           <caret line="14" column="30" lean-forward="false" selection-start-line="14" selection-start-column="30" selection-end-line="14" selection-end-column="30" />
-          <folding>
-            <element signature="e#0#19#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -970,7 +948,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="601">
           <caret line="76" column="60" lean-forward="true" selection-start-line="76" selection-start-column="60" selection-end-line="76" selection-end-column="60" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -978,9 +955,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="714">
           <caret line="81" column="76" lean-forward="false" selection-start-line="81" selection-start-column="76" selection-end-line="81" selection-end-column="76" />
-          <folding>
-            <element signature="e#0#13#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -998,13 +972,12 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main/calculations/calculate_ips_fares_imputation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="241">
+        <state relative-caret-position="2414">
           <caret line="150" column="44" lean-forward="false" selection-start-line="150" selection-start-column="39" selection-end-line="150" selection-end-column="44" />
           <folding />
         </state>
@@ -1012,8 +985,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/tests/calculations/test_calculate_ips_fares_imputation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="326">
-          <caret line="93" column="60" lean-forward="true" selection-start-line="93" selection-start-column="60" selection-end-line="93" selection-end-column="60" />
+        <state relative-caret-position="692">
+          <caret line="93" column="60" lean-forward="false" selection-start-line="93" selection-start-column="60" selection-end-line="93" selection-end-column="60" />
           <folding>
             <element signature="e#1294#1378#0" expanded="true" />
           </folding>
