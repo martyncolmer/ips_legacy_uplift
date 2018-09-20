@@ -19,8 +19,8 @@ SUMMARY_TABLE_NAME = 'SAS_PS_MINIMUMS'
 
 @pytest.mark.parametrize('data_path', [
     r'tests\data\calculations\december_2017\min_weight',
-    #r'tests\data\calculations\november_2017\min_weight',
-    #r'tests\data\calculations\october_2017\min_weight',
+    r'tests\data\calculations\november_2017\min_weight',
+    r'tests\data\calculations\october_2017\min_weight',
     ])
 def test_calculate(data_path):
     """
