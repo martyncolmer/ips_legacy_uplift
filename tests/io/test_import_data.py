@@ -84,10 +84,10 @@ def reset_tables():
     ('_DECEMBER_2017', r'tests\data\calculations\december_2017\non_response_weight\surveydata.csv', 'SAS_SURVEY_SUBSAMPLE', 'nr_weight'),
     ('_DECEMBER_2017', r'tests\data\calculations\december_2017\non_response_weight\nonresponsedata.csv', 'SAS_NON_RESPONSE_DATA', 'nr_weight'),
     ('_DECEMBER_2017', r'tests\data\calculations\december_2017\min_weight\surveydata.csv', 'SAS_SURVEY_SUBSAMPLE', 'min_weight'),
-    ('_DECEMBER_2017', r'tests\data\calculations\december_2017\traffic_weight\survey_input.csv', 'SAS_SURVEY_SUBSAMPLE', 'traffic_weight'),
-    ('_DECEMBER_2017', r'tests\data\calculations\december_2017\traffic_weight\trtotals.csv', 'SAS_TRAFFIC_DATA', 'traffic_weight'),
-    ('_DECEMBER_2017', r'tests\data\calculations\december_2017\unsampled_weight\survey_input.csv', 'SAS_SURVEY_SUBSAMPLE', 'unsampled_weight'),
-    ('_DECEMBER_2017', r'tests\data\calculations\december_2017\unsampled_weight\ustotals.csv', 'SAS_UNSAMPLED_OOH_DATA', 'unsampled_weight'),
+    ('_DECEMBER_2017', r'tests\data\calculations\december_2017\traffic_weight\surveydata.csv', 'SAS_SURVEY_SUBSAMPLE', 'traffic_weight'),
+    ('_DECEMBER_2017', r'tests\data\calculations\december_2017\traffic_weight\trafficdata.csv', 'SAS_TRAFFIC_DATA', 'traffic_weight'),
+    ('_DECEMBER_2017', r'tests\data\calculations\december_2017\unsampled_weight\surveydata.csv', 'SAS_SURVEY_SUBSAMPLE', 'unsampled_weight'),
+    ('_DECEMBER_2017', r'tests\data\calculations\december_2017\unsampled_weight\unsampleddata.csv', 'SAS_UNSAMPLED_OOH_DATA', 'unsampled_weight'),
     ('_DECEMBER_2017', r'tests\data\calculations\december_2017\imbalance_weight\surveydata.csv', 'SAS_SURVEY_SUBSAMPLE', 'imbalance_weight'),
     ('_DECEMBER_2017', r'tests\data\calculations\december_2017\final_weight\surveydata.csv', 'SAS_SURVEY_SUBSAMPLE', 'final_weight'),
     ('_DECEMBER_2017', r'tests\data\calculations\december_2017\stay\surveydata.csv', 'SAS_SURVEY_SUBSAMPLE', 'stay_imputation'),
@@ -95,7 +95,7 @@ def reset_tables():
     ('_DECEMBER_2017', r'tests\data\calculations\december_2017\spend\surveydata.csv', 'SAS_SURVEY_SUBSAMPLE', 'spend_imputation'),
     ('_DECEMBER_2017', r'tests\data\calculations\december_2017\rail\surveydata.csv', 'SAS_SURVEY_SUBSAMPLE', 'rail_imputation'),
     ('_DECEMBER_2017', r'tests\data\calculations\december_2017\regional_weights\surveydata.csv', 'SAS_SURVEY_SUBSAMPLE', 'regional_weights'),
-    ('_DECEMBER_2017', r'tests\data\calculations\december_2017\town_and_stay\input_townspend.csv', 'SAS_SURVEY_SUBSAMPLE', 'town_stay_and_exp_imputation'),
+    ('_DECEMBER_2017', r'tests\data\calculations\december_2017\town_and_stay\surveydata.csv', 'SAS_SURVEY_SUBSAMPLE', 'town_stay_and_exp_imputation'),
     ])
 def test_insert_step_data(dataset, data_path, table_name, step):
     """
