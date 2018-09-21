@@ -3,7 +3,7 @@ import pandas as pd
 import sys
 import random
 
-pv_name = "dur2_pv"
+pv_name = "SPEND_IMP_ELIGIBLE_PV"
 
 val = """
 '
@@ -64,5 +64,5 @@ def read_pv_table(pv_name = None,conn = None):
 
 """"""
 
-write_pv_to_table(pv_name, val)
+# write_pv_to_table(pv_name, val)
 read_pv_table(pv_name)

@@ -1118,17 +1118,3 @@ def unpickle_rick(file):
     # Send to CSV
     df.to_csv(r"{}\{}".format(path, out_file))
     beep()
-
-
-def do_testing_stuff():
-    from main.io import ips_data_management as idm
-    RUN_ID = 'test-idm-integration-spend-imp'
-
-    fares_output = pandas.read_csv(r'S:\CASPA\IPS\Testing\Dec_Data\Fares\output_final.csv')
-    insert_dataframe_into_table('SAS_FARES_IMP', fares_output)
-
-    idm.update_survey_data_with_step_results()
-
-
-if __name__ == "__main__":
-    do_testing_stuff()
