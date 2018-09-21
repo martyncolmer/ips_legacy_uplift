@@ -97,6 +97,4 @@ def test_calculate(data_path):
     df_survey_expected = df_survey_expected.sort_values('SERIAL')
     df_survey_expected.index = range(0, len(df_survey_expected))
 
-    df_survey_result.to_csv(r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\calculations\october_2017\spend - new\df_survey_result.csv')
-
     assert_frame_equal(df_survey_result, df_survey_expected)
