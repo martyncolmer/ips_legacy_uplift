@@ -46,9 +46,9 @@ OUTPUT_TABLE_NAME = 'SAS_SPEND_IMP'
 
 
 @pytest.mark.parametrize('data_path', [
-    r'tests\data\calculations\december_2017\spend - new',
-    r'tests\data\calculations\november_2017\spend - new',
-    r'tests\data\calculations\october_2017\spend - new',
+    r'tests\data\calculations\december_2017\spend',
+    r'tests\data\calculations\november_2017\spend',
+    r'tests\data\calculations\october_2017\spend',
     ])
 def test_calculate(data_path):
     """

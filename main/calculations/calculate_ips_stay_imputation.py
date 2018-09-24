@@ -39,8 +39,10 @@ def do_ips_stay_imputation(df_input, var_serial, num_levels, measure):
                                             IMPUTATION_LEVEL_VARIABLE)
     
     # Round output column to nearest integer
-    df_output_final[OUTPUT_VARIABLE] = df_output_final[OUTPUT_VARIABLE].round()
-    
+    # Amended 24/09/2018. ET
+    df_output_final[OUTPUT_VARIABLE] = str(pd.to_numeric(df_output_final[OUTPUT_VARIABLE], errors='coerce', downcast='float').round())
+    # df_output_final[OUTPUT_VARIABLE] = pd.to_numeric(df_output_final[OUTPUT_VARIABLE], errors='coerce', downcast='integer')
+
     return df_output_final
 
 
