@@ -21,6 +21,9 @@ step_config = STEP_CONFIGURATION["NON_RESPONSE"]
 RUN_ID = 'test_nonresponse_weight_xml'
 TEST_DATA_DIR = r'tests\data\ips_data_management\non_response_weight_step'
 STEP_NAME = 'NON_RESPONSE'
+EXPECTED_LEN = 19980
+NON_RESPONSE_DATA_LENGTH = 694
+NON_RESPONSE_SAS_PROCESS_VARIABLE_TABLE_LENGTH = 2
 
 ist = time.time()
 print("Module level start time: {}".format(ist))
@@ -42,13 +45,13 @@ def setup_module():
     #import_data_into_database()
 
     # populates test data within pv table
-    #populate_test_pv_table()
+    populate_test_pv_table()
 
     print("Setup")
 
 def teardown_module(module):
     # Delete any previous records from the Survey_Subsample tables for the given run ID
-    reset_tables()
+    #reset_tables()
 
     print("Teardown")
 
@@ -90,7 +93,6 @@ def reset_tables():
     #     except Exception:
     #         continue
 
-#TODO: probably not required for this step
 def populate_test_pv_table():
     """ Set up table to run and test copy_step_pvs_for_survey_data()
         Note: Had to break up sql statements due to following error:
@@ -158,13 +160,6 @@ def import_data_into_database():
 
     import_data.import_survey_data(survey_data_path, RUN_ID)
 
-    # following commented not required
-    #df = pd.read_csv(survey_data_path, engine='python')
-    # Add the generated run id to the dataset.
-    #df['RUN_ID'] = pd.Series(RUN_ID, index=df.index)
-    # Insert the imported data into the survey_subsample table on the database.
-    #cf.insert_dataframe_into_table('SURVEY_SUBSAMPLE', df, fast=False)
-
     # Import the external files into the database.
     import_traffic_data.import_traffic_data(RUN_ID, shift_data_path)
     import_traffic_data.import_traffic_data(RUN_ID, nr_data_path)
@@ -179,7 +174,7 @@ def test_non_response_weight_step():
     conn = database_connection()
 
     # Run step 1 / 8
-    #idm.populate_survey_data_for_step(RUN_ID, conn, step_config)
+    idm.populate_survey_data_for_step(RUN_ID, conn, step_config)
 
     # Check all deleted tables are empty
     for table in step_config['delete_tables']:
@@ -194,35 +189,23 @@ def test_non_response_weight_step():
 
     # Check table has been populated
     table_len = len(cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE))
-    assert table_len == 19980  # TODO get the right number here for this step
+    assert table_len == EXPECTED_LEN
 
     # Run step 2 / 8
-    idm.populate_step_data(RUN_ID, conn, step_config) #TODO: don't see any reason to test this simple insertion
+    idm.populate_step_data(RUN_ID, conn, step_config)
+
+    # Check table has been populated
+    table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["data_table"]))
+    assert table_len == NON_RESPONSE_DATA_LENGTH
 
     # Run step 3 / 8
-    idm.copy_step_pvs_for_survey_data('TEMPLATE', conn, step_config)#TODO: change 'TEMPLATE' run id or update process variable py
+    idm.copy_step_pvs_for_survey_data(RUN_ID, conn, step_config)
 
     # Get all values from the sas_process_variables table
     results = cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE)
 
-    ########################
-    #
-    # do some testing for step
-    #
-    ########################
-    # Copy the PV column names
-    pv_names = step_config['pv_columns']
-
-    # Strip quotation marks out of the pv_names to use in column comparisons
-    for i in range(0, len(pv_names)):
-        pv_names[i] = pv_names[i].replace("'", "")
-
     # Check number of PV records moved matches number passed in through step configuration.
     assert len(results) == len(step_config['pv_columns'])
-
-    # Ensure the pv_names in the results data frame match the expected pv names
-    for name in results['PROCVAR_NAME']:
-        assert name.upper() in pv_names
 
     # Get the spv_table values and ensure all records have been deleted
     results = cf.get_table_values(step_config['spv_table'])
@@ -234,38 +217,82 @@ def test_non_response_weight_step():
                               out_table_name='SAS_NON_RESPONSE_SPV',
                               in_id='serial')
 
+    table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["spv_table"]))
+    assert table_len == EXPECTED_LEN
+
     # Run step 5 / 8 : Update Survey Data with Non Response Wt PVs Output
     idm.update_survey_data_with_step_pv_output(conn, step_config)
 
-    # Run step 6 / 8 : Copy Non Response Wt PVs for Non Response Data
-    idm.copy_step_pvs_for_step_data('TEMPLATE', conn, step_config) # TODO: replcae template with actual run_id for run?
+    # Check all columns in SAS_SURVEY_SUBSAMPLE have been altered
+    result = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    for column in STEP_CONFIGURATION[STEP_NAME]['pv_columns']:
+        column_name = column.replace("'", "")
+        assert len(result[column_name]) == EXPECTED_LEN
+        assert result[column_name].sum() != 0
 
-    #TODO: stopped here
+    # Assert SAS_PROCESS_VARIABLES_TABLE has been cleansed
+    table_len = len(cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE))
+    assert table_len == 0
+
+    # Assert spv_table has been cleansed
+    table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["spv_table"]))
+    assert table_len == 0
+
+    # Run step 6 / 8 : Copy Non Response Wt PVs for Non Response Data
+    idm.copy_step_pvs_for_step_data(RUN_ID, conn, step_config)
+
+    # Assert pv_table has been cleansed
+    table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["pv_table"]))
+    assert table_len == 0
+
+    # Assert SAS_PROCESS_VARIABLES_TABLE was populated
+    table_len = len(cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE))
+    assert table_len == NON_RESPONSE_SAS_PROCESS_VARIABLE_TABLE_LENGTH
+
     # Run step 7 / 8 : Apply Non Response Wt PVs On Non Response Data
     process_variables.process(dataset='non_response',
                                   in_table_name='SAS_NON_RESPONSE_DATA',
                                   out_table_name='SAS_NON_RESPONSE_PV',
                                   in_id='REC_ID')
 
+
+    table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["pv_table"]))
+    assert table_len == NON_RESPONSE_DATA_LENGTH #TODO: check that process_variable.py changes are OK compare against previous branch
+    #TODO: start here if rest does not work
+
     # Run step 8 / 8 : Update NonResponse Data With PVs Output
     idm.update_survey_data_with_step_pv_output(conn, step_config)
 
-    # Calculate Non Response Weight
-    SAS_NON_RESPONSE_DATA_TABLE_NAME = 'SAS_NON_RESPONSE_DATA'
-    df_surveydata_import = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-    df_nr_data_import = cf.get_table_values(SAS_NON_RESPONSE_DATA_TABLE_NAME)
+    # Assert data table was populated
+    table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["data_table"]))
+    assert table_len == NON_RESPONSE_DATA_LENGTH
 
-    result_py_data = non_resp.do_ips_nrweight_calculation(df_surveydata_import, df_nr_data_import,
-                                                          'NON_RESPONSE_WT', 'SERIAL')
+    # Assert the following tables were cleansed
+    deleted_tables = [STEP_CONFIGURATION[STEP_NAME]["pv_table"],
+                      STEP_CONFIGURATION[STEP_NAME]["temp_table"],
+                      idm.SAS_PROCESS_VARIABLES_TABLE,
+                      STEP_CONFIGURATION[STEP_NAME]["sas_ps_table"]]
 
-    # Update Survey Data With Non Response Wt Results
-    idm.update_survey_data_with_step_results(conn, step_config)
+    for table in deleted_tables:
+        table_len = len(cf.get_table_values(table))
+        assert table_len == 0
 
-    # Store Survey Data With NonResponse Wt Results
-    idm.store_survey_data_with_step_results(RUN_ID, conn, step_config)
-
-    # Store Non Response Wt Summary
-    idm.store_step_summary(RUN_ID, conn, step_config)
+    # # Calculate Non Response Weight
+    # SAS_NON_RESPONSE_DATA_TABLE_NAME = 'SAS_NON_RESPONSE_DATA'
+    # df_surveydata_import = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    # df_nr_data_import = cf.get_table_values(SAS_NON_RESPONSE_DATA_TABLE_NAME)
+    #
+    # result_py_data = non_resp.do_ips_nrweight_calculation(df_surveydata_import, df_nr_data_import,
+    #                                                       'NON_RESPONSE_WT', 'SERIAL')
+    #
+    # # Update Survey Data With Non Response Wt Results
+    # idm.update_survey_data_with_step_results(conn, step_config)
+    #
+    # # Store Survey Data With NonResponse Wt Results
+    # idm.store_survey_data_with_step_results(RUN_ID, conn, step_config)
+    #
+    # # Store Non Response Wt Summary
+    # idm.store_step_summary(RUN_ID, conn, step_config)
 
 @pytest.mark.skip(reason="not testing this")
 def test_non_response_weight_step_2():
