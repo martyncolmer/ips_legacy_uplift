@@ -1,8 +1,13 @@
 from sas7bdat import SAS7BDAT
 import pandas
 
+<<<<<<< HEAD
 in_path = r'S:\CASPA\IPS\Testing\Dec_Data\Spend\saspvtest.sas7bdat'
 out_path = r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\spend_imputation_integration\sas_survey_data_expected.pkl'
+=======
+in_path = r'S:\CASPA\IPS\Testing\Dec_Data\Imbalance\surveydata.sas7bdat'
+out_path = r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\imbalance_weight_integration\sas_survey_data_expected.csv'
+>>>>>>> development
 
 # Create and store df ready for testing
 df = SAS7BDAT(in_path).to_data_frame()

@@ -1,13 +1,7 @@
-import sys
-import os
-import logging
 import inspect
 import math
 import numpy as np
 import pandas as pd
-from pandas.util.testing import assert_frame_equal
-from collections import OrderedDict
-# import survey_support
 from main.io import CommonFunctions as cf
 
 FLOW_VARIABLE = 'FLOW'
@@ -46,8 +40,8 @@ AIRMILES_COLUMNS = ['START_LAT_DEGREE', 'START_LAT_MIN', 'START_LAT_SEC',
 
 def calculate_airmiles(df_air_ext):
     """
-    Author       : Thomas Mahoney
-    Date         : 18 / 04 / 2018
+    Author       : Thomas Mahoney / Nassir Mohammad
+    Date         : 19 / 09 / 2018
     Purpose      : Calculates the air miles values for the given data set. 
     Parameters   : df_air_ext - A data frame containing the information needed to
                                 produce an air miles output.
@@ -56,6 +50,9 @@ def calculate_airmiles(df_air_ext):
     Requirements : NA
     Dependencies : NA
     """
+
+    # convert all None Type to NaN
+    df_air_ext.fillna(value=np.nan, inplace=True)
 
     # Set up variables to be used in the air miles calculations
     sec_60 = 60
@@ -118,14 +115,6 @@ def calculate_airmiles(df_air_ext):
         if not math.isnan(atan_halfx):
             row['AIRMILES'] = round((atan_halfx * earth_diameter))
         return row
-
-    # Decode any string values within the dataframe.
-    str_df = df_air_ext.select_dtypes([np.object])
-    str_df = str_df.stack().str.decode('utf-8').unstack()
-
-    # Replace the columns with the decoded columns
-    for col in str_df:
-        df_air_ext[col] = str_df[col]
 
     df_air_ext = df_air_ext.apply(get_airmiles, axis=1)
 

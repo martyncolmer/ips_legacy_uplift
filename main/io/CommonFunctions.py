@@ -15,6 +15,7 @@ import pyodbc
 import time
 import winsound
 import zipfile
+import time
 
 from pandas.util.testing import assert_frame_equal
 from sas7bdat import SAS7BDAT
@@ -202,7 +203,6 @@ def get_sql_connection():
         return False
     else:
         return conn
-
 
 
 def get_credentials(credentials_file):
@@ -519,6 +519,7 @@ def delete_from_table(table_name, condition1=None, operator=None
         cur.execute(sql)
     except Exception as err:
         print("bla!")
+        print(err)
         #database_logger().error(err, exc_info = True)
         return False
     else:
@@ -548,7 +549,6 @@ def select_data(column_name, table_name, condition1, condition2):
         """.format(column_name, table_name, condition1, condition2)
 
     try:
-        print(sql)
         result = pandas.read_sql(sql, conn)
         print("Result: {}".format(result))
     except Exception as err:
@@ -592,7 +592,7 @@ def unload_parameters(parameter_id = False):
         parameter_id = cur.fetchone()[0]
         
     print(parameter_id)
-    
+
     # Create SQL query and execute
     sql = "select PARAMETER_NAME, PARAMETER_VALUE from SAS_PARAMETERS where PARAMETER_SET_ID = " + str(parameter_id)
     
@@ -685,12 +685,8 @@ def insert_into_table(table_name, column_list, value_list):
      
     # table_name = 'response' 
     sql = "INSERT INTO " + table_name + " (" + columns_string + ") VALUES (" + value_string + ")"
-    
-    print(sql)
-    
-    print("executing")
+
     cur.execute(sql)
-    print("commiting")
     conn.commit()
 
 
@@ -707,7 +703,6 @@ def insert_into_table_many(table_name,dataframe,connection = False):
     """
 
     if(connection == False):
-        print("Getting Connection")
         connection = get_sql_connection()
     
     cur = connection.cursor()
@@ -734,8 +729,7 @@ def insert_into_table_many(table_name,dataframe,connection = False):
     ") VALUES (" \
     + parameter_string +\
     ")"
-    print(sql)
-    
+
     #Debugging
     #for rec in rows:
     #    print (rec)
@@ -748,8 +742,7 @@ def insert_into_table_many(table_name,dataframe,connection = False):
          ")",
          rows
          )
-    
-    print("Records added to "+table_name+" table - " + str(len(rows)))     
+
     connection.commit()
     
     # Returns number of rows added to table for validation
@@ -771,7 +764,6 @@ def insert_list_into_table(table_name,columns,values,connection = False):
     """
     
     if(connection == False):
-        print("Getting Connection")
         connection = get_sql_connection()
     cur = connection.cursor()
 
@@ -793,8 +785,7 @@ def insert_list_into_table(table_name,columns,values,connection = False):
     ") VALUES (" \
     + parameter_string +\
     ")"
-    print(sql)
-   
+
     cur.execute("INSERT into " + table_name + 
          "(" 
          + columns_string + 
@@ -804,8 +795,7 @@ def insert_list_into_table(table_name,columns,values,connection = False):
          )
     
     connection.commit()
-    print("Record added to "+table_name+" table.")
-    
+
     # Returns True if no errors
     return True
 
@@ -902,8 +892,7 @@ def compare_datasets(test_name, sas_file, py_df):
     """
     sas_df = pandas.read_sas(sas_file)
     
-    print("TESTING " + test_name)
-    
+
     try:
         assert_frame_equal(sas_df, py_df, check_names = False, check_like = True)
     except Exception as err:
@@ -914,8 +903,7 @@ def compare_datasets(test_name, sas_file, py_df):
 
 
 def compare_dfs(test_name, sas_file, df, col_list = False):
-    sas_root = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Oct Data\Town and Stay Imputation"
-    print(sas_root + "\\" + sas_file)
+    sas_root = r"S:\CASPA\IPS\Testing\Dec_Data\Imbalance"
 
     try:
         csv = pandas.read_sas(sas_root + "\\" + sas_file)
@@ -924,21 +912,18 @@ def compare_dfs(test_name, sas_file, df, col_list = False):
 
     csv.columns = csv.columns.str.upper()
     
-    fdir = r"H:\My Documents\Documents\Git Repo\Misc and Admin\Legacy Uplift\Compare"
+    fdir = r"S:\CASPA\IPS\Testing\Integration\Imbalance Intermediate Steps"
     sas = "_sas.csv"
     py = "_py.csv"
     
-    print("TESTING " + test_name)
-    
+
     if not col_list:
         csv.to_csv(fdir+"\\"+test_name+sas)
         df.to_csv(fdir+"\\"+test_name+py)
     else:
         csv[col_list].to_csv(fdir+"\\"+test_name+sas)
         df[col_list].to_csv(fdir+"\\"+test_name+py)
-    
-    print(test_name + " COMPLETE")
-    print("")
+
 
 
 def insert_dataframe_into_table_rbr(table_name, dataframe, connection=False):
@@ -955,13 +940,11 @@ def insert_dataframe_into_table_rbr(table_name, dataframe, connection=False):
 
     # Check if connection to database exists and creates one if necessary.
     if not connection:
-        print("Getting Connection")
         connection = get_sql_connection()
 
     cur = connection.cursor()
 
     dataframe = dataframe.where((pandas.notnull(dataframe)), None)
-    dataframe = dataframe.replace(r'\s+', 'None', regex=True)
 
     # Extract the dataframe values into a collection of rows
     rows = [tuple(x) for x in dataframe.values]
@@ -991,25 +974,21 @@ def insert_dataframe_into_table_rbr(table_name, dataframe, connection=False):
     sql = "INSERT into " + table_name + \
           "(" + columns_string + ") VALUES (" + value_string + ")"
 
-    print(sql)
-    print("Rows to insert - " + str(len(rows)))
 
     # Debugging
     # for rec in rows:
     #    print (rec)
 
     for row in rows:
-        print(row)
         cur.execute(sql, row)
 
-    print("Records added to " + table_name + " table - " + str(len(rows)))
     #connection.commit()
 
     # Returns number of rows added to table for validation
     return len(rows)
 
 
-def insert_dataframe_into_table(table_name, dataframe, connection=False):
+def insert_dataframe_into_table(table_name, dataframe, connection=False, fast=True):
     """
     Author       : Thomas Mahoney
     Date         : 02 Jan 2018
@@ -1023,14 +1002,12 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False):
 
     # Check if connection to database exists and creates one if necessary.
     if not connection:
-        print("Getting Connection")
         connection = get_sql_connection()
 
     cur = connection.cursor()
+    cur.fast_executemany = fast
 
     dataframe = dataframe.where((pandas.notnull(dataframe)), None)
-    # print(dataframe)
-    # print(list(dataframe.columns.values))
 
     # Extract the dataframe values into a collection of rows
     rows = [tuple(x) for x in dataframe.values]
@@ -1059,20 +1036,15 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False):
     # Use the strings created above to build the sql query.
     sql = "INSERT into " + table_name + \
           "(" + columns_string + ") VALUES (" + value_string + ")"
-
     print(sql)
-    print("Rows to insert - " + str(len(rows)))
+
 
     start_time = time.time()
-    print("Start - " + str(start_time))
 
     cur.executemany(sql, rows)
 
     end_time = time.time()
-    print("End - " + str(end_time))
-    print("Elapsed - " + str(end_time - start_time))
 
-    print("Records added to " + table_name + " table - " + str(len(rows)))
     #connection.commit()
 
     # Returns number of rows added to table for validation
@@ -1095,8 +1067,6 @@ def beep():
     winsound.Beep(600, 250)
     time.sleep(0.25)
 
-    print("boop-beep!")
-
 
 def execute_sql_query(connection, sql_statement):
     cur = connection.cursor()
@@ -1118,3 +1088,4 @@ def unpickle_rick(file):
     # Send to CSV
     df.to_csv(r"{}\{}".format(path, out_file))
     beep()
+

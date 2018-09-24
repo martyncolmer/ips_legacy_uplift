@@ -40,11 +40,11 @@ def test_update_survey_data_with_step_results(step_name, temp_table, results_col
     # Cleanse and set up test data/tables
     cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
     sas_survey_subsample_input = pd.read_csv(TEST_DATA_DIR + folder + prefix + 'sas_survey_subsample_test_input.csv', dtype=object)
-    cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection)
+    cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection, fast=False)
 
     cf.delete_from_table(step_config["temp_table"])
     sas_shift_wt_input = pd.read_csv(TEST_DATA_DIR + folder + prefix + 'temp_table_test_input.csv', dtype=object)
-    cf.insert_dataframe_into_table(step_config["temp_table"], sas_shift_wt_input, database_connection)
+    cf.insert_dataframe_into_table(step_config["temp_table"], sas_shift_wt_input, database_connection, fast=False)
 
     # Run function
     idm.update_survey_data_with_step_results(database_connection, step_config)
@@ -99,16 +99,16 @@ def test_store_survey_data_with_step_results(step_name, nullify_pvs, ps_table, p
 
     # Set up records in SURVEY_SUBSAMPLE with above run_id
     survey_subsample_input = pd.read_csv(TEST_DATA_DIR + folder + prefix + 'survey_subsample_test_input.csv', dtype=object)
-    cf.insert_dataframe_into_table(idm.SURVEY_SUBSAMPLE_TABLE, survey_subsample_input, database_connection)
+    cf.insert_dataframe_into_table(idm.SURVEY_SUBSAMPLE_TABLE, survey_subsample_input, database_connection, fast=False)
 
     # Set up records in SAS_SURVEY_SUBSAMPLE with above run_id
     sas_survey_subsample_input = pd.read_csv(TEST_DATA_DIR + folder + prefix + 'sss_test_input.csv', dtype=object)
-    cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection)
+    cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection, fast=False)
 
     # Set up records in ps_table with above run_id
     if step_name in applicable_ps_tables:
         ps_shift_data_input = pd.read_csv(TEST_DATA_DIR + folder + prefix + 'summary_table_test_input.csv', dtype=object)
-        cf.insert_dataframe_into_table(step_config['ps_table'], ps_shift_data_input, database_connection)
+        cf.insert_dataframe_into_table(step_config['ps_table'], ps_shift_data_input, database_connection, fast=False)
 
     # Run function
     idm.store_survey_data_with_step_results(run_id, database_connection, step_config)

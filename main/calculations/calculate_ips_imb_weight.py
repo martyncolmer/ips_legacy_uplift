@@ -5,7 +5,7 @@ Created on 7 Feb 2018
 '''
 import inspect
 import pandas as pd
-# import survey_support
+
 from main.io import CommonFunctions as cf
 
 OUTPUT_TABLE_NAME = "SAS_IMBALANCE_WT"
@@ -47,15 +47,16 @@ def do_ips_imbweight_calculation(df_survey_data, var_serialNum, var_shiftWeight,
                        var_imbalanceWeight] = 1.0
 
     # Create total traffic dataframe
-    df_total_traffic = df_output_data[[ELIGIBLE_FLAG_COLUMN,
-                                       PORTROUTE_COLUMN,
+    df_total_traffic = df_output_data[[PORTROUTE_COLUMN,
                                        FLOW_COLUMN]].copy()
     df_total_traffic.sort_values(by=[PORTROUTE_COLUMN, FLOW_COLUMN])
+
     df_total_traffic["TOT_NI_TRAFFIC"] = (df_output_data[var_shiftWeight]
                                           * df_output_data[var_NRWeight]
                                           * df_output_data[var_minWeight]
                                           * df_output_data[var_trafficWeight]
                                           * df_output_data[var_OOHWeight])
+
     df_total_traffic = df_total_traffic.groupby([PORTROUTE_COLUMN, FLOW_COLUMN]) \
         .agg({"TOT_NI_TRAFFIC": 'sum'})
     df_total_traffic.reset_index(inplace=True)
@@ -103,13 +104,15 @@ def do_ips_imbweight_calculation(df_survey_data, var_serialNum, var_shiftWeight,
                                                    "PRE_IMB_WEIGHTS",
                                                    "POST_IMB_WEIGHTS"]]
 
-    # Calculate the difference between pre & post imbalance weighting for departures  
+    # Calculate the difference between pre & post imbalance weighting for departures
     # & calculate the ratio of the difference for departures at each port.
     df_calc_departures = df_overseas_residents.copy()
     df_calc_departures[FLOW_COLUMN + 'Extra'] = df_calc_departures[FLOW_COLUMN] + 1
     df_calc_departures = df_calc_departures.merge(df_total_traffic,
                                                   left_on=[PORTROUTE_COLUMN, FLOW_COLUMN + 'Extra'],
                                                   right_on=[PORTROUTE_COLUMN, FLOW_COLUMN])
+
+    # Calculate
     df_calc_departures["DIFFERENCE"] = (df_calc_departures["POST_IMB_WEIGHTS"]
                                         - df_calc_departures["PRE_IMB_WEIGHTS"])
     df_calc_departures["RATIO"] = (df_calc_departures["DIFFERENCE"]
@@ -122,6 +125,7 @@ def do_ips_imbweight_calculation(df_survey_data, var_serialNum, var_shiftWeight,
     df_calc_departures.rename(columns={FLOW_COLUMN + "_x": FLOW_COLUMN}, inplace=True)
 
     # Calculate the imbalance weight
+    # First, find ratio
     new_val = df_output_data[[var_serialNum, PORTROUTE_COLUMN, FLOW_COLUMN]].copy()
     new_val[FLOW_COLUMN + 'Extra'] = new_val[FLOW_COLUMN] - 1
     new_val = new_val.merge(df_calc_departures,
@@ -139,7 +143,7 @@ def do_ips_imbweight_calculation(df_survey_data, var_serialNum, var_shiftWeight,
 
     # Append the imbalance weight to the input and cleanse
     df_survey_data_concat = pd.concat([df_survey_data, df_output_data], ignore_index=True)
-    df_survey_data = df_survey_data_concat.reindex(df_survey_data.columns, axis=1)
+    df_survey_data = df_survey_data_concat.reindex_axis(df_survey_data.columns, axis=1)
     df_survey_data.loc[df_survey_data[var_imbalanceWeight].isnull(), var_imbalanceWeight] = 1
 
     # Create the summary output
@@ -162,13 +166,13 @@ def do_ips_imbweight_calculation(df_survey_data, var_serialNum, var_shiftWeight,
     df_summary_data = df_summary_data.reset_index()
 
     # Cleanse dataframes before returning
+    df_survey_data = df_output_data[['SERIAL', 'IMBAL_WT']].copy()
     df_survey_data.sort_values(by=[var_serialNum], inplace=True)
-    df_survey_data.drop([POST_SUM_COLUMN, PRIOR_SUM_COLUMN], axis=1, inplace=True)
 
     return df_survey_data, df_summary_data
 
 
-def calculate(SurveyData, var_serialNum, var_shiftWeight, var_NRWeight, var_minWeight
+def calculate(var_serialNum, var_shiftWeight, var_NRWeight, var_minWeight
               , var_trafficWeight, var_OOHWeight, var_imbalanceWeight):
     """
     Author        : thorne1
@@ -184,7 +188,7 @@ def calculate(SurveyData, var_serialNum, var_shiftWeight, var_NRWeight, var_minW
     logger = cf.database_logger()
 
     # Setup path to the base directory containing data files
-    root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Imbalance Weight"
+    root_data_path = r"S:\CASPA\IPS\Testing\Dec_Data\Imbalance"
     path_to_survey_data = root_data_path + r"\surveydata.sas7bdat"
 
     # Import data via SAS

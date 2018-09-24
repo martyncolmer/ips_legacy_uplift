@@ -265,7 +265,7 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
     # Construct and execute SQL statements as applicable
     if step_configuration["name"] == '[dbo].[UNSAMPLED_WEIGHT]':
         order = step_configuration["order"] + 1
-        for item in step_configuration["pv_columns"]:
+        for item in step_configuration["pv_columns2"]:
             sql = ("""
                  INSERT INTO {}
                  ([PROCVAR_NAME], [PROCVAR_RULE], [PROCVAR_ORDER])
@@ -280,7 +280,7 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
             order = order + 1
     else:
         cols = []
-        for item in step_configuration["pv_columns"]:
+        for item in step_configuration["pv_columns2"]:
             cols.append(item)
         pv_columns = ", ".join(map(str, cols))
 
@@ -462,8 +462,6 @@ def store_survey_data_with_step_results(run_id, conn, step_configuration):
     ON SS.SERIAL = SSS.SERIAL
     AND SS.RUN_ID = '{}'
     """.format(SURVEY_SUBSAMPLE_TABLE, set_statement, SURVEY_SUBSAMPLE_TABLE, SAS_SURVEY_SUBSAMPLE_TABLE, run_id)
-
-    print(sql)
 
     cur = conn.cursor()
     cur.execute(sql)

@@ -1,5 +1,6 @@
 import pandas as pd
 # import survey_support
+import main.io.CommonFunctions as cf
 
 path_to_data = r"tests/data/calculations/october_2017/final_weight"
 
@@ -90,9 +91,9 @@ def calculate(SurveyData, var_serialNum, var_shiftWeight, var_NRWeight,
     # survey_support.setup_logging('IPS_logging_config_debug.json')
 
     # Setup path to the base directory containing data files
-    path_to_survey_data = path_to_data + r"/surveydata.pkl"
+    #path_to_survey_data = path_to_data + r"/surveydata.pkl"
 
-    df_surveydata = pd.read_pickle(path_to_survey_data)
+    #df_surveydata = pd.read_pickle(path_to_survey_data)
 
     # Import data via SAS
     # This method works for all data sets but is slower
@@ -102,7 +103,7 @@ def calculate(SurveyData, var_serialNum, var_shiftWeight, var_NRWeight,
     # df_surveydata = pd.read_sas(path_to_survey_data)
 
     # Import data via SQL
-    # df_surveydata = cf.get_table_values(SurveyData)
+    df_surveydata = cf.get_table_values(SurveyData)
 
     df_surveydata.columns = df_surveydata.columns.str.upper()
 

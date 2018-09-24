@@ -1,6 +1,7 @@
 import pytest
 import json
 import pandas as pd
+import time
 
 from pandas.util.testing import assert_frame_equal
 from main.io import CommonFunctions as cf
@@ -17,6 +18,9 @@ RUN_ID = 'test_minimums_weight_xml'
 TEST_DATA_DIR = r'tests\data\ips_data_management\minimums_weight_step'
 STEP_NAME = 'MINIMUMS_WEIGHT'
 
+ist = time.time()
+print("Module level start time: {}".format(ist))
+
 @pytest.fixture(scope='module')
 def database_connection():
     '''
@@ -30,6 +34,7 @@ def database_connection():
 def setup_module(module):
     """ setup any state specific to the execution of the given module."""
 
+    ist = time.time()
     import_data_into_database()
     # populates test data within pv table
     populate_test_pv_table()
@@ -133,19 +138,19 @@ def import_data_into_database():
     '''
 
     # Import data paths (these will be passed in through the user)
-    survey_data_path = r'tests\data\ips_data_management\integration_import_data\minimums_weight\surveydata.csv'
-    shift_data_path = r'tests\data\ips_data_management\integration_import_data\external\Poss shifts Dec 2017.csv'
-    nr_data_path = r'tests\data\ips_data_management\integration_import_data\external\Dec17_NR.csv'
-    sea_data_path = r'tests\data\ips_data_management\integration_import_data\external\Sea Traffic Dec 2017.csv'
-    tunnel_data_path = r'tests\data\ips_data_management\integration_import_data\external\Tunnel Traffic Dec 2017.csv'
-    air_data_path = r'tests\data\ips_data_management\integration_import_data\external\Air Sheet Dec 2017 VBA.csv'
-    unsampled_data_path = r'tests\data\ips_data_management\integration_import_data\external\Unsampled Traffic Dec 2017.csv'
+    survey_data_path = r'tests\data\ips_data_management\import_data\minimums_weight\surveydata.csv'
+    shift_data_path = r'tests\data\ips_data_management\import_data\external\Poss shifts Dec 2017.csv'
+    nr_data_path = r'tests\data\ips_data_management\import_data\external\Dec17_NR.csv'
+    sea_data_path = r'tests\data\ips_data_management\import_data\external\Sea Traffic Dec 2017.csv'
+    tunnel_data_path = r'tests\data\ips_data_management\import_data\external\Tunnel Traffic Dec 2017.csv'
+    air_data_path = r'tests\data\ips_data_management\import_data\external\Air Sheet Dec 2017 VBA.csv'
+    unsampled_data_path = r'tests\data\ips_data_management\import_data\external\Unsampled Traffic Dec 2017.csv'
 
     # Delete table content
     cf.delete_from_table('SURVEY_SUBSAMPLE', 'RUN_ID', '=', RUN_ID)
     cf.delete_from_table('SAS_SURVEY_SUBSAMPLE')
 
-    df = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
+    df = pd.read_csv(survey_data_path)
 
     # Add the generated run id to the dataset.
     df['RUN_ID'] = pd.Series(RUN_ID, index=df.index)
@@ -162,7 +167,6 @@ def import_data_into_database():
     import_traffic_data.import_traffic_data(RUN_ID, unsampled_data_path)
 
 
-@pytest.mark.skip("Rounding error causes test to fail.")
 def test_minimums_weight_step():
 
     # Get database connection
@@ -248,10 +252,10 @@ def test_minimums_weight_step():
     df_summary_actual.to_csv(TEST_DATA_DIR + '\ps_minimums_actual.csv', index=False)
 
     # Read in both the target datasets and the results we previously wrote out then sort them on specified columns.
-    df_survey_actual = pd.read_csv(TEST_DATA_DIR + '\survey_subsample_actual.csv').sort_values('SERIAL')
-    df_survey_target = pd.read_csv(TEST_DATA_DIR + '\survey_subsample_target.csv', encoding='ANSI').sort_values('SERIAL')
-    df_summary_actual = pd.read_csv(TEST_DATA_DIR + '\ps_minimums_actual.csv').sort_values(['MINS_PORT_GRP_PV', 'MINS_CTRY_GRP_PV'])
-    df_summary_target = pd.read_csv(TEST_DATA_DIR + '\ps_minimums_target.csv', encoding='ANSI').sort_values(['MINS_PORT_GRP_PV', 'MINS_CTRY_GRP_PV'])
+    df_survey_actual = pd.read_csv(TEST_DATA_DIR + '\survey_subsample_actual.csv', engine='python').sort_values('SERIAL')
+    df_survey_target = pd.read_csv(TEST_DATA_DIR + '\survey_subsample_target_new_rounding.csv', engine='python').sort_values('SERIAL')
+    df_summary_actual = pd.read_csv(TEST_DATA_DIR + '\ps_minimums_actual.csv', engine='python').sort_values(['MINS_PORT_GRP_PV', 'MINS_CTRY_GRP_PV'])
+    df_summary_target = pd.read_csv(TEST_DATA_DIR + '\ps_minimums_target_new_rounding.csv', engine='python').sort_values(['MINS_PORT_GRP_PV', 'MINS_CTRY_GRP_PV'])
 
     # Reset the dataframe's index before comparing the outputs.
     df_survey_actual.index = range(0, len(df_survey_actual))
@@ -259,12 +263,10 @@ def test_minimums_weight_step():
     df_summary_actual.index = range(0, len(df_summary_actual))
     df_summary_target.index = range(0, len(df_summary_target))
 
-    # Neither of the tests succeed due to the rounding error. Once target data has been replaced these will pass.
-
     # Ensure summary output is equal to expected summary output
     assert_frame_equal(df_summary_actual, df_summary_target, check_dtype=False,check_like=True, check_less_precise=True)
 
     # Select the newly updated weight column from the dataframe and ensure it matches the expected weights
-    df_survey_actual = df_survey_actual[['SERIAL', 'MINS_WT']]
-    df_survey_target = df_survey_target[['SERIAL', 'MINS_WT']]
-    assert assert_frame_equal(df_survey_actual, df_survey_target, check_dtype=False)
+    assert_frame_equal(df_survey_actual, df_survey_target, check_dtype=False)
+
+    print("Import runtime: {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time() - ist))))
