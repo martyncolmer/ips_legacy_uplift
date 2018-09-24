@@ -307,7 +307,6 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
         cf.delete_from_table(step_configuration["temp_table"])
         cf.delete_from_table(step_configuration["sas_ps_table"])
 
-# Nassir - Done
 def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
     """
     Author       : Elinor Thorne / Nassir Mohammad
