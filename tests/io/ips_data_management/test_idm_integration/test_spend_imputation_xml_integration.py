@@ -264,11 +264,6 @@ def test_spend_weight_step():
     table_len = result.shape[0]
     assert table_len == EXPECTED_LEN
 
-    result = cf.select_data('*', STEP_CONFIGURATION[STEP_NAME]["ps_table"], 'RUN_ID', RUN_ID)
-    # Indicating no dataframe was pulled from SQL
-    if result == False:
-        assert True
-
     # Assert SAS_SURVEY_SUBSAMPLE_TABLE was cleansed
     table_len = len(cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE))
     assert table_len == 0
