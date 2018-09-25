@@ -42,7 +42,7 @@ def setup_module(module):
 
     # TODO: Uncomment before merge
     # Import survey data.
-    # import_survey_data(december_survey_data_path)
+    import_survey_data(december_survey_data_path)
 
     # Populates test data within pv table.
     populate_test_pv_table()
