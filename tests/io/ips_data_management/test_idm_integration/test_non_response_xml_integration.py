@@ -21,12 +21,25 @@ step_config = STEP_CONFIGURATION["NON_RESPONSE"]
 RUN_ID = 'test_nonresponse_weight_xml'
 TEST_DATA_DIR = r'tests\data\ips_data_management\non_response_weight_step'
 STEP_NAME = 'NON_RESPONSE'
+SURVEY_SUBSAMPLE_LENGTH = 21638
 EXPECTED_LEN = 19980
 NON_RESPONSE_DATA_LENGTH = 694
 NON_RESPONSE_SAS_PROCESS_VARIABLE_TABLE_LENGTH = 2
+PV_RUN_ID = 'TEMPLATE' #TODO: check if required
+OUT_TABLE_NAME = "SAS_NON_RESPONSE_WT"  # output data
+SUMMARY_OUT_TABLE_NAME = "SAS_PS_NON_RESPONSE"  # output data
+
+# columns to sort the summary results by in order to check calculated dataframes match expected results
+NR_COLUMNS = ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'MEAN_RESPS_SH_WT',
+              'COUNT_RESPS', 'PRIOR_SUM', 'GROSS_RESP', 'GNR', 'MEAN_NR_WT']
 
 ist = time.time()
 print("Module level start time: {}".format(ist))
+
+def convert_dataframe_to_sql_format(table_name, dataframe):
+    cf.insert_dataframe_into_table(table_name, dataframe)
+    return cf.get_table_values(table_name)
+
 
 @pytest.fixture(scope='module')
 def database_connection():
@@ -42,7 +55,7 @@ def setup_module():
     """ setup any state specific to the execution of the given module."""
 
     ist = time.time()
-    #import_data_into_database()
+    import_data_into_database()
 
     # populates test data within pv table
     populate_test_pv_table()
@@ -51,48 +64,48 @@ def setup_module():
 
 def teardown_module(module):
     # Delete any previous records from the Survey_Subsample tables for the given run ID
-    #reset_tables()
+    reset_tables()
 
     print("Teardown")
 
-#TODO: write correctly the teardown
 def reset_tables():
     pass
-    # """ Cleanses tables within database. """
-    # # List of tables to cleanse entirely
-    # tables_to_unconditionally_cleanse = [idm.SAS_SURVEY_SUBSAMPLE_TABLE,
-    #                                      idm.SAS_PROCESS_VARIABLES_TABLE]
-    #
-    # # Try to delete from each table in list.  If exception occurs, assume table is
-    # # already empty, and continue deleting from tables in list.
-    # for table in tables_to_unconditionally_cleanse:
-    #     try:
-    #         print("cf.delete_from_table({})".format(table))
-    #         cf.delete_from_table(table)
-    #     except Exception:
-    #         continue
-    #
-    # # List of tables to cleanse where [RUN_ID] = RUN_ID
-    # tables_to_cleanse = ['[dbo].[PROCESS_VARIABLE_PY]',
-    #                      '[dbo].[PROCESS_VARIABLE_TESTING]']
-    #
-    # # Try to delete from each table in list where condition.  If exception occurs,
-    # # assume table is already empty, and continue deleting from tables in list
-    # for table in tables_to_cleanse:
-    #     try:
-    #         print("cf.delete_from_table({}, 'RUN_ID', '=', RUN_ID)".format(table))
-    #         cf.delete_from_table(table, 'RUN_ID', '=', RUN_ID)
-    #     except Exception:
-    #         continue
-    #
-    # # Try to delete from each table in list.  If exception occurs, assume table is
-    # # already empty, and continue deleting from tables in list
-    # for table in STEP_CONFIGURATION[STEP_NAME]['delete_tables']:
-    #     try:
-    #         cf.delete_from_table(table)
-    #     except Exception:
-    #         continue
+    """ Cleanses tables within database. """
+    # List of tables to cleanse entirely
+    tables_to_unconditionally_cleanse = [idm.SAS_SURVEY_SUBSAMPLE_TABLE,
+                                         idm.SAS_PROCESS_VARIABLES_TABLE]
 
+    # Try to delete from each table in list.  If exception occurs, assume table is
+    # already empty, and continue deleting from tables in list.
+    for table in tables_to_unconditionally_cleanse:
+        try:
+            print("cf.delete_from_table({})".format(table))
+            cf.delete_from_table(table)
+        except Exception:
+            continue
+
+    # List of tables to cleanse where [RUN_ID] = RUN_ID
+    tables_to_cleanse = ['[dbo].[PROCESS_VARIABLE_PY]',
+                         '[dbo].[PROCESS_VARIABLE_TESTING]']
+
+    # Try to delete from each table in list where condition.  If exception occurs,
+    # assume table is already empty, and continue deleting from tables in list
+    for table in tables_to_cleanse:
+        try:
+            print("cf.delete_from_table({}, 'RUN_ID', '=', RUN_ID)".format(table))
+            cf.delete_from_table(table, 'RUN_ID', '=', RUN_ID)
+        except Exception:
+            continue
+
+    # Try to delete from each table in list.  If exception occurs, assume table is
+    # already empty, and continue deleting from tables in list
+    for table in STEP_CONFIGURATION[STEP_NAME]['delete_tables']:
+        try:
+            cf.delete_from_table(table)
+        except Exception:
+            continue
+
+#TODO: update this with latest code?
 def populate_test_pv_table():
     """ Set up table to run and test copy_step_pvs_for_survey_data()
         Note: Had to break up sql statements due to following error:
@@ -136,7 +149,7 @@ def populate_test_pv_table():
     cur.execute(sql4)
     cur.execute(sql5)
 
-
+# import the data properly for the test
 def import_data_into_database():
     '''
     This function prepares all the data necessary to run all 14 steps.
@@ -145,8 +158,8 @@ def import_data_into_database():
     '''
 
     # Import data paths (these will be passed in through the user)
-    survey_data_path = r'tests\data\ips_data_management\import_data\survey\ips1712bv4_amtspnd.csv'#TODO make sure it is correct
-    # TODO: this should be the output of shiftweight where the shift_wt column is updated. pv's don't matter as they are nullified
+    survey_data_path = r'tests/data/ips_data_management/non_response_integration/december/nr_survey_data2.csv'
+
     shift_data_path = r'tests\data\ips_data_management\import_data\external\december\Poss shifts Dec 2017.csv'
     nr_data_path = r'tests\data\ips_data_management\import_data\external\december\Dec17_NR.csv'
     sea_data_path = r'tests\data\ips_data_management\import_data\external\december\Sea Traffic Dec 2017.csv'
@@ -168,7 +181,12 @@ def import_data_into_database():
     import_traffic_data.import_traffic_data(RUN_ID, air_data_path)
     import_traffic_data.import_traffic_data(RUN_ID, unsampled_data_path)
 
-def test_non_response_weight_step():
+@pytest.mark.parametrize('path_to_data', [
+    r'tests\data\calculations\december_2017\non_response_weight',
+    #r'tests\data\calculations\november_2017\non_response_weight',
+    #r'tests\data\calculations\october_2017\non_response_weight', # ignored as summary data test unavailable
+    ])
+def test_non_response_weight_step(path_to_data):
 
     # Get database connection
     conn = database_connection()
@@ -257,11 +275,10 @@ def test_non_response_weight_step():
 
 
     table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["pv_table"]))
-    assert table_len == NON_RESPONSE_DATA_LENGTH #TODO: check that process_variable.py changes are OK compare against previous branch
-    #TODO: start here if rest does not work
+    assert table_len == NON_RESPONSE_DATA_LENGTH
 
     # Run step 8 / 8 : Update NonResponse Data With PVs Output
-    idm.update_survey_data_with_step_pv_output(conn, step_config)
+    idm.update_step_data_with_step_pv_output(conn, STEP_CONFIGURATION[STEP_NAME])
 
     # Assert data table was populated
     table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["data_table"]))
@@ -277,22 +294,88 @@ def test_non_response_weight_step():
         table_len = len(cf.get_table_values(table))
         assert table_len == 0
 
-    # # Calculate Non Response Weight
-    # SAS_NON_RESPONSE_DATA_TABLE_NAME = 'SAS_NON_RESPONSE_DATA'
-    # df_surveydata_import = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-    # df_nr_data_import = cf.get_table_values(SAS_NON_RESPONSE_DATA_TABLE_NAME)
-    #
-    # result_py_data = non_resp.do_ips_nrweight_calculation(df_surveydata_import, df_nr_data_import,
-    #                                                       'NON_RESPONSE_WT', 'SERIAL')
-    #
-    # # Update Survey Data With Non Response Wt Results
-    # idm.update_survey_data_with_step_results(conn, step_config)
-    #
-    # # Store Survey Data With NonResponse Wt Results
-    # idm.store_survey_data_with_step_results(RUN_ID, conn, step_config)
-    #
-    # # Store Non Response Wt Summary
-    # idm.store_step_summary(RUN_ID, conn, step_config)
+    # Calculate Non Response Weight
+    SAS_NON_RESPONSE_DATA_TABLE_NAME = 'SAS_NON_RESPONSE_DATA'
+    df_surveydata_import = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    df_nr_data_import = cf.get_table_values(SAS_NON_RESPONSE_DATA_TABLE_NAME)
+
+    # need to test that the survey data and non_response_data going into calculation
+    # matches the expected one from the unit test
+    #TODO: make sure input matches problem is probably due to pv's not being applied properly
+
+    result_py_data = non_resp.do_ips_nrweight_calculation(df_surveydata_import, df_nr_data_import,
+                                                          'NON_RESPONSE_WT', 'SERIAL')
+
+    # Retrieve and sort python calculated dataframes
+    py_survey_data = result_py_data[0]
+    py_survey_data = py_survey_data.sort_values(by='SERIAL')
+    py_survey_data.index = range(0, len(py_survey_data))
+
+    py_summary_data = result_py_data[1]
+    py_summary_data.sort_values(by=NR_COLUMNS)
+    py_summary_data.index = range(0, len(py_summary_data))
+
+    #TODO: run this here or after the rest of the XML steps as we need to clear the require tables
+    # insert the csv output data into SQL and read back, this is for testing against data pulled from SQL Server
+    test_result_survey = pd.read_csv(path_to_data + '/outputdata_final.csv', engine='python')
+    cf.delete_from_table(OUT_TABLE_NAME)
+    test_result_survey_sql = convert_dataframe_to_sql_format(OUT_TABLE_NAME, test_result_survey)
+    test_result_survey_sql = test_result_survey_sql.sort_values(by='SERIAL')
+    test_result_survey_sql.index = range(0, len(test_result_survey_sql))
+
+    test_result_summary = pd.read_csv(path_to_data + '/summarydata_final.csv', engine='python')
+    cf.delete_from_table(SUMMARY_OUT_TABLE_NAME)
+    test_result_summary_sql = convert_dataframe_to_sql_format(SUMMARY_OUT_TABLE_NAME, test_result_summary)
+    test_result_summary_sql = test_result_summary_sql.sort_values(by=NR_COLUMNS)
+    test_result_summary_sql.index = range(0, len(test_result_summary_sql))
+
+    # Assert dfs are equal
+    assert_frame_equal(py_survey_data, test_result_survey_sql, check_dtype=False, check_like=True,
+                       check_less_precise=True)
+    assert_frame_equal(py_summary_data, test_result_summary_sql, check_dtype=False, check_like=True,
+                       check_less_precise=True)
+
+
+
+    # Update Survey Data With Non Response Wt Results
+    idm.update_survey_data_with_step_results(conn, step_config)
+
+    table_len = len(cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE))
+    assert table_len == EXPECTED_LEN
+
+    table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["temp_table"]))
+    assert table_len == 0
+
+    # Store Survey Data With NonResponse Wt Results
+    idm.store_survey_data_with_step_results(RUN_ID, conn, step_config)
+
+    # Assert SURVEY_SUBSAMPLE_TABLE was populated
+    result = cf.select_data('*', idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', RUN_ID)
+    table_len = result.shape[0]
+    assert table_len == SURVEY_SUBSAMPLE_LENGTH
+
+    # Assert all records for corresponding run_id were deleted from ps_table.
+    result = cf.select_data('*', STEP_CONFIGURATION[STEP_NAME]["ps_table"], 'RUN_ID', RUN_ID)
+
+    # Indicating no dataframe was pulled from SQL.
+    if result == False:
+        assert True
+
+    # Assert SAS_SURVEY_SUBSAMPLE_TABLE was cleansed
+    table_len = len(cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE))
+    assert table_len == 0
+
+    # Store Non Response Wt Summary
+    idm.store_step_summary(RUN_ID, conn, step_config)
+
+    # Assert summary was populated.
+    result = cf.select_data('*', STEP_CONFIGURATION[STEP_NAME]["ps_table"], 'RUN_ID', RUN_ID)
+    table_len = result.shape[0]
+    assert table_len == 424#todo CHECK THIS IS RIGHT NUMBER
+
+    # Assert temp table was cleansed
+    table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["sas_ps_table"]))
+    assert table_len == 0
 
 @pytest.mark.skip(reason="not testing this")
 def test_non_response_weight_step_2():
