@@ -69,17 +69,18 @@ def __calculate_spends_part1(row):
     if row[NIGHTS_IN_LONDON] == 0:
         for count in range(1, 9):
             if math.isnan(row[TOWNCODE + str(count)]):
+            # if pd.isnull(row[TOWNCODE + str(count)]):
                 if (((row[NIGHTS_NOT_LONDON] != 0) & (not math.isnan(row[NIGHTS_NOT_LONDON])))
                         & (not math.isnan(row[NIGHTS + str(count)]))):
                     row[SPEND_COLUMN + str(count)] = ((row[SPEND_COLUMN]
                                                        * row[NIGHTS + str(count)])
                                                       / row[NIGHTS_NOT_LONDON])
-                else:
-                    row[SPEND_COLUMN + str(count)] = 0
+            else:
+                row[SPEND_COLUMN + str(count)] = 0
+
     elif (row[NIGHTS_NOT_LONDON] == 0) | (math.isnan(row[NIGHTS_NOT_LONDON])):
         for count in range(1, 9):
             if not math.isnan(row[TOWNCODE + str(count)]):
-
                 if (((row[NIGHTS_IN_LONDON] != 0)
                      & (not math.isnan(row[NIGHTS_IN_LONDON])))
                         & (not math.isnan(row[NIGHTS + str(count)]))):
@@ -88,6 +89,7 @@ def __calculate_spends_part1(row):
                                                       / row[NIGHTS_IN_LONDON])
                 else:
                     row[SPEND_COLUMN + str(count)] = 0
+
     else:
         if (((row[KNOWN_LONDON_VISIT] != 0) & (not math.isnan(row[KNOWN_LONDON_VISIT])))
                 &
@@ -146,7 +148,7 @@ def __calculate_spends_part2(row):
     return row
 
 
-def do_ips_spend_imputation(df_survey_data, var_serial, var_final_wt):
+def do_ips_town_exp_imp(df_survey_data, var_serial, var_final_wt):
     """
     Author        : thorne1
     Date          : 13 Mar 2018
@@ -157,7 +159,7 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_final_wt):
     Returns       : Dataframe
     """
 
-    # Do some initial setup and selection
+    # Do some initial setup, selection and validation
     df_output_data = df_survey_data.copy()
     df_output_data.drop(df_output_data[df_output_data[ELIGIBLE_FLAG_COLUMN] != 1.0].index, inplace=True)
     df_output_data[KNOWN_LONDON_NOT_VISIT] = 0
@@ -165,6 +167,10 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_final_wt):
     df_output_data["ADE1"] = 0
     df_output_data["ADE2"] = 0
     df_output_data[RATION_COLUMN] = 0
+
+    for count in range(1, 9):
+        df_output_data[TOWNCODE + str(count)].fillna(np.nan, inplace=True)
+        df_output_data[NIGHTS + str(count)].fillna(np.nan, inplace=True)
 
     # Create df where condition to calculate the vale ade1
     towncode_condition = ((df_output_data["TOWNCODE1"].between(70000, 79999)) |
@@ -253,9 +259,14 @@ def do_ips_spend_imputation(df_survey_data, var_serial, var_final_wt):
     df_stay_towns7 = df_stay_towns7.apply(__calculate_spends_part2, axis=1)
 
     # Create output file ready for appending to Oracle file
-
     df_output = df_stay_towns7[[var_serial] + [SPEND_COLUMN + str(i) for i in range(1, 9)]]
-    df_output.fillna(0.0)
+
+    # TODO: Test this jiggery-pokery against more data!
+    # Commented out as did not match December test data even though I'm not entirely sure it's doing anything as inplace=False!
+    # df_output.fillna(0.0)
+    df_output.fillna('x', inplace=True)
+    df_output.replace(to_replace=0.0, value=np.nan, inplace=True)
+    df_output.replace(to_replace='x', value=0.0, inplace=True)
 
     def round_number(row):
         """
@@ -301,7 +312,7 @@ def calculate(df_survey_data, var_serial, var_final_wt):
     df_survey_data.columns = df_survey_data.columns.str.upper()
 
     # Calculate the values of the imported data set
-    output_dataframe = do_ips_spend_imputation(df_survey_data, var_serial, var_final_wt)
+    output_dataframe = do_ips_town_exp_imp(df_survey_data, var_serial, var_final_wt)
 
     # Append the generated data to output tables
     cf.insert_dataframe_into_table(OUTPUT_TABLE_NAME, output_dataframe)

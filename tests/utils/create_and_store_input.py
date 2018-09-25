@@ -1,8 +1,8 @@
 from sas7bdat import SAS7BDAT
 import pandas
 
-in_path = r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\final_weight_integration\surveydata.sas7bdat'
-out_path = r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\final_weight_integration\surveydata.csv'
+in_path = r'S:\CASPA\IPS\Testing\Dec_Data\Imbalance\surveydata.sas7bdat'
+out_path = r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\ips_data_management\imbalance_weight_integration\sas_survey_data_expected.csv'
 
 # Create and store df ready for testing
 df = SAS7BDAT(in_path).to_data_frame()

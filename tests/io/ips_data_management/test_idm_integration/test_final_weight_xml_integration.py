@@ -8,6 +8,8 @@ from main.io import CommonFunctions as cf
 from main.io import ips_data_management as idm
 from main.calculations import calculate_ips_final_weight
 
+import sys
+
 with open(r'data/xml_steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)
 
@@ -31,6 +33,7 @@ def database_connection():
 def setup_module(module):
     """ Setup any state specific to the execution of the given module. """
 
+    #sys.setrecursionlimit(5000)
     # Assign variables
     december_survey_data_path = (TEST_DATA_DIR + r'\surveydata.csv')
 
@@ -67,7 +70,7 @@ def import_survey_data(survey_data_path):
     starttime = time.time()
 
     # Check the survey_data_path's suffix to see what it matches then extract using the appropriate method.
-    df_survey_data = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
+    df_survey_data = pd.read_csv(survey_data_path)
 
     # Add the generated run id to the dataset.
     df_survey_data['RUN_ID'] = pd.Series(RUN_ID, index=df_survey_data.index)
@@ -238,4 +241,3 @@ def test_final_weight_step():
 
     table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]['ps_table']))
     assert table_len == calculate_ips_final_weight.NUMBER_RECORDS_DISPLAYED
-
