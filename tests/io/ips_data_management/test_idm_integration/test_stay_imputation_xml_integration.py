@@ -6,15 +6,17 @@ import time
 from pandas.util.testing import assert_frame_equal
 from main.io import CommonFunctions as cf
 from main.io import ips_data_management as idm
-from main.calculations import calculate_ips_final_weight
+from main.calculations import calculate_ips_stay_imputation
+from main.utils import process_variables
 
 with open(r'data/xml_steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)
 
-RUN_ID = 'test-idm-integration-final-wt'
-TEST_DATA_DIR = r'tests\data\ips_data_management\final_weight_integration'
-STEP_NAME = 'FINAL_WEIGHT'
+RUN_ID = 'test-idm-integration-stay-imp'
+TEST_DATA_DIR = r'tests\data\ips_data_management\stay_imputation_integration'
+STEP_NAME = 'STAY_IMPUTATION'
 EXPECTED_LEN = 19980
+NUMBER_OF_PVS = 5
 
 START_TIME = time.time()
 print("Module level start time: {}".format(START_TIME))
@@ -67,7 +69,7 @@ def import_survey_data(survey_data_path):
     starttime = time.time()
 
     # Check the survey_data_path's suffix to see what it matches then extract using the appropriate method.
-    df_survey_data = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
+    df_survey_data = pd.read_csv(survey_data_path, engine='python')
 
     # Add the generated run id to the dataset.
     df_survey_data['RUN_ID'] = pd.Series(RUN_ID, index=df_survey_data.index)
@@ -114,128 +116,120 @@ def reset_tables():
             continue
 
 
-def test_final_weight_step():
+def test_stay_imputation_step():
     """ Test function """
 
-    # Assign variables
+    # Assign variables.
     conn = database_connection()
-    cur = conn.cursor()
 
-    # Run, and test, first step of run.shift_weight_step
+    # Run, and test, first step.
     idm.populate_survey_data_for_step(RUN_ID, conn, STEP_CONFIGURATION[STEP_NAME])
 
-    # Check all deleted tables are empty
+    # Check all deleted tables are empty.
     for table in STEP_CONFIGURATION[STEP_NAME]['delete_tables']:
         delete_result = cf.get_table_values(table)
         assert delete_result.empty
 
-    # Check all nullified columns are NULL
+    # Check all nullified columns are NULL.
+    survey_subsample = cf.select_data('*', idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', RUN_ID)
     for column in STEP_CONFIGURATION[STEP_NAME]['nullify_pvs']:
         column_name = column.replace('[', '').replace(']', '')
-        result = cf.select_data(column_name, idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', RUN_ID)
-        assert result[column_name].isnull().sum() == len(result)
+        assert survey_subsample[column_name].isnull().sum() == len(survey_subsample)
 
-    # Check table has been populated
-    sas_survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-    table_len = len(sas_survey_data.index)
+    # Check table has been populated.
+    table_len = len(cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE))
     assert table_len == EXPECTED_LEN
 
-    # Save the Survey Data before importing to calculation function
-    sas_survey_data.to_csv(TEST_DATA_DIR + '\sas_survey_data_actual.csv', index=False)
+    # Run the next step and test.
+    idm.copy_step_pvs_for_survey_data(RUN_ID, conn, STEP_CONFIGURATION[STEP_NAME])
 
-    actual_results = pd.read_csv(TEST_DATA_DIR + '\sas_survey_data_actual.csv')
-    expected_results = pd.read_csv(TEST_DATA_DIR + '\sas_survey_data_expected.csv')
+    # Assert idm.SAS_PROCESS_VARIABLES_TABLE has been populated.
+    table_len = len(cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE))
+    assert table_len == NUMBER_OF_PVS
 
-    # Formatting because pd testing is annoying
-    actual_results.sort_values(by=["SERIAL"], inplace=True)
-    actual_results.index = range(0, len(actual_results))
-    actual_results['SHIFT_PORT_GRP_PV'] = actual_results['SHIFT_PORT_GRP_PV'].astype(str)
+    # Assert STEP_CONFIGURATION[STEP_NAME]["spv_table"] has been cleansed.
+    table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["spv_table"]))
+    assert table_len == 0
 
-    # Formatting because pd testing is annoying
-    expected_results.sort_values(by=["SERIAL"], inplace=True)
-    expected_results.index = range(0, len(expected_results))
-    expected_results['SHIFT_PORT_GRP_PV'] = actual_results['SHIFT_PORT_GRP_PV'].astype(str)
+    # Run the next step and test.
+    process_variables.process(dataset='survey',
+                              in_table_name='SAS_SURVEY_SUBSAMPLE',
+                              out_table_name='SAS_STAY_SPV',
+                              in_id='serial')
 
-    assert_frame_equal(actual_results, expected_results, check_dtype=False)
+    table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["spv_table"]))
+    assert table_len == EXPECTED_LEN
 
-    # Run the next step and test
-    surveydata_out, summary_out = calculate_ips_final_weight.do_ips_final_wt_calculation(sas_survey_data,
-                                                                                         var_serialNum='SERIAL',
-                                                                                         var_shiftWeight='SHIFT_WT',
-                                                                                         var_NRWeight='NON_RESPONSE_WT',
-                                                                                         var_minWeight='MINS_WT',
-                                                                                         var_trafficWeight='TRAFFIC_WT',
-                                                                                         var_unsampWeight='UNSAMP_TRAFFIC_WT',
-                                                                                         var_imbWeight='IMBAL_WT',
-                                                                                         var_finalWeight='FINAL_WT')
+    # Run the next step.
+    idm.update_survey_data_with_step_pv_output(conn, STEP_CONFIGURATION[STEP_NAME])
 
-    # Test survey data from calculation function before inserting to db
-    surveydata_out.to_csv(TEST_DATA_DIR + '\surveydata_out_actual.csv', index=False)
-    actual_results = pd.read_csv(TEST_DATA_DIR + '\surveydata_out_actual.csv')
+    # Check all columns in SAS_SURVEY_SUBSAMPLE have been altered.
+    sas_survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    expected_results = pd.read_csv(TEST_DATA_DIR + '\surveydata_out_expected.csv')
+    for column in STEP_CONFIGURATION[STEP_NAME]['pv_columns']:
+        column_name = column.replace("'", "")
+        assert len(sas_survey_data[column_name]) == EXPECTED_LEN
+        assert sas_survey_data[column_name].sum() != 0
 
-    actual_results.sort_values(by=["SERIAL"], inplace=True)
-    actual_results.index = range(0, len(actual_results))
+    # Assert SAS_PROCESS_VARIABLES_TABLE has been cleansed.
+    table_len = len(cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE))
+    assert table_len == 0
 
-    expected_results.sort_values(by=["SERIAL"], inplace=True)
-    expected_results.index = range(0, len(expected_results))
+    # Assert spv_table has been cleansed.
+    table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["spv_table"]))
+    assert table_len == 0
 
-    assert_frame_equal(actual_results, expected_results, check_dtype=False)
+    # Run the next step and test.
+    surveydata_out = calculate_ips_stay_imputation.do_ips_stay_imputation(sas_survey_data
+                                         , var_serial='SERIAL'
+                                         , num_levels=1
+                                         , measure='mean')
 
-    # Test length of summary data from calculation as only a random sample is produced each time
-    summary_out.to_csv(TEST_DATA_DIR + '\summary_out_actual.csv', index=False)
-    actual_results = pd.read_csv(TEST_DATA_DIR + '\summary_out_actual.csv')
-
-    assert(len(actual_results) == calculate_ips_final_weight.NUMBER_RECORDS_DISPLAYED)
-
-    # Replicate intermediate steps within final_weight_step() and test length
+    # Insert the data generated by the calculate function into the database
     cf.insert_dataframe_into_table(STEP_CONFIGURATION[STEP_NAME]["temp_table"], surveydata_out)
-    cf.insert_dataframe_into_table(STEP_CONFIGURATION[STEP_NAME]["sas_ps_table"], summary_out)
 
     table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["temp_table"]))
-    assert table_len == EXPECTED_LEN
+    assert table_len == 2797
 
-    table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["sas_ps_table"]))
-    assert table_len == calculate_ips_final_weight.NUMBER_RECORDS_DISPLAYED
+    # Extract our test results from the survey table then write the results to csv.
+    df_survey_actual = cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["temp_table"])
 
-    # Run the next step and test
+    # Read in both the target datasets and the results we previously wrote out then sort them on specified columns.
+    df_survey_actual.to_csv(TEST_DATA_DIR + '\sas_survey_subsample_actual.csv', index=False)
+
+    df_survey_actual = pd.read_csv(TEST_DATA_DIR + '\sas_survey_subsample_actual.csv').sort_values('SERIAL')
+    df_survey_target = pd.read_csv(TEST_DATA_DIR + '\sas_survey_subsample_target.csv', encoding='ANSI').sort_values(
+        'SERIAL')
+
+    # Reset the dataframe's index before comparing the outputs.
+    df_survey_actual.index = range(0, len(df_survey_actual))
+    df_survey_target.index = range(0, len(df_survey_target))
+
+    # Select the newly updated weight column from the dataframe and ensure it matches the expected weights.
+    df_survey_actual = df_survey_actual
+    df_survey_target = df_survey_target
+
+    assert_frame_equal(df_survey_actual, df_survey_target, check_dtype=False)
+
+    # Run the next step and test.
     idm.update_survey_data_with_step_results(conn, STEP_CONFIGURATION[STEP_NAME])
 
+    # Assert SAS_SURVEY_SUBSAMPLE was populated.
     table_len = len(cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE))
     assert table_len == EXPECTED_LEN
 
+    # Assert table was cleansed accordingly.
     table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["temp_table"]))
     assert table_len == 0
 
-    # Run the next step and test
+    # Run the next step and test.
     idm.store_survey_data_with_step_results(RUN_ID, conn, STEP_CONFIGURATION[STEP_NAME])
 
-    # Assert SURVEY_SUBSAMPLE_TABLE was populated
-    sql = """
-        SELECT * FROM {}
-        WHERE RUN_ID = '{}'
-        """.format(idm.SURVEY_SUBSAMPLE_TABLE, RUN_ID)
-    result = cur.execute(sql).fetchall()
-    table_len = len(result)
+    # Assert SURVEY_SUBSAMPLE_TABLE was populated.
+    result = cf.select_data('*', idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', RUN_ID)
+    table_len = result.shape[0]
     assert table_len == EXPECTED_LEN
 
-    # Assert all records for corresponding run_id were deleted from ps_table
-    sql = """
-    SELECT * FROM {}
-    WHERE RUN_ID = '{}'
-    """.format(STEP_CONFIGURATION[STEP_NAME]["ps_table"], RUN_ID)
-    result = cur.execute(sql).fetchall()
-    table_len = len(result)
-    assert table_len == 0
-
-    # Assert SAS_SURVEY_SUBSAMPLE_TABLE was cleansed
+    # Assert SAS_SURVEY_SUBSAMPLE_TABLE was cleansed.
     table_len = len(cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE))
     assert table_len == 0
-
-    # Run the final step and test
-    idm.store_step_summary(RUN_ID, conn, STEP_CONFIGURATION[STEP_NAME])
-
-    table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]['ps_table']))
-    assert table_len == calculate_ips_final_weight.NUMBER_RECORDS_DISPLAYED
-
