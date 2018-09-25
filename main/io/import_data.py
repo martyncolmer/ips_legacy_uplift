@@ -67,6 +67,11 @@ def import_survey_data(survey_data_path, run_id):
     if survey_data_path[-3:] == "csv":
         df = pd.read_csv(survey_data_path, engine='python')
 
+    # Fill left side of INTDATE column with an additional 0 if length less than 8 characters
+    df.columns = df.columns.str.upper()
+    if 'INTDATE' in df.columns:
+        df['INTDATE'] = df['INTDATE'].astype(str).str.rjust(8, '0')
+
     # Call the extract data function to select only the needed columns.
     df_survey_data = extract_data(df)
 
@@ -75,10 +80,3 @@ def import_survey_data(survey_data_path, run_id):
 
     # Insert the imported data into the survey_subsample table on the database.
     insert_dataframe_into_table('SURVEY_SUBSAMPLE', df_survey_data)
-
-
-if __name__ == '__main__':
-    survey_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Dec_Data\ips1712bv4_amtspnd.csv"
-    run_id = 'test-idm-integration-nassir-test'
-
-    import_survey_data(survey_data_path, run_id)

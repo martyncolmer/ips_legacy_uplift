@@ -49,3 +49,8 @@ Python/
 
 # Python egg metadata, regenerated from source files by setuptools.
 /*.egg-info
+
+
+# PyCharm #
+######################
+.idea/workspace.xml

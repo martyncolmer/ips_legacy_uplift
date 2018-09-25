@@ -64,6 +64,7 @@ def nullify_survey_subsample_values(run_id, conn, pv_values):
         WHERE RUN_ID = '{}'
     """.format(SURVEY_SUBSAMPLE_TABLE, columns_to_null, run_id)
 
+
     # Execute and commits the SQL command
     cur = conn.cursor()
     cur.execute(sql)
@@ -237,7 +238,6 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
 
     # Cleanse temp tables
     cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
-
     cf.delete_from_table(spv_table)
 
     # code specific to minimums weight function/step
@@ -246,7 +246,7 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
         cf.delete_from_table(step_configuration["temp_table"])
         cf.delete_from_table(step_configuration["sas_ps_table"])
 
-# Nassir - Done
+
 def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
     """
     Author       : Elinor Thorne / Nassir Mohammad
@@ -265,7 +265,7 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
     # Construct and execute SQL statements as applicable
     if step_configuration["name"] == '[dbo].[UNSAMPLED_WEIGHT]':
         order = step_configuration["order"] + 1
-        for item in step_configuration["pv_columns"]:
+        for item in step_configuration["pv_columns2"]:
             sql = ("""
                  INSERT INTO {}
                  ([PROCVAR_NAME], [PROCVAR_RULE], [PROCVAR_ORDER])
@@ -280,7 +280,7 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
             order = order + 1
     else:
         cols = []
-        for item in step_configuration["pv_columns"]:
+        for item in step_configuration["pv_columns2"]:
             cols.append(item)
         pv_columns = ", ".join(map(str, cols))
 
@@ -295,6 +295,7 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
         cur = conn.cursor()
         cur.execute(sql)
         conn.commit()
+
 
 def update_step_data_with_step_pv_output(conn, step_configuration):
     """
@@ -331,6 +332,7 @@ def update_step_data_with_step_pv_output(conn, step_configuration):
     cf.delete_from_table(step_configuration["temp_table"])
     cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
     cf.delete_from_table(step_configuration["sas_ps_table"])
+
 
 def sql_update_statement(table_to_update_from, columns_to_update):
     """

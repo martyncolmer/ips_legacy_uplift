@@ -169,6 +169,9 @@ def compute_additional_spend(row):
     # than the cost of the fares. If all relevant fields are 0, participant
     # is assumed to have spent no money.
     if row[PACKAGE_VARIABLE] == 1:
+        if not row['DISCNT_PACKAGE_COST_PV']:
+            row['DISCNT_PACKAGE_COST_PV'] = np.NaN
+
         if row[PACKAGE_COST_VARIABLE] == 0 and row[EXPENDITURE_VARIABLE] == 0 and row[BEFAF_VARIABLE] == 0:
             row[SPEND_VARIABLE] = 0
 
