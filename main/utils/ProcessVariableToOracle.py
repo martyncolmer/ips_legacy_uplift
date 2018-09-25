@@ -3,63 +3,39 @@ import pandas as pd
 import sys
 import random
 
-pv_name = 'weekday_end_pv'
+pv_name = "SPEND_IMP_ELIGIBLE_PV"
 
 val = """
 '
-weekday = float(''nan'')                    
-if dataset == ''survey'': 
-    
-    from datetime import datetime
-
-    day = int(row[''INTDATE''][:2])
-    month = int(row[''INTDATE''][2:4])
-    year = int(row[''INTDATE''][4:8])
-    
-    d = datetime(year,month,day)
-    
-    dayweek = (d.isoweekday() + 1) % 7
-
-    if (row[''PORTROUTE''] == 811):
-        if (dayweek >= 2 and dayweek <= 5):
-            weekday = 1    
-        else:
-            weekday = 2  
-    else:  
-        if (dayweek >= 2 and dayweek <= 6):
-            weekday = 1   
-        else:
-            weekday = 2
-            
-if (row[''PORTROUTE''] == 811):
-    row[''WEEKDAY_END_PV''] = weekday
-elif (row[''PORTROUTE''] >= 600):
-    row[''WEEKDAY_END_PV''] = 1
-else:
-    row[''WEEKDAY_END_PV''] = weekday
+if row[''STAY''] >= 0 and row[''STAY''] <= 30:     
+    row[''DUR2_PV''] = 1 
+elif row[''STAY''] >= 31:     
+    row[''DUR2_PV''] = 2
 '
 """
 
 
 def write_pv_to_table(pv_name,value,conn = None):
-        
+
     if(conn == None):
         conn = cf.get_sql_connection()
-    
-    
+
+
     sql = "update PROCESS_VARIABLE_PY set PV_DEF = " + val + " where (PV_NAME = '" + pv_name + "')"
+    print(sql)
     cur = conn.cursor()
     cur.execute(sql)
     conn.commit()
 
 
 def read_pv_table(pv_name = None,conn = None):
-    
+
     if(conn == None):
         conn = cf.get_sql_connection()
-    
+
     if(pv_name == None):
-        sql = "select PV_NAME, PROCESS_VARIABLE_ID, PV_DEF from PROCESS_VARIABLE_PY ORDER BY PROCESS_VARIABLE_ID"   
+        sql = "select PV_NAME, PROCESS_VARIABLE_ID, PV_DEF from PROCESS_VARIABLE_PY ORDER BY PROCESS_VARIABLE_ID"
+        print(sql)
         cur = conn.cursor()
         cur.execute(sql)
         process_variables = cur.fetchall()
@@ -70,9 +46,9 @@ def read_pv_table(pv_name = None,conn = None):
             print(rec[2])
             print("")
             print("")
-        
-    else:        
-        sql = "select PV_NAME, PV_DEF from PROCESS_VARIABLE_PY where (PV_NAME = '" + pv_name + "')"   
+
+    else:
+        sql = "select PV_NAME, PV_DEF from PROCESS_VARIABLE_PY where (PV_NAME = '" + pv_name + "')"
         cur = conn.cursor()
         cur.execute(sql)
         process_variables = cur.fetchall()
@@ -83,10 +59,10 @@ def read_pv_table(pv_name = None,conn = None):
         print('--Statement--')
         print(process_variables[0][1])
         print("")
-        
+
     print(len(process_variables))
 
 """"""
 
-#write_pv_to_table(pv_name, val)
-read_pv_table()
+# write_pv_to_table(pv_name, val)
+read_pv_table(pv_name)
