@@ -2,13 +2,10 @@ import pytest
 import json
 import pandas as pd
 import time
-
 from pandas.util.testing import assert_frame_equal
 from main.io import CommonFunctions as cf
-from main.io import import_traffic_data
 from main.io import ips_data_management as idm
 from main.calculations import calculate_ips_airmiles
-from main.calculations import calculate_ips_minimums_weight
 
 
 with open('data/xml_steps_configuration.json') as config_file:
