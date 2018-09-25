@@ -79,6 +79,11 @@ def test_calculate(data_path):
         cf.insert_dataframe_into_table(table_name, dataframe)
         return cf.get_table_values(table_name)
 
+    def sort_and_set_index(df, sort_columns):
+        df = df.sort_values(sort_columns)
+        df.index = range(0, len(df))
+        return df
+
     # Write the test result data to SQL then pull it back for comparison
     df_survey_result = convert_dataframe_to_sql_format(OUTPUT_TABLE_NAME, output_data)
 
@@ -91,10 +96,8 @@ def test_calculate(data_path):
     df_survey_expected = convert_dataframe_to_sql_format(OUTPUT_TABLE_NAME, df_survey_expected)
 
     # Sort the dataframes for comparison
-    df_survey_result = df_survey_result.sort_values('SERIAL')
-    df_survey_result.index = range(0, len(df_survey_result))
-    df_survey_expected = df_survey_expected.sort_values('SERIAL')
-    df_survey_expected.index = range(0, len(df_survey_expected))
+    df_survey_result = sort_and_set_index(df_survey_result, 'SERIAL')
+    df_survey_expected = sort_and_set_index(df_survey_expected, 'SERIAL')
 
     # Result data has been replaced with data calculated by the python code as a majority of differences are due to rounding.
     # 6 values in the 'FARES' column have differing results (outside the rounding range)
