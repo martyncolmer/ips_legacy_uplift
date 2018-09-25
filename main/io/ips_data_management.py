@@ -64,6 +64,7 @@ def nullify_survey_subsample_values(run_id, conn, pv_values):
         WHERE RUN_ID = '{}'
     """.format(SURVEY_SUBSAMPLE_TABLE, columns_to_null, run_id)
 
+
     # Execute and commits the SQL command
     cur = conn.cursor()
     cur.execute(sql)
@@ -203,67 +204,6 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
         cur.execute(sql)
         conn.commit()
 
-    # Old method commented out, this method dealt with the pv sets differently
-    # as some required order and others did not, order is now applied to all pv sets.
-
-    # # Construct SQL statement as applicable and execute
-    # if step in basic_insert:
-    #     columns = step_configuration["pv_columns"]
-    #     str_input = ", ".join(map(str, columns))
-    #     sql = """
-    #     INSERT INTO {}
-    #         (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, 0
-    #         FROM PROCESS_VARIABLE_PY AS PV WHERE PV.RUN_ID = '{}'
-    #         AND UPPER(PV.PV_NAME) IN ({}))
-    #     """.format(SAS_PROCESS_VARIABLES_TABLE, run_id, str_input)
-    #     print(sql)
-    #     print("")
-    #     cur.execute(sql)
-    #     conn.commit()
-    #
-    # if step in multiple_inserts:
-    #     count = 0
-    #     for item in step_configuration["pv_columns"]:
-    #         count = count + 1
-    #         sql = """
-    #         INSERT INTO {}
-    #             (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, {}
-    #             FROM PROCESS_VARIABLE_PY AS PV WHERE PV.RUN_ID = '{}'
-    #             AND UPPER(PV.PV_NAME) IN ({}))
-    #         """.format(SAS_PROCESS_VARIABLES_TABLE, count, run_id, item)
-    #         print(sql)
-    #         print("")
-    #         cur.execute(sql)
-    #         conn.commit()
-    #
-    # if step == "STAY_IMPUTATION":
-    #     columns = [col.replace(']', '').replace('[', '') for col in step_configuration['copy_pvs']]
-    #     str_input = "', '".join(map(str, columns))
-    #     sql = """
-    #     INSERT INTO {}
-    #         (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, 0
-    #         FROM PROCESS_VARIABLE_PY AS PV WHERE PV.RUN_ID = '{}'
-    #         AND UPPER(PV.PV_NAME) IN ('{}'))
-    #         """.format(SAS_PROCESS_VARIABLES_TABLE, run_id, str_input)
-    #     print(sql)
-    #     print("")
-    #     cur.execute(sql)
-    #     conn.commit()
-    #     count = 0
-    #
-    #     for item in step_configuration["copy_pvs2"]:
-    #         # item = item.replace(']', '').replace('[', '')
-    #         count = count + 1
-    #         sql = """
-    #         INSERT INTO {}
-    #             (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, {}
-    #             FROM PROCESS_VARIABLE_PY AS PV WHERE PV.RUN_ID = '{}'
-    #             AND UPPER(PV.PV_NAME) IN ('{}'))
-    #         """.format(SAS_PROCESS_VARIABLES_TABLE, count, run_id, item)
-    #         print(sql)
-    #         print("")
-    #         cur.execute(sql)
-    #         conn.commit()
 
 def update_survey_data_with_step_pv_output(conn, step_configuration):
     """
@@ -298,7 +238,6 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
 
     # Cleanse temp tables
     cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
-
     cf.delete_from_table(spv_table)
 
     # code specific to minimums weight function/step
@@ -307,7 +246,7 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
         cf.delete_from_table(step_configuration["temp_table"])
         cf.delete_from_table(step_configuration["sas_ps_table"])
 
-# Nassir - Done
+
 def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
     """
     Author       : Elinor Thorne / Nassir Mohammad
@@ -357,6 +296,7 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
         cur.execute(sql)
         conn.commit()
 
+
 def update_step_data_with_step_pv_output(conn, step_configuration):
     """
     Author       : Elinor Thorne / Nassir Mohammad
@@ -392,6 +332,7 @@ def update_step_data_with_step_pv_output(conn, step_configuration):
     cf.delete_from_table(step_configuration["temp_table"])
     cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
     cf.delete_from_table(step_configuration["sas_ps_table"])
+
 
 def sql_update_statement(table_to_update_from, columns_to_update):
     """
