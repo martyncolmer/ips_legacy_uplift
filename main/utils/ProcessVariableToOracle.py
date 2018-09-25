@@ -3,51 +3,26 @@ import pandas as pd
 import sys
 import random
 
-pv_name = 'weekday_end_pv'
+pv_name = 'SPEND_IMP_ELIGIBLE_PV'
 
 val = """
 '
-weekday = float(''nan'')                    
-if dataset == ''survey'': 
-    
-    from datetime import datetime
-
-    day = int(row[''INTDATE''][:2])
-    month = int(row[''INTDATE''][2:4])
-    year = int(row[''INTDATE''][4:8])
-    
-    d = datetime(year,month,day)
-    
-    dayweek = (d.isoweekday() + 1) % 7
-
-    if (row[''PORTROUTE''] == 811):
-        if (dayweek >= 2 and dayweek <= 5):
-            weekday = 1    
-        else:
-            weekday = 2  
-    else:  
-        if (dayweek >= 2 and dayweek <= 6):
-            weekday = 1   
-        else:
-            weekday = 2
-            
-if (row[''PORTROUTE''] == 811):
-    row[''WEEKDAY_END_PV''] = weekday
-elif (row[''PORTROUTE''] >= 600):
-    row[''WEEKDAY_END_PV''] = 1
+if (row[''FLOW''] in (1,4,5,8) and row[''PURPOSE''] < 80 and row[''PURPOSE''] != 23 and row[''PURPOSE''] != 24 and row[''MINS_FLAG_PV''] == 0) or (row[''FLOW''] in (1,4,5,8) and str(row[''PURPOSE'']) == ''nan'' and row[''MINS_FLAG_PV''] == 0):        
+    row[''SPEND_IMP_ELIGIBLE_PV''] = 1
 else:
-    row[''WEEKDAY_END_PV''] = weekday
+    row[''SPEND_IMP_ELIGIBLE_PV''] = 0
 '
 """
 
 
 def write_pv_to_table(pv_name,value,conn = None):
-        
+
     if(conn == None):
         conn = cf.get_sql_connection()
     
     
-    sql = "update PROCESS_VARIABLE_PY set PV_DEF = " + val + " where (PV_NAME = '" + pv_name + "')"
+    sql = "update PROCESS_VARIABLE_PY set PV_DEF = " + val + " where PV_NAME = '" + pv_name + "'"
+    print(sql)
     cur = conn.cursor()
     cur.execute(sql)
     conn.commit()
@@ -88,5 +63,5 @@ def read_pv_table(pv_name = None,conn = None):
 
 """"""
 
-#write_pv_to_table(pv_name, val)
-read_pv_table()
+write_pv_to_table(pv_name, val)
+read_pv_table(pv_name)

@@ -75,8 +75,11 @@ def test_calculate(data_path):
                                           num_levels=1,
                                           measure='mean')
 
+    # Because dtypes
+    output_data['STAYK'] = pd.to_numeric(output_data['STAYK'], errors='coerce')
+
     def convert_dataframe_to_sql_format(table_name, dataframe):
-        cf.insert_dataframe_into_table(table_name, dataframe)
+        cf.insert_dataframe_into_table(table_name, dataframe, fast=False)
         return cf.get_table_values(table_name)
 
     # Write the test result data to SQL then pull it back for comparison
