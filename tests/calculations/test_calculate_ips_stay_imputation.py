@@ -75,11 +75,8 @@ def test_calculate(data_path):
                                           num_levels=1,
                                           measure='mean')
 
-    # Because dtypes
-    output_data['STAYK'] = pd.to_numeric(output_data['STAYK'], errors='coerce')
-
     def convert_dataframe_to_sql_format(table_name, dataframe):
-        cf.insert_dataframe_into_table(table_name, dataframe, fast=False)
+        cf.insert_dataframe_into_table(table_name, dataframe)
         return cf.get_table_values(table_name)
 
     # Write the test result data to SQL then pull it back for comparison
@@ -90,7 +87,7 @@ def test_calculate(data_path):
 
     # Write the expected result data to SQL then pull it back for comparison
     path_to_survey_result = data_path + r"\output_final.csv"
-    df_survey_expected = pd.read_csv(path_to_survey_result, engine='python')
+    df_survey_expected = pd.read_csv(path_to_survey_result, engine='python', dtype=object)
     df_survey_expected = convert_dataframe_to_sql_format(OUTPUT_TABLE_NAME, df_survey_expected)
 
     # Sort the dataframes for comparison
