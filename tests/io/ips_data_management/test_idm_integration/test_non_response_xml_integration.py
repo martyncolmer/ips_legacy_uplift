@@ -321,36 +321,28 @@ def test_non_response_weight_step(path_to_data):
 
     df_nr_data_import_actual = cf.get_table_values(SAS_NON_RESPONSE_DATA_TABLE_NAME)
 
+
     # fix formatting in actual data
     df_surveydata_import_actual_sql.drop(['EXPENDCODE'], axis=1, inplace=True)
     df_surveydata_import_actual_sql['SHIFT_PORT_GRP_PV'] = \
         df_surveydata_import_actual_sql['SHIFT_PORT_GRP_PV'].apply(pd.to_numeric, errors='coerce')
 
-    # # get the data from csv and test
-    # df_surveydata = pd.read_csv(path_to_data + '/surveydata.csv', engine='python')
+    # # # get the data from csv and test
     # df_nr_data = pd.read_csv(path_to_data + '/nonresponsedata.csv', engine='python')
     #
     # # If the data contains a REC_ID column, drop it as the value is generated once the record is added to the SQL table.
     # if 'REC_ID' in df_nr_data.columns:
     #     df_nr_data.drop(['REC_ID'], axis=1, inplace=True)
     #
-    # # clear tables
-    # cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    # # clear tables and import
     # cf.delete_from_table(SAS_NON_RESPONSE_DATA_TABLE_NAME)
-    #
-    # df_surveydata_import = convert_dataframe_to_sql_format(idm.SAS_SURVEY_SUBSAMPLE_TABLE, df_surveydata)
     # df_nr_data_import = convert_dataframe_to_sql_format(SAS_NON_RESPONSE_DATA_TABLE_NAME, df_nr_data)
     #
-    # #TODO: make sure input matches problem is probably due to pv's not being applied properly
-    #
-    # df_surveydata_import = df_surveydata_import.sort_values(by='SERIAL')
-    # df_surveydata_import.index = range(0, len(df_surveydata_import))
-    #
-    # df_surveydata_import_actual_sql.to_csv(
-    #     r"C:\Git_projects\IPS_Legacy_Uplift\tests\data\ips_data_management\non_response_integration\december\testing\df_surveydata_import_actual_sql.csv",
+    # df_nr_data_import_actual.to_csv(
+    #     r"C:\Git_projects\IPS_Legacy_Uplift\tests\data\ips_data_management\non_response_integration\december\testing\df_nr_data_import_actual.csv",
     #     index=False)
-    # df_surveydata_import.to_csv(
-    #     r"C:\Git_projects\IPS_Legacy_Uplift\tests\data\ips_data_management\non_response_integration\december\testing\df_surveydata_import.csv",
+    # df_nr_data_import.to_csv(
+    #     r"C:\Git_projects\IPS_Legacy_Uplift\tests\data\ips_data_management\non_response_integration\december\testing\df_nr_data_import.csv",
     #     index=False)
 
     result_py_data = non_resp.do_ips_nrweight_calculation(df_surveydata_import_actual_sql, df_nr_data_import_actual,
@@ -363,6 +355,7 @@ def test_non_response_weight_step(path_to_data):
 
     py_summary_data = result_py_data[1]
     py_summary_data.sort_values(by=NR_COLUMNS)
+    py_summary_data[NR_COLUMNS] = py_summary_data[NR_COLUMNS].apply(pd.to_numeric, errors='coerce', downcast='float')
     py_summary_data.index = range(0, len(py_summary_data))
 
     #TODO: run this here or after the rest of the XML steps as we need to clear the require tables
@@ -377,11 +370,19 @@ def test_non_response_weight_step(path_to_data):
     cf.delete_from_table(SUMMARY_OUT_TABLE_NAME)
     test_result_summary_sql = convert_dataframe_to_sql_format(SUMMARY_OUT_TABLE_NAME, test_result_summary)
     test_result_summary_sql = test_result_summary_sql.sort_values(by=NR_COLUMNS)
+    test_result_summary_sql[NR_COLUMNS] = test_result_summary_sql[NR_COLUMNS].apply(pd.to_numeric, errors='coerce', downcast='float')
     test_result_summary_sql.index = range(0, len(test_result_summary_sql))
 
     # Assert dfs are equal
     assert_frame_equal(py_survey_data, test_result_survey_sql, check_dtype=False, check_like=True,
                        check_less_precise=True)
+
+    # sort the py_summary_data formatting
+    # cols = list(df3)
+    # py_summary_data.sort_values(by=cols, inplace=True)
+    # py_summary_data[cols] = py_summary_data[cols].apply(pd.to_numeric, errors='coerce', downcast='float')
+    # py_summary_data.index = range(0, len(py_summary_data))
+
     assert_frame_equal(py_summary_data, test_result_summary_sql, check_dtype=False, check_like=True,
                        check_less_precise=True)
 
