@@ -71,4 +71,3 @@ def test_calculate(data_path):
 
     assert_frame_equal(df_survey_result, df_survey_expected)
 
-    # unable to test summary_dataframe as it contains a random sample

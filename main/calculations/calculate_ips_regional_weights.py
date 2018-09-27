@@ -46,6 +46,8 @@ def ips_correct_regional_nights(row):
         known_town_nk_nights = 0
         nights_sum = 0
 
+
+
         # Compute nights_sum and known_town_nk_nights for this record
         for x in range(1, NUMBER_OF_NIGHTS):
             if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]):
@@ -104,6 +106,13 @@ def do_ips_regional_weight_calculation(df_input_data, var_serial,  var_final_wei
 
     night_columns = [NIGHTS_VARIABLE + str(i) for i in range(1, NUMBER_OF_NIGHTS)]
     stay_columns = [STAY_VARIABLE + str(i) + 'K' for i in range(1, NUMBER_OF_NIGHTS)]
+
+    df_input_data[night_columns] = df_input_data[night_columns].fillna(np.NaN)
+
+    df_input_data[stay_columns] = df_input_data[stay_columns].fillna('')
+
+    for x in range(1, NUMBER_OF_NIGHTS):
+        df_input_data[TOWN_CODE_VARIABLE + str(x)] = df_input_data[TOWN_CODE_VARIABLE + str(x)].fillna(np.NaN)
 
     # Extract only eligible rows
     df_impute_towns = df_input_data[df_input_data[ELIGIBLE_FLAG_VARIABLE] == 1]
