@@ -1089,3 +1089,10 @@ def unpickle_rick(file):
     df.to_csv(r"{}\{}".format(path, out_file))
     beep()
 
+
+def scratch():
+    pass
+
+
+if __name__ == '__main__':
+    scratch()
