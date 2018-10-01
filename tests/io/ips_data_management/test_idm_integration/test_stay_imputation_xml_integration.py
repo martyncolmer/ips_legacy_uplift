@@ -2,7 +2,6 @@ import pytest
 import json
 import pandas as pd
 import time
-import numpy as np
 
 from pandas.util.testing import assert_frame_equal
 from main.io import CommonFunctions as cf
