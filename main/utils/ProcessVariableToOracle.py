@@ -3,14 +3,14 @@ import pandas as pd
 import sys
 import random
 
-pv_name = "SPEND_IMP_ELIGIBLE_PV"
+pv_name = 'SPEND_IMP_ELIGIBLE_PV'
 
 val = """
 '
-if row[''STAY''] >= 0 and row[''STAY''] <= 30:     
-    row[''DUR2_PV''] = 1 
-elif row[''STAY''] >= 31:     
-    row[''DUR2_PV''] = 2
+if (row[''FLOW''] in (1,4,5,8) and row[''PURPOSE''] < 80 and row[''PURPOSE''] != 23 and row[''PURPOSE''] != 24 and row[''MINS_FLAG_PV''] == 0) or (row[''FLOW''] in (1,4,5,8) and str(row[''PURPOSE'']) == ''nan'' and row[''MINS_FLAG_PV''] == 0):        
+    row[''SPEND_IMP_ELIGIBLE_PV''] = 1
+else:
+    row[''SPEND_IMP_ELIGIBLE_PV''] = 0
 '
 """
 
@@ -19,7 +19,6 @@ def write_pv_to_table(pv_name,value,conn = None):
 
     if(conn == None):
         conn = cf.get_sql_connection()
-
 
     sql = "update PROCESS_VARIABLE_PY set PV_DEF = " + val + " where (PV_NAME = '" + pv_name + "')"
     print(sql)
@@ -61,8 +60,6 @@ def read_pv_table(pv_name = None,conn = None):
         print("")
 
     print(len(process_variables))
-
-""""""
 
 # write_pv_to_table(pv_name, val)
 read_pv_table(pv_name)
