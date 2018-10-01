@@ -53,7 +53,8 @@ def get_pvs(conn=None):
     sql = """SELECT 
                 PROCVAR_NAME,PROCVAR_RULE 
              FROM 
-                SAS_PROCESS_VARIABLE"""
+                SAS_PROCESS_VARIABLE
+             ORDER BY PROCVAR_ORDER"""
 
     # Execute the sql query
     cur.execute(sql)

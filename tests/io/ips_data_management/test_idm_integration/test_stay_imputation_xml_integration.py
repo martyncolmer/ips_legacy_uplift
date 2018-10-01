@@ -2,6 +2,7 @@ import pytest
 import json
 import pandas as pd
 import time
+import numpy as np
 
 from pandas.util.testing import assert_frame_equal
 from main.io import CommonFunctions as cf
@@ -16,7 +17,7 @@ RUN_ID = 'test-idm-integration-stay-imp'
 TEST_DATA_DIR = r'tests\data\ips_data_management\stay_imputation_integration'
 STEP_NAME = 'STAY_IMPUTATION'
 EXPECTED_LEN = 19980
-NUMBER_OF_PVS = 5
+NUMBER_OF_PVS = len(STEP_CONFIGURATION[STEP_NAME]['pv_columns'])
 
 START_TIME = time.time()
 print("Module level start time: {}".format(START_TIME))
@@ -41,6 +42,9 @@ def setup_module(module):
 
     # Deletes data from tables as necessary
     reset_tables()
+
+    # Populates test data within the pv table
+    populate_test_pv_table()
 
 
 def teardown_module(module):
@@ -116,6 +120,38 @@ def reset_tables():
             continue
 
 
+def populate_test_pv_table():
+    """ Set up table to run and test copy_step_pvs_for_survey_data()
+        Note: Had to break up sql statements due to following error:
+        'pyodbc.Error: ('HY000', '[HY000] [Microsoft][ODBC SQL Server Driver]Connection is busy with results for
+             another hstmt (0) (SQLExecDirectW)')'
+        Error explained in http://sourceitsoftware.blogspot.com/2008/06/connection-is-busy-with-results-for.html """
+
+    conn = database_connection()
+    cur = conn.cursor()
+
+    sql1 = """
+    INSERT INTO [dbo].[PROCESS_VARIABLE_TESTING]
+    SELECT * FROM [dbo].[PROCESS_VARIABLE_PY]
+    WHERE [RUN_ID] = 'TEMPLATE'
+    """
+
+    sql2 = """
+    UPDATE [dbo].[PROCESS_VARIABLE_TESTING]
+    SET [RUN_ID] = '{}'
+    """.format(RUN_ID)
+
+    sql3 = """
+    INSERT INTO [dbo].[PROCESS_VARIABLE_PY]
+    SELECT * FROM [dbo].[PROCESS_VARIABLE_TESTING]
+    WHERE RUN_ID = '{}'
+    """.format(RUN_ID)
+
+    cur.execute(sql1)
+    cur.execute(sql2)
+    cur.execute(sql3)
+
+
 def test_stay_imputation_step():
     """ Test function """
 
@@ -189,7 +225,7 @@ def test_stay_imputation_step():
     cf.insert_dataframe_into_table(STEP_CONFIGURATION[STEP_NAME]["temp_table"], surveydata_out)
 
     table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["temp_table"]))
-    assert table_len == 2797
+    assert table_len == 27
 
     # Extract our test results from the survey table then write the results to csv.
     df_survey_actual = cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["temp_table"])
@@ -197,17 +233,13 @@ def test_stay_imputation_step():
     # Read in both the target datasets and the results we previously wrote out then sort them on specified columns.
     df_survey_actual.to_csv(TEST_DATA_DIR + '\sas_survey_subsample_actual.csv', index=False)
 
-    df_survey_actual = pd.read_csv(TEST_DATA_DIR + '\sas_survey_subsample_actual.csv').sort_values('SERIAL')
-    df_survey_target = pd.read_csv(TEST_DATA_DIR + '\sas_survey_subsample_target.csv', encoding='ANSI').sort_values(
+    df_survey_actual = pd.read_csv(TEST_DATA_DIR + '\sas_survey_subsample_actual.csv', engine='python').sort_values('SERIAL')
+    df_survey_target = pd.read_csv(TEST_DATA_DIR + '\sas_survey_subsample_target.csv', engine='python').sort_values(
         'SERIAL')
 
     # Reset the dataframe's index before comparing the outputs.
     df_survey_actual.index = range(0, len(df_survey_actual))
     df_survey_target.index = range(0, len(df_survey_target))
-
-    # Select the newly updated weight column from the dataframe and ensure it matches the expected weights.
-    df_survey_actual = df_survey_actual
-    df_survey_target = df_survey_target
 
     assert_frame_equal(df_survey_actual, df_survey_target, check_dtype=False)
 
