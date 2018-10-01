@@ -109,6 +109,9 @@ def compute_additional_fares(row):
     Dependencies : NA
     """
 
+    # Force the variable formatting to 8digit date
+    row[DATE_VARIABLE] = row[DATE_VARIABLE].zfill(8)
+
     non_pack_fare = np.NaN
 
     # Sort out child/baby fares
@@ -116,6 +119,7 @@ def compute_additional_fares(row):
         row[OUTPUT_VARIABLE] = row[DONOR_VARIABLE]
 
     else:
+
         # Separate intdate column into usable integer values.
         day = int(row[DATE_VARIABLE][:2])
         month = int(row[DATE_VARIABLE][2:4])
