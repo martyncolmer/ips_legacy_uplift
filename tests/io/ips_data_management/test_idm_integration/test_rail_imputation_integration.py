@@ -42,7 +42,7 @@ def setup_module(module):
 
     # TODO: Uncomment before merge
     # Import survey data.
-    # import_survey_data(december_survey_data_path)
+    import_survey_data(december_survey_data_path)
 
     # Populates test data within pv table.
     populate_test_pv_table()
@@ -77,6 +77,7 @@ def import_survey_data(survey_data_path):
     df_survey_data['RUN_ID'] = pd.Series(RUN_ID, index=df_survey_data.index)
 
     # Insert the imported data into the survey_subsample table on the database.
+    cf.delete_from_table('SURVEY_SUBSAMPLE', 'RUN_ID', '=', RUN_ID)
     cf.insert_dataframe_into_table('SURVEY_SUBSAMPLE', df_survey_data, fast=False)
 
     # Print Import runtime to record performance.
@@ -88,7 +89,7 @@ def reset_tables():
 
     # TODO: Uncomment before merge
     # Cleanses Survey Subsample table.
-    # cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID)
+    cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID)
 
     # List of tables to cleanse entirely.
     tables_to_unconditionally_cleanse = [idm.SAS_SURVEY_SUBSAMPLE_TABLE,
@@ -205,7 +206,6 @@ def test_rail_imputation_step():
 
     # Check all columns in SAS_SURVEY_SUBSAMPLE have been altered.
     sas_survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-    sas_survey_data.to_csv(r'S:\CASPA\IPS\Testing\Integration\sas_survey_data.csv')
 
     for column in STEP_CONFIGURATION[STEP_NAME]['pv_columns']:
         column_name = column.replace("'", "")
