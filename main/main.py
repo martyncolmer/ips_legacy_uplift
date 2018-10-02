@@ -176,41 +176,45 @@ def minimums_weight_step(run_id, connection):
     Dependencies : NA
     """
 
-    step = "MINIMUMS_WEIGHT"
+    # Load configuration variables
+    step_name = "MINIMUMS_WEIGHT"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
-    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step)
+    # Populate Survey Data For Minimums Wt
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
+    # Copy Minimums Wt PVs For Survey Data
+    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Minimums Wt PVs On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_MINIMUMS_SPV',
                               in_id='serial')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
+    # Update Survey Data with Minimums Wt PVs Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
-    calculate_ips_minimums_weight.calculate(SurveyData='SAS_SURVEY_SUBSAMPLE',
-                                            OutputData='SAS_NON_RESPONSE_DATA',
-                                            SummaryData='SAS_PS_MINIMUMS',
-                                            ResponseTable='SAS_RESPONSE',
-                                            MinStratumDef=['MINS_PORT_GRP_PV',
-                                                           'MINS_CTRY_GRP_PV'],
-                                            var_serialNum='SERIAL',
-                                            var_shiftWeight='SHIFT_WT',
-                                            var_NRWeight='NON_RESPONSE_WT',
-                                            var_minWeight='MINS_WT',
-                                            var_minCount='MINS_CASES',
-                                            var_fullRespCount='FULLS_CASES',
-                                            var_minFlag='MINS_FLAG_PV',
-                                            var_sumPriorWeightMin='PRIOR_GROSS_MINS',
-                                            var_sumPriorWeightFull='PRIOR_GROSS_FULLS',
-                                            var_sumPriorWeightAll='PRIOR_GROSS_ALL',
-                                            var_sumPostWeight='POST_SUM',
-                                            var_casesCarriedForward='CASES_CARRIED_FWD',
-                                            minCountThresh='30')
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
-    generic_xml_steps.store_step_summary(run_id, connection, step)
+    # Calculate Minimums Weight
+    output_data, summary_data = calculate_ips_minimums_weight.do_ips_minweight_calculation(df_surveydata=survey_data,
+                                                                                           var_serialNum='SERIAL',
+                                                                                           var_shiftWeight='SHIFT_WT',
+                                                                                           var_NRWeight='NON_RESPONSE_WT',
+                                                                                           var_minWeight='MINS_WT')
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], output_data)
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["sas_ps_table"], summary_data)
+
+    # Update Survey Data With Minimums Wt Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data With Minimums Wt Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Store Minimums Wt Summary
+    idm.store_step_summary(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def traffic_weight_step(run_id, connection):
