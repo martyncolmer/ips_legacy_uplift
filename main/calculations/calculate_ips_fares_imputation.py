@@ -59,7 +59,6 @@ def do_ips_fares_imputation(df_input, var_serial, num_levels, measure):
     Dependencies : NA
     """
 
-    # Ensure imputation only occurs on eligible rows
     df_eligible = df_input.loc[df_input[ELIGIBLE_FLAG_VARIABLE] == 1.0]
 
     # Perform the imputation on eligible dataset
@@ -191,6 +190,7 @@ def compute_additional_spend(row):
 
         elif (((row[DISCOUNTED_PACKAGE_COST_VARIABLE] + row[EXPENDITURE_VARIABLE] +
                 row[BEFAF_VARIABLE]) / row[PERSONS_VARIABLE]) < (row[OUTPUT_VARIABLE] * 2)):
+            print(row['SERIAL'])
             row[SPEND_VARIABLE] = np.nan
             row[SPEND_REASON_KEY_VARIABLE] = 1
 

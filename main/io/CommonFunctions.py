@@ -1038,14 +1038,11 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False, fast=Tr
           "(" + columns_string + ") VALUES (" + value_string + ")"
     print(sql)
 
-
     start_time = time.time()
 
     cur.executemany(sql, rows)
 
     end_time = time.time()
-
-    #connection.commit()
 
     # Returns number of rows added to table for validation
     return len(rows)
