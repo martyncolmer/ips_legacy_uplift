@@ -155,7 +155,7 @@ def populate_test_pv_table():
 
 
 # @pytest.mark.skip(reason="Test failing on rounding error")
-def test_town_and_stay_step():
+def test_fares_imputation_step():
     """ Test function. """
 
     # Assign variables.
