@@ -7,9 +7,9 @@ Refactored on 2 October 2018
 '''
 
 import json
+
 from main.io import CommonFunctions as cf
 from main.io import ips_data_management as idm
-
 from main.utils import process_variables
 from main.calculations import calculate_ips_shift_weight
 from main.calculations import calculate_ips_nonresponse_weight
@@ -25,6 +25,9 @@ from main.calculations import calculate_ips_rail_imputation
 from main.calculations import calculate_ips_regional_weights
 from main.calculations import calculate_ips_airmiles
 
+with open(r'data/xml_steps_configuration.json') as config_file:
+    STEP_CONFIGURATION = json.load(config_file)
+
 
 def shift_weight_step(run_id, connection):
     """
@@ -38,17 +41,15 @@ def shift_weight_step(run_id, connection):
 
     # Load configuration variables
     step_name = 'SHIFT_WEIGHT'
-    with open(r'data/xml_steps_configuration.json') as config_file:
-        step_configuration = json.load(config_file)
 
     # Populate Survey Data For Shift Wt
-    idm.populate_survey_data_for_step(run_id, connection, step_configuration[step_name])
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
     # Populate Shift Data
-    idm.populate_step_data(run_id, connection, step_configuration[step_name])
+    idm.populate_step_data(run_id, connection, STEP_CONFIGURATION[step_name])
 
     # Copy Shift Wt PVs For Survey Data
-    idm.copy_step_pvs_for_survey_data(run_id, connection, step_configuration[step_name])
+    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
 
     # Apply Shift Wt PVs On Survey Data
     process_variables.process(dataset='survey',
@@ -57,10 +58,10 @@ def shift_weight_step(run_id, connection):
                               in_id='serial')
 
     # Update Survey Data with Shift Wt PV Output
-    idm.update_survey_data_with_step_pv_output(connection, step_configuration[step_name])
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
     # Copy Shift Wt PVs For Shift Data
-    idm.copy_step_pvs_for_step_data(run_id, connection, step_configuration[step_name])
+    idm.copy_step_pvs_for_step_data(run_id, connection, STEP_CONFIGURATION[step_name])
 
     # Apply Shift Wt PVs On Shift Data
     process_variables.process(dataset='shift',
@@ -69,11 +70,11 @@ def shift_weight_step(run_id, connection):
                               in_id='REC_ID')
 
     # Update Shift Data with PVs Output
-    idm.update_step_data_with_step_pv_output(connection, step_configuration[step_name])
+    idm.update_step_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-    shift_data = cf.get_table_values(step_configuration[step_name]["data_table"])
+    shift_data = cf.get_table_values(STEP_CONFIGURATION[step_name]["data_table"])
 
     # Calculate Shift Weight
     survey_data_out, summary_data_out = calculate_ips_shift_weight.do_ips_shift_weight_calculation(survey_data,
@@ -82,17 +83,17 @@ def shift_weight_step(run_id, connection):
                                                                                                    var_shiftWeight='SHIFT_WT')
 
     # Insert data to SQL
-    cf.insert_dataframe_into_table(step_configuration[step_name]["temp_table"], survey_data_out)
-    cf.insert_dataframe_into_table(step_configuration[step_name]["sas_ps_table"], summary_data_out)
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["sas_ps_table"], summary_data_out)
 
     # Update Survey Data With Shift Wt Results
-    idm.update_survey_data_with_step_results(connection, step_configuration[step_name])
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
 
     # Store Survey Data With Shift Wt Results
-    idm.store_survey_data_with_step_results(run_id, connection, step_configuration[step_name])
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
 
     # Store Shift Wt Summary
-    idm.store_step_summary(run_id, connection, step_configuration[step_name])
+    idm.store_step_summary(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def non_response_weight_step(run_id, connection):
@@ -107,63 +108,60 @@ def non_response_weight_step(run_id, connection):
     Dependencies : NA
     """
 
-    step = "NON_RESPONSE"
+    # Load configuration variables
+    step_name = "NON_RESPONSE"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
-    generic_xml_steps.populate_step_data(run_id, connection, step)
-    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step)
+    # Populate Survey Data For Non Response Wt
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
+    # Populate Non Response Data
+    idm.populate_step_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Copy Non Response Wt PVs For Survey Data
+    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Non Response Wt PVs On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_NON_RESPONSE_SPV',
                               in_id='serial')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
-    generic_xml_steps.copy_step_pvs_for_step_data(run_id, connection, step)
+    # Update Survey Data with Non Response Wt PVs Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
+    # Copy Non Response Wt PVs for Non Response Data
+    idm.copy_step_pvs_for_step_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Non Response Wt PVs On Non Response Data
     process_variables.process(dataset='non_response',
                               in_table_name='SAS_NON_RESPONSE_DATA',
                               out_table_name='SAS_NON_RESPONSE_PV',
                               in_id='REC_ID')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
+    # Update NonResponse Data With PVs Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
-    calculate_ips_nonresponse_weight.calculate(SurveyData='SAS_SURVEY_SUBSAMPLE',
-                                               NonResponseData='SAS_NON_RESPONSE_DATA',
-                                               OutputData='SAS_NON_RESPONSE_WT',
-                                               SummaryData='SAS_PS_NON_RESPONSE',
-                                               ResponseTable='SAS_RESPONSE',
-                                               NRStratumDef=['NR_PORT_GRP_PV',
-                                                             'ARRIVEDEPART'],
-                                               ShiftsStratumDef=['NR_PORT_GRP_PV',
-                                                                 'ARRIVEDEPART',
-                                                                 'WEEKDAY_END_PV'],
-                                               var_NRtotals='MIGTOTAL',
-                                               var_NonMigTotals='ORDTOTAL',
-                                               var_SI='',
-                                               var_migSI='MIGSI',
-                                               var_TandTSI='TANDTSI',
-                                               var_PSW='SHIFT_WT',
-                                               var_NRFlag='NR_FLAG_PV',
-                                               var_migFlag='MIG_FLAG_PV',
-                                               var_respCount='COUNT_RESPS',
-                                               var_NRWeight='NON_RESPONSE_WT',
-                                               var_meanSW='MEAN_RESPS_SH_WT',
-                                               var_priorSum='PRIOR_SUM',
-                                               var_meanNRW='MEAN_NR_WT',
-                                               var_grossResp='GROSS_RESP',
-                                               var_gnr='GNR',
-                                               var_serialNum='SERIAL',
-                                               minCountThresh='30')
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    non_response_data = cf.get_table_values(STEP_CONFIGURATION[step_name]["data_table"])
 
-    print("Start - update_survey_data_with_non_response_wt_results")
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
+    # Calculate Non Response Weight
+    survey_data_out, summary_data_out = calculate_ips_nonresponse_weight.do_ips_nrweight_calculation(survey_data,
+                                                                                                     non_response_data,
+                                                                                                     'NON_RESPONSE_WT',
+                                                                                                     'SERIAL')
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["sas_ps_table"], summary_data_out)
 
-    print("Start - store_survey_data_with_non_response_wt_results")
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
+    # Update Survey Data With Non Response Wt Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
 
-    print("Start - store_non_response_wt_summary")
-    generic_xml_steps.store_step_summary(run_id, connection, step)
+    # Store Survey Data With NonResponse Wt Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Store Non Response Wt Summary
+    idm.store_step_summary(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def minimums_weight_step(run_id, connection):
