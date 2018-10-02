@@ -1,12 +1,14 @@
 '''
 Created on 26 April 2018
-
 @author: Thomas Mahoney
+
+Refactored on 2 October 2018
+@author: Elinor Thorne
 '''
 
-import sys
 import json
-from main.io import CommonFunctions as cf, ips_data_management
+from main.io import CommonFunctions as cf
+from main.io import ips_data_management as idm
 
 from main.utils import process_variables
 from main.calculations import calculate_ips_shift_weight
@@ -24,51 +26,73 @@ from main.calculations import calculate_ips_regional_weights
 from main.calculations import calculate_ips_airmiles
 
 
-def shift_weight_step(run_id, connection, step_configuration):
+def shift_weight_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 26 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 26 April 2018 / 2 October 2018
     Purpose      : Runs the shift weight steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
-    ips_data_management.populate_survey_data_for_step(run_id, connection, step_configuration)
-    ips_data_management.populate_step_data(run_id, connection, step_configuration)
-    ips_data_management.copy_step_pvs_for_survey_data(run_id, connection, step_configuration)
+    # Load configuration variables
+    step_name = 'SHIFT_WEIGHT'
+    with open(r'data/xml_steps_configuration.json') as config_file:
+        step_configuration = json.load(config_file)
 
+    # Populate Survey Data For Shift Wt
+    idm.populate_survey_data_for_step(run_id, connection, step_configuration[step_name])
+
+    # Populate Shift Data
+    idm.populate_step_data(run_id, connection, step_configuration[step_name])
+
+    # Copy Shift Wt PVs For Survey Data
+    idm.copy_step_pvs_for_survey_data(run_id, connection, step_configuration[step_name])
+
+    # Apply Shift Wt PVs On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_SHIFT_SPV',
                               in_id='serial')
 
-    ips_data_management.update_survey_data_with_step_pv_output(connection, step_configuration)
-    ips_data_management.copy_step_pvs_for_step_data(run_id, connection, step_configuration)
+    # Update Survey Data with Shift Wt PV Output
+    idm.update_survey_data_with_step_pv_output(connection, step_configuration[step_name])
 
+    # Copy Shift Wt PVs For Shift Data
+    idm.copy_step_pvs_for_step_data(run_id, connection, step_configuration[step_name])
+
+    # Apply Shift Wt PVs On Shift Data
     process_variables.process(dataset='shift',
                               in_table_name='SAS_SHIFT_DATA',
                               out_table_name='SAS_SHIFT_PV',
                               in_id='REC_ID')
 
-    ips_data_management.update_step_data_with_step_pv_output(connection, step_configuration)
+    # Update Shift Data with PVs Output
+    idm.update_step_data_with_step_pv_output(connection, step_configuration[step_name])
 
-    sas_survey_data = cf.get_table_values(generic_xml_steps.SAS_SURVEY_SUBSAMPLE_TABLE)
-    sas_shift_data = cf.get_table_values(step_configuration["data_table"])
-    surveydata_out, summary_out = calculate_ips_shift_weight.do_ips_shift_weight_calculation(sas_survey_data,
-                                                                                             sas_shift_data,
-                                                                                             var_serialNum='SERIAL',
-                                                                                             var_shiftWeight='SHIFT_WT')
-    cf.insert_dataframe_into_table(step_configuration["temp_table"], surveydata_out)
-    cf.insert_dataframe_into_table(step_configuration["sas_ps_table"], summary_out)
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    shift_data = cf.get_table_values(step_configuration[step_name]["data_table"])
 
-    ips_data_management.update_survey_data_with_step_results(connection, step_configuration)
+    # Calculate Shift Weight
+    survey_data_out, summary_data_out = calculate_ips_shift_weight.do_ips_shift_weight_calculation(survey_data,
+                                                                                                   shift_data,
+                                                                                                   var_serialNum='SERIAL',
+                                                                                                   var_shiftWeight='SHIFT_WT')
 
-    ips_data_management.store_survey_data_with_step_results(run_id, connection, step_configuration)
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(step_configuration[step_name]["temp_table"], survey_data_out)
+    cf.insert_dataframe_into_table(step_configuration[step_name]["sas_ps_table"], summary_data_out)
 
-    ips_data_management.store_step_summary(run_id, connection, step_configuration)
+    # Update Survey Data With Shift Wt Results
+    idm.update_survey_data_with_step_results(connection, step_configuration[step_name])
+
+    # Store Survey Data With Shift Wt Results
+    idm.store_survey_data_with_step_results(run_id, connection, step_configuration[step_name])
+
+    # Store Shift Wt Summary
+    idm.store_step_summary(run_id, connection, step_configuration[step_name])
 
 
 def non_response_weight_step(run_id, connection):
