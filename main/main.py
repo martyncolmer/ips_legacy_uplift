@@ -291,36 +291,60 @@ def unsampled_weight_step(run_id, connection):
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
-    step = "UNSAMPLED_WEIGHT"
+    # Load configuration variables
+    step_name = "UNSAMPLED_WEIGHT"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
-    generic_xml_steps.populate_step_data(run_id, connection, step)
-    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step)
+    # Populate Survey Data For Unsampled Wt
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
+    # Populate Unsampled Data
+    idm.populate_step_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Copy Unsampled Wt PVs For Survey Data
+    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Unsampled Wt PV On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_UNSAMPLED_OOH_SPV',
                               in_id='serial')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
-    generic_xml_steps.copy_step_pvs_for_step_data(run_id, connection, step)
+    # Update Survey Data with Unsampled Wt PV Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
+    # Copy Unsampled Wt PVs For Unsampled Data
+    idm.copy_step_pvs_for_step_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Unsampled Wt PV On Unsampled Data
     process_variables.process(dataset='unsampled',
-                              in_table_name='SAS_NON_RESPONSE_DATA',
+                              in_table_name='SAS_UNSAMPLED_OOH_DATA',
                               out_table_name='SAS_UNSAMPLED_OOH_PV',
                               in_id='REC_ID')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
+    # Update Unsampled Data With PV Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
-    calculate_ips_unsampled_weight.calculate()
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
-    generic_xml_steps.store_step_summary(run_id, connection, step)
+    # TODO: Pass correct parameters to do_ips_unsampled_weight_calculation() once step has been refactored to include new R-GES
+    # Calculate Unsampled Weight
+    output_data, summary_data = calculate_ips_unsampled_weight.do_ips_unsampled_weight_calculation(survey_data)
+
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], output_data)
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["sas_ps_table"], summary_data)
+
+    # Update Survey Data With Unsampled Wt Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data With Unsampled Wt Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Store Unsampled Weight Summary
+    idm.store_step_summary(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def imbalance_weight_step(run_id, connection):
