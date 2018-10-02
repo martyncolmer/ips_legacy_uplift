@@ -415,15 +415,38 @@ def final_weight_step(run_id, connection):
     Dependencies : NA
     """
 
-    step = "FINAL_WEIGHT"
+    # Load configuration variables
+    step_name = "FINAL_WEIGHT"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
+    # Populate Survey Data For Final Wt
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
-    calculate_ips_final_weight.calculate()
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
-    generic_xml_steps.store_step_summary(run_id, connection, step)
+    # Calculate Final Weight
+    survey_data_out, summary_data_out = calculate_ips_final_weight.do_ips_final_wt_calculation(survey_data,
+                                                                                         var_serialNum='SERIAL',
+                                                                                         var_shiftWeight='SHIFT_WT',
+                                                                                         var_NRWeight='NON_RESPONSE_WT',
+                                                                                         var_minWeight='MINS_WT',
+                                                                                         var_trafficWeight='TRAFFIC_WT',
+                                                                                         var_unsampWeight='UNSAMP_TRAFFIC_WT',
+                                                                                         var_imbWeight='IMBAL_WT',
+                                                                                         var_finalWeight='FINAL_WT')
+
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["sas_ps_table"], summary_data_out)
+
+    # Update Survey Data With Final Wt Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data With Final Wt Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Store Final Weight Summary
+    idm.store_step_summary(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def stay_imputation_step(run_id,connection):
