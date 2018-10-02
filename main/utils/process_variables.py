@@ -51,9 +51,11 @@ def get_pvs(conn=None):
 
     # Specify the sql query for retrieving the process variable statements from the database
     sql = """SELECT 
-                PROCVAR_NAME,PROCVAR_RULE 
+                PROCVAR_NAME,PROCVAR_RULE
              FROM 
-                SAS_PROCESS_VARIABLE"""
+                SAS_PROCESS_VARIABLE
+             ORDER BY 
+                PROCVAR_ORDER"""
 
     # Execute the sql query
     cur.execute(sql)
@@ -88,6 +90,9 @@ def process(in_table_name, out_table_name, in_id, dataset):
 
     # Get the process variable statements
     process_variables = get_pvs()
+
+    if dataset == 'survey':
+        df_data = df_data.sort_values('SERIAL')
 
     # Apply process variables
     df_data = df_data.apply(modify_values, axis=1, args=(process_variables, dataset))
