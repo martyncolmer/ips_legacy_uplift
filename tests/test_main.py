@@ -33,6 +33,10 @@ def database_connection():
 
 def setup_module(module):
     """ setup any state specific to the execution of the given module."""
+    # TODO: Uncomment this before merge
+    # Import external and survey data
+    # import_data_into_database()
+
     # populates test data within pv table
     populate_test_pv_table()
 
@@ -136,10 +140,6 @@ def test_shift_weight_step():
     conn = database_connection()
     step_name = "SHIFT_WEIGHT"
 
-    # TODO: Uncomment this before merge
-    # Import external and survey data
-    # import_data_into_database()
-
     # Run Shift Weight step
     main_run.shift_weight_step(RUN_ID, conn)
 
@@ -173,6 +173,49 @@ def test_shift_weight_step():
     expected_results = expected_results.sort_values(
         ['SHIFT_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'AM_PM_NIGHT_PV', 'MIGSI', 'POSS_SHIFT_CROSS',
          'SAMP_SHIFT_CROSS', 'MIN_SH_WT', 'MEAN_SH_WT', 'MAX_SH_WT', 'COUNT_RESPS', 'SUM_SH_WT'])
+    expected_results.index = range(0, len(expected_results))
+
+    assert_frame_equal(actual_results, expected_results, check_dtype=False)
+
+
+def test_non_response_weight_step():
+    # Assign variables
+    conn = database_connection()
+    step_name = "NON_RESPONSE"
+
+    # Run Shift Weight step
+    main_run.non_response_weight_step(RUN_ID, conn)
+
+    # Get results of Survey Data and compare
+    sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
+    sql_cols = "[SERIAL], " + sql_cols
+
+    actual_results = cf.select_data(sql_cols, idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', RUN_ID)
+    expected_results = pd.read_csv(TEST_DATA_DIR + r'\main\non_response\surveydata_out_expected.csv', engine='python')
+
+    # Formatting and fudgery
+    actual_results = actual_results.sort_values('SERIAL')
+    actual_results.replace('None', np.nan, inplace=True)
+    actual_results.index = range(0, len(actual_results))
+
+    expected_results = expected_results.sort_values('SERIAL')
+    expected_results.index = range(0, len(expected_results))
+
+    assert_frame_equal(actual_results, expected_results, check_dtype=False)
+
+    # Get results of Summary Data and compare
+    actual_results = cf.select_data('*', STEP_CONFIGURATION[step_name]['ps_table'], 'RUN_ID', RUN_ID)
+    expected_results = pd.read_csv(TEST_DATA_DIR + r'\main\non_response\summary_out_expected.csv', engine='python')
+
+    # Formatting and fudgery
+    actual_results = actual_results.sort_values(
+        ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'MEAN_RESPS_SH_WT', 'COUNT_RESPS', 'PRIOR_SUM',
+         'GROSS_RESP', 'GNR', 'MEAN_NR_WT'])
+    actual_results.index = range(0, len(actual_results))
+
+    expected_results = expected_results.sort_values(
+        ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'MEAN_RESPS_SH_WT', 'COUNT_RESPS', 'PRIOR_SUM',
+         'GROSS_RESP', 'GNR', 'MEAN_NR_WT'])
     expected_results.index = range(0, len(expected_results))
 
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
