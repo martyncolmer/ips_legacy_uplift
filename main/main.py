@@ -731,25 +731,35 @@ def airmiles_step(run_id, connection):
     Dependencies : NA
     """
 
-    step = "AIR_MILES"
+    # Load configuration variables
+    step_name = "AIR_MILES"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
+    # Populate Survey Data For Air Miles
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
-    calculate_ips_airmiles.calculate()
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
+    # Calculate Air Miles
+    survey_data_out = calculate_ips_airmiles.do_ips_airmiles_calculation(df_surveydata=survey_data, var_serial='SERIAL')
+
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
+
+    # Update Survey Data with Air Miles Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data with Air Miles Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 if __name__ == '__main__':
 
-    # Connection to the SQL server database
-    connection = cf.get_sql_connection()
     # Run Id (this will be generated automatically and will be unique)
     run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
 
-    # What was this for?
-    version_id = 1891
+    # Connection to the SQL server database
+    connection = cf.get_sql_connection()
 
     # -- Processing --
     shift_weight_step(run_id, connection)
