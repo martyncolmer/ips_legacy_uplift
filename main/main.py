@@ -23,6 +23,7 @@ from main.calculations import calculate_ips_fares_imputation
 from main.calculations import calculate_ips_spend_imputation
 from main.calculations import calculate_ips_rail_imputation
 from main.calculations import calculate_ips_regional_weights
+from main.calculations import calculate_ips_town_and_stay_expenditure
 from main.calculations import calculate_ips_airmiles
 
 with open(r'data/xml_steps_configuration.json') as config_file:
@@ -682,23 +683,40 @@ def town_stay_expenditure_imputation_step(run_id, connection):
     Returns      : NA
     """
 
-    step = "TOWN_AND_STAY_EXPENDITURE"
+    # Load configuration variables
+    step_name = "TOWN_AND_STAY_EXPENDITURE"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
-    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step)
+    # Populate Survey Data For TSE Imputation
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
+    # Copy TSE Imputation PVs For Survey Data
+    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply TSE Imputation PVs On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_TOWN_STAY_SPV',
                               in_id='serial')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
+    # Update Survey Data with TSE Imputation PV Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
-    # calculation for town stay (still not complete)
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
+    # Calculate TSE Imputation
+    survey_data_out = calculate_ips_town_and_stay_expenditure.do_ips_town_exp_imp(survey_data,
+                                                                                  var_serial="SERIAL",
+                                                                                  var_final_wt="FINAL_WT")
 
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
+
+    # Update Survey Data With TSE Imputation Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data With TSE Imputation Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def airmiles_step(run_id, connection):
