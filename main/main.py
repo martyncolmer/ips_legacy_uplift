@@ -636,22 +636,40 @@ def regional_weights_step(run_id, connection):
     Returns      : NA
     """
 
-    step = "REGIONAL_WEIGHTS"
+    # Load configuration variables
+    step_name = "REGIONAL_WEIGHTS"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
-    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step)
+    # Populate Survey Data For Regional Weights
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
+    # Copy Regional Weights PVs For Survey Data
+    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Regional Weights PVs On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_REGIONAL_SPV',
                               in_id='serial')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
+    # Update Survey Data with Regional Weights PV Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
-    calculate_ips_regional_weights.calculate()
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
+    # Calculate Regional Weights
+    survey_data_out = calculate_ips_regional_weights.do_ips_regional_weight_calculation(survey_data,
+                                                                                        var_serial='SERIAL',
+                                                                                        var_final_weight='FINAL_WT')
+
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
+
+    # Update Survey Data With Regional Weights Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data With Regional Weights Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def town_stay_expenditure_imputation_step(run_id, connection):
