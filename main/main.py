@@ -98,14 +98,12 @@ def shift_weight_step(run_id, connection):
 
 def non_response_weight_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 26 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 26 April 2018 / 2 October 2018
     Purpose      : Runs the non response weight steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
     # Load configuration variables
@@ -166,14 +164,12 @@ def non_response_weight_step(run_id, connection):
 
 def minimums_weight_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the minimums weight steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
     # Load configuration variables
@@ -219,14 +215,12 @@ def minimums_weight_step(run_id, connection):
 
 def traffic_weight_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the traffic weight steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
     # Load configuration variables
@@ -285,8 +279,8 @@ def traffic_weight_step(run_id, connection):
 
 def unsampled_weight_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the unsampled weight steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
@@ -349,14 +343,12 @@ def unsampled_weight_step(run_id, connection):
 
 def imbalance_weight_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the imbalance weight steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
     # Load configuration variables
@@ -405,14 +397,12 @@ def imbalance_weight_step(run_id, connection):
 
 def final_weight_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the final weight steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
     # Load configuration variables
@@ -451,14 +441,12 @@ def final_weight_step(run_id, connection):
 
 def stay_imputation_step(run_id,connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the stay imputation steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
     # Load configuration variables
@@ -500,14 +488,12 @@ def stay_imputation_step(run_id,connection):
 
 def fares_imputation_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the fares imputation steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
     # Load configuration variables
@@ -549,14 +535,12 @@ def fares_imputation_step(run_id, connection):
 
 def spend_imputation_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the spend imputation steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
     # Load configuration variables
@@ -597,44 +581,59 @@ def spend_imputation_step(run_id, connection):
 
 def rail_imputation_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the rail imputation steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
-    step = "RAIL_IMPUTATION"
+    # Load configuration variables
+    step_name = "RAIL_IMPUTATION"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
-    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step)
+    # Populate Survey Data For Rail Imputation
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
+    # Copy Rail Imp PVs For Survey Data
+    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Rail Imp PVs On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_RAIL_SPV',
                               in_id='serial')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
+    # Update Survey Data with Rail Imp PV Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
-    calculate_ips_rail_imputation.calculate()
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
+    # Calculate Rail Imputation
+    survey_data_out = calculate_ips_rail_imputation.do_ips_railex_imp(survey_data,
+                                                                      var_serial='SERIAL',
+                                                                      var_final_weight='FINAL_WT',
+                                                                      minimum_count_threshold=30)
+
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
+
+    # Update Survey Data With Rail Imp Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data With Rail Imp Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def regional_weights_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the regional weights steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
     step = "REGIONAL_WEIGHTS"
@@ -657,14 +656,12 @@ def regional_weights_step(run_id, connection):
 
 def town_stay_expenditure_imputation_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the town stay expenditure imputation steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
     step = "TOWN_AND_STAY_EXPENDITURE"
@@ -688,8 +685,8 @@ def town_stay_expenditure_imputation_step(run_id, connection):
 
 def airmiles_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the air miles calculation steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
@@ -718,22 +715,18 @@ if __name__ == '__main__':
     # What was this for?
     version_id = 1891
 
-    # -- Read configuration --
-    with open('data/xml_steps_configuration.json') as config_file:
-        step_configurations = json.load(config_file)
-
     # -- Processing --
-    shift_weight_step(run_id, connection, step_configurations["SHIFT_WEIGHT"])
-    non_response_weight_step(run_id, connection, step_configurations)
-    minimums_weight_step(run_id, connection, step_configurations)
-    traffic_weight_step(run_id, connection, step_configurations)
-    unsampled_weight_step(run_id, connection, step_configurations)
-    imbalance_weight_step(run_id, connection, step_configurations)
-    final_weight_step(run_id, connection, step_configurations)
-    stay_imputation_step(run_id, connection, step_configurations)
-    fares_imputation_step(run_id, connection, step_configurations)
-    spend_imputation_step(run_id, connection, step_configurations)
-    rail_imputation_step(run_id, connection, step_configurations)
-    regional_weights_step(run_id, connection,step_configurations)
-    town_stay_expenditure_imputation_step(run_id, connection, step_configurations)
-    airmiles_step(run_id, connection, step_configurations)
+    shift_weight_step(run_id, connection)
+    non_response_weight_step(run_id, connection)
+    minimums_weight_step(run_id, connection)
+    traffic_weight_step(run_id, connection)
+    unsampled_weight_step(run_id, connection)
+    imbalance_weight_step(run_id, connection)
+    final_weight_step(run_id, connection)
+    stay_imputation_step(run_id, connection)
+    fares_imputation_step(run_id, connection)
+    spend_imputation_step(run_id, connection)
+    rail_imputation_step(run_id, connection)
+    regional_weights_step(run_id, connection)
+    town_stay_expenditure_imputation_step(run_id, connection)
+    airmiles_step(run_id, connection)
