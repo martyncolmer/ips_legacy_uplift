@@ -138,7 +138,7 @@ def non_response_weight_step(run_id, connection):
                               in_id='REC_ID')
 
     # Update NonResponse Data With PVs Output
-    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
+    idm.update_step_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
@@ -149,6 +149,7 @@ def non_response_weight_step(run_id, connection):
                                                                                                      non_response_data,
                                                                                                      'NON_RESPONSE_WT',
                                                                                                      'SERIAL')
+
     # Insert data to SQL
     cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
     cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["sas_ps_table"], summary_data_out)
@@ -255,7 +256,7 @@ def traffic_weight_step(run_id, connection):
                               in_id='REC_ID')
 
     # Update Traffic Data With Traffic Wt PV Output
-    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
+    idm.update_step_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
@@ -319,7 +320,7 @@ def unsampled_weight_step(run_id, connection):
                               in_id='REC_ID')
 
     # Update Unsampled Data With PV Output
-    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
+    idm.update_step_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
