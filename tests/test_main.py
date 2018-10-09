@@ -279,7 +279,7 @@ def test_minimums_weight_step():
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
 
-@pytest.mark.skip(reason="PV Problem: FOOT_OR_VEHICLE_PV and HAUL_PV")
+@pytest.mark.skip(reason="Cannot implement until step has finished being refactored")
 def test_traffic_weight_step():
     # Assign variables
     conn = database_connection()
@@ -321,7 +321,7 @@ def test_traffic_weight_step():
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
 
-@pytest.mark.skip(reason="PV Problem: 'region' variable within UNSAMP_REGION_GRP_PV")
+# @pytest.mark.skip(reason="PV Problem: 'region' variable within UNSAMP_REGION_GRP_PV")
 def test_unsampled_weight_step():
     # Assign variables
     conn = database_connection()
@@ -365,7 +365,7 @@ def test_unsampled_weight_step():
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
 
-# @pytest.mark.skip(reason="This is Future El's problem too. Hint: Calculation is not producing any data for Summay.")
+@pytest.mark.skip(reason="This is Future El's problem too. Hint: Calculation is not producing any data for Summay.")
 def test_imbalance_weight_step():
     # Assign variables
     conn = database_connection()
