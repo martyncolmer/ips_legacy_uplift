@@ -1,37 +1,3 @@
-# '''
-# Created on 15 Mar 2018
-#
-# @author: burrj
-# '''
-# import pandas as pd
-# from pandas.util.testing import assert_frame_equal
-# from main.calculations.calculate_ips_fares_imputation import do_ips_fares_imputation
-#
-# import pytest
-# import tests.config
-#
-# path_to_data = r"tests/data/calculations/" + tests.config.TEST_MONTH +  "/fares"
-#
-#
-# @pytest.mark.skip("Known failure due to rounding")
-# def test_calculate():
-#     test_survey = pd.read_pickle(path_to_data + '/fares_imp_input.pkl')
-#
-#     result_data = do_ips_fares_imputation(test_survey, var_serial='SERIAL',
-#                                           num_levels=9, measure='mean')
-#
-#     test_result_summary = pd.read_pickle(path_to_data + '/fares_imp_output.pkl')
-#     test_result_summary.columns = test_result_summary.columns.str.upper()
-#
-#     test_result_summary = test_result_summary.sort_values(by='SERIAL')
-#     test_result_summary.index = range(0, len(test_result_summary))
-#     result_data = result_data.sort_values(by='SERIAL')
-#     result_data.index = range(0, len(result_data))
-#
-#     # The dataframes have different column orders; check_like is True which will
-#     # ignore that fact when checking if the data is the same.
-#     assert_frame_equal(result_data, test_result_summary, check_like=True)
-
 
 from main.calculations.calculate_ips_fares_imputation import do_ips_fares_imputation
 import pandas as pd
@@ -50,7 +16,7 @@ OUTPUT_TABLE_NAME = 'SAS_FARES_IMP'
 def test_calculate(data_path):
     """
     Author        : Thomas Mahoney
-    Date          : 14 Sep 2018
+    Date          : 26 Sep 2018
     Purpose       : Tests the calculation function of the fares imputation step works as expected.
     Parameters    : data_path - The file path to the data folder (contains import and expected results csv files).
     Returns       : NA
@@ -95,6 +61,5 @@ def test_calculate(data_path):
     df_survey_expected = df_survey_expected.sort_values('SERIAL')
     df_survey_expected.index = range(0, len(df_survey_expected))
 
-    # Result data has been replaced with data calculated by the python code as a majority of differences are due to rounding.
-    # 6 values in the 'FARES' column have differing results (outside the rounding range)
+    # Check the output matches our expected results
     assert_frame_equal(df_survey_result, df_survey_expected)
