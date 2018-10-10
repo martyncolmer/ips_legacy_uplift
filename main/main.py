@@ -14,7 +14,7 @@ from main.utils import process_variables
 from main.calculations import calculate_ips_shift_weight
 from main.calculations import calculate_ips_nonresponse_weight
 from main.calculations import calculate_ips_minimums_weight
-from main.calculations import calculate_ips_traffic_weight
+from main.calculations.calculate_ips_traffic_weight import do_ips_trafweight_calculation
 from main.calculations import calculate_ips_unsampled_weight
 from main.calculations import calculate_ips_imb_weight
 from main.calculations import calculate_ips_final_weight
@@ -260,10 +260,17 @@ def traffic_weight_step(run_id, connection):
 
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    traffic_data = cf.get_table_values(STEP_CONFIGURATION[step_name]["data_table"])
 
-    # TODO: Pass correct parameters to do_ips_trafweight_calculation() once step has been refactored to include new R-GES
     # Calculate Traffic Weight
-    output_data, summary_data = calculate_ips_traffic_weight.do_ips_trafweight_calculation(survey_data)
+    output_data, summary_data = do_ips_trafweight_calculation(df_survey=survey_data,
+                                                              var_serialNum='SERIAL',
+                                                              var_shiftWeight='SHIFT_WT',
+                                                              var_NRWeight='NON_RESPONSE_WT',
+                                                              var_minWeight='MINS_WT',
+                                                              PopTotals=traffic_data,
+                                                              GWeightVar='TRAFFIC_WT',
+                                                              minCountThresh=30)
 
     # Insert data to SQL
     cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], output_data)
@@ -518,6 +525,8 @@ def fares_imputation_step(run_id, connection):
 
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+    survey_data.to_csv(r'S:\CASPA\IPS\Testing\scratch\my_input_survey_data.csv')
 
     # Calculate Fares Imputation
     survey_data_out = calculate_ips_fares_imputation.do_ips_fares_imputation(survey_data,
