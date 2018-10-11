@@ -5,6 +5,7 @@ import numpy as np
 from sas7bdat import SAS7BDAT
 import math
 from main.io import CommonFunctions as cf
+import subprocess
 
 PATH_TO_DATA = 'tests/data/calculations/october_2017/unsampled_weight'
 
@@ -30,22 +31,6 @@ PRIOR_WEIGHT_SUM_COLUMN = 'SUM_PRIOR_WT'
 UPLIFT_COLUMN = 'UPLIFT'
 PREVIOUS_TOTAL_COLUMN = 'PREVTOTAL'
 POST_WEIGHT_COLUMN = 'POSTWEIGHT'
-
-
-# TODO - replace ips_ges_weighting() with correct function once available
-# place holder function. This is being used until the actual GES weighting function is complete.
-def do_ips_ges_weighting(input, SerialNumVarName, DesignWeightVarName,
-                         StrataDef, PopTotals, TotalVar, MaxRuleLength,
-                         ModelGroup, GWeightVar, CalWeightVar,
-                         GESBoundType, GESUpperBound, GESLowerBound,
-                         GESMaxDiff, GESMaxIter, GESMaxDist):
-    df_survey_post_ges = pd.read_pickle(PATH_TO_DATA + r"/survey_serialNum_sort.pkl")
-    df_output_post_ges = pd.read_pickle(PATH_TO_DATA + r"/output_merge_final.pkl")
-
-    df_survey_post_ges.columns = df_survey_post_ges.columns.str.upper()
-    df_output_post_ges.columns = df_output_post_ges.columns.str.upper()
-
-    return df_survey_post_ges, df_output_post_ges
 
 
 # Prepare survey data
@@ -75,12 +60,14 @@ def r_survey_input(survey_input):
     df_survey_input_sorted = df_survey_input_sorted[~df_survey_input_sorted['ARRIVEDEPART'].isnull()]
 
     # Create lookup. Group by and aggregate
-    lookup_dataframe = df_survey_input_copy
+    #lookup_dataframe = df_survey_input_copy
+    lookup_dataframe = df_survey_input_sorted
 
     lookup_dataframe["count"] = ""
     lookup_dataframe = lookup_dataframe.groupby(['UNSAMP_PORT_GRP_PV',
                                                  'UNSAMP_REGION_GRP_PV',
                                                  'ARRIVEDEPART']).agg({"count": 'count'}).reset_index()
+
 
     # Cleanse data
     lookup_dataframe.drop(["count"], axis=1)
@@ -93,7 +80,7 @@ def r_survey_input(survey_input):
                                                                               'ARRIVEDEPART'], how='left')
 
     # Create traffic design weight used within GES weighting
-    values = df_aux_variables.SHIFT_WT * df_aux_variables.NON_RESPONSE_WT * df_aux_variables.MINS_WT
+    values = df_aux_variables.SHIFT_WT * df_aux_variables.NON_RESPONSE_WT * df_aux_variables.MINS_WT * df_aux_variables.TRAFFIC_WT
     df_aux_variables['OOHDesignWeight'] = values
     df_aux_variables = df_aux_variables.sort_values(['SERIAL'])
 
@@ -104,10 +91,13 @@ def r_survey_input(survey_input):
                                      'OOHDesignWeight', 'T1']]
 
     # Export dataframes to CSV
-    df_r_ges_input.to_csv(
-        r"tests/data/r_setup/October_2017/unsampled_weight/df_r_ges_input_unsamp.csv", index=False)
+    #df_r_ges_input.to_csv(r"tests/data/r_setup/October_2017/unsampled_weight/df_r_ges_input_unsamp.csv", index=False)
 
-    return df_r_ges_input
+    cf.insert_dataframe_into_table("dbo.survey_unsamp_aux",df_r_ges_input)
+
+    df_aux_variables = df_aux_variables.drop(columns=['count_x','count_y','T1','OOHDesignWeight'], axis = 1)
+
+    return df_aux_variables
 
 
 # Prepare population totals to create AUX lookup variables
@@ -200,16 +190,64 @@ def r_population_input(survey_input, ustotals):
                                               values='UNSAMP_TOTAL')
 
     df_mod_totals = df_mod_totals.add_prefix('T_')
-    df_mod_totals['C_group'] = 1
-    cols = ['C_group'] + [col for col in df_mod_totals if col != 'C_group']
-    df_mod_pop_totals = df_mod_totals[cols]
 
-    # File passed into R GES weighting process
-    df_mod_pop_totals.to_csv(
-        r"tests/data/r_setup/October_2017/unsampled_weight/df_mod_pop_totals.csv",
-        index=False)
+    from sqlalchemy import create_engine
 
-    return df_mod_pop_totals
+    cf.drop_table('poprowvec_unsamp')
+
+    # @TODO: MAKE THIS USE ENV VARIABLES
+    con = create_engine('mssql+pyodbc://ips_dev:ips_dev@CR1VWSQL14-D-01/ips_test?driver=SQL+Server+Native+Client+10.0')
+
+    df_mod_totals.to_sql('poprowvec_unsamp', con, if_exists='replace')
+
+    return df_mod_totals
+
+
+def run_r_ges_script():
+    """
+    Author       : David Powell
+    Date         : 25 Sept 2018
+    Purpose      : Calculate Traffic GES Weights
+    Parameters   :
+    Returns      :
+    Requirements :
+    Dependencies :
+    """
+    """
+    Author       : David Powell
+    Date         : 07/06/2018
+    Purpose      : Calls R Script to run GES Weighting
+    Parameters   : 
+    Returns      : Writes GES output to SQL Database
+    Requirements : NA
+    Dependencies : NA
+    """
+
+    print("Starting R script.....")
+
+    retcode = subprocess.call(["C:/Program Files/R/R-3.4.0patched/bin/Rscript",
+                           "--vanilla",
+                           "//nsdata3/social_surveys_team/CASPA/IPS/Testing/Q3 2017/unsampled weight/ges_r_step5.r"])
+
+    print("R processed finished.")
+
+
+def do_ips_ges_weighting(df_surveydata,df_ustotals):
+    # Deletes from poprowvec and survey_unsamp_aux tables
+    cf.delete_from_table('survey_unsamp_aux')
+    cf.drop_table('poprowvec_unsamp')
+    cf.drop_table('r_unsampled')
+
+    # Call the GES weighting macro
+    df_survey = r_survey_input(df_surveydata)
+    r_population_input(df_surveydata, df_ustotals)
+
+    run_r_ges_script()
+
+    df_summarydata = cf.get_table_values('r_unsampled')
+    df_summarydata = df_summarydata[['SERIAL', 'UNSAMP_TRAFFIC_WT']]
+
+    return df_surveydata, df_summarydata
 
 
 def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftWeight, var_NRWeight,
@@ -291,12 +329,15 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
     # Remove any records where var_totals value is not greater than zero
     liftedTotals = liftedTotals[liftedTotals[TOTALS_COLUMN] > 0]
 
-    # Call the GES weighting macro
-    ges_dataframes = do_ips_ges_weighting(df_surveydata, var_serialNum, ooh_design_weight_column, OOH_STRATA,
-                                          liftedTotals, TOTALS_COLUMN, MAX_RULE_LENGTH,
-                                          MODEL_GROUP_COLUMN, var_OOHWeight, 'CalWeight', GES_BOUND_TYPE,
-                                          GES_UPPER_BOUND, GES_LOWER_BOUND, GES_MAX_DIFFERENCE, GES_MAX_ITERATIONS,
-                                          GES_MAX_DISTANCE)
+
+    ges_dataframes = do_ips_ges_weighting(df_surveydata, df_ustotals)
+
+    # ges_dataframes = do_ips_ges_weighting(df_surveydata, var_serialNum, ooh_design_weight_column, OOH_STRATA,
+    #                                       liftedTotals, TOTALS_COLUMN, MAX_RULE_LENGTH,
+    #                                       MODEL_GROUP_COLUMN, var_OOHWeight, 'CalWeight', GES_BOUND_TYPE,
+    #                                       GES_UPPER_BOUND, GES_LOWER_BOUND, GES_MAX_DIFFERENCE, GES_MAX_ITERATIONS,
+    #                                       GES_MAX_DISTANCE)
+    # @TODO: WORK FROM HERE
 
     df_survey = ges_dataframes[0]
     df_output = ges_dataframes[1]
@@ -304,6 +345,8 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
     df_survey = df_survey.sort_values(by=var_serialNum)
     df_output = df_output.sort_values(by=var_serialNum)
 
+    df_survey.index = range(0, len(df_survey))
+    df_output.index = range(0, len(df_output))
     # Merge the df_surveydata and output data frame to generate the summary table
     df_survey[var_OOHWeight] = df_output[var_OOHWeight]
 
@@ -346,6 +389,9 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
     # Replace the previously added 'NOTHING' values with their original blank values  
     df_summary = df_summary.replace('NOTHING', np.NaN)
 
+    output_column_order = ['UNSAMP_PORT_GRP_PV','UNSAMP_REGION_GRP_PV','ARRIVEDEPART','CASES','SUM_PRIOR_WT','SUM_UNSAMP_TRAFFIC_WT','UNSAMP_TRAFFIC_WT']
+    df_summary = df_summary[output_column_order]
+
     # Identify groups where the total has been uplifted but the
     # respondent count is below the threshold.
 
@@ -370,64 +416,3 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
 
     # Return the generated data frames to be appended to oracle
     return df_output, df_summary
-
-
-def calculate(SurveyData, var_serialNum, var_shiftWeight, var_NRWeight, var_minWeight, var_trafficWeight,
-              var_OOHWeight, minCountThresh):
-    """
-    Author       : Thomas Mahoney / Nassir Mohammad
-    Date         : Apr 2018
-    Purpose      : Imports the required data sets for performing the unsampled
-                   weight calculation. This function also triggers the unsmapled
-                   weight calculation function using the imported data. Once 
-                   complete it will append the newly generated data frames to the 
-                   specified oracle database tables. 
-    Parameters   : SurveyData - the IPS df_surveydata records for the period                             
-                   var_serialNum - variable holding the record serial number (UID)
-                   var_shiftWeight - variable holding the shift weight field name                
-                   var_NRWeight - variable holding the non-response weight field name        
-                   var_minWeight - variable holding the minimum weight field name            
-                   var_trafficWeight - variable holding the traffic weight field name  
-                   var_OOHWeight = Variable holding the unsampled weight field name
-                   minCountThresh - The minimum cell count threshold
-    Returns      : NA
-    Requirements : do_ips_unsampled_weight_calculation()
-    Dependencies : NA
-    """
-
-    # Call JSON configuration file for error logger setup
-    # survey_support.setup_logging('IPS_logging_config_debug.json')
-
-    # Import data
-    df_surveydata = pd.read_pickle(PATH_TO_DATA + r"/survey_input.pkl")
-    # NB: instead of reading from POPULATION_TOTALS_TABLE_NAME we read from file here
-    df_ustotals = pd.read_pickle(PATH_TO_DATA + r"/ustotals.pkl")
-
-    # Set all of the columns imported to uppercase
-    df_surveydata.columns = df_surveydata.columns.str.upper()
-    df_ustotals.columns = df_ustotals.columns.str.upper()
-
-    # Calculate the unsampled weights of the imported dataset.
-
-    print("Start - Calculate UnSampled Weight.")
-    output_dataframe, summary_dataframe = do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum,
-                                                                              var_shiftWeight, var_NRWeight,
-                                                                              var_minWeight, var_trafficWeight,
-                                                                              var_OOHWeight,
-                                                                              df_ustotals, minCountThresh)
-
-    # TODO - following code to be removed/refactored once IPS_main() done
-    # Append the generated data to output tables
-    # cf.insert_dataframe_into_table(OUTPUT_TABLE_NAME, output_dataframe)
-    # cf.insert_dataframe_into_table(SUMMARY_TABLE_NAME, summary_dataframe)
-
-    # Retrieve current function name using inspect:
-    # 0 = frame object, 3 = function name. 
-    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
-    # function_name = str(inspect.stack()[0][3])
-    # audit_message = "Load UnSampled Weight calculation: %s()" % function_name
-
-    # Log success message in SAS_RESPONSE and AUDIT_LOG
-    # cf.database_logger().info("SUCCESS - Completed UnSampled weight calculation.")
-    # cf.commit_to_audit_log("Create", "UnSampled", audit_message)
-    return output_dataframe, summary_dataframe
