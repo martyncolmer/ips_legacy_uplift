@@ -1,14 +1,10 @@
 import pandas as pd
 import numpy as np
-# import survey_support
+from sqlalchemy import create_engine
 
 from main.io import CommonFunctions as cf
 
 PATH_TO_DATA = r"tests/data/calculations/october_2017/traffic_weight"
-
-# TODO
-#  1. do_ips_ges_weighting() - plug-in real solution once done
-
 
 OUTPUT_TABLE_NAME = 'SAS_TRAFFIC_WT'
 SUMMARY_TABLE_NAME = 'SAS_PS_TRAFFIC' 
@@ -27,6 +23,12 @@ POST_SUM_COLUMN = 'SUM_TRAFFIC_WT'.upper()
 TRAFFIC_DESIGN_WEIGHT_COLUMN = 'TRAFDESIGNWEIGHT'
 POST_WEIGHT_COLUMN = 'POSTWEIGHT'
 
+SURVEY_TRAFFIC_AUX_TABLE = "[dbo].[survey_traffic_aux]"
+POP_PROWVEC_TABLE = "[dbo].[poprowvec_traffic]"
+
+def convert_dataframe_to_sql_format(table_name, dataframe):
+    cf.insert_dataframe_into_table(table_name, dataframe)
+    return cf.get_table_values(table_name)
 
 def calculate(SurveyData, var_serialNum, var_shiftWeight, var_NRWeight, var_minWeight, PopTotals,
               GWeightVar, minCountThresh):
@@ -255,11 +257,10 @@ def do_ips_ges_weighting(df_survey, var_serialNum, df_popTotals, GWeightVar, Cal
 
     return (df_output_merge_final, df_survey_serialNum_sort)
 
-
 # Prepare survey data
 def r_survey_input(survey_data):
     """
-    Author       : David Powell
+    Author       : David Powell / edits by Nassir Mohammad
     Date         : 07/06/2018
     Purpose      : Creates input data that feeds into the R GES weighting
     Parameters   : df_survey_input - A data frame containing the survey data for
@@ -310,16 +311,18 @@ def r_survey_input(survey_data):
     df_r_ges_input = df_r_ges_input[['SERIAL', 'ARRIVEDEPART', 'PORTROUTE', 'SAMP_PORT_GRP_PV', 'SHIFT_WT',
                                      'NON_RESPONSE_WT', 'MINS_WT', 'trafDesignWeight', 'T1']]
 
-    # Export dataframes to CSV
-    df_r_ges_input.to_csv(r"tests/data/r_setup/October_2017/unsampled_weight/df_r_ges_input_traffic.csv", index=False)
+    # Export dataframes to CSV - for testing purposes: TODO: delete
+    #df_r_ges_input.to_csv(r"tests/data/r_setup/October_2017/unsampled_weight/df_r_ges_input_traffic.csv", index=False)
+    #cf.insert_dataframe_into_table(SURVEY_TRAFFIC_AUX_TABLE, df_r_ges_input)
 
-    return df_r_ges_input
+    df_r_ges_input_imported = convert_dataframe_to_sql_format(SURVEY_TRAFFIC_AUX_TABLE, df_r_ges_input)
 
+    return df_r_ges_input_imported
 
 # Prepare population totals to create AUX lookup variables
 def r_population_input(survey_input, trtotals):
     """
-    Author       : David Powell
+    Author       : David Powell / edits by Nassir Mohammad
     Date         : 07/06/2018
     Purpose      : Creates population data that feeds into the R GES weighting
     Parameters   : df_survey_input - A data frame containing the survey data for
@@ -387,20 +390,61 @@ def r_population_input(survey_input, trtotals):
 
     df_mod_totals = pd.merge(df_traffic_totals, lookup_dataframe_aux, on=['SAMP_PORT_GRP_PV',
                                                                           'ARRIVEDEPART'], how='left')
+
     df_mod_totals['C_group'] = 1
     df_mod_totals = df_mod_totals.drop(columns=['ARRIVEDEPART', 'SAMP_PORT_GRP_PV'])
     df_mod_pop_totals = df_mod_totals.pivot_table(index='C_group',
                                                   columns='T1',
                                                   values='TRAFFICTOTAL')
     df_mod_pop_totals = df_mod_pop_totals.add_prefix('T_')
+
     df_mod_pop_totals['C_group'] = 1
     cols = ['C_group'] + [col for col in df_mod_pop_totals if col != 'C_group']
     df_mod_pop_totals = df_mod_pop_totals[cols]
 
-    # Export dataframes to CSV
-    df_mod_pop_totals.to_csv(r"tests/data/r_setup/October_2017/unsampled_weight/df_pop_totals.csv", index=False)
+    df_mod_pop_totals = df_mod_pop_totals.reset_index(drop=True)
 
-    return df_mod_pop_totals
+    # recreate proc_vec table
+    con = create_engine('mssql+pyodbc://ips_dev:ips_dev@CR1VWSQL14-D-01/ips_test2?driver=SQL+Server+Native+Client+10.0')
+
+    # note the index gets added so needs to be removed when re-read from SQL
+    df_mod_pop_totals.to_sql('test', con, if_exists='replace')
+
+    # Export dataframes to CSV: TODO; delete as used for testing before
+    #df_mod_pop_totals.to_csv(r"tests/data/r_setup/October_2017/unsampled_weight/df_pop_totals.csv", index=False)
+
+    df_mod_pop_totals_import = cf.get_table_values('test')
+    df_mod_pop_totals_import = df_mod_pop_totals_import.drop('index', axis=1)
+
+    return df_mod_pop_totals_import
+
+def run_r_ges_script():
+    """
+    Author       : David Powell
+    Date         : 25 Sept 2018
+    Purpose      : Calculate Traffic GES Weights
+    Parameters   :
+    Returns      :
+    Requirements :
+    Dependencies :
+    """
+    """
+    Author       : David Powell
+    Date         : 07/06/2018
+    Purpose      : Calls R Script to run GES Weighting
+    Parameters   : 
+    Returns      : Writes GES output to SQL Database
+    Requirements : NA
+    Dependencies : NA
+    """
+
+    print("Starting R script.....")
+
+    retcode = subprocess.call(["C:/Program Files/R/R-3.4.0patched/bin/Rscript",
+                           "--vanilla",
+                           "NSdata3?:/CASPA/IPS/Testing/Q3 2017/traffic weight/ges_r_step4.r"])
+
+    print("R processed finished.")
 
 
 def generate_ips_tw_summary(df_survey, df_output_merge_final,
@@ -546,3 +590,16 @@ def generate_ips_tw_summary(df_survey, df_output_merge_final,
         cf.database_logger().warning("WARNING: " + threshold_string_capped)
 
     return df_summary_merge_sum_traftot
+
+
+def do_ips_trafweight_calculation_with_R(survey_data, trtotals):
+
+    df_r_ges_input = r_survey_input(survey_data)
+    df_mod_pop_totals = r_population_input(survey_data, trtotals)
+
+    run_r_ges_script()
+
+    # grab the data from the SQL table and return
+    #r_traffic
+
+    return 0

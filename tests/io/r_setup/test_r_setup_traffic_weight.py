@@ -1,26 +1,62 @@
 '''
 Created on 04 Jun 2018
 
-@author: David Powell
+@author: David Powell (minor edits by Nassir Mohammad 15.10.2018)
+
 '''
 
 import pandas as pd
 import numpy as np
 from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_traffic_weight import r_survey_input, r_population_input
-import sys
+import main.io.CommonFunctions as cf
+import pytest
+import main.io.ips_data_management as idm
 
+# POP_TOTALS = "SAS_TRAFFIC_DATA"
+# SAS_SURVEY_SUBSAMPLE_TABLE = idm.SAS_SURVEY_SUBSAMPLE_TABLE
 
-def test_r_survey_input():
+# OUT_TABLE_NAME = "SAS_TRAFFIC_WT"  # output data
+# SUMMARY_OUT_TABLE_NAME = "SAS_PS_TRAFFIC"  # output data
+
+SURVEY_INPUT_AUX_TABLE = "[dbo].[survey_traffic_aux]"
+POP_PROWVEC_TABLE = "[dbo].[poprowvec_traffic]"
+
+R_TRAFFIC_TABLE = "[dbo].[r_traffic]"
+
+def clear_tables():
+
+    # clear the input SQL server tables for the step
+    # cf.delete_from_table(SAS_SURVEY_SUBSAMPLE_TABLE)
+    # cf.delete_from_table(POP_TOTALS)
+
+    # clear the output tables and summary tables
+    # cf.delete_from_table(OUT_TABLE_NAME)
+    # cf.delete_from_table(SUMMARY_OUT_TABLE_NAME)
+
+    # clear the auxillary tables
+    cf.delete_from_table(SURVEY_INPUT_AUX_TABLE)
+
+    # drop aux tables and r created tables
+    cf.drop_table(POP_PROWVEC_TABLE)
+    cf.drop_table('test')
+    #cf.drop_table(R_TRAFFIC_TABLE)
+
+@pytest.mark.parametrize('path_to_data', [
+    r'tests/data/r_setup/October_2017/traffic_weight/',
+    ])
+def test_r_survey_input(path_to_data):
+
+    clear_tables()
 
     # Import the test data
-    survey_input = pd.read_pickle('tests/data/r_setup/October_2017/traffic_weight/survey_input.pkl')
+    survey_input = pd.read_pickle(path_to_data + 'survey_input.pkl')
 
     # Run the test
     df_test_result = r_survey_input(survey_input)
 
     # Expected result
-    test_file = r"tests\data\r_setup\October_2017\traffic_weight\df_r_ges_input.pkl"
+    test_file = path_to_data + "df_r_ges_input.pkl"
 
     df_expected_result = pd.read_pickle(test_file)
 
@@ -37,20 +73,24 @@ def test_r_survey_input():
     assert_frame_equal(df_test_result, df_expected_result, check_dtype=True, check_like=True)
     print("DONE")
 
+@pytest.mark.parametrize('path_to_data', [
+    r'tests/data/r_setup/October_2017/traffic_weight/',
+    ])
+def test_r_population_input(path_to_data):
 
-def test_r_population_input():
+    clear_tables()
 
     # Import the test data
-    survey_input = pd.read_pickle('tests/data/r_setup/October_2017/traffic_weight/survey_input.pkl')
+    survey_input = pd.read_pickle(path_to_data + 'survey_input.pkl')
 
     # Import the test data
-    trtotals = pd.read_pickle('tests/data/r_setup/October_2017/traffic_weight/trtotals.pkl')
+    trtotals = pd.read_pickle(path_to_data + 'trtotals.pkl')
 
     # Run the test
     df_test_result = r_population_input(survey_input, trtotals)
 
     # Expected result
-    test_file = r"tests\data\r_setup\October_2017\traffic_weight\poprowvec.pkl"
+    test_file = path_to_data + r"poprowvec.pkl"
 
     df_expected_result = pd.read_pickle(test_file)
 
