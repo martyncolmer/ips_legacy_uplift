@@ -24,7 +24,7 @@ TRAFFIC_DESIGN_WEIGHT_COLUMN = 'TRAFDESIGNWEIGHT'
 POST_WEIGHT_COLUMN = 'POSTWEIGHT'
 
 SURVEY_TRAFFIC_AUX_TABLE = "[dbo].[survey_traffic_aux]"
-POP_PROWVEC_TABLE = "[dbo].[poprowvec_traffic]"
+POP_PROWVEC_TABLE = 'test_poprowvec_traffic'
 
 def convert_dataframe_to_sql_format(table_name, dataframe):
     cf.insert_dataframe_into_table(table_name, dataframe)

@@ -11,43 +11,18 @@ from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_traffic_weight import r_survey_input, r_population_input
 import main.io.CommonFunctions as cf
 import pytest
-import main.io.ips_data_management as idm
+import main.calculations.calculate_ips_traffic_weight as c_tr
 
-# POP_TOTALS = "SAS_TRAFFIC_DATA"
-# SAS_SURVEY_SUBSAMPLE_TABLE = idm.SAS_SURVEY_SUBSAMPLE_TABLE
-
-# OUT_TABLE_NAME = "SAS_TRAFFIC_WT"  # output data
-# SUMMARY_OUT_TABLE_NAME = "SAS_PS_TRAFFIC"  # output data
-
-SURVEY_INPUT_AUX_TABLE = "[dbo].[survey_traffic_aux]"
-POP_PROWVEC_TABLE = "[dbo].[poprowvec_traffic]"
-
-R_TRAFFIC_TABLE = "[dbo].[r_traffic]"
-
-def clear_tables():
-
-    # clear the input SQL server tables for the step
-    # cf.delete_from_table(SAS_SURVEY_SUBSAMPLE_TABLE)
-    # cf.delete_from_table(POP_TOTALS)
-
-    # clear the output tables and summary tables
-    # cf.delete_from_table(OUT_TABLE_NAME)
-    # cf.delete_from_table(SUMMARY_OUT_TABLE_NAME)
-
-    # clear the auxillary tables
-    cf.delete_from_table(SURVEY_INPUT_AUX_TABLE)
-
-    # drop aux tables and r created tables
-    cf.drop_table(POP_PROWVEC_TABLE)
-    cf.drop_table('test')
-    #cf.drop_table(R_TRAFFIC_TABLE)
+SURVEY_TRAFFIC_AUX_TABLE = c_tr.SURVEY_TRAFFIC_AUX_TABLE
+POP_PROWVEC_TABLE = c_tr.POP_PROWVEC_TABLE
 
 @pytest.mark.parametrize('path_to_data', [
     r'tests/data/r_setup/October_2017/traffic_weight/',
     ])
 def test_r_survey_input(path_to_data):
 
-    clear_tables()
+    # clear the auxillary tables
+    cf.delete_from_table(SURVEY_TRAFFIC_AUX_TABLE)
 
     # Import the test data
     survey_input = pd.read_pickle(path_to_data + 'survey_input.pkl')
@@ -78,7 +53,8 @@ def test_r_survey_input(path_to_data):
     ])
 def test_r_population_input(path_to_data):
 
-    clear_tables()
+    # drop aux tables and r created tables
+    cf.drop_table(POP_PROWVEC_TABLE)
 
     # Import the test data
     survey_input = pd.read_pickle(path_to_data + 'survey_input.pkl')
