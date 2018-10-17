@@ -526,8 +526,6 @@ def fares_imputation_step(run_id, connection):
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    survey_data.to_csv(r'S:\CASPA\IPS\Testing\scratch\my_input_survey_data.csv')
-
     # Calculate Fares Imputation
     survey_data_out = calculate_ips_fares_imputation.do_ips_fares_imputation(survey_data,
                                                                              var_serial='SERIAL',
