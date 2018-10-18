@@ -573,6 +573,19 @@ def spend_imputation_step(run_id, connection):
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
+    # # TODO: FOR DAVE
+    # import pandas as pd
+    # sql = """
+    #         SELECT *
+    #           FROM {}
+    #         """.format(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    #
+    # # Using comparison data populated by Python from unit test due
+    # # to random values populated in OPERA_PV. NOT USING SAS BASELINE DATA
+    # dave_results = pd.read_sql_query(sql, connection)
+    # dave_results.to_csv(r'S:\CASPA\IPS\Testing\Dec_Data\Spend\spend_survey_input3.csv')
+    # # TODO: END DAVE!
+
     # Calculate Spend Imputation
     survey_data_out = calculate_ips_spend_imputation.do_ips_spend_imputation(survey_data,
                                                                              var_serial="SERIAL",
@@ -618,6 +631,19 @@ def rail_imputation_step(run_id, connection):
 
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+    # # TODO: FOR DAVE
+    # import pandas as pd
+    # sql = """
+    #             SELECT *
+    #               FROM {}
+    #             """.format(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    #
+    # # Using comparison data populated by Python from unit test due
+    # # to random values populated in OPERA_PV. NOT USING SAS BASELINE DATA
+    # dave_results = pd.read_sql_query(sql, connection)
+    # dave_results.to_csv(r'S:\CASPA\IPS\Testing\Dec_Data\Rail\rail_survey_input.csv')
+    # # TODO: END DAVE!
 
     # Calculate Rail Imputation
     survey_data_out = calculate_ips_rail_imputation.do_ips_railex_imp(survey_data,
@@ -666,6 +692,19 @@ def regional_weights_step(run_id, connection):
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
+    # # TODO: FOR DAVE
+    # import pandas as pd
+    # sql = """
+    #             SELECT *
+    #               FROM {}
+    #             """.format(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    #
+    # # Using comparison data populated by Python from unit test due
+    # # to random values populated in OPERA_PV. NOT USING SAS BASELINE DATA
+    # dave_results = pd.read_sql_query(sql, connection)
+    # dave_results.to_csv(r'S:\CASPA\IPS\Testing\Dec_Data\Regional\regional_survey_input.csv')
+    # # TODO: END DAVE!
+
     # Calculate Regional Weights
     survey_data_out = calculate_ips_regional_weights.do_ips_regional_weight_calculation(survey_data,
                                                                                         var_serial='SERIAL',
@@ -711,6 +750,19 @@ def town_stay_expenditure_imputation_step(run_id, connection):
 
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+    # # TODO: FOR DAVE
+    # import pandas as pd
+    # sql = """
+    #             SELECT *
+    #               FROM {}
+    #             """.format(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    #
+    # # Using comparison data populated by Python from unit test due
+    # # to random values populated in OPERA_PV. NOT USING SAS BASELINE DATA
+    # dave_results = pd.read_sql_query(sql, connection)
+    # dave_results.to_csv(r'S:\CASPA\IPS\Testing\Dec_Data\Town and Expenditure\town_and_stay_survey_input.csv')
+    # # TODO: END DAVE!
 
     # Calculate TSE Imputation
     survey_data_out = calculate_ips_town_and_stay_expenditure.do_ips_town_exp_imp(survey_data,

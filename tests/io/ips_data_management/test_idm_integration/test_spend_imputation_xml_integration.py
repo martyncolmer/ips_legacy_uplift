@@ -261,6 +261,7 @@ def test_spend_weight_step():
     idm.store_survey_data_with_step_results(RUN_ID, conn, STEP_CONFIGURATION[STEP_NAME])
 
     result = cf.select_data('*', idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', RUN_ID)
+    result.to_csv(r'S:\CASPA\IPS\Testing\scratch\spend_integration_testing_survey_subsample.csv')
     table_len = result.shape[0]
     assert table_len == EXPECTED_LEN
 

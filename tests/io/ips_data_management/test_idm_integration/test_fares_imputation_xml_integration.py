@@ -205,6 +205,8 @@ def test_fares_imputation_step():
     # Check all columns in SAS_SURVEY_SUBSAMPLE have been altered.
     sas_survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
+    sas_survey_data.to_csv(r'S:\CASPA\IPS\Testing\scratch\toms_input_survey_data.csv')
+
     for column in STEP_CONFIGURATION[STEP_NAME]['pv_columns']:
         column_name = column.replace("'", "")
         assert len(sas_survey_data[column_name]) == EXPECTED_LEN
@@ -247,6 +249,7 @@ def test_fares_imputation_step():
     df_survey_actual.index = range(0, len(df_survey_actual))
     df_survey_target.index = range(0, len(df_survey_target))
 
+    # Dataframe will not match SAS baseline data due to the random values populated from OPERA_PV
     try:
         assert_frame_equal(df_survey_actual, df_survey_target, check_dtype=False)
     except Exception as err:
