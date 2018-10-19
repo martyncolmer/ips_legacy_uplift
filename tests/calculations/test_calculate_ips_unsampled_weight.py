@@ -154,8 +154,8 @@ def test_calculate(data_path):
     df_summary_expected = convert_dataframe_to_sql_format(SUMMARY_TABLE_NAME, df_summary_expected)
 
     # Sort the dataframes for comparison
-    df_summary_result = sort_and_set_index(df_summary_result, ['MINS_PORT_GRP_PV','ARRIVEDEPART','MINS_CTRY_GRP_PV'])
-    df_summary_expected = sort_and_set_index(df_summary_expected, ['MINS_PORT_GRP_PV','ARRIVEDEPART','MINS_CTRY_GRP_PV'])
+    df_summary_result = sort_and_set_index(df_summary_result, ['UNSAMP_PORT_GRP_PV','UNSAMP_REGION_GRP_PV','ARRIVEDEPART'])
+    df_summary_expected = sort_and_set_index(df_summary_expected, ['UNSAMP_PORT_GRP_PV','UNSAMP_REGION_GRP_PV','ARRIVEDEPART'])
 
     assert_frame_equal(df_summary_result, df_summary_expected)
 
