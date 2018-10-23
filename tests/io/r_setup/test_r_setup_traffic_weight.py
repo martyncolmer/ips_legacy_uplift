@@ -16,6 +16,7 @@ import main.calculations.calculate_ips_traffic_weight as c_tr
 SURVEY_TRAFFIC_AUX_TABLE = c_tr.SURVEY_TRAFFIC_AUX_TABLE
 POP_PROWVEC_TABLE = c_tr.POP_PROWVEC_TABLE
 
+
 @pytest.mark.parametrize('path_to_data', [
     r'tests/data/r_setup/October_2017/traffic_weight/',
     ])
@@ -47,6 +48,7 @@ def test_r_survey_input(path_to_data):
     # Check if the test and result dataframes match
     assert_frame_equal(df_test_result, df_expected_result, check_dtype=True, check_like=True)
     print("DONE")
+
 
 @pytest.mark.parametrize('path_to_data', [
     r'tests/data/r_setup/October_2017/traffic_weight/',
