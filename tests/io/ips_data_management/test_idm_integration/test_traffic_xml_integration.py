@@ -8,33 +8,29 @@ from main.io import CommonFunctions as cf
 from main.io import import_traffic_data
 from main.io import ips_data_management as idm
 from main.utils import process_variables
-from main.calculations import calculate_ips_minimums_weight
-
-from main.calculations import calculate_ips_nonresponse_weight as non_resp
+from main.calculations.calculate_ips_traffic_weight import do_ips_trafweight_calculation_with_R
 
 with open('data/xml_steps_configuration.json') as config_file: STEP_CONFIGURATION = json.load(config_file)
 
-RUN_ID = 'test_nonresponse_weight_xml'
-TEST_DATA_DIR = r'tests\data\ips_data_management\non_response_weight_step'
-STEP_NAME = 'NON_RESPONSE'
-SAS_NON_RESPONSE_DATA_TABLE_NAME = 'SAS_NON_RESPONSE_DATA'
-
-step_config = STEP_CONFIGURATION["NON_RESPONSE"]
-
-OUT_TABLE_NAME = "SAS_NON_RESPONSE_WT"  # output data
-SUMMARY_OUT_TABLE_NAME = "SAS_PS_NON_RESPONSE"  # output data
-
+RUN_ID = 'test_traffic_weight_xml'
+STEP_NAME = 'TRAFFIC_WEIGHT'
+step_config = STEP_CONFIGURATION[STEP_NAME]
 PV_RUN_ID = 'TEMPLATE'
 
 # data lengths for testing
 SURVEY_SUBSAMPLE_LENGTH = 21638
-EXPECTED_LEN = 19980
-NON_RESPONSE_DATA_LENGTH = 694
-NON_RESPONSE_SAS_PROCESS_VARIABLE_TABLE_LENGTH = 2
+EXPECTED_LEN = 17731
+TRAFFIC_DATA_LENGTH = 238
+TRAFFIC_SAS_PROCESS_VARIABLE_TABLE_LENGTH = 1
+
+TRAFFIC_DATA_TABLE = 'TRAFFIC_DATA'
+SAS_TRAFFIC_TABLE = 'SAS_TRAFFIC_DATA'
+OUT_TABLE_NAME = "SAS_TRAFFIC_WT"  # output data
+SUMMARY_OUT_TABLE_NAME = "SAS_PS_TRAFFIC"  # output data
 
 # columns to sort the summary results by in order to check calculated dataframes match expected results
-NR_COLUMNS = ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'MEAN_RESPS_SH_WT',
-              'COUNT_RESPS', 'PRIOR_SUM', 'GROSS_RESP', 'GNR', 'MEAN_NR_WT']
+# NR_COLUMNS = ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'MEAN_RESPS_SH_WT',
+#               'COUNT_RESPS', 'PRIOR_SUM', 'GROSS_RESP', 'GNR', 'MEAN_NR_WT']
 
 ist = time.time()
 print("Module level start time: {}".format(ist))
@@ -75,7 +71,7 @@ def teardown_module(module):
 
 
 def reset_tables():
-    pass
+
     """ Cleanses tables within database. """
     # List of tables to cleanse entirely
     tables_to_unconditionally_cleanse = [idm.SAS_SURVEY_SUBSAMPLE_TABLE,
@@ -158,8 +154,9 @@ def populate_test_pv_table():
 
 def import_data_into_database():
 
-    survey_data_path = r'tests/data/ips_data_management/non_response_integration/december/nr_survey_data2.csv'
+    survey_data_path = r'tests/data/ips_data_management/traffic_weight_integration/surveydata_traffic.csv'
 
+    # grab the december traffic data
     shift_data_path = r'tests\data\ips_data_management\import_data\external\december\Poss shifts Dec 2017.csv'
     nr_data_path = r'tests\data\ips_data_management\import_data\external\december\Dec17_NR.csv'
     sea_data_path = r'tests\data\ips_data_management\import_data\external\december\Sea Traffic Dec 2017.csv'
@@ -180,6 +177,8 @@ def import_data_into_database():
     # Insert the imported data into the survey_subsample table on the database.
     cf.insert_dataframe_into_table(idm.SURVEY_SUBSAMPLE_TABLE, df_survey_data)
 
+    cf.delete_from_table(TRAFFIC_DATA_TABLE)
+
     # Import the external files into the database.
     import_traffic_data.import_traffic_data(RUN_ID, shift_data_path)
     import_traffic_data.import_traffic_data(RUN_ID, nr_data_path)
@@ -189,11 +188,12 @@ def import_data_into_database():
     import_traffic_data.import_traffic_data(RUN_ID, unsampled_data_path)
 
 @pytest.mark.parametrize('path_to_data', [
-    r'tests\data\calculations\december_2017\non_response_weight',
+    r'tests/data/ips_data_management/traffic_weight_integration'
+    #r'tests\data\calculations\december_2017\traffic_weight', other months not available right now
     #r'tests\data\calculations\november_2017\non_response_weight', # ignored as data not available
     #r'tests\data\calculations\october_2017\non_response_weight', # ignored as data not available
     ])
-def test_non_response_weight_step(path_to_data):
+def test_traffic_weight_step(path_to_data):
 
     # Get database connection
     conn = database_connection()
@@ -229,7 +229,7 @@ def test_non_response_weight_step(path_to_data):
 
     # Check table has been populated
     table_len = len(cf.get_table_values(step_config["data_table"]))
-    assert table_len == NON_RESPONSE_DATA_LENGTH
+    assert table_len == TRAFFIC_DATA_LENGTH
 
     # Run step 3
     idm.copy_step_pvs_for_survey_data(RUN_ID, conn, step_config)
@@ -248,14 +248,10 @@ def test_non_response_weight_step(path_to_data):
     results = cf.get_table_values(step_config['spv_table'])
     assert len(results) == 0
 
-    # ###########################
-    # run checks 3
-    # ###########################
-
-    # Run step 4  : Apply Non Response Wt PVs On Survey Data
+    # Run step 4  : Apply Traffic Wt PVs On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
-                              out_table_name='SAS_NON_RESPONSE_SPV',
+                              out_table_name='SAS_TRAFFIC_SPV',
                               in_id='serial')
 
     # ###########################
@@ -265,7 +261,7 @@ def test_non_response_weight_step(path_to_data):
     table_len = len(cf.get_table_values(step_config["spv_table"]))
     assert table_len == EXPECTED_LEN
 
-    # Run step 5 : Update Survey Data with Non Response Wt PVs Output
+    # Run step 5 : Update Survey Data with Traffic Wt PVs Output
     idm.update_survey_data_with_step_pv_output(conn, step_config)
 
     # ###########################
@@ -277,7 +273,7 @@ def test_non_response_weight_step(path_to_data):
     for column in step_config['pv_columns']:
         column_name = column.replace("'", "")
         assert len(result[column_name]) == EXPECTED_LEN
-        assert result[column_name].sum() != 0
+        assert result[column_name].count() != 0
 
     # Assert SAS_PROCESS_VARIABLES_TABLE has been cleansed
     table_len = len(cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE))
@@ -300,12 +296,12 @@ def test_non_response_weight_step(path_to_data):
 
     # Assert SAS_PROCESS_VARIABLES_TABLE was populated
     table_len = len(cf.get_table_values(idm.SAS_PROCESS_VARIABLES_TABLE))
-    assert table_len == NON_RESPONSE_SAS_PROCESS_VARIABLE_TABLE_LENGTH
+    assert table_len == TRAFFIC_SAS_PROCESS_VARIABLE_TABLE_LENGTH
 
     # Run step 7 : Apply Non Response Wt PVs On Non Response Data
-    process_variables.process(dataset='non_response',
-                                  in_table_name='SAS_NON_RESPONSE_DATA',
-                                  out_table_name='SAS_NON_RESPONSE_PV',
+    process_variables.process(dataset='traffic',
+                                  in_table_name='SAS_TRAFFIC_DATA',
+                                  out_table_name='SAS_TRAFFIC_PV',
                                   in_id='REC_ID')
 
     # ###########################
@@ -313,7 +309,7 @@ def test_non_response_weight_step(path_to_data):
     # ###########################
 
     table_len = len(cf.get_table_values(step_config["pv_table"]))
-    assert table_len == NON_RESPONSE_DATA_LENGTH
+    assert table_len == TRAFFIC_DATA_LENGTH
 
     # Run step 8 : Update NonResponse Data With PVs Output
     idm.update_step_data_with_step_pv_output(conn, step_config)
@@ -324,7 +320,7 @@ def test_non_response_weight_step(path_to_data):
 
     # Assert data table was populated
     table_len = len(cf.get_table_values(step_config["data_table"]))
-    assert table_len == NON_RESPONSE_DATA_LENGTH
+    assert table_len == TRAFFIC_DATA_LENGTH
 
     # Assert the following tables were cleansed
     deleted_tables = [step_config["pv_table"],
@@ -337,7 +333,7 @@ def test_non_response_weight_step(path_to_data):
         assert table_len == 0
 
     # ##############################
-    # Calculate Non Response Weight
+    # Calculate Traffic Weight
     # ##############################
 
     # import the data from SQL and sort
@@ -345,107 +341,141 @@ def test_non_response_weight_step(path_to_data):
     df_surveydata_import_actual_sql = df_surveydata_import_actual.sort_values(by='SERIAL')
     df_surveydata_import_actual_sql.index = range(0, len(df_surveydata_import_actual_sql))
 
-    df_nr_data_import_actual = cf.get_table_values(SAS_NON_RESPONSE_DATA_TABLE_NAME)
+    df_tr_data_import_actual = cf.get_table_values(SAS_TRAFFIC_TABLE)
+
+    df_surveydata_import_actual_sql.to_csv(r'C:\Temp\traffic_data_test\tr_surveydata.csv', index=False)
+    df_tr_data_import_actual.to_csv(r'C:\Temp\traffic_data_test\tr_data.csv', index=False)
+
+    # ------------ NASSIR
+
+    df_test_traffic_data = pd.read_csv(r"C:\Git_projects\IPS_Legacy_Uplift\tests\data\calculations\december_2017\traffic_weight\trafficdata.csv")
+    assert_frame_equal(df_tr_data_import_actual, df_test_traffic_data, check_dtype=False, check_less_precise=True)
 
     # fix formatting in actual data
-    df_surveydata_import_actual_sql.drop(['EXPENDCODE'], axis=1, inplace=True)
-    df_surveydata_import_actual_sql['SHIFT_PORT_GRP_PV'] = \
-        df_surveydata_import_actual_sql['SHIFT_PORT_GRP_PV'].apply(pd.to_numeric, errors='coerce')
+    #df_surveydata_import_actual_sql.drop(['EXPENDCODE'], axis=1, inplace=True)
 
-    # do the calculation step
-    result_py_data = non_resp.do_ips_nrweight_calculation(df_surveydata_import_actual_sql, df_nr_data_import_actual,
-                                                          'NON_RESPONSE_WT', 'SERIAL')
+    #df_surveydata_import_actual_sql['SHIFT_PORT_GRP_PV'] = \
+    #    df_surveydata_import_actual_sql['SHIFT_PORT_GRP_PV'].apply(pd.to_numeric, errors='coerce')
+
+    df_test_survey_data = pd.read_csv(r'C:\Git_projects\IPS_Legacy_Uplift\tests\data\calculations\december_2017\traffic_weight\surveydata.csv', engine='python')
+    df_test_survey_data.columns = df_test_survey_data.columns.str.upper()
+    df_test_survey_data = df_test_survey_data.sort_values(by='SERIAL')
+    df_test_survey_data.index = range(0, len(df_test_survey_data))
+
+    assert_frame_equal(df_surveydata_import_actual_sql, df_test_survey_data, check_dtype=False, check_less_precise=True)
+
+    # ------------ NASSIR
+
+
+    # do the calculation
+    df_output_merge_final, df_output_summary = do_ips_trafweight_calculation_with_R(df_surveydata_import_actual_sql,
+                                                                                    df_tr_data_import_actual)
 
     # ###########################
     # run checks
     # ###########################
 
+    # test start - turn on when testing/refactoring intermediate steps
+    df_test = pd.read_csv(path_to_data + '/output_final.csv', engine='python')
+    df_test.columns = df_test.columns.str.upper()
+    assert_frame_equal(df_output_merge_final, df_test, check_dtype=False, check_less_precise=True)
+
+    df_test2 = pd.read_csv(path_to_data + '/summary_final.csv', engine='python')
+    df_test2.columns = df_test2.columns.str.upper()
+    assert_frame_equal(df_output_summary, df_test2, check_dtype=False, check_less_precise=True)
+
+    # grab the table data from SQL directly
+
+    # insert the calculated csv data into SQL and pull back
+
+    # compare the calculated data against the SQL data
+
     # Retrieve and sort python calculated dataframes
-    py_survey_data = result_py_data[0]
-    py_survey_data = py_survey_data.sort_values(by='SERIAL')
-    py_survey_data.index = range(0, len(py_survey_data))
+    # py_survey_data = result_py_data[0]
+    # py_survey_data = py_survey_data.sort_values(by='SERIAL')
+    # py_survey_data.index = range(0, len(py_survey_data))
+    #
+    # py_summary_data = result_py_data[1]
+    # py_summary_data.sort_values(by=NR_COLUMNS)
+    # py_summary_data[NR_COLUMNS] = py_summary_data[NR_COLUMNS].apply(pd.to_numeric, errors='coerce', downcast='float')
+    # py_summary_data.index = range(0, len(py_summary_data))
+    #
+    # # insert the csv output data into SQL and read back, this is for testing against data pulled from SQL Server
+    # test_result_survey = pd.read_csv(path_to_data + '/outputdata_final.csv', engine='python')
+    # cf.delete_from_table(OUT_TABLE_NAME)
+    # test_result_survey_sql = convert_dataframe_to_sql_format(OUT_TABLE_NAME, test_result_survey)
+    # test_result_survey_sql = test_result_survey_sql.sort_values(by='SERIAL')
+    # test_result_survey_sql.index = range(0, len(test_result_survey_sql))
+    #
+    # test_result_summary = pd.read_csv(path_to_data + '/summarydata_final.csv', engine='python')
+    # cf.delete_from_table(SUMMARY_OUT_TABLE_NAME)
+    # test_result_summary_sql = convert_dataframe_to_sql_format(SUMMARY_OUT_TABLE_NAME, test_result_summary)
+    # test_result_summary_sql = test_result_summary_sql.sort_values(by=NR_COLUMNS)
+    # test_result_summary_sql[NR_COLUMNS] = test_result_summary_sql[NR_COLUMNS].apply(pd.to_numeric, errors='coerce', downcast='float')
+    # test_result_summary_sql.index = range(0, len(test_result_summary_sql))
+    #
+    # # Assert dfs are equal
+    # assert_frame_equal(py_survey_data, test_result_survey_sql, check_dtype=False, check_like=True,
+    #                    check_less_precise=True)
+    #
+    # assert_frame_equal(py_summary_data, test_result_summary_sql, check_dtype=False, check_like=True,
+    #                    check_less_precise=True)
+    #
+    #
+    # # put the actual SQL data back in for the remaining steps
+    # cf.delete_from_table(OUT_TABLE_NAME)
+    # cf.delete_from_table(SUMMARY_OUT_TABLE_NAME)
+    # cf.insert_dataframe_into_table(OUT_TABLE_NAME, py_survey_data)
+    # cf.insert_dataframe_into_table(SUMMARY_OUT_TABLE_NAME, py_summary_data)
 
-    py_summary_data = result_py_data[1]
-    py_summary_data.sort_values(by=NR_COLUMNS)
-    py_summary_data[NR_COLUMNS] = py_summary_data[NR_COLUMNS].apply(pd.to_numeric, errors='coerce', downcast='float')
-    py_summary_data.index = range(0, len(py_summary_data))
-
-    # insert the csv output data into SQL and read back, this is for testing against data pulled from SQL Server
-    test_result_survey = pd.read_csv(path_to_data + '/outputdata_final.csv', engine='python')
-    cf.delete_from_table(OUT_TABLE_NAME)
-    test_result_survey_sql = convert_dataframe_to_sql_format(OUT_TABLE_NAME, test_result_survey)
-    test_result_survey_sql = test_result_survey_sql.sort_values(by='SERIAL')
-    test_result_survey_sql.index = range(0, len(test_result_survey_sql))
-
-    test_result_summary = pd.read_csv(path_to_data + '/summarydata_final.csv', engine='python')
-    cf.delete_from_table(SUMMARY_OUT_TABLE_NAME)
-    test_result_summary_sql = convert_dataframe_to_sql_format(SUMMARY_OUT_TABLE_NAME, test_result_summary)
-    test_result_summary_sql = test_result_summary_sql.sort_values(by=NR_COLUMNS)
-    test_result_summary_sql[NR_COLUMNS] = test_result_summary_sql[NR_COLUMNS].apply(pd.to_numeric, errors='coerce', downcast='float')
-    test_result_summary_sql.index = range(0, len(test_result_summary_sql))
-
-    # Assert dfs are equal
-    assert_frame_equal(py_survey_data, test_result_survey_sql, check_dtype=False, check_like=True,
-                       check_less_precise=True)
-
-    assert_frame_equal(py_summary_data, test_result_summary_sql, check_dtype=False, check_like=True,
-                       check_less_precise=True)
-
-
-    # put the actual SQL data back in for the remaining steps
-    cf.delete_from_table(OUT_TABLE_NAME)
-    cf.delete_from_table(SUMMARY_OUT_TABLE_NAME)
-    cf.insert_dataframe_into_table(OUT_TABLE_NAME, py_survey_data)
-    cf.insert_dataframe_into_table(SUMMARY_OUT_TABLE_NAME, py_summary_data)
-
-    # Update Survey Data With Non Response Wt Results
-    idm.update_survey_data_with_step_results(conn, step_config)
-
-    # ###########################
-    # run checks 9
-    # ###########################
-
-    table_len = len(cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE))
-    assert table_len == EXPECTED_LEN
-
-    table_len = len(cf.get_table_values(step_config["temp_table"]))
-    assert table_len == 0
-
-    # Store Survey Data With NonResponse Wt Results
-    idm.store_survey_data_with_step_results(RUN_ID, conn, step_config)
-
-    # ###########################
-    # run checks 10
-    # ###########################
-
-    # Assert SURVEY_SUBSAMPLE_TABLE was populated
-    result = cf.select_data('*', idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', RUN_ID)
-    table_len = result.shape[0]
-    assert table_len == SURVEY_SUBSAMPLE_LENGTH
-
-    # Assert all records for corresponding run_id were deleted from ps_table.
-    result = cf.select_data('*', step_config["ps_table"], 'RUN_ID', RUN_ID)
-
-    # Indicating no dataframe was pulled from SQL.
-    if result == False:
-        assert True
-
-    # Assert SAS_SURVEY_SUBSAMPLE_TABLE was cleansed
-    table_len = len(cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE))
-    assert table_len == 0
-
-    # Store Non Response Wt Summary
-    idm.store_step_summary(RUN_ID, conn, step_config)
-
-    # ###########################
-    # run checks 11
-    # ###########################
-
-    # Assert summary was populated.
-    result = cf.select_data('*', step_config["ps_table"], 'RUN_ID', RUN_ID)
-    table_len = result.shape[0]
-    assert table_len == 207
-
-    # Assert temp table was cleansed
-    table_len = len(cf.get_table_values(step_config["sas_ps_table"]))
-    assert table_len == 0
+    # # Update Survey Data With Non Response Wt Results
+    # idm.update_survey_data_with_step_results(conn, step_config)
+    #
+    # # ###########################
+    # # run checks 9
+    # # ###########################
+    #
+    # table_len = len(cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE))
+    # assert table_len == EXPECTED_LEN
+    #
+    # table_len = len(cf.get_table_values(step_config["temp_table"]))
+    # assert table_len == 0
+    #
+    # # Store Survey Data With NonResponse Wt Results
+    # idm.store_survey_data_with_step_results(RUN_ID, conn, step_config)
+    #
+    # # ###########################
+    # # run checks 10
+    # # ###########################
+    #
+    # # Assert SURVEY_SUBSAMPLE_TABLE was populated
+    # result = cf.select_data('*', idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', RUN_ID)
+    # table_len = result.shape[0]
+    # assert table_len == SURVEY_SUBSAMPLE_LENGTH
+    #
+    # # Assert all records for corresponding run_id were deleted from ps_table.
+    # result = cf.select_data('*', step_config["ps_table"], 'RUN_ID', RUN_ID)
+    #
+    # # Indicating no dataframe was pulled from SQL.
+    # if result == False:
+    #     assert True
+    #
+    # # Assert SAS_SURVEY_SUBSAMPLE_TABLE was cleansed
+    # table_len = len(cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE))
+    # assert table_len == 0
+    #
+    # # Store Non Response Wt Summary
+    # idm.store_step_summary(RUN_ID, conn, step_config)
+    #
+    # # ###########################
+    # # run checks 11
+    # # ###########################
+    #
+    # # Assert summary was populated.
+    # result = cf.select_data('*', step_config["ps_table"], 'RUN_ID', RUN_ID)
+    # table_len = result.shape[0]
+    # assert table_len == 207
+    #
+    # # Assert temp table was cleansed
+    # table_len = len(cf.get_table_values(step_config["sas_ps_table"]))
+    # assert table_len == 0
