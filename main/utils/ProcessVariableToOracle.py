@@ -3,14 +3,14 @@ import pandas as pd
 import sys
 import random
 
-pv_name = 'SPEND_IMP_ELIGIBLE_PV'
+pv_name = 'FARES_IMP_ELIGIBLE_PV'
 
 val = """
 '
-if (row[''FLOW''] in (1,4,5,8) and row[''PURPOSE''] < 80 and row[''PURPOSE''] != 23 and row[''PURPOSE''] != 24 and row[''MINS_FLAG_PV''] == 0) or (row[''FLOW''] in (1,4,5,8) and str(row[''PURPOSE'']) == ''nan'' and row[''MINS_FLAG_PV''] == 0):        
-    row[''SPEND_IMP_ELIGIBLE_PV''] = 1
+if (((row[''FAREKEY''] == ''1'') or (row[''FAREKEY''] == ''1.0'')) or (int(row[''FARES_IMP_FLAG_PV'']) == 1)) and (int(row[''MINS_FLAG_PV'']) == 0):
+    row[''FARES_IMP_ELIGIBLE_PV''] = 1
 else:
-    row[''SPEND_IMP_ELIGIBLE_PV''] = 0
+    row[''FARES_IMP_ELIGIBLE_PV''] = 0
 '
 """
 
@@ -61,5 +61,5 @@ def read_pv_table(pv_name = None,conn = None):
 
     print(len(process_variables))
 
-# write_pv_to_table(pv_name, val)
+write_pv_to_table(pv_name, val)
 read_pv_table(pv_name)

@@ -573,18 +573,19 @@ def spend_imputation_step(run_id, connection):
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    # # TODO: FOR DAVE
-    # import pandas as pd
-    # sql = """
-    #         SELECT *
-    #           FROM {}
-    #         """.format(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-    #
-    # # Using comparison data populated by Python from unit test due
-    # # to random values populated in OPERA_PV. NOT USING SAS BASELINE DATA
-    # dave_results = pd.read_sql_query(sql, connection)
-    # dave_results.to_csv(r'S:\CASPA\IPS\Testing\Dec_Data\Spend\spend_survey_input3.csv')
-    # # TODO: END DAVE!
+    # TODO: FOR DEBUGGING
+    import pandas as pd
+    sql = """
+            SELECT [SERIAL], [SPEND] as 'newspend'
+              FROM {}
+              WHERE [SPEND_IMP_ELIGIBLE_PV] = '1'
+            """.format(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+    # Using comparison data populated by Python from unit test due
+    # to random values populated in OPERA_PV. NOT USING SAS BASELINE DATA
+    fares_input = pd.read_sql_query(sql, connection)
+    fares_input.to_csv(r'S:\CASPA\IPS\Testing\scratch\fares_input.csv')
+    # TODO: END DEBUGGING!
 
     # Calculate Spend Imputation
     survey_data_out = calculate_ips_spend_imputation.do_ips_spend_imputation(survey_data,
@@ -695,7 +696,29 @@ def regional_weights_step(run_id, connection):
     # # TODO: FOR DAVE
     # import pandas as pd
     # sql = """
-    #             SELECT *
+    #             SELECT [SERIAL],
+    #                     [NIGHTS1],
+    #                     [NIGHTS2],
+    #                     [NIGHTS3],
+    #                     [NIGHTS4],
+    #                     [NIGHTS5],
+    #                     [NIGHTS6],
+    #                     [NIGHTS7],
+    #                     [NIGHTS8],
+    #                     [EXPENDITURE_WT],
+    #                     [EXPENDITURE_WTK],
+    #                     [STAY1K],
+    #                     [STAY2K],
+    #                     [STAY3K],
+    #                     [STAY4K],
+    #                     [STAY5K],
+    #                     [STAY6K],
+    #                     [STAY7K],
+    #                     [STAY8K],
+    #                     [STAY_WT],
+    #                     [STAY_WTK],
+    #                     [VISIT_WT],
+    #                     [VISIT_WTK]
     #               FROM {}
     #             """.format(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
     #

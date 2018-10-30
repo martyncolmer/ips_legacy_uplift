@@ -7,7 +7,7 @@ import math
 random.seed(123456)
 
 count = 1
-def modify_values(row, pvs, dataset):
+def modify_values(row, pvs, dataset, out_table_name):
     """
     Author       : Thomas Mahoney
     Date         : 27 / 03 / 2018
@@ -19,6 +19,7 @@ def modify_values(row, pvs, dataset):
     Requirements : this function must be called through a pandas apply statement.
     Dependencies : NA
     """
+
     for pv in pvs:
         code = str(pv[1])
         try:
@@ -96,7 +97,7 @@ def process(in_table_name, out_table_name, in_id, dataset):
         df_data = df_data.sort_values('SERIAL')
 
     # Apply process variables
-    df_data = df_data.apply(modify_values, axis=1, args=(process_variables, dataset))
+    df_data = df_data.apply(modify_values, axis=1, args=(process_variables, dataset, out_table_name))
 
     # Create a list to hold the PV column names
     updated_columns = []

@@ -441,7 +441,6 @@ def update_survey_data_with_step_results(conn, step_configuration):
         cur.execute(sql2)
     conn.commit()
 
-    # Cleanse temporary table
     cf.delete_from_table(table)
 
 

@@ -550,7 +550,7 @@ def select_data(column_name, table_name, condition1, condition2):
 
     try:
         result = pandas.read_sql(sql, conn)
-        print("Result: {}".format(result))
+        # print("Result: {}".format(result))
     except Exception as err:
         print(err)
         # Return False to indicate error
@@ -1088,8 +1088,22 @@ def unpickle_rick(file):
 
 
 def scratch():
-    pass
+    debug_this = pandas.read_csv(r'S:\CASPA\IPS\Testing\scratch\try_this.csv', engine='python')
 
+    fares_results = pandas.read_csv(r'S:\CASPA\IPS\Testing\scratch\fares_input.csv', engine='python')
+    spend_results = pandas.read_csv(r'S:\CASPA\IPS\Testing\scratch\spend_expected_results.csv', engine='python')
+    fares_results.sort_values(by='SERIAL', inplace=True)
+    spend_results.sort_values(by='SERIAL', inplace=True)
+    fares_results.index = range(0, len(fares_results))
+    expected_results = pandas.merge(spend_results, fares_results, on='SERIAL', how='left')
+
+    expected_results.loc[(expected_results['newspend'] == np.nan), 'newspend'] = 'x'
+
+    # expected_results['newspend'] = np.where(expected_results['newspend'] == np.nan, 'x', expected_results['newspend'])
+    # expected_results.loc[expected_results['newspend'] == 410, expected_results['newspend']] = expected_results['SPEND']
+
+    expected_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\new_merged_expected.csv')
 
 if __name__ == '__main__':
+
     scratch()
