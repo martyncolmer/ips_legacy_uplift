@@ -75,7 +75,7 @@ def r_survey_input(survey_input):
     lookup_dataframe = lookup_dataframe.drop(["count"], axis=1)
     lookup_dataframe["T1"] = range(len(lookup_dataframe))
     lookup_dataframe["T1"] = lookup_dataframe["T1"] + 1
-    
+
     # Merge lookup data in to source dataframe
     df_aux_variables = pd.merge(df_survey_input_sorted, lookup_dataframe, on=['UNSAMP_PORT_GRP_PV',
                                                                               'UNSAMP_REGION_GRP_PV',
