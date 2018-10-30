@@ -53,7 +53,7 @@ def r_survey_input(survey_input):
     # Sort input values
     sort1 = ['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV', 'ARRIVEDEPART']
 
-    df_survey_input['UNSAMP_REGION_GRP_PV'] = df_survey_input['UNSAMP_REGION_GRP_PV'].apply(pd.to_numeric)
+    #df_survey_input['UNSAMP_REGION_GRP_PV'] = df_survey_input['UNSAMP_REGION_GRP_PV'].apply(pd.to_numeric)
     df_survey_input_sorted = df_survey_input.sort_values(sort1)
 
     # Cleanse data
@@ -72,10 +72,10 @@ def r_survey_input(survey_input):
 
 
     # Cleanse data
-    lookup_dataframe.drop(["count"], axis=1)
+    lookup_dataframe = lookup_dataframe.drop(["count"], axis=1)
     lookup_dataframe["T1"] = range(len(lookup_dataframe))
     lookup_dataframe["T1"] = lookup_dataframe["T1"] + 1
-
+    
     # Merge lookup data in to source dataframe
     df_aux_variables = pd.merge(df_survey_input_sorted, lookup_dataframe, on=['UNSAMP_PORT_GRP_PV',
                                                                               'UNSAMP_REGION_GRP_PV',
@@ -95,9 +95,13 @@ def r_survey_input(survey_input):
     # Export dataframes to CSV
     #df_r_ges_input.to_csv(r"tests/data/r_setup/October_2017/unsampled_weight/df_r_ges_input_unsamp.csv", index=False)
 
+    # # ROUND VALUES - Added to match SAS output
+    # df_r_ges_input = df_r_ges_input.round({'OOHDesignWeight': 7})
+
     cf.insert_dataframe_into_table("dbo.survey_unsamp_aux",df_r_ges_input)
 
-    df_aux_variables = df_aux_variables.drop(columns=['count_x','count_y','T1','OOHDesignWeight'], axis = 1)
+    # df_aux_variables = df_aux_variables.drop(columns=['count_x','count_y','T1','OOHDesignWeight'], axis = 1)
+    df_aux_variables = df_aux_variables.drop(columns=['T1','OOHDesignWeight'], axis = 1)
 
     return df_aux_variables
 
@@ -233,7 +237,7 @@ def r_population_input(survey_input, ustotals):
 
     sort1 = ['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV', 'ARRIVEDEPART']
 
-    df_survey_input['UNSAMP_REGION_GRP_PV'] = df_survey_input['UNSAMP_REGION_GRP_PV'].apply(pd.to_numeric)
+    #df_survey_input['UNSAMP_REGION_GRP_PV'] = df_survey_input['UNSAMP_REGION_GRP_PV'].apply(pd.to_numeric)
 
     df_survey_input_lookup = df_survey_input.sort_values(sort1)
 
@@ -304,6 +308,11 @@ def r_population_input(survey_input, ustotals):
 
     df_mod_totals['C_group'] = 1
     df_mod_totals = df_mod_totals.drop(['ARRIVEDEPART', 'UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV'], axis=1)
+
+
+    # # ROUND VALUES - Added to match SAS output
+    # df_mod_totals = df_mod_totals.round({'UNSAMP_TOTAL': 3})
+
     df_mod_totals = df_mod_totals.pivot_table(index='C_group',
                                               columns='T1',
                                               values='UNSAMP_TOTAL')
