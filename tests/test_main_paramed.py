@@ -30,11 +30,45 @@ def database_connection():
 def setup_module(module):
     """ setup any state specific to the execution of the given module."""
 
-    pv_run_id = 'TEMPLATE'
+    # Import external and survey data for October
+    test_data_dir = r'tests\data\main\oct\import_data'
+    run_id = 'test-main-october'
+
+    cleanse_tables(run_id)
+    import_data_into_database(survey_data_path=test_data_dir + r'\ips1710b_1.csv',
+                              shift_data_path=test_data_dir + r'\Poss shifts Oct 2017.csv',
+                              nr_data_path=test_data_dir + r'\Oct_NRMFS.csv',
+                              sea_data_path=test_data_dir + r'\Sea Traffic Oct 2017.csv',
+                              tunnel_data_path=test_data_dir + r'\Tunnel Traffic Oct 2017.csv',
+                              air_data_path=test_data_dir + r'\Air Sheet Oct 2017 VBA2nd.csv',
+                              unsampled_data_path=test_data_dir + r'\Unsampled Traffic Oct 20172nd.csv',
+                              run_id=run_id)
+
+    # populates test data within pv table for December
+    populate_test_pv_table(run_id)
+
+    # Import external and survey data for November
+    test_data_dir = r'tests\data\main\nov\import_data'
+    run_id = 'test-main-november'
+
+    cleanse_tables(run_id)
+    import_data_into_database(survey_data_path=test_data_dir + r'\ips1711h_1.csv',
+                              shift_data_path=test_data_dir + r'\Poss shifts Nov 2017.csv',
+                              nr_data_path=test_data_dir + r'\Nov_NRMFS.csv',
+                              sea_data_path=test_data_dir + r'\Sea Traffic Nov 2017.csv',
+                              tunnel_data_path=test_data_dir + r'\Tunnel Traffic Nov 2017.csv',
+                              air_data_path=test_data_dir + r'\Air Sheet Nov 2017 VBA.csv',
+                              unsampled_data_path=test_data_dir + r'\Unsampled Traffic Nov 2017.csv',
+                              run_id=run_id)
+
+    # populates test data within pv table for December
+    populate_test_pv_table(run_id)
 
     # Import external and survey data for December
     test_data_dir = r'tests\data\main\dec\import_data'
     run_id = 'test-main-december'
+
+    cleanse_tables(run_id)
     import_data_into_database(survey_data_path=test_data_dir + r'\surveydata.csv',
                               shift_data_path=test_data_dir + r'\Poss shifts Dec 2017.csv',
                               nr_data_path=test_data_dir + r'\Dec17_NR.csv',
@@ -45,39 +79,32 @@ def setup_module(module):
                               run_id=run_id)
 
     # populates test data within pv table for December
-    populate_test_pv_table(run_id, pv_run_id)
+    populate_test_pv_table(run_id)
 
 
-def teardown_module(module):
+def cleanse_tables(run_id):
     """ teardown any state that was previously setup with a setup_module
         method.
         """
-    # TODO: Add this to the list before merge
-    cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID)
-
     # List of tables to cleanse where [RUN_ID] = RUN_ID
-    tables_to_cleanse = ['[dbo].[PROCESS_VARIABLE_PY]',
-                         '[dbo].[PROCESS_VARIABLE_TESTING]']
-                         # '[dbo].[TRAFFIC_DATA]',
-                         # '[dbo].[SHIFT_DATA]',
-                         # '[dbo].[NON_RESPONSE_DATA]',
-                         # '[dbo].[UNSAMPLED_OOH_DATA]',
-                         # idm.SURVEY_SUBSAMPLE_TABLE]
+    tables_to_cleanse = ['[PROCESS_VARIABLE_PY]',
+                         '[PROCESS_VARIABLE_TESTING]',
+                         '[TRAFFIC_DATA]',
+                         '[SHIFT_DATA]',
+                         '[NON_RESPONSE_DATA]',
+                         '[UNSAMPLED_OOH_DATA]',
+                         idm.SURVEY_SUBSAMPLE_TABLE]
 
     # Try to delete from each table in list where condition.  If exception occurs,
     # assume table is already empty, and continue deleting from tables in list.
     for table in tables_to_cleanse:
         try:
-            cf.delete_from_table(table, 'RUN_ID', '=', RUN_ID)
+            cf.delete_from_table(table, 'RUN_ID', '=', run_id)
         except Exception:
             continue
 
-    # Play audio notification to indicate test is complete and print duration for performance.
-    cf.beep()
-    print("Duration: {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time() - START_TIME))))
 
-
-def populate_test_pv_table(run_id, pv_run_id):
+def populate_test_pv_table(run_id):
     """ Set up table to run and test copy_step_pvs_for_survey_data()
         Note: Had to break up sql statements due to following error:
         'pyodbc.Error: ('HY000', '[HY000] [Microsoft][ODBC SQL Server Driver]Connection is busy with results for
@@ -94,12 +121,13 @@ def populate_test_pv_table(run_id, pv_run_id):
     sql1 = """
     INSERT INTO [PROCESS_VARIABLE_TESTING]
     SELECT * FROM [PROCESS_VARIABLE_PY]
-    WHERE [RUN_ID] = '{}'
-    """.format(pv_run_id)
+    WHERE [RUN_ID] = 'TEMPLATE'
+    """
 
     sql2 = """
     UPDATE [PROCESS_VARIABLE_TESTING]
     SET [RUN_ID] = '{}'
+    WHERE [RUN_ID] = 'TEMPLATE'
     """.format(run_id)
 
     sql3 = """
@@ -138,9 +166,15 @@ def import_data_into_database(survey_data_path, shift_data_path, nr_data_path, s
 
 
 @pytest.mark.parametrize('run_id, expected_survey_results_path, expected_summary_results_path', [
-    ('test-main-december', r'tests\data\main\dec\shift_weight\surveydata_out_expected.csv', r'tests\data\main\dec\shift_weight\summary_out_expected.csv'),
-    # ('test-main-december', r'tests\data\main\dec\shift_weight\surveydata_out_expected.csv', r'tests\data\main\dec\shift_weight\summary_out_expected.csv'),
-    # (r'tests\data\main\dec\shift_weight\surveydata_out_expected.csv', r'tests\data\main\dec\shift_weight\summary_out_expected.csv'),
+    ('test-main-october',
+     r'tests\data\main\oct\shift_weight\surveydata_out_expected.csv',
+     r'tests\data\main\oct\shift_weight\summary_out_expected.csv'),
+    ('test-main-november',
+     r'tests\data\main\nov\shift_weight\surveydata_out_expected.csv',
+     r'tests\data\main\nov\shift_weight\summary_out_expected.csv'),
+    ('test-main-december',
+     r'tests\data\main\dec\shift_weight\surveydata_out_expected.csv',
+     r'tests\data\main\dec\shift_weight\summary_out_expected.csv'),
     ])
 def test_shift_weight_step(run_id, expected_survey_results_path, expected_summary_results_path):
     # Assign variables
@@ -151,8 +185,7 @@ def test_shift_weight_step(run_id, expected_survey_results_path, expected_summar
     main_run.shift_weight_step(run_id, conn)
 
     # Get results of Survey Data and compare
-    sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
-    sql_cols = "[SERIAL], " + sql_cols
+    sql_cols = "[SERIAL], [SHIFT_WT]"
 
     actual_results = cf.select_data(sql_cols, idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', run_id)
     expected_results = pd.read_csv(expected_survey_results_path, engine='python')
@@ -165,6 +198,12 @@ def test_shift_weight_step(run_id, expected_survey_results_path, expected_summar
     expected_results = expected_results.sort_values('SERIAL')
     expected_results.index = range(0, len(expected_results))
 
+    actual_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\actual_results-' + run_id + '.csv')
+    expected_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\expected_results-' + run_id + '.csv')
+
+    if run_id == 'test-main-december':
+        expected_results = expected_results[['SERIAL', 'SHIFT_WT']].copy()
+
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
     # Get results of Summary Data and compare
@@ -175,13 +214,11 @@ def test_shift_weight_step(run_id, expected_survey_results_path, expected_summar
     actual_results = actual_results.sort_values(
         ['SHIFT_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'AM_PM_NIGHT_PV', 'MIGSI', 'POSS_SHIFT_CROSS',
          'SAMP_SHIFT_CROSS', 'MIN_SH_WT', 'MEAN_SH_WT', 'MAX_SH_WT', 'COUNT_RESPS', 'SUM_SH_WT'])
-    actual_results['ARRIVEDEPART'] = pd.to_numeric(actual_results['ARRIVEDEPART'], errors='coerce')
     actual_results.index = range(0, len(actual_results))
 
     expected_results = expected_results.sort_values(
         ['SHIFT_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'AM_PM_NIGHT_PV', 'MIGSI', 'POSS_SHIFT_CROSS',
          'SAMP_SHIFT_CROSS', 'MIN_SH_WT', 'MEAN_SH_WT', 'MAX_SH_WT', 'COUNT_RESPS', 'SUM_SH_WT'])
-    expected_results['ARRIVEDEPART'] = pd.to_numeric(expected_results['ARRIVEDEPART'], errors='coerce')
     expected_results.index = range(0, len(expected_results))
 
     assert_frame_equal(actual_results, expected_results, check_dtype=False)

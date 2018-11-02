@@ -518,7 +518,6 @@ def delete_from_table(table_name, condition1=None, operator=None
     try:
         cur.execute(sql)
     except Exception as err:
-        print("bla!")
         print(err)
         #database_logger().error(err, exc_info = True)
         return False
@@ -1036,7 +1035,6 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False, fast=Tr
     # Use the strings created above to build the sql query.
     sql = "INSERT into " + table_name + \
           "(" + columns_string + ") VALUES (" + value_string + ")"
-    print(sql)
 
     start_time = time.time()
 

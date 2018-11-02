@@ -77,6 +77,9 @@ def shift_weight_step(run_id, connection):
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
     shift_data = cf.get_table_values(STEP_CONFIGURATION[step_name]["data_table"])
 
+    survey_data.to_csv(r'S:\CASPA\IPS\Testing\scratch\survey_data_in-' + run_id + '.csv')
+    shift_data.to_csv(r'S:\CASPA\IPS\Testing\scratch\shift_data-' + run_id + '.csv')
+
     # Calculate Shift Weight
     survey_data_out, summary_data_out = calculate_ips_shift_weight.do_ips_shift_weight_calculation(survey_data,
                                                                                                    shift_data,
@@ -573,19 +576,19 @@ def spend_imputation_step(run_id, connection):
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    # TODO: FOR DEBUGGING
-    import pandas as pd
-    sql = """
-            SELECT [SERIAL], [SPEND] as 'newspend'
-              FROM {}
-              WHERE [SPEND_IMP_ELIGIBLE_PV] = '1'
-            """.format(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-
-    # Using comparison data populated by Python from unit test due
-    # to random values populated in OPERA_PV. NOT USING SAS BASELINE DATA
-    fares_input = pd.read_sql_query(sql, connection)
-    fares_input.to_csv(r'S:\CASPA\IPS\Testing\scratch\fares_input.csv')
-    # TODO: END DEBUGGING!
+    # # TODO: FOR DEBUGGING
+    # import pandas as pd
+    # sql = """
+    #         SELECT [SERIAL], [SPEND] as 'newspend'
+    #           FROM {}
+    #           WHERE [SPEND_IMP_ELIGIBLE_PV] = '1'
+    #         """.format(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    #
+    # # Using comparison data populated by Python from unit test due
+    # # to random values populated in OPERA_PV. NOT USING SAS BASELINE DATA
+    # fares_input = pd.read_sql_query(sql, connection)
+    # fares_input.to_csv(r'S:\CASPA\IPS\Testing\scratch\fares_input.csv')
+    # # TODO: END DEBUGGING!
 
     # Calculate Spend Imputation
     survey_data_out = calculate_ips_spend_imputation.do_ips_spend_imputation(survey_data,

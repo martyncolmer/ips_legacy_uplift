@@ -14,7 +14,7 @@ from main.io import ips_data_management as idm
 with open(r'data/xml_steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)
 
-RUN_ID = 'test-main'
+RUN_ID = 'test-main-december'
 PV_RUN_ID = 'TEMPLATE'
 TEST_DATA_DIR = r'tests\data'
 
@@ -153,21 +153,12 @@ def import_data_into_database():
 
     # Cleanse
     cf.delete_from_table('SURVEY_SUBSAMPLE', 'RUN_ID', '=', RUN_ID)
-    # cf.delete_from_table('SURVEY_SUBSAMPLE', 'RUN_ID', '=', run_id)
     cf.delete_from_table('SAS_SURVEY_SUBSAMPLE')
 
     # Import survey data function to go here
-    # import_data.import_survey_data(survey_data_path, run_id)
     import_data.import_survey_data(survey_data_path, RUN_ID)
 
     # Import Shift Data
-    # import_traffic_data.import_traffic_data(run_id, shift_data_path)
-    # import_traffic_data.import_traffic_data(run_id, nr_data_path)
-    # import_traffic_data.import_traffic_data(run_id, unsampled_data_path)
-    # import_traffic_data.import_traffic_data(run_id, sea_data_path)
-    # import_traffic_data.import_traffic_data(run_id, tunnel_data_path)
-    # import_traffic_data.import_traffic_data(run_id, air_data_path)
-
     import_traffic_data.import_traffic_data(RUN_ID, shift_data_path)
     import_traffic_data.import_traffic_data(RUN_ID, nr_data_path)
     import_traffic_data.import_traffic_data(RUN_ID, unsampled_data_path)
@@ -179,52 +170,47 @@ def import_data_into_database():
 def test_shift_weight_step():
     # Assign variables
     conn = database_connection()
-    # step_name = "SHIFT_WEIGHT"
+    step_name = "SHIFT_WEIGHT"
 
     # Run Shift Weight step
-    # main_run.shift_weight_step(run_id, conn)
     main_run.shift_weight_step(RUN_ID, conn)
 
-    # # Get results of Survey Data and compare
-    # sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
-    # sql_cols = "[SERIAL], " + sql_cols
-    #
-    # # actual_results = cf.select_data(sql_cols, idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', run_id)
-    # actual_results = cf.select_data(sql_cols, idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', RUN_ID)
-    # # expected_results = pd.read_csv(expected_survey_results_path, engine='python')
-    # expected_results = pd.read_csv(TEST_DATA_DIR + r'\main\dec\shift_weight\surveydata_out_expected.csv', engine='python')
-    #
-    # # Formatting and fudgery
-    # actual_results = actual_results.sort_values('SERIAL')
-    # actual_results.replace('None', np.nan, inplace=True)
-    # actual_results.index = range(0, len(actual_results))
-    #
-    # expected_results = expected_results.sort_values('SERIAL')
-    # expected_results.index = range(0, len(expected_results))
-    #
-    # assert_frame_equal(actual_results, expected_results, check_dtype=False)
-    #
-    # # Get results of Summary Data and compare
-    # # actual_results = cf.select_data('*', STEP_CONFIGURATION[step_name]['ps_table'], 'RUN_ID', run_id)
-    # actual_results = cf.select_data('*', STEP_CONFIGURATION[step_name]['ps_table'], 'RUN_ID', RUN_ID)
-    # # expected_results = pd.read_csv(expected_summary_results_path, engine='python')
-    # expected_results = pd.read_csv(TEST_DATA_DIR + r'\main\dec\shift_weight\summary_out_expected.csv', engine='python')
-    # #
-    # # Formatting and fudgery
-    # actual_results = actual_results.sort_values(
-    #     ['SHIFT_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'AM_PM_NIGHT_PV', 'MIGSI', 'POSS_SHIFT_CROSS',
-    #      'SAMP_SHIFT_CROSS', 'MIN_SH_WT', 'MEAN_SH_WT', 'MAX_SH_WT', 'COUNT_RESPS', 'SUM_SH_WT'])
-    # actual_results.index = range(0, len(actual_results))
-    #
-    # expected_results = expected_results.sort_values(
-    #     ['SHIFT_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'AM_PM_NIGHT_PV', 'MIGSI', 'POSS_SHIFT_CROSS',
-    #      'SAMP_SHIFT_CROSS', 'MIN_SH_WT', 'MEAN_SH_WT', 'MAX_SH_WT', 'COUNT_RESPS', 'SUM_SH_WT'])
-    # expected_results.index = range(0, len(expected_results))
-    #
-    # assert_frame_equal(actual_results, expected_results, check_dtype=False)
+    # Get results of Survey Data and compare
+    sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
+    sql_cols = "[SERIAL], " + sql_cols
+
+    actual_results = cf.select_data(sql_cols, idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', RUN_ID)
+    expected_results = pd.read_csv(TEST_DATA_DIR + r'\main\dec\shift_weight\surveydata_out_expected.csv', engine='python')
+
+    # Formatting and fudgery
+    actual_results = actual_results.sort_values('SERIAL')
+    actual_results.replace('None', np.nan, inplace=True)
+    actual_results.index = range(0, len(actual_results))
+
+    expected_results = expected_results.sort_values('SERIAL')
+    expected_results.index = range(0, len(expected_results))
+
+    assert_frame_equal(actual_results, expected_results, check_dtype=False)
+
+    # Get results of Summary Data and compare
+    actual_results = cf.select_data('*', STEP_CONFIGURATION[step_name]['ps_table'], 'RUN_ID', RUN_ID)
+    expected_results = pd.read_csv(TEST_DATA_DIR + r'\main\dec\shift_weight\summary_out_expected.csv', engine='python')
+
+    # Formatting and fudgery
+    actual_results = actual_results.sort_values(
+        ['SHIFT_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'AM_PM_NIGHT_PV', 'MIGSI', 'POSS_SHIFT_CROSS',
+         'SAMP_SHIFT_CROSS', 'MIN_SH_WT', 'MEAN_SH_WT', 'MAX_SH_WT', 'COUNT_RESPS', 'SUM_SH_WT'])
+    actual_results.index = range(0, len(actual_results))
+
+    expected_results = expected_results.sort_values(
+        ['SHIFT_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'AM_PM_NIGHT_PV', 'MIGSI', 'POSS_SHIFT_CROSS',
+         'SAMP_SHIFT_CROSS', 'MIN_SH_WT', 'MEAN_SH_WT', 'MAX_SH_WT', 'COUNT_RESPS', 'SUM_SH_WT'])
+    expected_results.index = range(0, len(expected_results))
+
+    assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
 
-# @pytest.mark.skip(reason="Because!")
+@pytest.mark.skip(reason="Because!")
 def test_non_response_weight_steps():
     # Assign variables
     conn = database_connection()
@@ -272,7 +258,7 @@ def test_non_response_weight_steps():
     # assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
 
-# @pytest.mark.skip(reason="Because!")
+@pytest.mark.skip(reason="Because!")
 def test_minimums_weight_step():
     # Assign variables
     conn = database_connection()
@@ -322,7 +308,7 @@ def test_minimums_weight_step():
     # assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
 
-# @pytest.mark.xfail
+@pytest.mark.skip(reason="Because!")
 def test_traffic_weight_step():
     # Assign variables
     conn = database_connection()
@@ -364,51 +350,51 @@ def test_traffic_weight_step():
     # assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
 
-# @pytest.mark.xfail
+@pytest.mark.skip(reason="Because!")
 def test_unsampled_weight_step():
     # Assign variables
     conn = database_connection()
-    # step_name = "UNSAMPLED_WEIGHT"
+    step_name = "UNSAMPLED_WEIGHT"
 
     # Run Shift Weight step
     main_run.unsampled_weight_step(RUN_ID, conn)
 
-    # # Get results of Survey Data and compare
-    # sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
-    # sql_cols = "[SERIAL], " + sql_cols
-    #
-    # actual_results = cf.select_data(sql_cols, idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', RUN_ID)
-    # expected_results = pd.read_csv(TEST_DATA_DIR + r'\main\dec\unsampled_weight\surveydata_out_expected.csv', engine='python')
-    #
-    # # Formatting and fudgery
-    # actual_results = actual_results.sort_values('SERIAL')
-    # actual_results.replace('None', np.nan, inplace=True)
-    # actual_results.index = range(0, len(actual_results))
-    #
-    # expected_results = expected_results.sort_values('SERIAL')
-    # expected_results.index = range(0, len(expected_results))
-    #
-    # assert_frame_equal(actual_results, expected_results, check_dtype=False)
-    #
-    # # Get results of Summary Data and compare
-    # actual_results = cf.select_data('*', STEP_CONFIGURATION[step_name]['ps_table'], 'RUN_ID', RUN_ID)
-    # expected_results = pd.read_csv(TEST_DATA_DIR + r'\main\dec\unsampled_weight\summary_out_expected.csv', engine='python')
-    #
-    # # Formatting and fudgery
-    # actual_results = actual_results.sort_values(
-    #     ['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV', 'ARRIVEDEPART', 'CASES', 'SUM_PRIOR_WT', 'SUM_UNSAMP_TRAFFIC_WT',
-    #      'UNSAMP_TRAFFIC_WT'])
-    # actual_results.index = range(0, len(actual_results))
-    #
-    # expected_results = expected_results.sort_values(
-    #     ['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV', 'ARRIVEDEPART', 'CASES', 'SUM_PRIOR_WT', 'SUM_UNSAMP_TRAFFIC_WT',
-    #      'UNSAMP_TRAFFIC_WT'])
-    # expected_results.index = range(0, len(expected_results))
-    #
-    # assert_frame_equal(actual_results, expected_results, check_dtype=False)
+    # Get results of Survey Data and compare
+    sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
+    sql_cols = "[SERIAL], " + sql_cols
+
+    actual_results = cf.select_data(sql_cols, idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', RUN_ID)
+    expected_results = pd.read_csv(TEST_DATA_DIR + r'\main\dec\unsampled_weight\surveydata_out_expected.csv', engine='python')
+
+    # Formatting and fudgery
+    actual_results = actual_results.sort_values('SERIAL')
+    actual_results.replace('None', np.nan, inplace=True)
+    actual_results.index = range(0, len(actual_results))
+
+    expected_results = expected_results.sort_values('SERIAL')
+    expected_results.index = range(0, len(expected_results))
+
+    assert_frame_equal(actual_results, expected_results, check_dtype=False)
+
+    # Get results of Summary Data and compare
+    actual_results = cf.select_data('*', STEP_CONFIGURATION[step_name]['ps_table'], 'RUN_ID', RUN_ID)
+    expected_results = pd.read_csv(TEST_DATA_DIR + r'\main\dec\unsampled_weight\summary_out_expected.csv', engine='python')
+
+    # Formatting and fudgery
+    actual_results = actual_results.sort_values(
+        ['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV', 'ARRIVEDEPART', 'CASES', 'SUM_PRIOR_WT', 'SUM_UNSAMP_TRAFFIC_WT',
+         'UNSAMP_TRAFFIC_WT'])
+    actual_results.index = range(0, len(actual_results))
+
+    expected_results = expected_results.sort_values(
+        ['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV', 'ARRIVEDEPART', 'CASES', 'SUM_PRIOR_WT', 'SUM_UNSAMP_TRAFFIC_WT',
+         'UNSAMP_TRAFFIC_WT'])
+    expected_results.index = range(0, len(expected_results))
+
+    assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
 
-# @pytest.mark.xfail
+@pytest.mark.skip(reason="Because!")
 def test_imbalance_weight_step():
     # Assign variables
     conn = database_connection()
@@ -448,7 +434,7 @@ def test_imbalance_weight_step():
     # assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
 
-# @pytest.mark.xfail
+@pytest.mark.skip(reason="Because!")
 def test_final_weight_step():
     # Assign variables
     conn = database_connection()
@@ -493,7 +479,7 @@ def test_final_weight_step():
     #
     # assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
-# @pytest.mark.skip(reason="Because!")
+@pytest.mark.skip(reason="Because!")
 def test_stay_imputation_step():
     # Assign variables
     conn = database_connection()
@@ -521,7 +507,7 @@ def test_stay_imputation_step():
     # assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
 
-# @pytest.mark.skip(reason="Because!")
+@pytest.mark.skip(reason="Because!")
 def test_fares_imputation_step():
     # Assign variables
     conn = database_connection()
@@ -553,7 +539,7 @@ def test_fares_imputation_step():
     # assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
 
-# @pytest.mark.skip(reason="Because!")
+@pytest.mark.skip(reason="Because!")
 def test_spend_imputation_step():
     # Assign variables
     conn = database_connection()
@@ -599,7 +585,7 @@ def test_spend_imputation_step():
     # assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
 
-# @pytest.mark.skip(reason="Because!")
+@pytest.mark.skip(reason="Because!")
 def test_rail_imputation_step():
     # Assign variables
     conn = database_connection()
@@ -630,7 +616,7 @@ def test_rail_imputation_step():
     # assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
 
-# @pytest.mark.skip(reason="Because!")
+@pytest.mark.skip(reason="Because!")
 def test_regional_weights_step():
     # Assign variables
     conn = database_connection()

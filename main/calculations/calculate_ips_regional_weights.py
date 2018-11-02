@@ -360,22 +360,6 @@ def do_ips_regional_weight_calculation(df_input_data, var_serial,  var_final_wei
                 
                 return row
 
-            # TODO: Remove dis
-            df_impute_towns_ext.to_csv(r'S:\CASPA\IPS\Testing\scratch\df_impute_towns_ext.csv', columns=['SERIAL',
-                                 'KNOWN_FINAL_WEIGHTS',
-                                 VISIT_WEIGHTK_VARIABLE,
-                                 STAY_WEIGHTK_VARIABLE,
-                                 EXPENDITURE_WEIGHTK_VARIABLE,
-                                 INFO_PRESENT_MARKER,
-                                 VISIT_WEIGHT_VARIABLE,
-                                 'UNKNOWN_FINAL_WEIGHT',
-                                 STAY_WEIGHT_VARIABLE,
-                                 'KNOWN_STAY',
-                                 'UNKNOWN_STAY',
-                                 EXPENDITURE_WEIGHT_VARIABLE,
-                                 'KNOWN_EXPEND',
-                                 'UNKNOWN_EXPEND'])
-
             df_impute_towns_ext = df_impute_towns_ext.apply(calculate_revised_weights, axis=1)
             
             # Drop the no longer needed columns
