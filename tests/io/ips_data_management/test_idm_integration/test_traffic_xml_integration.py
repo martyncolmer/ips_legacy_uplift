@@ -10,6 +10,9 @@ from main.io import ips_data_management as idm
 from main.utils import process_variables
 from main.calculations.calculate_ips_traffic_weight import do_ips_trafweight_calculation_with_R
 
+# TODO:
+# test against Nov and October datasets if available
+
 with open('data/xml_steps_configuration.json') as config_file: STEP_CONFIGURATION = json.load(config_file)
 
 RUN_ID = 'test_traffic_weight_xml'
@@ -18,19 +21,16 @@ step_config = STEP_CONFIGURATION[STEP_NAME]
 PV_RUN_ID = 'TEMPLATE'
 
 # data lengths for testing
-SURVEY_SUBSAMPLE_LENGTH = 19980 #21638
+SURVEY_SUBSAMPLE_LENGTH = 19980
 EXPECTED_LEN = 17731
 TRAFFIC_DATA_LENGTH = 238
 TRAFFIC_SAS_PROCESS_VARIABLE_TABLE_LENGTH = 1
 
 TRAFFIC_DATA_TABLE = 'TRAFFIC_DATA'
 SAS_TRAFFIC_TABLE = 'SAS_TRAFFIC_DATA'
+
 OUT_TABLE_NAME = "SAS_TRAFFIC_WT"  # output data
 SUMMARY_OUT_TABLE_NAME = "SAS_PS_TRAFFIC"  # output data
-
-# columns to sort the summary results by in order to check calculated dataframes match expected results
-# NR_COLUMNS = ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'MEAN_RESPS_SH_WT',
-#               'COUNT_RESPS', 'PRIOR_SUM', 'GROSS_RESP', 'GNR', 'MEAN_NR_WT']
 
 ist = time.time()
 print("Module level start time: {}".format(ist))
@@ -154,7 +154,8 @@ def populate_test_pv_table():
 
 def import_data_into_database():
 
-    survey_data_path = r'tests/data/ips_data_management/traffic_weight_integration/december/survey_trafficdata2.csv'
+    # get the path to import survey data for traffic step
+    survey_data_path = r'tests/data/ips_data_management/traffic_weight_integration/december/survey_trafficdata.csv'
 
     # grab the december traffic data
     shift_data_path = r'tests\data\ips_data_management\import_data\external\december\Poss shifts Dec 2017.csv'
@@ -189,9 +190,8 @@ def import_data_into_database():
 
 @pytest.mark.parametrize('path_to_data', [
     r'tests/data/ips_data_management/traffic_weight_integration\december'
-    #r'tests\data\calculations\december_2017\traffic_weight', other months not available right now
-    #r'tests\data\calculations\november_2017\non_response_weight', # ignored as data not available
-    #r'tests\data\calculations\october_2017\non_response_weight', # ignored as data not available
+    #r'tests/data/ips_data_management/traffic_weight_integration\december', # ignored as data not available
+    #r'tests/data/ips_data_management/traffic_weight_integration\december', # ignored as data not available
     ])
 def test_traffic_weight_step(path_to_data):
 
@@ -250,7 +250,7 @@ def test_traffic_weight_step(path_to_data):
 
     # Run step 4  : Apply Traffic Wt PVs On Survey Data
     process_variables.process(dataset='survey',
-                              in_table_name='SAS_SURVEY_SUBSAMPLE',
+                              in_table_name=idm.SAS_SURVEY_SUBSAMPLE_TABLE,
                               out_table_name='SAS_TRAFFIC_SPV',
                               in_id='serial')
 
@@ -340,8 +340,7 @@ def test_traffic_weight_step(path_to_data):
     df_tr_data_import_actual = cf.get_table_values(SAS_TRAFFIC_TABLE)
 
     # read in the comparative traffic data csv
-    df_test_traffic_data = pd.read_csv(
-        r"C:\Git_projects\IPS_Legacy_Uplift\tests\data\calculations\december_2017\traffic_weight\december\trafficdata.csv")
+    df_test_traffic_data = pd.read_csv(path_to_data + r"\trafficdata_before_calculation.csv")
 
     # match the SQL data to the csv data it should match
     df_tr_data_import_actual['AM_PM_NIGHT'] = 0.0
@@ -366,8 +365,6 @@ def test_traffic_weight_step(path_to_data):
 
     assert_frame_equal(df_tr_data_import_actual, df_test_traffic_data, check_dtype=False, check_less_precise=True)
 
-    # df_tr_data_import_actual.to_csv(r'C:\Temp\traffic_data_test\tr_data.csv', index=False)
-
     # ###################################################################
     # Get survey data and compare to existing CSVs
     # ###################################################################
@@ -377,36 +374,11 @@ def test_traffic_weight_step(path_to_data):
     df_surveydata_import_actual_sql = df_surveydata_import_actual.sort_values(by='SERIAL')
     df_surveydata_import_actual_sql.index = range(0, len(df_surveydata_import_actual_sql))
 
-    df_test_survey_data = pd.read_csv(r'C:\Git_projects\IPS_Legacy_Uplift\tests\data\calculations\december_2017\traffic_weight\december\surveydata.csv', engine='python')
+    # data gotten only for testing purposes
+    df_test_survey_data = pd.read_csv(path_to_data + r'/surveydata_before_calculation.csv', engine='python')
     df_test_survey_data.columns = df_test_survey_data.columns.str.upper()
     df_test_survey_data = df_test_survey_data.sort_values(by='SERIAL')
     df_test_survey_data.index = range(0, len(df_test_survey_data))
-
-    df_mins_wt_sql = df_surveydata_import_actual_sql['MINS_WT']
-    df_mins_wt_survey = df_test_survey_data['MINS_WT']
-
-    # df_mins_wt_sql.to_csv(r'C:\Temp\traffic_data_test\df_mins_wt_sql.csv', index=False)
-    # df_mins_wt_survey.to_csv(r'C:\Temp\traffic_data_test\df_mins_wt_survey.csv', index=False)
-
-    #assert_frame_equal(df_surveydata_import_actual_sql, df_test_survey_data, check_dtype=False, check_less_precise=True)
-
-    #df_surveydata_import_actual_sql.to_csv(r'C:\Temp\traffic_data_test\tr_surveydata_calc.csv', index=False)
-
-
-    # ------------ NASSIR
-
-    # fix formatting in actual data
-    #df_surveydata_import_actual_sql.drop(['EXPENDCODE'], axis=1, inplace=True)
-
-    #df_surveydata_import_actual_sql['SHIFT_PORT_GRP_PV'] = \
-    #    df_surveydata_import_actual_sql['SHIFT_PORT_GRP_PV'].apply(pd.to_numeric, errors='coerce')
-
-
-    #
-    # assert_frame_equal(df_surveydata_import_actual_sql, df_test_survey_data, check_dtype=False, check_less_precise=True)
-
-    # ------------ NASSIR
-
 
     # do the calculation
     df_output_merge_final, df_output_summary = do_ips_trafweight_calculation_with_R(df_surveydata_import_actual_sql,
@@ -416,7 +388,7 @@ def test_traffic_weight_step(path_to_data):
     # run checks
     # ###########################
 
-    # test start - turn on when testing/refactoring intermediate steps
+    # test the returned data matches expected
     df_test = pd.read_csv(path_to_data + '/output_final.csv', engine='python')
     df_test.columns = df_test.columns.str.upper()
     assert_frame_equal(df_output_merge_final, df_test, check_dtype=False, check_less_precise=True)

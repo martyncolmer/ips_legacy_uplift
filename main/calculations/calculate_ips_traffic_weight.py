@@ -244,14 +244,9 @@ def generate_ips_tw_summary(df_survey, df_output_merge_final,
     #
     # #####################################################
 
-    # Nassir test code START
     cols_to_keep = ['serial'.upper(), 'SAMP_PORT_GRP_PV', 'ARRIVEDEPART', 'TRAFFIC_WT', 'SHIFT_WT', 'NON_RESPONSE_WT',
                     'MINS_WT', 'TRAFDESIGNWEIGHT']
     df_survey = df_survey[cols_to_keep]
-
-    #df_survey.to_csv(r'C:\Temp\traffic_data_test\comparison\df_survey_trim_2.csv', index=False)
-
-    # Nassie test code END
 
     df_survey_sorted = df_survey.sort_values(var_serialNum)
 
@@ -274,27 +269,11 @@ def generate_ips_tw_summary(df_survey, df_output_merge_final,
     # only keep the selected columns
     df_summary = df_summary_tmp[keep_list]
 
-    # # test code start - either change pandas column types or for the test just ignore the column type - prefer the latter
-    # root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Traffic_Weight"
-    # #df_test = SAS7BDAT(root_data_path + r"\_summary.sas7bdat").to_data_frame()
-    # df_test = pd.read_sas(root_data_path + r"\_summary.sas7bdat")
-    # df_test.columns = df_test.columns.str.upper()
-    # assert_frame_equal(df_summary, df_test, check_column_type=False)
-    # # test code end
-
     # Summarise the results by strata
     df_summary_sorted = df_summary.sort_values(STRATA)
 
     # Re-index the data frame
     df_summary_sorted.index = range(df_summary_sorted.shape[0])
-
-    # #test code start
-    # root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Traffic_Weight"
-    # # df_test = SAS7BDAT(root_data_path + r"\_summary_stratadef_sort.sas7bdat" ).to_data_frame()
-    # df_test = pd.read_sas(root_data_path + r"\_summary_stratadef_sort.sas7bdat")
-    # df_test.columns = df_test.columns.str.upper()
-    # assert_frame_equal(df_summary_sorted, df_test, check_column_type=False)
-    # #test code end
 
     # method will possibly be deprecated - may not be an issue
     df_tmp5 = df_summary_sorted.groupby(STRATA) \
@@ -312,26 +291,11 @@ def generate_ips_tw_summary(df_survey, df_output_merge_final,
     col_order = [STRATA[0], STRATA[1], COUNT_COLUMN, POST_SUM_COLUMN, var_trafficWeight]
     df_summary_varpostweight = df_tmp5[col_order]
 
-    # test code start
-    # root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Traffic_Weight"
-    # # df_test = SAS7BDAT(root_data_path + r"\summary_varpostweight.sas7bdat" ).to_data_frame()
-    # df_test = pd.read_sas(root_data_path + r"\summary_varpostweight.sas7bdat")
-    # df_test.columns = df_test.columns.str.upper()
-    # assert_frame_equal(df_summary_varpostweight, df_test, check_column_type=False, check_dtype=False)
-    # test code end
-
     # add in the traffic totals
     df_popTotals_stratadef_sort = df_popTotals.sort_values(STRATA)
 
     # Re-index the data frame
     df_popTotals_stratadef_sort.index = range(df_popTotals_stratadef_sort.shape[0])
-
-    # test code start
-    # # df_test = SAS7BDAT(root_data_path + r"\popTotals_stratadef_sort.sas7bdat" ).to_data_frame()
-    # df_test = pd.read_sas(root_data_path + r"\popTotals_stratadef_sort.sas7bdat")
-    # df_test.columns = df_test.columns.str.upper()
-    # assert_frame_equal(df_popTotals_stratadef_sort, df_test, check_column_type=False)
-    # test code end
 
     df_merged = pd.merge(df_popTotals_stratadef_sort, df_summary_varpostweight, on=STRATA, how='outer')
 
@@ -341,14 +305,6 @@ def generate_ips_tw_summary(df_survey, df_output_merge_final,
     # # reorder columns for SAS comparison
     col_order = [STRATA[0], STRATA[1], COUNT_COLUMN, TRAFFIC_TOTAL_COLUMN, POST_SUM_COLUMN, var_trafficWeight]
     df_summary_merge_sum_traftot = df_merged[col_order]
-    # df_summary_merge_sum_traftot
-
-    # test code start
-    # # df_test = SAS7BDAT(root_data_path + r"\summary_merge_sum_traftot.sas7bdat" ).to_data_frame()
-    # df_test = pd.read_sas(root_data_path + r"\summary_merge_sum_traftot.sas7bdat")
-    # df_test.columns = df_test.columns.str.upper()
-    # assert_frame_equal(df_summary_merge_sum_traftot, df_test, check_column_type=False)
-    # test code end
 
     # perform checks and log
     df_sum = df_summary_merge_sum_traftot
@@ -413,11 +369,6 @@ def do_ips_trafweight_calculation_with_R(survey_data, trtotals):
     df_popTotals = df_PopTotals.groupby(STRATA)[TRAFFIC_TOTAL_COLUMN] \
         .agg([(TRAFFIC_TOTAL_COLUMN, 'sum')]) \
         .reset_index()
-
-    # survey_data.to_csv(r'C:\Temp\traffic_data_test\comparison\survey_data_2.csv', index=False)
-    # df_ret_out_final_not_rounded.to_csv(r'C:\Temp\traffic_data_test\comparison\df_ret_out_final_not_rounded_2.csv',
-    #                                     index=False)
-    # df_popTotals.to_csv(r'C:\Temp\traffic_data_test\comparison\df_popTotals_2.csv', index=False)
 
     # ensure unrounded df_ret_out_final_not_rounded is supplied
     df_summary_merge_sum_traftot = generate_ips_tw_summary(survey_data, df_ret_out_final_not_rounded,

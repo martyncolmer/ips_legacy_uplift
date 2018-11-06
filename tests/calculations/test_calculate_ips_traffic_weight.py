@@ -1,5 +1,5 @@
 '''
-Created on 12 March 2018
+Created on 6 Nov 2018
 
 @author: Nassir Mohammad
 '''
@@ -37,9 +37,9 @@ def clear_tables():
 
 
 @pytest.mark.parametrize('path_to_data', [
-    r'tests\data\calculations\december_2017\traffic_weight\december',
-    #r'tests\data\calculations\november_2017\traffic_weight',
-    #r'tests\data\calculations\october_2017\traffic_weight',
+    r'tests\data\calculations\december_2017\traffic_weight',
+    r'tests\data\calculations\november_2017\traffic_weight',
+    r'tests\data\calculations\october_2017\traffic_weight',
     ])
 def test_calculate(path_to_data):
 
