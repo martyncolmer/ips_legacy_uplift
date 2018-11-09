@@ -9,9 +9,7 @@ from main.io import import_traffic_data
 from main.io import ips_data_management as idm
 from main.utils import process_variables
 from main.calculations.calculate_ips_traffic_weight import do_ips_trafweight_calculation_with_R
-
-# TODO:
-# test against Nov and October datasets if available
+import main.calculations.calculate_ips_traffic_weight as tr_calc
 
 with open('data/xml_steps_configuration.json') as config_file: STEP_CONFIGURATION = json.load(config_file)
 
@@ -50,6 +48,16 @@ def database_connection():
     '''
     return cf.get_sql_connection()
 
+def traffic_aux_clear():
+    # clear the input SQL server tables for the step
+    cf.delete_from_table(tr_calc.POP_TOTALS)
+
+    # clear the auxillary tables
+    cf.delete_from_table(tr_calc.SURVEY_TRAFFIC_AUX_TABLE)
+
+    # drop aux tables and r created tables
+    cf.drop_table(tr_calc.POP_PROWVEC_TABLE)
+    cf.drop_table(tr_calc.R_TRAFFIC_TABLE)
 
 def setup_module():
     """ setup any state specific to the execution of the given module."""
@@ -60,12 +68,16 @@ def setup_module():
     # populates test data within pv table
     populate_test_pv_table()
 
+    traffic_aux_clear()
+
     print("Setup")
 
 
 def teardown_module(module):
     # Delete any previous records from the Survey_Subsample tables for the given run ID
     reset_tables()
+
+    traffic_aux_clear()
 
     print("Teardown")
 
@@ -190,8 +202,8 @@ def import_data_into_database():
 
 @pytest.mark.parametrize('path_to_data', [
     r'tests/data/ips_data_management/traffic_weight_integration\december'
-    #r'tests/data/ips_data_management/traffic_weight_integration\december', # ignored as data not available
-    #r'tests/data/ips_data_management/traffic_weight_integration\december', # ignored as data not available
+    #r'tests/data/ips_data_management/traffic_weight_integration\october', # ignored as data not available
+    #r'tests/data/ips_data_management/traffic_weight_integration\november', # ignored as data not available
     ])
 def test_traffic_weight_step(path_to_data):
 
@@ -250,7 +262,7 @@ def test_traffic_weight_step(path_to_data):
 
     # Run step 4  : Apply Traffic Wt PVs On Survey Data
     process_variables.process(dataset='survey',
-                              in_table_name=idm.SAS_SURVEY_SUBSAMPLE_TABLE,
+                              in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_TRAFFIC_SPV',
                               in_id='serial')
 
@@ -375,10 +387,10 @@ def test_traffic_weight_step(path_to_data):
     df_surveydata_import_actual_sql.index = range(0, len(df_surveydata_import_actual_sql))
 
     # data gotten only for testing purposes
-    df_test_survey_data = pd.read_csv(path_to_data + r'/surveydata_before_calculation.csv', engine='python')
-    df_test_survey_data.columns = df_test_survey_data.columns.str.upper()
-    df_test_survey_data = df_test_survey_data.sort_values(by='SERIAL')
-    df_test_survey_data.index = range(0, len(df_test_survey_data))
+    # df_test_survey_data = pd.read_csv(path_to_data + r'/surveydata_before_calculation.csv', engine='python')
+    # df_test_survey_data.columns = df_test_survey_data.columns.str.upper()
+    # df_test_survey_data = df_test_survey_data.sort_values(by='SERIAL')
+    # df_test_survey_data.index = range(0, len(df_test_survey_data))
 
     # do the calculation
     df_output_merge_final, df_output_summary = do_ips_trafweight_calculation_with_R(df_surveydata_import_actual_sql,
@@ -396,44 +408,6 @@ def test_traffic_weight_step(path_to_data):
     df_test2 = pd.read_csv(path_to_data + '/summary_final.csv', engine='python')
     df_test2.columns = df_test2.columns.str.upper()
     assert_frame_equal(df_output_summary, df_test2, check_dtype=False, check_less_precise=True)
-
-    # Retrieve and sort python calculated dataframes
-    # py_survey_data = result_py_data[0]
-    # py_survey_data = py_survey_data.sort_values(by='SERIAL')
-    # py_survey_data.index = range(0, len(py_survey_data))
-    #
-    # py_summary_data = result_py_data[1]
-    # py_summary_data.sort_values(by=NR_COLUMNS)
-    # py_summary_data[NR_COLUMNS] = py_summary_data[NR_COLUMNS].apply(pd.to_numeric, errors='coerce', downcast='float')
-    # py_summary_data.index = range(0, len(py_summary_data))
-    #
-    # # insert the csv output data into SQL and read back, this is for testing against data pulled from SQL Server
-    # test_result_survey = pd.read_csv(path_to_data + '/outputdata_final.csv', engine='python')
-    # cf.delete_from_table(OUT_TABLE_NAME)
-    # test_result_survey_sql = convert_dataframe_to_sql_format(OUT_TABLE_NAME, test_result_survey)
-    # test_result_survey_sql = test_result_survey_sql.sort_values(by='SERIAL')
-    # test_result_survey_sql.index = range(0, len(test_result_survey_sql))
-    #
-    # test_result_summary = pd.read_csv(path_to_data + '/summarydata_final.csv', engine='python')
-    # cf.delete_from_table(SUMMARY_OUT_TABLE_NAME)
-    # test_result_summary_sql = convert_dataframe_to_sql_format(SUMMARY_OUT_TABLE_NAME, test_result_summary)
-    # test_result_summary_sql = test_result_summary_sql.sort_values(by=NR_COLUMNS)
-    # test_result_summary_sql[NR_COLUMNS] = test_result_summary_sql[NR_COLUMNS].apply(pd.to_numeric, errors='coerce', downcast='float')
-    # test_result_summary_sql.index = range(0, len(test_result_summary_sql))
-    #
-    # # Assert dfs are equal
-    # assert_frame_equal(py_survey_data, test_result_survey_sql, check_dtype=False, check_like=True,
-    #                    check_less_precise=True)
-    #
-    # assert_frame_equal(py_summary_data, test_result_summary_sql, check_dtype=False, check_like=True,
-    #                    check_less_precise=True)
-    #
-    #
-    # # put the actual SQL data back in for the remaining steps
-    # cf.delete_from_table(OUT_TABLE_NAME)
-    # cf.delete_from_table(SUMMARY_OUT_TABLE_NAME)
-    # cf.insert_dataframe_into_table(OUT_TABLE_NAME, py_survey_data)
-    # cf.insert_dataframe_into_table(SUMMARY_OUT_TABLE_NAME, py_summary_data)
 
     # Update Survey Data traffic weight Results
     idm.update_survey_data_with_step_results(conn, step_config)
