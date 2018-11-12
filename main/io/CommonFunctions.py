@@ -8,11 +8,9 @@ import getpass
 import inspect
 import json
 import logging
-import numpy as np
 import os
 import pandas as pandas     # pip install this
 import pyodbc
-import time
 import winsound
 import zipfile
 import time
@@ -924,7 +922,6 @@ def compare_dfs(test_name, sas_file, df, col_list = False):
         df[col_list].to_csv(fdir+"\\"+test_name+py)
 
 
-
 def insert_dataframe_into_table_rbr(table_name, dataframe, connection=False):
     """
     Author       : Thomas Mahoney
@@ -1085,23 +1082,56 @@ def unpickle_rick(file):
     beep()
 
 
-def scratch():
-    debug_this = pandas.read_csv(r'S:\CASPA\IPS\Testing\scratch\try_this.csv', engine='python')
-
-    fares_results = pandas.read_csv(r'S:\CASPA\IPS\Testing\scratch\fares_input.csv', engine='python')
-    spend_results = pandas.read_csv(r'S:\CASPA\IPS\Testing\scratch\spend_expected_results.csv', engine='python')
-    fares_results.sort_values(by='SERIAL', inplace=True)
-    spend_results.sort_values(by='SERIAL', inplace=True)
-    fares_results.index = range(0, len(fares_results))
-    expected_results = pandas.merge(spend_results, fares_results, on='SERIAL', how='left')
-
-    expected_results.loc[(expected_results['newspend'] == np.nan), 'newspend'] = 'x'
-
-    # expected_results['newspend'] = np.where(expected_results['newspend'] == np.nan, 'x', expected_results['newspend'])
-    # expected_results.loc[expected_results['newspend'] == 410, expected_results['newspend']] = expected_results['SPEND']
-
-    expected_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\new_merged_expected.csv')
-
-if __name__ == '__main__':
-
-    scratch()
+# def scratch(big_survey_df, right_hand_df, cols, output_dir):
+#     # Next step survey data and merge in to big survey data then select your wanted columns!
+#     survey_df = pandas.read_csv(big_survey_df, engine='python')
+#     output_df = pandas.read_csv(right_hand_df, engine='python')
+#
+#     survey_df = survey_df[cols].copy()
+#     output_df = output_df[cols].copy()
+#
+#     target_df = pandas.merge(survey_df, output_df, on='SERIAL', how='left')
+#
+#     target_df.columns = target_df.columns.str.replace('_y', '')
+#     target_df = target_df[cols]
+#
+#     try:
+#         target_df.to_csv(output_dir, index=False)
+#     except FileNotFoundError:
+#         new_dir = output_dir.replace(r'\surveydata_out_expected.csv', '')
+#         os.mkdir(new_dir)
+#         target_df.to_csv(output_dir, index=False)
+#
+#
+# if __name__ == '__main__':
+#     from main.io import ips_data_management as idm
+#     RUN_ID = 'bla'
+#     with open(r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\data\xml_steps_configuration.json') as config_file:
+#         STEP_CONFIGURATION = json.load(config_file)
+#     STEP_NAME = 'SHIFT_WEIGHT'
+#
+#     populate_test_data(idm.SURVEY_SUBSAMPLE_TABLE, RUN_ID, STEP_CONFIGURATION[STEP_NAME])
+#     step = 'MINIMUMS_WEIGHT'
+#     with open(r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\data\xml_steps_configuration.json') as config_file:
+#         step_configuration = json.load(config_file)
+#     STEP_CONFIGURATION = step_configuration[step]
+#
+#     # Input dirs
+#     scratch_dir = os.path.join(r'S:\CASPA\IPS\Testing\scratch', step.lower())
+#     left_file = r'\big_survey.csv'
+#     right_file = r'\survey_input.csv'
+#
+#     big_survey_df = scratch_dir + left_file
+#     right_hand_df = scratch_dir + right_file
+#
+#     # Cols
+#     cols = STEP_CONFIGURATION['nullify_pvs']
+#     cols = [item.replace('[', '') for item in cols]
+#     cols = [item.replace(']', '') for item in cols]
+#     cols.insert(0, 'SERIAL')
+#
+#     # Output dirs
+#     output_dir = (os.path.join(r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\main\dec\new_test', step.lower()) + r'\surveydata_out_expected.csv')
+#
+#     # RUN!
+#     scratch(big_survey_df, right_hand_df, cols, output_dir)

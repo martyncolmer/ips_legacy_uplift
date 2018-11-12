@@ -1,6 +1,5 @@
 import pandas as pd
-from sas7bdat import SAS7BDAT
-from main.io.CommonFunctions import insert_dataframe_into_table, get_sql_connection
+from main.io import CommonFunctions as cf
 
 
 def extract_data(df):
@@ -79,4 +78,4 @@ def import_survey_data(survey_data_path, run_id):
     df_survey_data['RUN_ID'] = pd.Series(run_id, index=df_survey_data.index)
 
     # Insert the imported data into the survey_subsample table on the database.
-    insert_dataframe_into_table('SURVEY_SUBSAMPLE', df_survey_data)
+    cf.insert_dataframe_into_table('SURVEY_SUBSAMPLE', df_survey_data)

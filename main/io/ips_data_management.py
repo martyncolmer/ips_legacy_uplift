@@ -1,6 +1,7 @@
 import inspect
-import sys
+import os
 from main.io import CommonFunctions as cf
+from tests import common_testing_functions as ctf
 
 SURVEY_SUBSAMPLE_TABLE = "[dbo].[SURVEY_SUBSAMPLE]"
 SAS_SURVEY_SUBSAMPLE_TABLE = "[dbo].[SAS_SURVEY_SUBSAMPLE]"
@@ -63,7 +64,6 @@ def nullify_survey_subsample_values(run_id, conn, pv_values):
         SET {} 
         WHERE RUN_ID = '{}'
     """.format(SURVEY_SUBSAMPLE_TABLE, columns_to_null, run_id)
-
 
     # Execute and commits the SQL command
     cur = conn.cursor()
@@ -478,14 +478,18 @@ def store_survey_data_with_step_results(run_id, conn, step_configuration):
     cur.execute(sql)
     conn.commit()
 
+    # # TODO: This shizzniz
+    # ctf.populate_test_data(SURVEY_SUBSAMPLE_TABLE, run_id, step_configuration, dataset='survey')
+    # # TODO: This shizzniz
+
     # Cleanse summary and subsample tables as applicable
-    ps_tables_to_delete = ["SHIFT_WEIGHT"
-        , "NON_RESPONSE"
-        , "MINIMUMS_WEIGHT"
-        , "TRAFFIC_WEIGHT"
-        , "UNSAMPLED_WEIGHT"
-        , "IMBALANCE_WEIGHT"
-        , "FINAL_WEIGHT"]
+    ps_tables_to_delete = ["SHIFT_WEIGHT",
+        "NON_RESPONSE",
+        "MINIMUMS_WEIGHT",
+        "TRAFFIC_WEIGHT",
+        "UNSAMPLED_WEIGHT",
+        "IMBALANCE_WEIGHT",
+        "FINAL_WEIGHT"]
 
     if step in ps_tables_to_delete:
         cf.delete_from_table(step_configuration["ps_table"], "RUN_ID", "=", run_id)
@@ -530,12 +534,9 @@ def store_step_summary(run_id, conn, step_configuration):
     except Exception as err:
         print(err)
 
+    # # TODO: This shizzniz
+    # ctf.populate_test_data(ps_table, run_id, step_configuration, dataset='summary')
+    # # TODO: This shizzniz
+
     # Cleanse temporary summary table
     cf.delete_from_table(sas_ps_table)
-
-
-if __name__ == '__main__':
-    table_to_update_from = 'table_to_update_from'
-    columns_to_update = ['col1', 'col2', 'col3']
-
-    print(sql_update_statement(table_to_update_from, columns_to_update))

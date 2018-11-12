@@ -4,11 +4,10 @@ import pandas as pd
 import time
 
 from pandas.util.testing import assert_frame_equal
+from tests import common_testing_functions as ctf
 from main.io import CommonFunctions as cf
 from main.io import ips_data_management as idm
 from main.calculations import calculate_ips_final_weight
-
-import sys
 
 with open(r'data/xml_steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)
@@ -33,21 +32,20 @@ def database_connection():
 def setup_module(module):
     """ Setup any state specific to the execution of the given module. """
 
-    #sys.setrecursionlimit(5000)
     # Assign variables
     december_survey_data_path = (TEST_DATA_DIR + r'\surveydata.csv')
 
-    # Import survey data
-    import_survey_data(december_survey_data_path)
-
     # Deletes data from tables as necessary
-    reset_tables()
+    ctf.reset_test_tables(RUN_ID, STEP_CONFIGURATION[STEP_NAME])
+
+    # Import survey data
+    ctf.import_survey_data_into_database(december_survey_data_path, RUN_ID)
 
 
 def teardown_module(module):
     """ Teardown any state that was previously setup with a setup_module method. """
     # Deletes data from temporary tables as necessary
-    reset_tables()
+    ctf.reset_test_tables(RUN_ID, STEP_CONFIGURATION[STEP_NAME])
 
     # Cleanses Survey Subsample table
     cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID)
@@ -55,66 +53,6 @@ def teardown_module(module):
     # Play audio notification to indicate test is complete and print duration for performance
     cf.beep()
     print("Duration: {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time() - START_TIME))))
-
-
-def import_survey_data(survey_data_path):
-    """
-    Author       : (pinched from) Thomas Mahoney (modified by) Elinor Thorne
-    Date         : (26/04/ 2018) 23/08/2018
-    Purpose      : Loads the import data into 'SURVEY_SUBSAMPLE' table on the connected database.
-    Parameters   : survey_data_path - the dataframe containing all of the import data.
-    Returns      : NA
-    Requirements : Datafile is of type '.csv', '.pkl' or '.sas7bdat'
-    """
-
-    starttime = time.time()
-
-    # Check the survey_data_path's suffix to see what it matches then extract using the appropriate method.
-    df_survey_data = pd.read_csv(survey_data_path)
-
-    # Add the generated run id to the dataset.
-    df_survey_data['RUN_ID'] = pd.Series(RUN_ID, index=df_survey_data.index)
-
-    # Insert the imported data into the survey_subsample table on the database.
-    cf.insert_dataframe_into_table('SURVEY_SUBSAMPLE', df_survey_data)
-
-    # Print Import runtime to record performance
-    print("Import runtime: {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time() - starttime))))
-
-
-def reset_tables():
-    """ Cleanses tables within database. """
-    # List of tables to cleanse entirely
-    tables_to_unconditionally_cleanse = [idm.SAS_SURVEY_SUBSAMPLE_TABLE,
-                                         idm.SAS_PROCESS_VARIABLES_TABLE]
-
-    # Try to delete from each table in list.  If exception occurs, assume table is
-    # already empty, and continue deleting from tables in list.
-    for table in tables_to_unconditionally_cleanse:
-        try:
-            cf.delete_from_table(table)
-        except Exception:
-            continue
-
-    # List of tables to cleanse where [RUN_ID] = RUN_ID
-    tables_to_cleanse = ['[dbo].[PROCESS_VARIABLE_PY]',
-                         '[dbo].[PROCESS_VARIABLE_TESTING]']
-
-    # Try to delete from each table in list where condition.  If exception occurs,
-    # assume table is already empty, and continue deleting from tables in list
-    for table in tables_to_cleanse:
-        try:
-            cf.delete_from_table(table, 'RUN_ID', '=', RUN_ID)
-        except Exception:
-            continue
-
-    # Try to delete from each table in list.  If exception occurs, assume table is
-    # already empty, and continue deleting from tables in list
-    for table in STEP_CONFIGURATION[STEP_NAME]['delete_tables']:
-        try:
-            cf.delete_from_table(table)
-        except Exception:
-            continue
 
 
 def test_final_weight_step():
@@ -239,5 +177,6 @@ def test_final_weight_step():
     # Run the final step and test
     idm.store_step_summary(RUN_ID, conn, STEP_CONFIGURATION[STEP_NAME])
 
-    table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]['ps_table']))
+    # table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]['ps_table']))
+    table_len = len(cf.select_data('*', STEP_CONFIGURATION[STEP_NAME]['ps_table'], 'RUN_ID', RUN_ID))
     assert table_len == calculate_ips_final_weight.NUMBER_RECORDS_DISPLAYED

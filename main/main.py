@@ -77,9 +77,6 @@ def shift_weight_step(run_id, connection):
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
     shift_data = cf.get_table_values(STEP_CONFIGURATION[step_name]["data_table"])
 
-    survey_data.to_csv(r'S:\CASPA\IPS\Testing\scratch\survey_data_in-' + run_id + '.csv')
-    shift_data.to_csv(r'S:\CASPA\IPS\Testing\scratch\shift_data-' + run_id + '.csv')
-
     # Calculate Shift Weight
     survey_data_out, summary_data_out = calculate_ips_shift_weight.do_ips_shift_weight_calculation(survey_data,
                                                                                                    shift_data,

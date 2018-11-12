@@ -5,6 +5,7 @@ import time
 
 from pandas.util.testing import assert_frame_equal
 from main.io import CommonFunctions as cf
+from tests import common_testing_functions as ctf
 from main.io import import_traffic_data
 from main.io import ips_data_management as idm
 from main.utils import process_variables
@@ -17,6 +18,7 @@ with open('data/xml_steps_configuration.json') as config_file:
 RUN_ID = 'test_minimums_weight_xml'
 TEST_DATA_DIR = r'tests\data\ips_data_management\minimums_weight_step'
 STEP_NAME = 'MINIMUMS_WEIGHT'
+PV_RUN_ID = 'TEMPLATE'
 
 ist = time.time()
 print("Module level start time: {}".format(ist))
@@ -35,136 +37,33 @@ def setup_module(module):
     """ setup any state specific to the execution of the given module."""
 
     ist = time.time()
-    import_data_into_database()
-    # populates test data within pv table
-    populate_test_pv_table()
+
+    # Deletes data from tables as necessary
+    ctf.reset_test_tables(RUN_ID, STEP_CONFIGURATION[STEP_NAME])
+
+    # Import survey data
+    survey_data_path = r'tests\data\ips_data_management\import_data\minimums_weight\surveydata.csv'
+    ctf.import_survey_data_into_database(survey_data_path, RUN_ID)
+
+    # Import external data
+    import_data_dir = r'tests\data\import_data\dec'
+    ctf.import_test_data_into_database(import_data_dir, RUN_ID, load_survey_data=False)
+
+    # Populate test data within pv table
+    conn = database_connection()
+    ctf.populate_test_pv_table(conn, RUN_ID, PV_RUN_ID)
 
     print("Setup")
 
 
 def teardown_module(module):
     # Delete any previous records from the Survey_Subsample tables for the given run ID
-    reset_tables()
+    ctf.reset_test_tables(RUN_ID, STEP_CONFIGURATION[STEP_NAME])
+
+    # Cleanses Survey Subsample table.
+    cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID)
 
     print("Teardown")
-
-
-def reset_tables():
-    """ Cleanses tables within database. """
-    # List of tables to cleanse entirely
-    tables_to_unconditionally_cleanse = [idm.SAS_SURVEY_SUBSAMPLE_TABLE,
-                                         idm.SAS_PROCESS_VARIABLES_TABLE]
-
-    # Try to delete from each table in list.  If exception occurs, assume table is
-    # already empty, and continue deleting from tables in list.
-    for table in tables_to_unconditionally_cleanse:
-        try:
-            print("cf.delete_from_table({})".format(table))
-            cf.delete_from_table(table)
-        except Exception:
-            continue
-
-    # List of tables to cleanse where [RUN_ID] = RUN_ID
-    tables_to_cleanse = ['[dbo].[PROCESS_VARIABLE_PY]',
-                         '[dbo].[PROCESS_VARIABLE_TESTING]']
-
-    # Try to delete from each table in list where condition.  If exception occurs,
-    # assume table is already empty, and continue deleting from tables in list
-    for table in tables_to_cleanse:
-        try:
-            print("cf.delete_from_table({}, 'RUN_ID', '=', RUN_ID)".format(table))
-            cf.delete_from_table(table, 'RUN_ID', '=', RUN_ID)
-        except Exception:
-            continue
-
-    # Try to delete from each table in list.  If exception occurs, assume table is
-    # already empty, and continue deleting from tables in list
-    for table in STEP_CONFIGURATION[STEP_NAME]['delete_tables']:
-        try:
-            cf.delete_from_table(table)
-        except Exception:
-            continue
-
-
-def populate_test_pv_table():
-    """ Set up table to run and test copy_step_pvs_for_survey_data()
-        Note: Had to break up sql statements due to following error:
-        'pyodbc.Error: ('HY000', '[HY000] [Microsoft][ODBC SQL Server Driver]Connection is busy with results for
-             another hstmt (0) (SQLExecDirectW)')'
-        Error explained in http://sourceitsoftware.blogspot.com/2008/06/connection-is-busy-with-results-for.html
-        """
-
-    conn = database_connection()
-    cur = conn.cursor()
-
-    sql1 = """
-    DELETE from [dbo].[PROCESS_VARIABLE_TESTING]
-    """
-
-    sql2 = """
-    DELETE from [dbo].[PROCESS_VARIABLE_PY]
-    WHERE RUN_ID = '{}'
-    """.format(RUN_ID)
-
-    sql3 = """
-    INSERT INTO [dbo].[PROCESS_VARIABLE_TESTING]
-    SELECT * FROM [dbo].[PROCESS_VARIABLE_PY]
-    WHERE [RUN_ID] = 'TEMPLATE'
-    """
-
-    sql4 = """
-    UPDATE [dbo].[PROCESS_VARIABLE_TESTING]
-    SET [RUN_ID] = '{}'
-    """.format(RUN_ID)
-
-    sql5 = """
-    INSERT INTO [dbo].[PROCESS_VARIABLE_PY]
-    SELECT * FROM [dbo].[PROCESS_VARIABLE_TESTING]
-    WHERE RUN_ID = '{}'
-    """.format(RUN_ID)
-
-    cur.execute(sql1)
-    cur.execute(sql2)
-    cur.execute(sql3)
-    cur.execute(sql4)
-    cur.execute(sql5)
-
-
-def import_data_into_database():
-    '''
-    This function prepares all the data necessary to run all 14 steps.
-    The input files have been edited to make sure data types match the database tables.
-    Note that no process variables are uploaded and are expected to be present in the database.
-    '''
-
-    # Import data paths (these will be passed in through the user)
-    survey_data_path = r'tests\data\ips_data_management\import_data\minimums_weight\surveydata.csv'
-    shift_data_path = r'tests\data\ips_data_management\import_data\external\Poss shifts Dec 2017.csv'
-    nr_data_path = r'tests\data\ips_data_management\import_data\external\Dec17_NR.csv'
-    sea_data_path = r'tests\data\ips_data_management\import_data\external\Sea Traffic Dec 2017.csv'
-    tunnel_data_path = r'tests\data\ips_data_management\import_data\external\Tunnel Traffic Dec 2017.csv'
-    air_data_path = r'tests\data\ips_data_management\import_data\external\Air Sheet Dec 2017 VBA.csv'
-    unsampled_data_path = r'tests\data\ips_data_management\import_data\external\Unsampled Traffic Dec 2017.csv'
-
-    # Delete table content
-    cf.delete_from_table('SURVEY_SUBSAMPLE', 'RUN_ID', '=', RUN_ID)
-    cf.delete_from_table('SAS_SURVEY_SUBSAMPLE')
-
-    df = pd.read_csv(survey_data_path)
-
-    # Add the generated run id to the dataset.
-    df['RUN_ID'] = pd.Series(RUN_ID, index=df.index)
-
-    # Insert the imported data into the survey_subsample table on the database.
-    cf.insert_dataframe_into_table('SURVEY_SUBSAMPLE', df)
-
-    # Import the external files into the database.
-    import_traffic_data.import_traffic_data(RUN_ID, shift_data_path)
-    import_traffic_data.import_traffic_data(RUN_ID, nr_data_path)
-    import_traffic_data.import_traffic_data(RUN_ID, sea_data_path)
-    import_traffic_data.import_traffic_data(RUN_ID, tunnel_data_path)
-    import_traffic_data.import_traffic_data(RUN_ID, air_data_path)
-    import_traffic_data.import_traffic_data(RUN_ID, unsampled_data_path)
 
 
 def test_minimums_weight_step():
@@ -262,6 +161,10 @@ def test_minimums_weight_step():
     df_survey_target.index = range(0, len(df_survey_target))
     df_summary_actual.index = range(0, len(df_summary_actual))
     df_summary_target.index = range(0, len(df_summary_target))
+
+    # Drop column EXPENDCODE from survey data as not required for testing - ET 12/11/2018
+    df_survey_actual.drop(['EXPENDCODE'], axis=1, inplace=True)
+    df_survey_target.drop(['EXPENDCODE'], axis=1, inplace=True)
 
     # Ensure summary output is equal to expected summary output
     assert_frame_equal(df_summary_actual, df_summary_target, check_dtype=False,check_like=True, check_less_precise=True)
