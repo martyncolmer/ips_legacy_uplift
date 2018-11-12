@@ -12,12 +12,12 @@ def import_traffic_data(run_id, filename):
     Author        : Elinor Thorne
     Date          : 27 Nov 2017
     Purpose       : Imports CSV (Sea, CAA, Tunnel Traffic, Possible Shifts,
-                    Non Response or Unsampled) and inserts to Oracle   
+                    Non Response or Unsampled) and inserts to Oracle
     Parameters    : filename - full directory path to CSV
     Returns       : True or False
     Requirements  : pip install pandas
     Dependencies  : CommonFunctions.import_csv()
-                    CommonFunctions.validate_csv() 
+                    CommonFunctions.validate_csv()
                     CommonFunctions.get_sql_connection()
                     CommonFunctions.select_data()
     """
@@ -25,7 +25,6 @@ def import_traffic_data(run_id, filename):
     # Connection variables
     conn = cf.get_sql_connection()
     cur = conn.cursor()
-
 
     # Convert CSV to dataframe and stage
     dataframe = pd.read_csv(filename)
@@ -76,23 +75,3 @@ def import_traffic_data(run_id, filename):
 
     # Insert dataframe to table
     cf.insert_dataframe_into_table(table_name, dataframe)
-
-
-
-if __name__ == '__main__':
-    run_id = 'el-test'
-
-    dir = r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\main\Dec\import_data'
-    shift_data_path = dir + r'\Poss shifts Dec 2017.csv'
-    nr_data_path = dir + r'\Dec17_NR.csv'
-    unsampled_data_path = dir + r'\Unsampled Traffic Dec 2017.csv'
-    sea_data_path = dir + r'\Sea Traffic Dec 2017.csv'
-    tunnel_data_path = dir + r'\Tunnel Traffic Dec 2017.csv'
-    air_data = dir + r'\Air Sheet Dec 2017 VBA.csv'
-
-    import_traffic_data(run_id, shift_data_path)
-    import_traffic_data(run_id, nr_data_path)
-    import_traffic_data(run_id, unsampled_data_path)
-    import_traffic_data(run_id, sea_data_path)
-    import_traffic_data(run_id, tunnel_data_path)
-    import_traffic_data(run_id, air_data)

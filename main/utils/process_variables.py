@@ -27,7 +27,7 @@ def modify_values(row, pvs, dataset, out_table_name):
         except KeyError:
             print("Key Not Found")
 
-    if dataset == 'survey' or dataset == 'shift':
+    if dataset != 'non_response' and dataset != 'traffic':
         row['SHIFT_PORT_GRP_PV'] = str(row['SHIFT_PORT_GRP_PV'])[:10]
     
     return row

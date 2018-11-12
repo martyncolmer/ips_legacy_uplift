@@ -58,7 +58,7 @@
     {
       "name": "TRAFFIC_WEIGHT",
       "nullify_pvs": ["[SAMP_PORT_GRP_PV]", "[FOOT_OR_VEHICLE_PV]", "[HAUL_PV]", "[TRAFFIC_WT]"],
-      "pv_columns": ["'SAMP_PORT_GRP_PV'", "'FOOT_OR_VEHICLE_PV'", "'HAUL_PV'"],
+      "pv_columns": ["'SAMP_PORT_GRP_PV'"],
       "pv_columns2": ["'SAMP_PORT_GRP_PV'", "'FOOT_OR_VEHICLE_PV'", "'HAUL_PV'"],
       "ps_columns": ["[RUN_ID]", "[SAMP_PORT_GRP_PV]", "[ARRIVEDEPART]", "[FOOT_OR_VEHICLE_PV]", "[CASES]", "[TRAFFICTOTAL]", "[SUM_TRAFFIC_WT]", "[TRAFFIC_WT]"],
       "results_columns": ["[TRAFFIC_WT]"],
