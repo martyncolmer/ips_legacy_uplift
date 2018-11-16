@@ -35,8 +35,6 @@ def database_connection():
 
 def setup_module(module):
     """ Setup any state specific to the execution of the given module. """
-    # Remove the return when you want to run it tidy like - stupid el
-    return
 
     # Assign variables
     december_survey_data_path = (TEST_DATA_DIR + r'\surveydata.csv')
@@ -55,8 +53,6 @@ def setup_module(module):
 
 
 def teardown_module(module):
-    # Remove the return when you want to run it tidy like - stupid el
-    return
 
     """ Teardown any state that was previously setup with a setup_module method. """
     # Deletes data from temporary tables as necessary.
