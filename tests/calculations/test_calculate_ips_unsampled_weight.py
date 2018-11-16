@@ -87,14 +87,13 @@ def sort_and_set_index(df, sort_columns):
 # November skipped due to expected fail (this is caused by a slight difference in the final output)
 @pytest.mark.parametrize('data_path', [
     r'tests\data\calculations\december_2017\unsampled_weight',
-    #r'tests\data\calculations\november_2017\unsampled_weight',
     r'tests\data\calculations\october_2017\unsampled_weight',
     ])
 def test_calculate(data_path):
     """
     Author        : Thomas Mahoney
     Date          : 11 Sep 2018
-    Purpose       : Tests the calculation function of the minimums weight step works as expected.
+    Purpose       : Tests the calculation function of the unsampled weight step works as expected.
     Parameters    : data_path - The file path to the data folder (contains import and expected results csv files).
     Returns       : NA
     """
@@ -146,8 +145,7 @@ def test_calculate(data_path):
     # Sort the dataframes for comparison
     df_survey_result = sort_and_set_index(df_survey_result, 'SERIAL')
     df_survey_expected = sort_and_set_index(df_survey_expected, 'SERIAL')
-    #df_survey_result.to_csv("Unsampled_result.csv")
-    #df_survey_expected.to_csv("Unsampled_expected.csv")
+
     assert_frame_equal(df_survey_result, df_survey_expected)
 
     # Write the expected result data to SQL then pull it back for comparison
@@ -159,7 +157,5 @@ def test_calculate(data_path):
     df_summary_result = sort_and_set_index(df_summary_result, ['UNSAMP_PORT_GRP_PV','UNSAMP_REGION_GRP_PV','ARRIVEDEPART'])
     df_summary_expected = sort_and_set_index(df_summary_expected, ['UNSAMP_PORT_GRP_PV','UNSAMP_REGION_GRP_PV','ARRIVEDEPART'])
 
-    #df_summary_result.to_csv("Unsampled_summary_result.csv")
-    #df_summary_expected.to_csv("Unsampled_summary_expected.csv")
     assert_frame_equal(df_summary_result, df_summary_expected)
 

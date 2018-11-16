@@ -53,6 +53,13 @@ def r_survey_input(survey_input):
     # Sort input values
     sort1 = ['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV', 'ARRIVEDEPART']
 
+
+    # df_survey_input.UNSAMP_REGION_GRP_PV = df_survey_input.UNSAMP_REGION_GRP_PV.fillna(-1)
+    # df_survey_input.UNSAMP_REGION_GRP_PV = df_survey_input.UNSAMP_REGION_GRP_PV.apply(float)
+    # df_survey_input.UNSAMP_REGION_GRP_PV = df_survey_input.UNSAMP_REGION_GRP_PV.apply(int)
+    # df_survey_input.UNSAMP_REGION_GRP_PV = df_survey_input.UNSAMP_REGION_GRP_PV.replace(-1, "")
+    # df_survey_input.UNSAMP_REGION_GRP_PV = df_survey_input.UNSAMP_REGION_GRP_PV.apply(str)
+
     #df_survey_input['UNSAMP_REGION_GRP_PV'] = df_survey_input['UNSAMP_REGION_GRP_PV'].apply(pd.to_numeric)
     df_survey_input_sorted = df_survey_input.sort_values(sort1)
 
@@ -70,7 +77,7 @@ def r_survey_input(survey_input):
                                                  'UNSAMP_REGION_GRP_PV',
                                                  'ARRIVEDEPART']).agg({"count": 'count'}).reset_index()
 
-
+    print(lookup_dataframe.UNSAMP_REGION_GRP_PV.dtype)
     # Cleanse data
     lookup_dataframe = lookup_dataframe.drop(["count"], axis=1)
     lookup_dataframe["T1"] = range(len(lookup_dataframe))
@@ -92,11 +99,9 @@ def r_survey_input(survey_input):
                                      'NON_RESPONSE_WT', 'MINS_WT', 'UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV',
                                      'OOHDesignWeight', 'T1']]
 
-    # Export dataframes to CSV
-    #df_r_ges_input.to_csv(r"tests/data/r_setup/October_2017/unsampled_weight/df_r_ges_input_unsamp.csv", index=False)
-
     # # ROUND VALUES - Added to match SAS output
     # df_r_ges_input = df_r_ges_input.round({'OOHDesignWeight': 7})
+    df_r_ges_input.UNSAMP_REGION_GRP_PV = pd.to_numeric(df_r_ges_input.UNSAMP_REGION_GRP_PV, errors='coerce')
 
     cf.insert_dataframe_into_table("dbo.survey_unsamp_aux",df_r_ges_input)
 
@@ -237,11 +242,7 @@ def r_population_input(survey_input, ustotals):
 
     sort1 = ['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV', 'ARRIVEDEPART']
 
-    #df_survey_input['UNSAMP_REGION_GRP_PV'] = df_survey_input['UNSAMP_REGION_GRP_PV'].apply(pd.to_numeric)
-
     df_survey_input_lookup = df_survey_input.sort_values(sort1)
-
-
 
     # Cleanse data
     df_survey_input_lookup.UNSAMP_REGION_GRP_PV.fillna(value=0, inplace=True)
@@ -362,6 +363,8 @@ def do_ips_ges_weighting(df_surveydata,df_ustotals):
     cf.drop_table('r_unsampled')
 
     # Call the GES weighting macro
+    df_surveydata = df_surveydata.sort_values('SERIAL')
+
     df_survey = r_survey_input(df_surveydata)
     r_population_input(df_surveydata, df_ustotals)
 
@@ -406,6 +409,9 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
     df_surveydata[ooh_design_weight_column] = \
         df_surveydata[var_shiftWeight] * df_surveydata[var_NRWeight] * df_surveydata[var_minWeight] * df_surveydata[
             var_trafficWeight]
+
+    df_ustotals['REGION'] = df_ustotals['REGION'].replace(0, np.NaN)
+    df_ustotals['UNSAMP_REGION_GRP_PV'] = df_ustotals['UNSAMP_REGION_GRP_PV'].replace(0, np.NaN)
 
     # Sort the unsampled data frame ready to be summarised
     df_ustotals = df_ustotals.sort_values(OOH_STRATA)
@@ -452,7 +458,6 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
     # Remove any records where var_totals value is not greater than zero
     liftedTotals = liftedTotals[liftedTotals[TOTALS_COLUMN] > 0]
 
-
     ges_dataframes = do_ips_ges_weighting(df_surveydata, df_ustotals)
 
     # ges_dataframes = do_ips_ges_weighting(df_surveydata, var_serialNum, ooh_design_weight_column, OOH_STRATA,
@@ -470,6 +475,7 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
 
     df_survey.index = range(0, len(df_survey))
     df_output.index = range(0, len(df_output))
+
     # Merge the df_surveydata and output data frame to generate the summary table
     df_survey[var_OOHWeight] = df_output[var_OOHWeight]
 
@@ -514,7 +520,7 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
 
     output_column_order = ['UNSAMP_PORT_GRP_PV','UNSAMP_REGION_GRP_PV','ARRIVEDEPART','CASES','SUM_PRIOR_WT','SUM_UNSAMP_TRAFFIC_WT','UNSAMP_TRAFFIC_WT']
     df_summary = df_summary[output_column_order]
-
+    df_summary.ARRIVEDEPART = df_summary.ARRIVEDEPART.astype(int)
     # Identify groups where the total has been uplifted but the
     # respondent count is below the threshold.
 
