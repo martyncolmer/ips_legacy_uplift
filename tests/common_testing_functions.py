@@ -6,6 +6,7 @@ from main.io import CommonFunctions as cf
 from main.io import import_traffic_data
 from main.io import import_data
 from main.io import ips_data_management as idm
+from main.calculations import calculate_ips_traffic_weight as tr_calc
 
 def populate_test_pv_table(conn, run_id, pv_run_id):
     """ Set up table to run and test copy_step_pvs_for_survey_data()
@@ -114,6 +115,19 @@ def import_survey_data_into_database(survey_data_path, run_id):
 
 def reset_test_tables(run_id, step_config):
     """ Cleanses tables within database. """
+
+    # Clear tables unique to Traffic Weight step
+    if step_config['name'] == 'TRAFFIC_WEIGHT':
+        # clear the input SQL server tables for the step
+        cf.delete_from_table(tr_calc.POP_TOTALS)
+
+        # clear the auxillary tables
+        cf.delete_from_table(tr_calc.SURVEY_TRAFFIC_AUX_TABLE)
+
+        # drop aux tables and r created tables
+        cf.drop_table(tr_calc.POP_PROWVEC_TABLE)
+        cf.drop_table(tr_calc.R_TRAFFIC_TABLE)
+
 
     # List of tables to cleanse entirely.
     tables_to_unconditionally_cleanse = [idm.SAS_SURVEY_SUBSAMPLE_TABLE,

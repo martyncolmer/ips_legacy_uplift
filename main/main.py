@@ -14,7 +14,7 @@ from main.utils import process_variables
 from main.calculations import calculate_ips_shift_weight
 from main.calculations import calculate_ips_nonresponse_weight
 from main.calculations import calculate_ips_minimums_weight
-from main.calculations.calculate_ips_traffic_weight import do_ips_trafweight_calculation
+from main.calculations.calculate_ips_traffic_weight import do_ips_trafweight_calculation_with_R
 from main.calculations import calculate_ips_unsampled_weight
 from main.calculations import calculate_ips_imb_weight
 from main.calculations import calculate_ips_final_weight
@@ -263,14 +263,7 @@ def traffic_weight_step(run_id, connection):
     traffic_data = cf.get_table_values(STEP_CONFIGURATION[step_name]["data_table"])
 
     # Calculate Traffic Weight
-    output_data, summary_data = do_ips_trafweight_calculation(df_survey=survey_data,
-                                                              var_serialNum='SERIAL',
-                                                              var_shiftWeight='SHIFT_WT',
-                                                              var_NRWeight='NON_RESPONSE_WT',
-                                                              var_minWeight='MINS_WT',
-                                                              PopTotals=traffic_data,
-                                                              GWeightVar='TRAFFIC_WT',
-                                                              minCountThresh=30)
+    output_data, summary_data = do_ips_trafweight_calculation_with_R(survey_data, traffic_data)
 
     # Insert data to SQL
     cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], output_data)

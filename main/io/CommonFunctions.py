@@ -1082,56 +1082,31 @@ def unpickle_rick(file):
     beep()
 
 
-# def scratch(big_survey_df, right_hand_df, cols, output_dir):
-#     # Next step survey data and merge in to big survey data then select your wanted columns!
-#     survey_df = pandas.read_csv(big_survey_df, engine='python')
-#     output_df = pandas.read_csv(right_hand_df, engine='python')
-#
-#     survey_df = survey_df[cols].copy()
-#     output_df = output_df[cols].copy()
-#
-#     target_df = pandas.merge(survey_df, output_df, on='SERIAL', how='left')
-#
-#     target_df.columns = target_df.columns.str.replace('_y', '')
-#     target_df = target_df[cols]
-#
-#     try:
-#         target_df.to_csv(output_dir, index=False)
-#     except FileNotFoundError:
-#         new_dir = output_dir.replace(r'\surveydata_out_expected.csv', '')
-#         os.mkdir(new_dir)
-#         target_df.to_csv(output_dir, index=False)
-#
-#
-# if __name__ == '__main__':
-#     from main.io import ips_data_management as idm
-#     RUN_ID = 'bla'
-#     with open(r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\data\xml_steps_configuration.json') as config_file:
-#         STEP_CONFIGURATION = json.load(config_file)
-#     STEP_NAME = 'SHIFT_WEIGHT'
-#
-#     populate_test_data(idm.SURVEY_SUBSAMPLE_TABLE, RUN_ID, STEP_CONFIGURATION[STEP_NAME])
-#     step = 'MINIMUMS_WEIGHT'
-#     with open(r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\data\xml_steps_configuration.json') as config_file:
-#         step_configuration = json.load(config_file)
-#     STEP_CONFIGURATION = step_configuration[step]
-#
-#     # Input dirs
-#     scratch_dir = os.path.join(r'S:\CASPA\IPS\Testing\scratch', step.lower())
-#     left_file = r'\big_survey.csv'
-#     right_file = r'\survey_input.csv'
-#
-#     big_survey_df = scratch_dir + left_file
-#     right_hand_df = scratch_dir + right_file
-#
-#     # Cols
-#     cols = STEP_CONFIGURATION['nullify_pvs']
-#     cols = [item.replace('[', '') for item in cols]
-#     cols = [item.replace(']', '') for item in cols]
-#     cols.insert(0, 'SERIAL')
-#
-#     # Output dirs
-#     output_dir = (os.path.join(r'C:\Users\thorne1\PycharmProjects\IPS_Legacy_Uplift\tests\data\main\dec\new_test', step.lower()) + r'\surveydata_out_expected.csv')
-#
-#     # RUN!
-#     scratch(big_survey_df, right_hand_df, cols, output_dir)
+def compare_tables():
+    df_list = []
+
+    # First, check PROCESS_VARIABLE_PY tables in each database
+    for count in range(0, 3):
+        if count == 0:
+            db_table = '[ips_test].[dbo].[PROCESS_VARIABLE_PY]'
+        else:
+            db_table = '[ips_test{}].[dbo].[PROCESS_VARIABLE_PY]'.format(count+1)
+
+        sql = """
+        SELECT PV_NAME, PV_DEF
+          FROM {}
+          WHERE RUN_ID = 'TEMPLATE'
+        """.format(db_table)
+
+        df_list.append = pandas.read_sql_query(sql, get_sql_connection())
+
+    print(df_list[0])
+    print("YAAAASSS")
+    print(df_list[1])
+    print("YAAAASSS SOME MORE")
+    print(df_list[2])
+
+
+
+if __name__ == '__main__':
+    compare_tables()

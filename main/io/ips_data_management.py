@@ -478,9 +478,9 @@ def store_survey_data_with_step_results(run_id, conn, step_configuration):
     cur.execute(sql)
     conn.commit()
 
-    # # TODO: This shizzniz
+    # TODO: This shizzniz
     # ctf.populate_test_data(SURVEY_SUBSAMPLE_TABLE, run_id, step_configuration, dataset='survey')
-    # # TODO: This shizzniz
+    # TODO: This shizzniz
 
     # Cleanse summary and subsample tables as applicable
     ps_tables_to_delete = ["SHIFT_WEIGHT",
