@@ -171,6 +171,7 @@ def reset_test_tables(run_id, step_config):
 def populate_test_data(table_name, run_id, step_config, dataset):
     step_name = step_config['name'].lower()
     test_dir = os.path.join(r'tests\data\main\dec\new_test', step_name)
+    # test_dir = os.path.join(r'S:\CASPA\IPS\Testing\scratch', step_name)
     file_name = dataset + '_out_expected.csv'
 
     expect_df = cf.select_data('*', table_name, 'RUN_ID', run_id)
@@ -182,6 +183,7 @@ def populate_test_data(table_name, run_id, step_config, dataset):
         cols = [item.replace(']', '') for item in cols]
         cols.insert(0, 'SERIAL')
         expect_df = expect_df[cols]
+        file_name = dataset + 'data_out_expected.csv'
 
     try:
         expect_df.to_csv(os.path.join(test_dir, file_name), index=False)

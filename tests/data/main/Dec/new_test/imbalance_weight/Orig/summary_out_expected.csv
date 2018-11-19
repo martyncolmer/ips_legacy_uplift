@@ -1,0 +1,9 @@
+RUN_ID,FLOW,SUM_PRIOR_WT,SUM_IMBAL_WT
+test-idm-integration-imb-wt,1.0,2145915.55,2242668.393
+test-idm-integration-imb-wt,2.0,5912297.674,5815567.854
+test-idm-integration-imb-wt,3.0,4066587.873,4009813.621
+test-idm-integration-imb-wt,4.0,3270091.927,3326866.179
+test-idm-integration-imb-wt,5.0,631048.007,684346.666
+test-idm-integration-imb-wt,6.0,1124226.082,1070927.423
+test-idm-integration-imb-wt,7.0,936176.303,911057.857
+test-idm-integration-imb-wt,8.0,552936.752,574660.955

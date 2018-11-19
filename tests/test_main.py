@@ -423,8 +423,8 @@ def test_stay_imputation_step():
     expected_results = pd.read_csv(survey_file, engine='python')
 
     # Formatting and fudgery
-    actual_results = sql_results.dropna(subset=['STAY_IMP_FLAG_PV'])
-    actual_results = actual_results.sort_values('SERIAL')
+    sql_results = sql_results.dropna(subset=['STAY_IMP_FLAG_PV'])
+    actual_results = sql_results.sort_values('SERIAL')
     actual_results.replace('None', np.nan, inplace=True)
     actual_results.index = range(0, len(actual_results))
 
@@ -533,18 +533,18 @@ def test_rail_imputation_step():
     sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
     sql_cols = "[SERIAL], " + sql_cols + ", [SPEND]"
 
-    # # Get results of Survey Data and compare
-    # sql = """
-    #     SELECT {}
-    #     FROM {}
-    #     WHERE RUN_ID = '{}'
-    # """.format(sql_cols, idm.SURVEY_SUBSAMPLE_TABLE, RUN_ID)
-    #
-    # # AND [SERIAL] not like '9999%'
-    # #     AND [RESPNSE] between 1 and 6
+    # Get results of Survey Data and compare
+    sql = """
+        SELECT {}
+        FROM {}
+        WHERE RUN_ID = '{}'
+        AND [SERIAL] not like '9999%'
+        AND [RESPNSE] between 1 and 6
+        AND [FLOW] != ''        
+    """.format(sql_cols, idm.SURVEY_SUBSAMPLE_TABLE, RUN_ID)
 
-    # actual_results = pd.read_sql_query(sql, conn)
-    actual_results = cf.select_data(sql_cols, idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', RUN_ID)
+    actual_results = pd.read_sql_query(sql, conn)
+    # actual_results = cf.select_data(sql_cols, idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', RUN_ID)
     expected_results = pd.read_csv(survey_file, engine='python')
 
     # Formatting and fudgery
@@ -653,6 +653,8 @@ def test_airmiles_step():
     # Get results of Survey Data and compare
     sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
     sql_cols = "[SERIAL], " + sql_cols
+
+    # actual_results = cf.select_data(sql_cols, idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', RUN_ID)
 
     # Get results of Survey Data and compare
     sql = """

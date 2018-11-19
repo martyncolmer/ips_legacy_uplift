@@ -478,9 +478,8 @@ def store_survey_data_with_step_results(run_id, conn, step_configuration):
     cur.execute(sql)
     conn.commit()
 
-    # TODO: This shizzniz
-    # ctf.populate_test_data(SURVEY_SUBSAMPLE_TABLE, run_id, step_configuration, dataset='survey')
-    # TODO: This shizzniz
+    if os.getenv("POPULATE_TEST_DATA") == 'True':
+        ctf.populate_test_data(SURVEY_SUBSAMPLE_TABLE, run_id, step_configuration, dataset='survey')
 
     # Cleanse summary and subsample tables as applicable
     ps_tables_to_delete = ["SHIFT_WEIGHT",
@@ -534,9 +533,8 @@ def store_step_summary(run_id, conn, step_configuration):
     except Exception as err:
         print(err)
 
-    # # TODO: This shizzniz
-    # ctf.populate_test_data(ps_table, run_id, step_configuration, dataset='summary')
-    # # TODO: This shizzniz
+    if os.getenv("POPULATE_TEST_DATA") == 'True':
+        ctf.populate_test_data(ps_table, run_id, step_configuration, dataset='summary')
 
     # Cleanse temporary summary table
     cf.delete_from_table(sas_ps_table)
