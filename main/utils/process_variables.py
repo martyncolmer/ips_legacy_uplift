@@ -336,10 +336,6 @@ def process(in_table_name, out_table_name, in_id, dataset):
     # Apply process variables
     df_data = df_data.apply(modify_values, axis=1, args=(process_variables, dataset))
 
-    #if dataset != 'survey':
-    #df_data = df_data.apply(test_pv, axis=1, args=(1, dataset))
-
-
     # Create a list to hold the PV column names
     updated_columns = []
 
