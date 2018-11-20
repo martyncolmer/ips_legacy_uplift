@@ -83,7 +83,7 @@
       "pv_columns2": ["'UNSAMP_PORT_GRP_PV'", "'UNSAMP_REGION_GRP_PV'"],
       "ps_columns": ["[RUN_ID]", "[UNSAMP_PORT_GRP_PV]", "[ARRIVEDEPART]", "[UNSAMP_REGION_GRP_PV]", "[CASES]", "[SUM_PRIOR_WT]", "[SUM_UNSAMP_TRAFFIC_WT]", "[UNSAMP_TRAFFIC_WT]"],
       "results_columns": ["[UNSAMP_TRAFFIC_WT]"],
-      "delete_tables": ["[dbo].[SAS_SURVEY_SUBSAMPLE]", "[dbo].[SAS_UNSAMPLED_OOH_WT]", "[dbo].[SAS_PS_UNSAMPLED_OOH]"],
+      "delete_tables": ["[dbo].[SAS_UNSAMPLED_OOH_WT]", "[dbo].[SAS_PS_UNSAMPLED_OOH]"],
       "spv_table": "[dbo].[SAS_UNSAMPLED_OOH_SPV]",
       "pv_table": "[dbo].[SAS_UNSAMPLED_OOH_PV]",
       "data_table": "[dbo].[SAS_UNSAMPLED_OOH_DATA]",
