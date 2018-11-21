@@ -26,6 +26,7 @@ def import_traffic_data(run_id, filename):
     conn = cf.get_sql_connection()
     cur = conn.cursor()
 
+
     # Convert CSV to dataframe and stage
     dataframe = pd.read_csv(filename)
     dataframe.columns = dataframe.columns.str.upper()
@@ -75,3 +76,4 @@ def import_traffic_data(run_id, filename):
 
     # Insert dataframe to table
     cf.insert_dataframe_into_table(table_name, dataframe)
+

@@ -347,7 +347,7 @@ def create_table(table_name, column_list):
     FORMAT EXAMPLE: "COLUMN_NAME type(size)"
     CODE EXAMPLE  : create_table("TABLE_DATA", ("RUN_ID varchar2(40)", "YEAR number(4)", "MONTH number(2)"))
                     OR
-                    cols = ("RUN_ID varchar2(40)", "YEAR number(4)", "MONTH number(2)")
+                    cols = ("RUN_ID varchar2(40)", "YEAR int", "MONTH number(2)")
                     create_table("TABLE_DATA", cols)               
     Returns       : True/False  
     Requirements  : None

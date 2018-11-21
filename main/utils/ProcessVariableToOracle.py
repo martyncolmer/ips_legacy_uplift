@@ -14,7 +14,6 @@ else:
 '
 """
 
-
 def write_pv_to_table(pv_name,value,conn = None):
 
     if(conn == None):
