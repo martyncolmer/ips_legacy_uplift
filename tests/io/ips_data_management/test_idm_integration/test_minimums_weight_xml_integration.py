@@ -123,6 +123,9 @@ def test_minimums_weight_step():
     # Get and test Survey Data before importing to calculation function
     sas_survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
+    # TODO: DELETEY
+    cf.log_dtypes(STEP_NAME, sas_survey_data, run_type='xml')
+
     # Run step 5 / 8
     surveydata_out, summary_out = calculate_ips_minimums_weight.do_ips_minweight_calculation(sas_survey_data,
                                                                                              var_serialNum='SERIAL',

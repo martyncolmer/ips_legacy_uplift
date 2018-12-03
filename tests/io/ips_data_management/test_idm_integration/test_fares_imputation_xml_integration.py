@@ -113,6 +113,9 @@ def test_fares_imputation_step():
     # Check all columns in SAS_SURVEY_SUBSAMPLE have been altered.
     sas_survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
+    # TODO: DELETEY
+    cf.log_dtypes(STEP_NAME, sas_survey_data, run_type='xml')
+
     for column in STEP_CONFIGURATION[STEP_NAME]['pv_columns']:
         column_name = column.replace("'", "")
         assert len(sas_survey_data[column_name]) == EXPECTED_LEN

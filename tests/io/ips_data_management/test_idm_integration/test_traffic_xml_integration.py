@@ -264,6 +264,10 @@ def test_traffic_weight_step(path_to_data):
 
     # import the survey data from SQL and sort and reindex
     df_surveydata_import_actual = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+    # TODO: DELETEY
+    cf.log_dtypes(STEP_NAME, df_surveydata_import_actual, run_type='xml', step_df=df_tr_data_import_actual)
+
     df_surveydata_import_actual_sql = df_surveydata_import_actual.sort_values(by='SERIAL')
     df_surveydata_import_actual_sql.index = range(0, len(df_surveydata_import_actual_sql))
 

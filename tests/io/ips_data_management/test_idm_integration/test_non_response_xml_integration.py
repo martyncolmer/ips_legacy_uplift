@@ -241,10 +241,14 @@ def test_non_response_weight_step(path_to_data):
 
     # import the data from SQL and sort
     df_surveydata_import_actual = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+
     df_surveydata_import_actual_sql = df_surveydata_import_actual.sort_values(by='SERIAL')
     df_surveydata_import_actual_sql.index = range(0, len(df_surveydata_import_actual_sql))
 
     df_nr_data_import_actual = cf.get_table_values(SAS_NON_RESPONSE_DATA_TABLE_NAME)
+
+    # TODO: DELETEY
+    cf.log_dtypes(STEP_NAME, df_surveydata_import_actual, run_type='xml', step_df=df_nr_data_import_actual)
 
     # fix formatting in actual data
     df_surveydata_import_actual_sql.drop(['EXPENDCODE'], axis=1, inplace=True)

@@ -84,6 +84,9 @@ def test_final_weight_step():
     # Save the Survey Data before importing to calculation function
     sas_survey_data.to_csv(TEST_DATA_DIR + '\sas_survey_data_actual.csv', index=False)
 
+    # TODO: DELETEY
+    cf.log_dtypes(STEP_NAME, sas_survey_data, run_type='xml')
+
     actual_results = pd.read_csv(TEST_DATA_DIR + '\sas_survey_data_actual.csv')
     expected_results = pd.read_csv(TEST_DATA_DIR + '\sas_survey_data_expected.csv')
 

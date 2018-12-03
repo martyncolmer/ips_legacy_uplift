@@ -29,6 +29,8 @@ from main.calculations import calculate_ips_airmiles
 with open(r'data/xml_steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)
 
+OUTPUTS = r'S:\CASPA\IPS\Testing\scratch\integration outputs'
+RUN_TYPE = 'integration'
 
 def shift_weight_step(run_id, connection):
     """
@@ -150,7 +152,6 @@ def non_response_weight_step(run_id, connection):
                                                                                                      'NON_RESPONSE_WT',
                                                                                                      'SERIAL')
 
-    # Insert data to SQL
     cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
     cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["sas_ps_table"], summary_data_out)
 
@@ -201,6 +202,7 @@ def minimums_weight_step(run_id, connection):
                                                                                            var_shiftWeight='SHIFT_WT',
                                                                                            var_NRWeight='NON_RESPONSE_WT',
                                                                                            var_minWeight='MINS_WT')
+
     # Insert data to SQL
     cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], output_data)
     cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["sas_ps_table"], summary_data)
@@ -324,10 +326,18 @@ def unsampled_weight_step(run_id, connection):
 
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    unsampled_data = cf.get_table_values(STEP_CONFIGURATION[step_name]["data_table"])
 
-    # TODO: Pass correct parameters to do_ips_unsampled_weight_calculation() once step has been refactored to include new R-GES
     # Calculate Unsampled Weight
-    output_data, summary_data = calculate_ips_unsampled_weight.do_ips_unsampled_weight_calculation(survey_data)
+    output_data, summary_data = calculate_ips_unsampled_weight.do_ips_unsampled_weight_calculation(df_surveydata=survey_data,
+                                                                                                   var_serialNum='SERIAL',
+                                                                                                   var_shiftWeight='SHIFT_WT',
+                                                                                                   var_NRWeight='NON_RESPONSE_WT',
+                                                                                                   var_minWeight='MINS_WT',
+                                                                                                   var_trafficWeight='TRAFFIC_WT',
+                                                                                                   var_OOHWeight="UNSAMP_TRAFFIC_WT",
+                                                                                                   df_ustotals=unsampled_data,
+                                                                                                   minCountThresh=30)
 
     # Insert data to SQL
     cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], output_data)
@@ -383,6 +393,7 @@ def imbalance_weight_step(run_id, connection):
                                                                                               var_trafficWeight="TRAFFIC_WT",
                                                                                               var_OOHWeight="UNSAMP_TRAFFIC_WT",
                                                                                               var_imbalanceWeight="IMBAL_WT")
+
     # Insert data to SQL
     cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
     cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["sas_ps_table"], summary_data_out)
@@ -566,20 +577,6 @@ def spend_imputation_step(run_id, connection):
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    # # TODO: FOR DEBUGGING
-    # import pandas as pd
-    # sql = """
-    #         SELECT [SERIAL], [SPEND] as 'newspend'
-    #           FROM {}
-    #           WHERE [SPEND_IMP_ELIGIBLE_PV] = '1'
-    #         """.format(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-    #
-    # # Using comparison data populated by Python from unit test due
-    # # to random values populated in OPERA_PV. NOT USING SAS BASELINE DATA
-    # fares_input = pd.read_sql_query(sql, connection)
-    # fares_input.to_csv(r'S:\CASPA\IPS\Testing\scratch\fares_input.csv')
-    # # TODO: END DEBUGGING!
-
     # Calculate Spend Imputation
     survey_data_out = calculate_ips_spend_imputation.do_ips_spend_imputation(survey_data,
                                                                              var_serial="SERIAL",
@@ -625,19 +622,6 @@ def rail_imputation_step(run_id, connection):
 
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-
-    # # TODO: FOR DAVE
-    # import pandas as pd
-    # sql = """
-    #             SELECT *
-    #               FROM {}
-    #             """.format(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-    #
-    # # Using comparison data populated by Python from unit test due
-    # # to random values populated in OPERA_PV. NOT USING SAS BASELINE DATA
-    # dave_results = pd.read_sql_query(sql, connection)
-    # dave_results.to_csv(r'S:\CASPA\IPS\Testing\Dec_Data\Rail\rail_survey_input.csv')
-    # # TODO: END DAVE!
 
     # Calculate Rail Imputation
     survey_data_out = calculate_ips_rail_imputation.do_ips_railex_imp(survey_data,
@@ -686,40 +670,6 @@ def regional_weights_step(run_id, connection):
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    # # TODO: FOR DAVE
-    # import pandas as pd
-    # sql = """
-    #             SELECT [SERIAL],
-    #                     [NIGHTS1],
-    #                     [NIGHTS2],
-    #                     [NIGHTS3],
-    #                     [NIGHTS4],
-    #                     [NIGHTS5],
-    #                     [NIGHTS6],
-    #                     [NIGHTS7],
-    #                     [NIGHTS8],
-    #                     [EXPENDITURE_WT],
-    #                     [EXPENDITURE_WTK],
-    #                     [STAY1K],
-    #                     [STAY2K],
-    #                     [STAY3K],
-    #                     [STAY4K],
-    #                     [STAY5K],
-    #                     [STAY6K],
-    #                     [STAY7K],
-    #                     [STAY8K],
-    #                     [STAY_WT],
-    #                     [STAY_WTK],
-    #                     [VISIT_WT],
-    #                     [VISIT_WTK]
-    #               FROM {}
-    #             """.format(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-    #
-    # # Using comparison data populated by Python from unit test due
-    # # to random values populated in OPERA_PV. NOT USING SAS BASELINE DATA
-    # dave_results = pd.read_sql_query(sql, connection)
-    # dave_results.to_csv(r'S:\CASPA\IPS\Testing\Dec_Data\Regional\regional_survey_input.csv')
-    # # TODO: END DAVE!
 
     # Calculate Regional Weights
     survey_data_out = calculate_ips_regional_weights.do_ips_regional_weight_calculation(survey_data,
@@ -766,19 +716,6 @@ def town_stay_expenditure_imputation_step(run_id, connection):
 
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-
-    # # TODO: FOR DAVE
-    # import pandas as pd
-    # sql = """
-    #             SELECT *
-    #               FROM {}
-    #             """.format(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-    #
-    # # Using comparison data populated by Python from unit test due
-    # # to random values populated in OPERA_PV. NOT USING SAS BASELINE DATA
-    # dave_results = pd.read_sql_query(sql, connection)
-    # dave_results.to_csv(r'S:\CASPA\IPS\Testing\Dec_Data\Town and Expenditure\town_and_stay_survey_input.csv')
-    # # TODO: END DAVE!
 
     # Calculate TSE Imputation
     survey_data_out = calculate_ips_town_and_stay_expenditure.do_ips_town_exp_imp(survey_data,

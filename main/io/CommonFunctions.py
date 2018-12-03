@@ -1107,6 +1107,23 @@ def compare_tables():
     print(df_list[2])
 
 
+def log_dtypes(step_name, survey_df, run_type, step_df=pandas.DataFrame()):
+    dir = r'S:\CASPA\IPS\Testing\scratch\integration dtypes'
+    full_dir = os.path.join(dir, step_name)
+    file_name = 'survey_input_dtypes_' + run_type + '.csv'
 
-if __name__ == '__main__':
-    compare_tables()
+    survey_dtypes = survey_df.dtypes.to_frame('survey_dtypes').reset_index()
+    try:
+        survey_dtypes.to_csv(os.path.join(full_dir, file_name), index=False)
+    except FileNotFoundError:
+        os.mkdir(full_dir)
+        survey_dtypes.to_csv(os.path.join(full_dir, file_name), index=False)
+
+    if not step_df.empty:
+        step_dtypes = step_df.dtypes.to_frame('step_dtypes').reset_index()
+        file_name = 'step_input_dtypes_' + run_type + '.csv'
+        try:
+            step_dtypes.to_csv(os.path.join(full_dir, file_name), index=False)
+        except FileNotFoundError:
+            os.mkdir(full_dir)
+            step_dtypes.to_csv(os.path.join(full_dir, file_name), index=False)

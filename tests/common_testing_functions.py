@@ -8,40 +8,40 @@ from main.io import import_data
 from main.io import ips_data_management as idm
 from main.calculations import calculate_ips_traffic_weight as tr_calc
 
-def populate_test_pv_table(conn, run_id, pv_run_id):
-    """ Set up table to run and test copy_step_pvs_for_survey_data()
-        Note: Had to break up sql statements due to following error:
-        'pyodbc.Error: ('HY000', '[HY000] [Microsoft][ODBC SQL Server Driver]Connection is busy with results for
-             another hstmt (0) (SQLExecDirectW)')'
-        Error explained in http://sourceitsoftware.blogspot.com/2008/06/connection-is-busy-with-results-for.html
-        """
+def import_survey_data_into_database(survey_data_path, run_id):
+    """
+    Author       : (pinched from) Thomas Mahoney (modified by) Elinor Thorne
+    Date         : (26/04/ 2018) 23/08/2018
+    Purpose      : Loads the import data into 'SURVEY_SUBSAMPLE' table on the connected database.
+    Parameters   : survey_data_path - the dataframe containing all of the import data.
+    Returns      : NA
+    Requirements : Datafile is of type '.csv', '.pkl' or '.sas7bdat'
+    """
 
-    cur = conn.cursor()
+    start_time = time.time()
 
-    cf.delete_from_table('PROCESS_VARIABLE_TESTING', 'RUN_ID', '=', run_id)
-    cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
+    # Check the survey_data_path's suffix to see what it matches then extract using the appropriate method.
+    # TODO:
+    # fares_imputation originally had: df_survey_data = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
+    # imbalance_weight originally had: df_survey_data = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
+    # rail_imputation originally had: df_survey_data = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
+    # spend_imputation originally had: df_survey_data = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
+    # town_and_stay originally had: df_survey_data = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
+    # final_weight originally had: df_survey_data = pd.read_csv(survey_data_path)
+    df_survey_data = pd.read_csv(survey_data_path, engine='python')
 
-    sql1 = """
-    INSERT INTO [PROCESS_VARIABLE_TESTING]
-    SELECT * FROM [PROCESS_VARIABLE_PY]
-    WHERE [RUN_ID] = '{}'
-    """.format(pv_run_id)
+    # Add the generated run id to the dataset.
+    df_survey_data['RUN_ID'] = pd.Series(run_id, index=df_survey_data.index)
 
-    sql2 = """
-    UPDATE [PROCESS_VARIABLE_TESTING]
-    SET [RUN_ID] = '{}'
-    WHERE [RUN_ID] = '{}'
-    """.format(run_id, pv_run_id)
+    # Cleanses Survey Subsample table.
+    cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', run_id)
 
-    sql3 = """
-    INSERT INTO [PROCESS_VARIABLE_PY]
-    SELECT * FROM [PROCESS_VARIABLE_TESTING]
-    WHERE RUN_ID = '{}'
-    """.format(run_id)
+    # Insert the imported data into the survey_subsample table on the database.
+    # fast=False causes arithmetic error
+    cf.insert_dataframe_into_table(idm.SURVEY_SUBSAMPLE_TABLE, df_survey_data)
 
-    cur.execute(sql1)
-    cur.execute(sql2)
-    cur.execute(sql3)
+    # Print Import runtime to record performance.
+    print("Import runtime: {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time() - start_time))))
 
 
 def import_test_data_into_database(import_data_dir, run_id, load_survey_data=True):
@@ -77,40 +77,40 @@ def import_test_data_into_database(import_data_dir, run_id, load_survey_data=Tru
     import_traffic_data.import_traffic_data(run_id, air_data_path)
 
 
-def import_survey_data_into_database(survey_data_path, run_id):
-    """
-    Author       : (pinched from) Thomas Mahoney (modified by) Elinor Thorne
-    Date         : (26/04/ 2018) 23/08/2018
-    Purpose      : Loads the import data into 'SURVEY_SUBSAMPLE' table on the connected database.
-    Parameters   : survey_data_path - the dataframe containing all of the import data.
-    Returns      : NA
-    Requirements : Datafile is of type '.csv', '.pkl' or '.sas7bdat'
-    """
+def populate_test_pv_table(conn, run_id, pv_run_id):
+    """ Set up table to run and test copy_step_pvs_for_survey_data()
+        Note: Had to break up sql statements due to following error:
+        'pyodbc.Error: ('HY000', '[HY000] [Microsoft][ODBC SQL Server Driver]Connection is busy with results for
+             another hstmt (0) (SQLExecDirectW)')'
+        Error explained in http://sourceitsoftware.blogspot.com/2008/06/connection-is-busy-with-results-for.html
+        """
 
-    start_time = time.time()
+    cur = conn.cursor()
 
-    # Check the survey_data_path's suffix to see what it matches then extract using the appropriate method.
-    # TODO:
-    # fares_imputation originally had: df_survey_data = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
-    # imbalance_weight originally had: df_survey_data = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
-    # rail_imputation originally had: df_survey_data = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
-    # spend_imputation originally had: df_survey_data = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
-    # town_and_stay originally had: df_survey_data = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
-    # final_weight originally had: df_survey_data = pd.read_csv(survey_data_path)
-    df_survey_data = pd.read_csv(survey_data_path, engine='python')
+    cf.delete_from_table('PROCESS_VARIABLE_TESTING', 'RUN_ID', '=', run_id)
+    cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
 
-    # Add the generated run id to the dataset.
-    df_survey_data['RUN_ID'] = pd.Series(run_id, index=df_survey_data.index)
+    sql1 = """
+    INSERT INTO [PROCESS_VARIABLE_TESTING]
+    SELECT * FROM [PROCESS_VARIABLE_PY]
+    WHERE [RUN_ID] = '{}'
+    """.format(pv_run_id)
 
-    # Cleanses Survey Subsample table.
-    cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', run_id)
+    sql2 = """
+    UPDATE [PROCESS_VARIABLE_TESTING]
+    SET [RUN_ID] = '{}'
+    WHERE [RUN_ID] = '{}'
+    """.format(run_id, pv_run_id)
 
-    # Insert the imported data into the survey_subsample table on the database.
-    # fast=False causes arithmetic error
-    cf.insert_dataframe_into_table(idm.SURVEY_SUBSAMPLE_TABLE, df_survey_data)
+    sql3 = """
+    INSERT INTO [PROCESS_VARIABLE_PY]
+    SELECT * FROM [PROCESS_VARIABLE_TESTING]
+    WHERE RUN_ID = '{}'
+    """.format(run_id)
 
-    # Print Import runtime to record performance.
-    print("Import runtime: {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time() - start_time))))
+    cur.execute(sql1)
+    cur.execute(sql2)
+    cur.execute(sql3)
 
 
 def reset_test_tables(run_id, step_config):
@@ -171,7 +171,6 @@ def reset_test_tables(run_id, step_config):
 def populate_test_data(table_name, run_id, step_config, dataset):
     step_name = step_config['name'].lower()
     test_dir = os.path.join(r'tests\data\main\dec\new_test', step_name)
-    # test_dir = os.path.join(r'S:\CASPA\IPS\Testing\scratch', step_name)
     file_name = dataset + '_out_expected.csv'
 
     expect_df = cf.select_data('*', table_name, 'RUN_ID', run_id)

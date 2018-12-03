@@ -193,6 +193,10 @@ def test_shift_weight_step():
 
     # Get and test Shift data input
     sas_shift_data = cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["data_table"])
+
+    # TODO: DELETEY
+    cf.log_dtypes(STEP_NAME, sas_survey_data, run_type='xml', step_df=sas_shift_data)
+
     sas_shift_data.to_csv(TEST_DATA_DIR + '\shift_data_in_actual.csv', index=False)
 
     cols = ['PORTROUTE', 'WEEKDAY', 'ARRIVEDEPART', 'TOTAL', 'AM_PM_NIGHT',

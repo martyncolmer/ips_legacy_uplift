@@ -409,6 +409,10 @@ def test_unsampled_weight_step():
 
     # Get and test Unsampled data input
     sas_unsampled_data = cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["data_table"])
+
+    # TODO: DELETEY
+    cf.log_dtypes(STEP_NAME, sas_survey_data, run_type='xml', step_df=sas_unsampled_data)
+
     sas_unsampled_data.to_csv(TEST_DATA_DIR + r'\unsampled_data_in_actual.csv', index=False)
 
     df_unsampled_actual = pd.read_csv(TEST_DATA_DIR + r'\unsampled_data_in_actual.csv', engine='python')
@@ -427,6 +431,9 @@ def test_unsampled_weight_step():
 
     assert_frame_equal(df_unsampled_test, df_unsampled_target, check_dtype=False)
 
+    # TODO: Compare integration summary input with xml summary input
+    df_unsampled_actual.to_csv(r'S:\CASPA\IPS\Testing\scratch\summary_in_xml.csv', index=False)
+
     # Run step 9 / 12
     output_data, summary_data = do_ips_unsampled_weight_calculation(df_survey_actual,
                                                                     var_serialNum='SERIAL',
@@ -443,12 +450,12 @@ def test_unsampled_weight_step():
     summary_data = sort_and_set_index(summary_data, ['UNSAMP_PORT_GRP_PV','UNSAMP_REGION_GRP_PV','ARRIVEDEPART'])
 
     # Import the expected results, then sort and reset their index
-    test_result_survey = pd.read_csv(TEST_DATA_DIR + '/outputdata_final.csv', engine='python')
+    test_result_survey = pd.read_csv(TEST_DATA_DIR + r'\outputdata_final.csv', engine='python')
     cf.delete_from_table(STEP_CONFIGURATION[STEP_NAME]["temp_table"])
     test_result_survey = convert_dataframe_to_sql_format(STEP_CONFIGURATION[STEP_NAME]["temp_table"], test_result_survey)
     test_result_survey = sort_and_set_index(test_result_survey, 'SERIAL')
 
-    test_result_summary = pd.read_csv(TEST_DATA_DIR + '/summarydata_final.csv', engine='python')
+    test_result_summary = pd.read_csv(TEST_DATA_DIR + r'\summarydata_final.csv', engine='python')
     cf.delete_from_table(STEP_CONFIGURATION[STEP_NAME]["sas_ps_table"])
     test_result_summary = convert_dataframe_to_sql_format(STEP_CONFIGURATION[STEP_NAME]["sas_ps_table"], test_result_summary)
 
@@ -517,5 +524,4 @@ def test_unsampled_weight_step():
     # Assert temp table was cleansed
     table_len = len(cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["sas_ps_table"]))
     assert table_len == 0
-
 

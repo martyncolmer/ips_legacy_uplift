@@ -77,6 +77,9 @@ def test_air_miles_step():
 
     sas_survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
+    # TODO: DELETEY
+    cf.log_dtypes(STEP_NAME, sas_survey_data, run_type='xml')
+
     # Run step 2 / 4
     surveydata_out = calculate_ips_airmiles.do_ips_airmiles_calculation(sas_survey_data,
                                                                         var_serial='SERIAL')

@@ -128,6 +128,9 @@ def test_spend_weight_step():
     # Get Survey Data before importing to calculation function
     sas_survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
+    # TODO: DELETEY
+    cf.log_dtypes(STEP_NAME, sas_survey_data, run_type='xml')
+
     # Run the next step and test
     surveydata_out = calculate_ips_spend_imputation.do_ips_spend_imputation(sas_survey_data,
                                                                             var_serial="SERIAL",
