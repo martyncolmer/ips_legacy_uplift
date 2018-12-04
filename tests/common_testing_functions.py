@@ -27,6 +27,7 @@ def import_survey_data_into_database(survey_data_path, run_id):
     # rail_imputation originally had: df_survey_data = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
     # spend_imputation originally had: df_survey_data = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
     # town_and_stay originally had: df_survey_data = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
+    # unsampled_weight originally had: df_survey_data = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
     # final_weight originally had: df_survey_data = pd.read_csv(survey_data_path)
     df_survey_data = pd.read_csv(survey_data_path, engine='python')
 

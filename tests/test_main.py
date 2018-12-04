@@ -312,6 +312,9 @@ def test_unsampled_weight_step():
                                                              downcast='float')
     expected_results.index = range(0, len(expected_results))
 
+    actual_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\unsampled_survey_actual.csv')
+    expected_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\unsampled_survey_expected.csv')
+
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
     # Get results of Summary Data and compare
@@ -338,6 +341,9 @@ def test_unsampled_weight_step():
                     'unsamp_traffic_wt']] = expected_results[['cases', 'sum_prior_wt', 'sum_unsamp_traffic_wt',
                                                             'unsamp_traffic_wt']].round(3)
     expected_results.index = range(0, len(expected_results))
+
+    actual_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\unsampled_summary_actual.csv')
+    expected_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\unsampled_summary_expected.csv')
 
     assert_frame_equal(actual_results, expected_results, check_dtype=False, check_like=True)
 
@@ -377,6 +383,9 @@ def test_imbalance_weight_step():
     expected_results = expected_results.sort_values('SERIAL')
     expected_results.index = range(0, len(expected_results))
 
+    actual_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\imbalance_survey_actual.csv')
+    expected_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\imbalance_survey_expected.csv')
+
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
     # Get results of Summary Data and compare
@@ -390,6 +399,9 @@ def test_imbalance_weight_step():
     expected_results = expected_results.sort_values(['FLOW', 'SUM_PRIOR_WT', 'SUM_IMBAL_WT'])
     expected_results['RUN_ID'] = RUN_ID
     expected_results.index = range(0, len(expected_results))
+
+    actual_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\imbalance_summary_actual.csv')
+    expected_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\imbalance_summary_expected.csv')
 
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
@@ -429,6 +441,9 @@ def test_final_weight_step():
     expected_results = expected_results.sort_values('SERIAL')
     expected_results.index = range(0, len(expected_results))
 
+    actual_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\final_survey_actual.csv')
+    expected_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\final_survey_expected.csv')
+
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
     # Get results of Summary Data and compare
@@ -444,6 +459,9 @@ def test_final_weight_step():
         ['SERIAL', 'SHIFT_WT', 'NON_RESPONSE_WT', 'MINS_WT', 'TRAFFIC_WT', 'UNSAMP_TRAFFIC_WT', 'IMBAL_WT', 'FINAL_WT'])
     expected_results['RUN_ID'] = RUN_ID
     expected_results.index = range(0, len(expected_results))
+
+    actual_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\final_summary_actual.csv')
+    expected_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\final_summary_expected.csv')
 
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
@@ -512,6 +530,8 @@ def test_fares_imputation_step():
     expected_results = expected_results.sort_values('SERIAL')
     expected_results.index = range(0, len(expected_results))
 
+    actual_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\fares_survey_actual.csv')
+
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
 
@@ -558,6 +578,8 @@ def test_spend_imputation_step():
 
     expected_results = expected_results.sort_values('SERIAL')
     expected_results.index = range(0, len(expected_results))
+
+    actual_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\spend_survey_actual.csv')
 
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
@@ -612,8 +634,10 @@ def test_regional_weights_step():
     main_run.regional_weights_step(RUN_ID, conn)
 
     # Get results of Survey Data and compare
-    sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
-    sql_cols = "[SERIAL], " + sql_cols
+    # sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
+    # sql_cols = "[SERIAL], " + sql_cols
+
+    sql_cols = '[SERIAL], [NIGHTS1], [NIGHTS2], [NIGHTS3], [NIGHTS4], [NIGHTS5], [NIGHTS6], [NIGHTS7], [NIGHTS8], [EXPENDITURE_WT], [EXPENDITURE_WTK], [STAY1K], [STAY2K], [STAY3K], [STAY4K], [STAY5K], [STAY6K], [STAY7K], [STAY8K], [STAY_WT], [STAY_WTK], [VISIT_WT], [VISIT_WTK]'
 
     sql = """
         SELECT {}
@@ -621,6 +645,7 @@ def test_regional_weights_step():
         WHERE RUN_ID = '{}'
         AND [SERIAL] not like '9999%'
         AND [RESPNSE] between 1 and 6
+        AND [REG_IMP_ELIGIBLE_PV] = 1
     """.format(sql_cols, idm.SURVEY_SUBSAMPLE_TABLE, RUN_ID)
 
     actual_results = pd.read_sql_query(sql, conn)
@@ -632,6 +657,8 @@ def test_regional_weights_step():
 
     expected_results = expected_results.sort_values('SERIAL')
     expected_results.index = range(0, len(expected_results))
+
+    actual_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\regional_actual.csv')
 
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
@@ -647,8 +674,10 @@ def test_town_stay_expenditure_imputation_step():
     main_run.town_stay_expenditure_imputation_step(RUN_ID, conn)
 
     # Get results of Survey Data and compare
-    sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
-    sql_cols = "[SERIAL], " + sql_cols
+    # sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
+    # sql_cols = "[SERIAL], " + sql_cols
+
+    sql_cols = '[SERIAL], [SPEND1], [SPEND2], [SPEND3], [SPEND4], [SPEND5], [SPEND6], [SPEND7], [SPEND8]'
 
     # Get results of Survey Data and compare
     sql = """
@@ -657,6 +686,7 @@ def test_town_stay_expenditure_imputation_step():
         WHERE RUN_ID = '{}'
         AND [SERIAL] not like '9999%'
         AND [RESPNSE] between 1 and 6
+        AND [TOWN_IMP_ELIGIBLE_PV] = 1
     """.format(sql_cols, idm.SURVEY_SUBSAMPLE_TABLE, RUN_ID)
 
     actual_results = pd.read_sql_query(sql, conn)
@@ -669,6 +699,9 @@ def test_town_stay_expenditure_imputation_step():
 
     expected_results = expected_results.sort_values('SERIAL')
     expected_results.index = range(0, len(expected_results))
+
+    actual_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\town_stay_actual.csv')
+    expected_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\town_stay_expected.csv')
 
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
 

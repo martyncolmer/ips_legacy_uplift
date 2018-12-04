@@ -72,6 +72,8 @@ def test_calculate(data_path):
     df_survey_expected = df_survey_expected.sort_values('SERIAL')
     df_survey_expected.index = range(0, len(df_survey_expected))
 
+    df_survey_result.to_csv(r'S:\CASPA\IPS\Testing\scratch\integration docs\minimums_weight_outputdata_final_py.csv')
+
     assert_frame_equal(df_survey_result, df_survey_expected)
 
     # Write the expected result data to SQL then pull it back for comparison
