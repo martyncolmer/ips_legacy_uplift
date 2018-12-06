@@ -185,7 +185,7 @@ def r_population_input(df_survey_input, df_tr_totals):
     server = os.getenv("DB_SERVER")
 
     # recreate proc_vec table
-    con = create_engine('mssql+pyodbc://' + username + ':' + username + '@' + server + '/' + database +'?driver=SQL+Server+Native+Client+10.0')
+    con = create_engine('mssql+pyodbc://' + username + ':' + username + '@' + server + '/' + database +'?driver=SQL+Server+Native+Client+11.0')
 
     # note the index gets added so needs to be removed when re-read from SQL
     df_mod_pop_totals.to_sql(POP_PROWVEC_TABLE, con, if_exists='replace')
@@ -212,8 +212,9 @@ def run_r_ges_script():
     print("Starting R script.....")
 
     #TODO: change hardcoded locations
-    retcode = subprocess.call(["C:/Program Files/R/R-3.4.0patched/bin/Rscript", "--vanilla",
-                               "//nsdata3/social_surveys_team/CASPA/IPS/Testing/Q3 2017/traffic weight/ges_r_step4.r"])
+    retcode = subprocess.call(["C:/Applications/RStudio/R-3.4.4/bin/Rscript",
+                               "--vanilla",
+                               "r_scripts/ges_r_step4.r"])
 
     print("R processed finished.")
 

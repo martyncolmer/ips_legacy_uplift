@@ -345,7 +345,7 @@ def run_r_ges_script():
 
     print("Starting R script.....")
 
-    retcode = subprocess.call(["C:/Program Files/R/R-3.4.0patched/bin/Rscript",
+    retcode = subprocess.call(["C:/Applications/RStudio/R-3.4.4/bin/Rscript",
                            "--vanilla",
                            "r_scripts/ges_r_step5.r"])
 
