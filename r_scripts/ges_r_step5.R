@@ -1,7 +1,7 @@
 # https://cran.r-project.org/web/packages/
 
-install.packages("C:/Program Files/R/R-3.4.0patched/library/ReGenesees_1.9.zip", repos = NULL)
-install.packages("C:/Program Files/R/R-3.4.0patched/library/RODBC_1.3-15.zip", repos = NULL)
+#install.packages("C:/Applications/RStudio/R-3.4.4/library/ReGenesees_1.9.zip", repos = NULL)
+#install.packages("C:/Applications/RStudio/R-3.4.4/library/RODBC_1.3-15.zip", repos = NULL)
 
 #library(ReGenesees)
 #library(RODBC)
@@ -14,7 +14,7 @@ ptm <- proc.time()
 
 ##### ODBC connection for Microsoft SQL Server
 ch <- odbcDriverConnect(
-  "Driver=SQL Server; Server=CR1VWSQL14-D-01; Database=ips_test; UID=ips_dev; Pwd=ips_dev"
+  "Driver=SQL Server; Server=CR1VWSQL14-D-01; Database=ips_test3; UID=ips_dev; Pwd=ips_dev"
 )
 
 poprowvec <- sqlFetch(ch, "dbo.poprowvec_unsamp")
@@ -64,7 +64,7 @@ r_unsampled[,"UNSAMP_TRAFFIC_WT"]<-r_unsampled[, "unsamp_traffic_weight"] / r_un
 
 # open sql channel
 ch <- odbcDriverConnect(
-  "Driver=SQL Server; Server=CR1VWSQL14-D-01; Database=ips_test; UID=ips_dev; Pwd=ips_dev"
+  "Driver=SQL Server; Server=CR1VWSQL14-D-01; Database=ips_test3; UID=ips_dev; Pwd=ips_dev"
 )
 
 # Write data frame to sql
