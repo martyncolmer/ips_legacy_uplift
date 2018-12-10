@@ -88,7 +88,6 @@ def sort_and_set_index(df, sort_columns):
 @pytest.mark.parametrize('data_path', [
     r'tests\data\calculations\Q3_2017\unsampled_weight',
     r'tests\data\calculations\december_2017\unsampled_weight',
-    #r'tests\data\calculations\november_2017\unsampled_weight',
     r'tests\data\calculations\october_2017\unsampled_weight',
     ])
 def test_calculate(data_path):
