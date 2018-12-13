@@ -1,11 +1,8 @@
 import pandas as pd
-import sys
-# import survey_support
 import numpy as np
-from sas7bdat import SAS7BDAT
-import math
 from main.io import CommonFunctions as cf
 import subprocess
+import os
 
 PATH_TO_DATA = 'tests/data/calculations/october_2017/unsampled_weight'
 
@@ -324,8 +321,13 @@ def r_population_input(survey_input, ustotals):
 
     cf.drop_table('poprowvec_unsamp')
 
-    # @TODO: MAKE THIS USE ENV VARIABLES
-    con = create_engine('mssql+pyodbc://ips_dev:ips_dev@CR1VWSQL14-D-01/ips_test?driver=SQL+Server+Native+Client+10.0')
+    # Get credentials for connection
+    username = os.getenv("DB_USER_NAME")
+    database = os.getenv("DB_NAME")
+    server = os.getenv("DB_SERVER")
+
+    # recreate proc_vec table
+    con = create_engine('mssql+pyodbc://' + username + ':' + username + '@' + server + '/' + database +'?driver=SQL+Server+Native+Client+11.0')
 
     df_mod_totals.to_sql('poprowvec_unsamp', con, if_exists='replace')
 
@@ -348,10 +350,6 @@ def run_r_ges_script():
     retcode = subprocess.call(["C:/Applications/RStudio/R-3.4.4/bin/Rscript",
                            "--vanilla",
                            "r_scripts/ges_r_step5.r"])
-
-    # retcode = subprocess.call(["C:/Program Files/R/R-3.4.0patched/bin/Rscript",
-    #                        "--vanilla",
-    #                        "//nsdata3/social_surveys_team/CASPA/IPS/Testing/Q3 2017/unsampled weight/ges_r_step5.r"])
 
     print("R processed finished.")
 

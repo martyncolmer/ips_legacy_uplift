@@ -109,7 +109,7 @@ def ips_impute_segment(df_input,level,strata,impute_var,function,var_value,
 
     # Ensure rows with missing data aren't excluded indiscriminately
     df_input[strata] = df_input[strata].fillna(-1)
-    
+
     # Impute values from donor variable
     df_output = (df_input.groupby(strata)[impute_var]
                  # first perform aggregation

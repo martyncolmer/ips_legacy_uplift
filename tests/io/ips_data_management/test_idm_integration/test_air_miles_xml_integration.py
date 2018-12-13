@@ -2,6 +2,8 @@ import pytest
 import json
 import pandas as pd
 import time
+
+from tests import common_testing_functions as ctf
 from pandas.util.testing import assert_frame_equal
 from main.io import CommonFunctions as cf
 from main.io import ips_data_management as idm
@@ -35,17 +37,17 @@ def setup_module(module):
     december_survey_data_path = (TEST_DATA_DIR + r'\surveydata.csv')
 
     # Deletes data from tables as necessary.
-    reset_tables()
+    ctf.reset_test_tables(RUN_ID, STEP_CONFIGURATION[STEP_NAME])
 
     # Import survey data.
-    import_survey_data(december_survey_data_path)
+    ctf.import_survey_data_into_database(december_survey_data_path, RUN_ID)
 
     print("Setup")
 
 
 def teardown_module(module):
     # Delete any previous records from the Survey_Subsample tables for the given run ID
-    reset_tables()
+    ctf.reset_test_tables(RUN_ID, STEP_CONFIGURATION[STEP_NAME])
 
     # Cleanses Survey Subsample table.
     cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID)
@@ -54,49 +56,6 @@ def teardown_module(module):
     cf.beep()
 
     print("Teardown")
-
-
-def import_survey_data(survey_data_path):
-    """
-    Author       : (pinched from) Thomas Mahoney (modified by) Elinor Thorne
-    Date         : (26/04/ 2018) 23/08/2018
-    Purpose      : Loads the import data into 'SURVEY_SUBSAMPLE' table on the connected database.
-    Parameters   : survey_data_path - the dataframe containing all of the import data.
-    Returns      : NA
-    Requirements : Datafile is of type '.csv', '.pkl' or '.sas7bdat'
-    """
-
-    start_time = time.time()
-
-    # Check the survey_data_path's suffix to see what it matches then extract using the appropriate method.
-    df_survey_data = pd.read_csv(survey_data_path, engine = 'python')
-
-    # Add the generated run id to the dataset.
-    df_survey_data['RUN_ID'] = pd.Series(RUN_ID, index=df_survey_data.index)
-
-    # Insert the imported data into the survey_subsample table on the database.
-    cf.insert_dataframe_into_table('SURVEY_SUBSAMPLE', df_survey_data)
-
-    # Print Import runtime to record performance.
-    print("Import runtime: {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time() - start_time))))
-
-
-def reset_tables():
-    """ Cleanses tables within database. """
-
-    # Cleanses Survey Subsample table.
-    cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID)
-
-    cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-
-
-    # Try to delete from each table in list.  If exception occurs, assume table is
-    # already empty, and continue deleting from tables in list
-    for table in STEP_CONFIGURATION[STEP_NAME]['delete_tables']:
-        try:
-            cf.delete_from_table(table)
-        except Exception:
-            continue
 
 
 def test_air_miles_step():
@@ -117,6 +76,9 @@ def test_air_miles_step():
     assert table_len == 19980
 
     sas_survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+    # TODO: DELETEY
+    cf.log_dtypes(STEP_NAME, sas_survey_data, run_type='xml')
 
     # Run step 2 / 4
     surveydata_out = calculate_ips_airmiles.do_ips_airmiles_calculation(sas_survey_data,

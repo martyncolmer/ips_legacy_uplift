@@ -8,11 +8,9 @@ import getpass
 import inspect
 import json
 import logging
-import numpy as np
 import os
 import pandas as pandas     # pip install this
 import pyodbc
-import time
 import winsound
 import zipfile
 import time
@@ -518,7 +516,6 @@ def delete_from_table(table_name, condition1=None, operator=None
     try:
         cur.execute(sql)
     except Exception as err:
-        print("bla!")
         print(err)
         #database_logger().error(err, exc_info = True)
         return False
@@ -550,7 +547,7 @@ def select_data(column_name, table_name, condition1, condition2):
 
     try:
         result = pandas.read_sql(sql, conn)
-        print("Result: {}".format(result))
+        # print("Result: {}".format(result))
     except Exception as err:
         print(err)
         # Return False to indicate error
@@ -1035,7 +1032,6 @@ def insert_dataframe_into_table(table_name, dataframe, connection=False, fast=Tr
     # Use the strings created above to build the sql query.
     sql = "INSERT into " + table_name + \
           "(" + columns_string + ") VALUES (" + value_string + ")"
-    print(sql)
 
     start_time = time.time()
 
@@ -1086,9 +1082,48 @@ def unpickle_rick(file):
     beep()
 
 
-def scratch():
-    pass
+def compare_tables():
+    df_list = []
+
+    # First, check PROCESS_VARIABLE_PY tables in each database
+    for count in range(0, 3):
+        if count == 0:
+            db_table = '[ips_test].[dbo].[PROCESS_VARIABLE_PY]'
+        else:
+            db_table = '[ips_test{}].[dbo].[PROCESS_VARIABLE_PY]'.format(count+1)
+
+        sql = """
+        SELECT PV_NAME, PV_DEF
+          FROM {}
+          WHERE RUN_ID = 'TEMPLATE'
+        """.format(db_table)
+
+        df_list.append = pandas.read_sql_query(sql, get_sql_connection())
+
+    print(df_list[0])
+    print("YAAAASSS")
+    print(df_list[1])
+    print("YAAAASSS SOME MORE")
+    print(df_list[2])
 
 
-if __name__ == '__main__':
-    scratch()
+def log_dtypes(step_name, survey_df, run_type, step_df=pandas.DataFrame()):
+    dir = r'S:\CASPA\IPS\Testing\scratch\integration dtypes'
+    full_dir = os.path.join(dir, step_name)
+    file_name = 'survey_input_dtypes_' + run_type + '.csv'
+
+    survey_dtypes = survey_df.dtypes.to_frame('survey_dtypes').reset_index()
+    try:
+        survey_dtypes.to_csv(os.path.join(full_dir, file_name), index=False)
+    except FileNotFoundError:
+        os.mkdir(full_dir)
+        survey_dtypes.to_csv(os.path.join(full_dir, file_name), index=False)
+
+    if not step_df.empty:
+        step_dtypes = step_df.dtypes.to_frame('step_dtypes').reset_index()
+        file_name = 'step_input_dtypes_' + run_type + '.csv'
+        try:
+            step_dtypes.to_csv(os.path.join(full_dir, file_name), index=False)
+        except FileNotFoundError:
+            os.mkdir(full_dir)
+            step_dtypes.to_csv(os.path.join(full_dir, file_name), index=False)

@@ -1,7 +1,7 @@
 # https://cran.r-project.org/web/packages/
 
-install.packages("C:/Program Files/R/R-3.4.0patched/library/ReGenesees_1.9.zip", repos = NULL)
-install.packages("C:/Program Files/R/R-3.4.0patched/library/RODBC_1.3-15.zip", repos = NULL)
+#install.packages("C:/Applications/RStudio/R-3.4.4/library/ReGenesees_1.9.zip", repos = NULL)
+#install.packages("C:/Applications/RStudio/R-3.4.4/library/RODBC_1.3-15.zip", repos = NULL)
 
 #library(ReGenesees)
 #library(RODBC)
