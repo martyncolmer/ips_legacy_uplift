@@ -21,7 +21,7 @@ ptm <- proc.time()
 
 ##### ODBC connection for Microsoft SQL Server
 ch <- odbcDriverConnect(
-  "Driver=SQL Server; Server=CR1VWSQL14-D-01; Database=ips_test3; UID=ips_dev; Pwd=ips_dev"
+  "Driver=SQL Server; Server=CR1VWSQL14-D-01; Database=ips_test; UID=ips_dev; Pwd=ips_dev"
 )
 
 poprowvec <- sqlFetch(ch, "dbo.poprowvec_traffic")
@@ -81,7 +81,7 @@ r_traffic <- survey_input_aux
 
 # open sql channel
 ch <- odbcDriverConnect(
-  "Driver=SQL Server; Server=CR1VWSQL14-D-01; Database=ips_test3; UID=ips_dev; Pwd=ips_dev"
+  "Driver=SQL Server; Server=CR1VWSQL14-D-01; Database=ips_test; UID=ips_dev; Pwd=ips_dev"
 )
 
 # Write data frame to sql

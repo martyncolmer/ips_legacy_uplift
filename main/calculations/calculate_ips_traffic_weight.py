@@ -332,6 +332,12 @@ def generate_ips_tw_summary(df_survey, df_output_merge_final,
 
 # carry out the traffic weight calculation using R call
 def do_ips_trafweight_calculation_with_R(survey_data, trtotals):
+    # clear the auxillary tables
+    cf.delete_from_table(SURVEY_TRAFFIC_AUX_TABLE)
+
+    # drop aux tables and r created tables
+    cf.drop_table(POP_PROWVEC_TABLE)
+    cf.drop_table(R_TRAFFIC_TABLE)
 
     r_survey_input(survey_data)
     r_population_input(survey_data, trtotals)

@@ -766,26 +766,99 @@ def airmiles_step(run_id, connection):
     idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
-if __name__ == '__main__':
-
-    # Run Id (this will be generated automatically and will be unique)
-    run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
+def run_ips(run_id, steps_to_run):
 
     # Connection to the SQL server database
     connection = cf.get_sql_connection()
 
-    # -- Processing --
-    shift_weight_step(run_id, connection)
-    non_response_weight_step(run_id, connection)
-    minimums_weight_step(run_id, connection)
-    traffic_weight_step(run_id, connection)
-    unsampled_weight_step(run_id, connection)
-    imbalance_weight_step(run_id, connection)
-    final_weight_step(run_id, connection)
-    stay_imputation_step(run_id, connection)
-    fares_imputation_step(run_id, connection)
-    spend_imputation_step(run_id, connection)
-    rail_imputation_step(run_id, connection)
-    regional_weights_step(run_id, connection)
-    town_stay_expenditure_imputation_step(run_id, connection)
-    airmiles_step(run_id, connection)
+    if 1 in steps_to_run:
+        try:
+            shift_weight_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 2 in steps_to_run:
+        try:
+            non_response_weight_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 3 in steps_to_run:
+        try:
+            minimums_weight_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 4 in steps_to_run:
+        try:
+            traffic_weight_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 5 in steps_to_run:
+        try:
+            unsampled_weight_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 6 in steps_to_run:
+        try:
+            imbalance_weight_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 7 in steps_to_run:
+        try:
+            final_weight_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 8 in steps_to_run:
+        try:
+            stay_imputation_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 9 in steps_to_run:
+        try:
+            fares_imputation_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 10 in steps_to_run:
+        try:
+            spend_imputation_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 11 in steps_to_run:
+        try:
+            rail_imputation_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 12 in steps_to_run:
+        try:
+            regional_weights_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 13 in steps_to_run:
+        try:
+            town_stay_expenditure_imputation_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 14 in steps_to_run:
+        try:
+            airmiles_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    # Run Id (this will be generated automatically and will be unique)
+    run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
+
+
+
+if __name__ == '__main__':
+    run_ips()
