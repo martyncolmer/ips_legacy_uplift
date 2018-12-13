@@ -1,26 +1,38 @@
 '''
 Created on 04 Jun 2018
 
-@author: David Powell
+@author: David Powell (minor edits by Nassir Mohammad 15.10.2018)
+
 '''
 
 import pandas as pd
 import numpy as np
 from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_traffic_weight import r_survey_input, r_population_input
-import sys
+import main.io.CommonFunctions as cf
+import pytest
+import main.calculations.calculate_ips_traffic_weight as c_tr
+
+SURVEY_TRAFFIC_AUX_TABLE = c_tr.SURVEY_TRAFFIC_AUX_TABLE
+POP_PROWVEC_TABLE = c_tr.POP_PROWVEC_TABLE
 
 
-def test_r_survey_input():
+@pytest.mark.parametrize('path_to_data', [
+    r'tests/data/r_setup/October_2017/traffic_weight/',
+    ])
+def test_r_survey_input(path_to_data):
+
+    # clear the auxillary tables
+    cf.delete_from_table(SURVEY_TRAFFIC_AUX_TABLE)
 
     # Import the test data
-    survey_input = pd.read_pickle('tests/data/r_setup/October_2017/traffic_weight/survey_input.pkl')
+    survey_input = pd.read_pickle(path_to_data + 'survey_input.pkl')
 
     # Run the test
     df_test_result = r_survey_input(survey_input)
 
     # Expected result
-    test_file = r"tests\data\r_setup\October_2017\traffic_weight\df_r_ges_input.pkl"
+    test_file = path_to_data + "df_r_ges_input.pkl"
 
     df_expected_result = pd.read_pickle(test_file)
 
@@ -38,19 +50,25 @@ def test_r_survey_input():
     print("DONE")
 
 
-def test_r_population_input():
+@pytest.mark.parametrize('path_to_data', [
+    r'tests/data/r_setup/October_2017/traffic_weight/',
+    ])
+def test_r_population_input(path_to_data):
+
+    # drop aux tables and r created tables
+    cf.drop_table(POP_PROWVEC_TABLE)
 
     # Import the test data
-    survey_input = pd.read_pickle('tests/data/r_setup/October_2017/traffic_weight/survey_input.pkl')
+    survey_input = pd.read_pickle(path_to_data + 'survey_input.pkl')
 
     # Import the test data
-    trtotals = pd.read_pickle('tests/data/r_setup/October_2017/traffic_weight/trtotals.pkl')
+    trtotals = pd.read_pickle(path_to_data + 'trtotals.pkl')
 
     # Run the test
     df_test_result = r_population_input(survey_input, trtotals)
 
     # Expected result
-    test_file = r"tests\data\r_setup\October_2017\traffic_weight\poprowvec.pkl"
+    test_file = path_to_data + r"poprowvec.pkl"
 
     df_expected_result = pd.read_pickle(test_file)
 

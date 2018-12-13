@@ -1,6 +1,5 @@
 import pandas as pd
-from sas7bdat import SAS7BDAT
-from main.io.CommonFunctions import insert_dataframe_into_table, get_sql_connection
+from main.io import CommonFunctions as cf
 
 
 def extract_data(df):
@@ -35,7 +34,7 @@ def extract_data(df):
                'TOWNCODE1', 'TOWNCODE2', 'TOWNCODE3', 'TOWNCODE4', 'TOWNCODE5',
                'TOWNCODE6', 'TOWNCODE7', 'TOWNCODE8', 'TRANSFER', 'UKFOREIGN',
                'VEHICLE', 'VISITBEGAN', 'WELSHNIGHTS', 'WELSHTOWN', 'FAREKEY',
-               'TYPEINTERVIEW']
+               'TYPEINTERVIEW', 'SHIFT_WT']#TODO: remove shift_wt here this is required for non-response step
 
     # Set the imported columns to be uppercase
     df.columns = df.columns.str.upper()
@@ -79,4 +78,4 @@ def import_survey_data(survey_data_path, run_id):
     df_survey_data['RUN_ID'] = pd.Series(run_id, index=df_survey_data.index)
 
     # Insert the imported data into the survey_subsample table on the database.
-    insert_dataframe_into_table('SURVEY_SUBSAMPLE', df_survey_data)
+    cf.insert_dataframe_into_table('SURVEY_SUBSAMPLE', df_survey_data)

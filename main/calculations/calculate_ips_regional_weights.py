@@ -46,8 +46,6 @@ def ips_correct_regional_nights(row):
         known_town_nk_nights = 0
         nights_sum = 0
 
-
-
         # Compute nights_sum and known_town_nk_nights for this record
         for x in range(1, NUMBER_OF_NIGHTS):
             if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]):
@@ -59,10 +57,11 @@ def ips_correct_regional_nights(row):
         if known_town_nk_nights == 0:
             # Check if sum of nights is not equal to stay
             if nights_sum != row[STAY_VARIABLE]:
-                stay_sum = (row[STAY_VARIABLE]/nights_sum)
+                stay_sum = (row[STAY_VARIABLE] / nights_sum)
 
                 for x in range(1, NUMBER_OF_NIGHTS):
-                    if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]):
+                    if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(
+                            row[TOWN_CODE_VARIABLE + str(x)]):
                         row[NIGHTS_VARIABLE + str(x)] = row[NIGHTS_VARIABLE + str(x)] * stay_sum
                         row[STAY_VARIABLE + str(x) + 'K'] = 'K'
         else:
@@ -70,21 +69,24 @@ def ips_correct_regional_nights(row):
             # if town is null adds 1 to unknown
             if nights_sum >= row[STAY_VARIABLE]:
                 for x in range(1, NUMBER_OF_NIGHTS):
-                    if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]) and math.isnan(row[NIGHTS_VARIABLE + str(x)]):
+                    if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(
+                            row[TOWN_CODE_VARIABLE + str(x)]) and math.isnan(row[NIGHTS_VARIABLE + str(x)]):
                         row[NIGHTS_VARIABLE + str(x)] = 1
                         nights_sum = nights_sum + row[NIGHTS_VARIABLE + str(x)]
 
                 # Calculate nights uplift factor
-                stay_sum = (row[STAY_VARIABLE]/nights_sum)
+                stay_sum = (row[STAY_VARIABLE] / nights_sum)
 
                 for x in range(1, NUMBER_OF_NIGHTS):
-                    if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]):
+                    if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(
+                            row[TOWN_CODE_VARIABLE + str(x)]):
                         row[NIGHTS_VARIABLE + str(x)] = row[NIGHTS_VARIABLE + str(x)] * stay_sum
                         row[STAY_VARIABLE + str(x) + 'K'] = 'L'
 
             else:
                 for x in range(1, NUMBER_OF_NIGHTS):
-                    if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(row[TOWN_CODE_VARIABLE + str(x)]) and math.isnan(row[NIGHTS_VARIABLE + str(x)]):
+                    if row[TOWN_CODE_VARIABLE + str(x)] != 99999 and not math.isnan(
+                            row[TOWN_CODE_VARIABLE + str(x)]) and math.isnan(row[NIGHTS_VARIABLE + str(x)]):
                         row[NIGHTS_VARIABLE + str(x)] = (row[STAY_VARIABLE] - nights_sum) / known_town_nk_nights
                         row[STAY_VARIABLE + str(x) + 'K'] = 'M'
 
@@ -357,7 +359,7 @@ def do_ips_regional_weight_calculation(df_input_data, var_serial,  var_final_wei
                     pass
                 
                 return row
-            
+
             df_impute_towns_ext = df_impute_towns_ext.apply(calculate_revised_weights, axis=1)
             
             # Drop the no longer needed columns
@@ -436,4 +438,3 @@ def calculate(in_table_name, var_serial, var_final_weight):
     cf.database_logger().info("SUCCESS - Completed Regional Weights calculation.")
     cf.commit_to_audit_log("Create", "Regional", audit_message)
     print("Completed - Calculate Regional Weights.")
-

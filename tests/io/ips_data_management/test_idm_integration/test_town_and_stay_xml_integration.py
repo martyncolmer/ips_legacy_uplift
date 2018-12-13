@@ -5,6 +5,7 @@ import time
 
 from pandas.util.testing import assert_frame_equal
 from main.io import CommonFunctions as cf
+from tests import common_testing_functions as ctf
 from main.io import ips_data_management as idm
 from main.calculations.calculate_ips_town_and_stay_expenditure import do_ips_town_exp_imp
 from main.utils import process_variables
@@ -38,19 +39,20 @@ def setup_module(module):
     december_survey_data_path = (TEST_DATA_DIR + r'\surveydata.csv')
 
     # Deletes data from tables as necessary.
-    reset_tables()
+    ctf.reset_test_tables(RUN_ID, STEP_CONFIGURATION[STEP_NAME])
 
     # Import survey data.
-    import_survey_data(december_survey_data_path)
+    ctf.import_survey_data_into_database(december_survey_data_path, RUN_ID)
 
     # Populates test data within pv table.
-    populate_test_pv_table()
+    conn = database_connection()
+    ctf.populate_test_pv_table(conn, RUN_ID, PV_RUN_ID)
 
 
 def teardown_module(module):
     """ Teardown any state that was previously setup with a setup_module method. """
     # Deletes data from temporary tables as necessary.
-    reset_tables()
+    ctf.reset_test_tables(RUN_ID, STEP_CONFIGURATION[STEP_NAME])
 
     # Cleanses Survey Subsample table.
     cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID)
@@ -58,102 +60,6 @@ def teardown_module(module):
     # Play audio notification to indicate test is complete and print duration for performance.
     cf.beep()
     print("Duration: {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time() - START_TIME))))
-
-
-def import_survey_data(survey_data_path):
-    """
-    Author       : (pinched from) Thomas Mahoney (modified by) Elinor Thorne
-    Date         : (26/04/ 2018) 23/08/2018
-    Purpose      : Loads the import data into 'SURVEY_SUBSAMPLE' table on the connected database.
-    Parameters   : survey_data_path - the dataframe containing all of the import data.
-    Returns      : NA
-    Requirements : Datafile is of type '.csv', '.pkl' or '.sas7bdat'
-    """
-
-    starttime = time.time()
-
-    # Check the survey_data_path's suffix to see what it matches then extract using the appropriate method.
-    df_survey_data = pd.read_csv(survey_data_path, encoding='ANSI', dtype=str)
-
-    # Add the generated run id to the dataset.
-    df_survey_data['RUN_ID'] = pd.Series(RUN_ID, index=df_survey_data.index)
-
-    # Insert the imported data into the survey_subsample table on the database.
-    cf.insert_dataframe_into_table('SURVEY_SUBSAMPLE', df_survey_data, fast=False)
-
-    # Print Import runtime to record performance.
-    print("Import runtime: {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time() - starttime))))
-
-
-def reset_tables():
-    """ Cleanses tables within database. """
-
-    # Cleanses Survey Subsample table.
-    cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID)
-
-    # List of tables to cleanse entirely.
-    tables_to_unconditionally_cleanse = [idm.SAS_SURVEY_SUBSAMPLE_TABLE,
-                                         idm.SAS_PROCESS_VARIABLES_TABLE]
-
-    # Try to delete from each table in list.  If exception occurs, assume table is
-    # already empty, and continue deleting from tables in list.
-    for table in tables_to_unconditionally_cleanse:
-        try:
-            cf.delete_from_table(table)
-        except Exception:
-            continue
-
-    # List of tables to cleanse where [RUN_ID] = RUN_ID.
-    tables_to_cleanse = ['[dbo].[PROCESS_VARIABLE_PY]',
-                         '[dbo].[PROCESS_VARIABLE_TESTING]']
-
-    # Try to delete from each table in list where condition.  If exception occurs,
-    # assume table is already empty, and continue deleting from tables in list.
-    for table in tables_to_cleanse:
-        try:
-            cf.delete_from_table(table, 'RUN_ID', '=', RUN_ID)
-        except Exception:
-            continue
-
-    # Try to delete from each table in list.  If exception occurs, assume table is
-    # already empty, and continue deleting from tables in list.
-    for table in STEP_CONFIGURATION[STEP_NAME]['delete_tables']:
-        try:
-            cf.delete_from_table(table)
-        except Exception:
-            continue
-
-
-def populate_test_pv_table():
-    """ Set up table to run and test copy_step_pvs_for_survey_data()
-        Note: Had to break up sql statements due to following error:
-        'pyodbc.Error: ('HY000', '[HY000] [Microsoft][ODBC SQL Server Driver]Connection is busy with results for
-             another hstmt (0) (SQLExecDirectW)')'
-        Error explained in http://sourceitsoftware.blogspot.com/2008/06/connection-is-busy-with-results-for.html """
-
-    conn = database_connection()
-    cur = conn.cursor()
-
-    sql1 = """
-    INSERT INTO [PROCESS_VARIABLE_TESTING]
-    SELECT * FROM [PROCESS_VARIABLE_PY]
-    WHERE [RUN_ID] = '{}'
-    """.format(PV_RUN_ID)
-
-    sql2 = """
-    UPDATE [PROCESS_VARIABLE_TESTING]
-    SET [RUN_ID] = '{}'
-    """.format(RUN_ID)
-
-    sql3 = """
-    INSERT INTO [PROCESS_VARIABLE_PY]
-    SELECT * FROM [PROCESS_VARIABLE_TESTING]
-    WHERE RUN_ID = '{}'
-    """.format(RUN_ID)
-
-    cur.execute(sql1)
-    cur.execute(sql2)
-    cur.execute(sql3)
 
 
 # @pytest.mark.skip(reason="Test failing on rounding error")
@@ -206,6 +112,9 @@ def test_town_and_stay_step():
 
     # Check all columns in SAS_SURVEY_SUBSAMPLE have been altered.
     sas_survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+
+    # TODO: DELETEY
+    cf.log_dtypes(STEP_NAME, sas_survey_data, run_type='xml')
 
     for column in STEP_CONFIGURATION[STEP_NAME]['pv_columns']:
         column_name = column.replace("'", "")

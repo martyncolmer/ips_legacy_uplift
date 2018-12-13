@@ -5,6 +5,7 @@ import time
 
 from pandas.util.testing import assert_frame_equal
 from main.io import CommonFunctions as cf
+from tests import common_testing_functions as ctf
 from main.io import import_data
 from main.io import import_traffic_data
 from main.io import ips_data_management as idm
@@ -37,13 +38,15 @@ def database_connection():
 def setup_module(module):
     """ setup any state specific to the execution of the given module."""
     # deletes data from tables as necessary
-    reset_tables()
+    ctf.reset_test_tables(RUN_ID, STEP_CONFIGURATION[STEP_NAME])
 
-    # Import survey data.
-    import_data_into_database()
+    # Import survey and external data.
+    import_data_dir = r'tests\data\import_data\dec'
+    ctf.import_test_data_into_database(import_data_dir, RUN_ID)
 
     # populates test data within pv table
-    populate_test_pv_table()
+    conn = database_connection()
+    ctf.populate_test_pv_table(conn, RUN_ID, PV_RUN_ID)
 
 
 def teardown_module(module):
@@ -51,7 +54,7 @@ def teardown_module(module):
         method.
         """
     # deletes data from tables as necessary
-    reset_tables()
+    ctf.reset_test_tables(RUN_ID, STEP_CONFIGURATION[STEP_NAME])
 
     # Cleanses Survey Subsample table.
     cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID)
@@ -59,107 +62,6 @@ def teardown_module(module):
     # Play audio notification to indicate test is complete and print duration for performance.
     cf.beep()
     print("Duration: {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time() - START_TIME))))
-
-
-def reset_tables():
-    # List of tables to cleanse entirely
-    tables_to_unconditionally_cleanse = [STEP_CONFIGURATION[STEP_NAME]["data_table"],
-                                         STEP_CONFIGURATION[STEP_NAME]["spv_table"],
-                                         idm.SAS_SURVEY_SUBSAMPLE_TABLE,
-                                         idm.SAS_PROCESS_VARIABLES_TABLE]
-
-    # Try to delete from each table in list.  If exception occurs, assume table is
-    # already empty, and continue deleting from tables in list.
-    for table in tables_to_unconditionally_cleanse:
-        try:
-            cf.delete_from_table(table)
-        except Exception:
-            continue
-
-    # List of tables to cleanse where [RUN_ID] = RUN_ID
-    tables_to_cleanse = ['[dbo].[PROCESS_VARIABLE_PY]',
-                         '[dbo].[PROCESS_VARIABLE_TESTING]']
-
-    # Try to delete from each table in list where condition.  If exception occurs,
-    # assume table is already empty, and continue deleting from tables in list.
-    for table in tables_to_cleanse:
-        try:
-            cf.delete_from_table(table, 'RUN_ID', '=', RUN_ID)
-        except Exception:
-            continue
-
-    # Try to delete from each table in list.  If exception occurs, assume table is
-    # already empty, and continue deleting from tables in list.
-    for table in STEP_CONFIGURATION[STEP_NAME]['delete_tables']:
-        try:
-            cf.delete_from_table(table)
-        except Exception:
-            continue
-
-
-def populate_test_pv_table():
-    """ Set up table to run and test copy_step_pvs_for_survey_data()
-        Note: Had to break up sql statements due to following error:
-        'pyodbc.Error: ('HY000', '[HY000] [Microsoft][ODBC SQL Server Driver]Connection is busy with results for
-             another hstmt (0) (SQLExecDirectW)')'
-        Error explained in http://sourceitsoftware.blogspot.com/2008/06/connection-is-busy-with-results-for.html
-        """
-
-    conn = database_connection()
-    cur = conn.cursor()
-
-    sql1 = """
-    INSERT INTO [PROCESS_VARIABLE_TESTING]
-    SELECT * FROM [PROCESS_VARIABLE_PY]
-    WHERE [RUN_ID] = '{}'
-    """.format(PV_RUN_ID)
-
-    sql2 = """
-    UPDATE [PROCESS_VARIABLE_TESTING]
-    SET [RUN_ID] = '{}'
-    """.format(RUN_ID)
-
-    sql3 = """
-    INSERT INTO [PROCESS_VARIABLE_PY]
-    SELECT * FROM [PROCESS_VARIABLE_TESTING]
-    WHERE RUN_ID = '{}'
-    """.format(RUN_ID)
-
-    cur.execute(sql1)
-    cur.execute(sql2)
-    cur.execute(sql3)
-
-
-def import_data_into_database():
-    '''
-    This function prepares all the data necessary to run all 14 steps.
-    The input files have been edited to make sure data types match the database tables.
-    Note that no process variables are uploaded and are expected to be present in the database.
-    '''
-
-    # Import data paths (these will be passed in through the user)
-    survey_data_path = TEST_DATA_DIR + r'\surveydata.csv'
-    shift_data_path = TEST_DATA_DIR + r'\Poss shifts Dec 2017.csv'
-    nr_data_path = TEST_DATA_DIR + r'\Dec17_NR.csv'
-    sea_data_path = TEST_DATA_DIR + r'\Sea Traffic Dec 2017.csv'
-    tunnel_data_path = TEST_DATA_DIR + r' Traffic Dec 2017.csv'
-    air_data_path = TEST_DATA_DIR + r'\Air Sheet Dec 2017 VBA.csv'
-    unsampled_data_path = TEST_DATA_DIR + r'\Unsampled Traffic Dec 2017.csv'
-
-    # Cleanse
-    cf.delete_from_table('SURVEY_SUBSAMPLE', 'RUN_ID', '=', RUN_ID)
-    cf.delete_from_table('SAS_SURVEY_SUBSAMPLE')
-
-    # Import survey data function to go here
-    import_data.import_survey_data(survey_data_path, RUN_ID)
-
-    # Import Shift Data
-    import_traffic_data.import_traffic_data(RUN_ID, shift_data_path)
-    import_traffic_data.import_traffic_data(RUN_ID, nr_data_path)
-    import_traffic_data.import_traffic_data(RUN_ID, unsampled_data_path)
-    import_traffic_data.import_traffic_data(RUN_ID, sea_data_path)
-    import_traffic_data.import_traffic_data(RUN_ID, tunnel_data_path)
-    import_traffic_data.import_traffic_data(RUN_ID, air_data_path)
 
 
 def test_shift_weight_step():
@@ -291,6 +193,10 @@ def test_shift_weight_step():
 
     # Get and test Shift data input
     sas_shift_data = cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["data_table"])
+
+    # TODO: DELETEY
+    cf.log_dtypes(STEP_NAME, sas_survey_data, run_type='xml', step_df=sas_shift_data)
+
     sas_shift_data.to_csv(TEST_DATA_DIR + '\shift_data_in_actual.csv', index=False)
 
     cols = ['PORTROUTE', 'WEEKDAY', 'ARRIVEDEPART', 'TOTAL', 'AM_PM_NIGHT',

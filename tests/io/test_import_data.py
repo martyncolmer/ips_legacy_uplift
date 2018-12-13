@@ -224,7 +224,7 @@ def test_import_sea_data(dataset, data_path):
 
 @pytest.mark.parametrize('dataset, data_path', [
     ('_OCTOBER_2017', r'tests\data\ips_data_management\import_data\external\october\Tunnel Traffic Oct 2017.csv'),
-    ('_NOVEMBER_2017', r'tests\data\ips_data_management\import_data\external\november\Tunnel Traffic NovQ3 2017.csv'),
+    ('_NOVEMBER_2017', r'tests\data\ips_data_management\import_data\external\november\Tunnel Traffic Nov 2017.csv'),
     ('_DECEMBER_2017', r'tests\data\ips_data_management\import_data\external\december\Tunnel Traffic Dec 2017.csv'),
     ('_Q3_2017', r'tests\data\ips_data_management\import_data\external\q3\Tunnel Traffic Q3 2017.csv'),
     ])

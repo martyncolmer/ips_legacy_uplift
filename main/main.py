@@ -1,18 +1,20 @@
 '''
 Created on 26 April 2018
-
 @author: Thomas Mahoney
+
+Refactored on 2 October 2018
+@author: Elinor Thorne
 '''
 
-import sys
 import json
-from main.io import CommonFunctions as cf, ips_data_management
 
+from main.io import CommonFunctions as cf
+from main.io import ips_data_management as idm
 from main.utils import process_variables
 from main.calculations import calculate_ips_shift_weight
 from main.calculations import calculate_ips_nonresponse_weight
 from main.calculations import calculate_ips_minimums_weight
-from main.calculations import calculate_ips_traffic_weight
+from main.calculations.calculate_ips_traffic_weight import do_ips_trafweight_calculation_with_R
 from main.calculations import calculate_ips_unsampled_weight
 from main.calculations import calculate_ips_imb_weight
 from main.calculations import calculate_ips_final_weight
@@ -21,495 +23,719 @@ from main.calculations import calculate_ips_fares_imputation
 from main.calculations import calculate_ips_spend_imputation
 from main.calculations import calculate_ips_rail_imputation
 from main.calculations import calculate_ips_regional_weights
+from main.calculations import calculate_ips_town_and_stay_expenditure
 from main.calculations import calculate_ips_airmiles
 
+with open(r'data/xml_steps_configuration.json') as config_file:
+    STEP_CONFIGURATION = json.load(config_file)
 
-def shift_weight_step(run_id, connection, step_configuration):
+OUTPUTS = r'S:\CASPA\IPS\Testing\scratch\integration outputs'
+RUN_TYPE = 'integration'
+
+def shift_weight_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 26 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 26 April 2018 / 2 October 2018
     Purpose      : Runs the shift weight steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
-    ips_data_management.populate_survey_data_for_step(run_id, connection, step_configuration)
-    ips_data_management.populate_step_data(run_id, connection, step_configuration)
-    ips_data_management.copy_step_pvs_for_survey_data(run_id, connection, step_configuration)
+    # Load configuration variables
+    step_name = 'SHIFT_WEIGHT'
 
+    # Populate Survey Data For Shift Wt
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Populate Shift Data
+    idm.populate_step_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Copy Shift Wt PVs For Survey Data
+    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Shift Wt PVs On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_SHIFT_SPV',
                               in_id='serial')
 
-    ips_data_management.update_survey_data_with_step_pv_output(connection, step_configuration)
-    ips_data_management.copy_step_pvs_for_step_data(run_id, connection, step_configuration)
+    # Update Survey Data with Shift Wt PV Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
+    # Copy Shift Wt PVs For Shift Data
+    idm.copy_step_pvs_for_step_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Shift Wt PVs On Shift Data
     process_variables.process(dataset='shift',
                               in_table_name='SAS_SHIFT_DATA',
                               out_table_name='SAS_SHIFT_PV',
                               in_id='REC_ID')
 
-    ips_data_management.update_step_data_with_step_pv_output(connection, step_configuration)
+    # Update Shift Data with PVs Output
+    idm.update_step_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
-    sas_survey_data = cf.get_table_values(generic_xml_steps.SAS_SURVEY_SUBSAMPLE_TABLE)
-    sas_shift_data = cf.get_table_values(step_configuration["data_table"])
-    surveydata_out, summary_out = calculate_ips_shift_weight.do_ips_shift_weight_calculation(sas_survey_data,
-                                                                                             sas_shift_data,
-                                                                                             var_serialNum='SERIAL',
-                                                                                             var_shiftWeight='SHIFT_WT')
-    cf.insert_dataframe_into_table(step_configuration["temp_table"], surveydata_out)
-    cf.insert_dataframe_into_table(step_configuration["sas_ps_table"], summary_out)
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    shift_data = cf.get_table_values(STEP_CONFIGURATION[step_name]["data_table"])
 
-    ips_data_management.update_survey_data_with_step_results(connection, step_configuration)
+    # Calculate Shift Weight
+    survey_data_out, summary_data_out = calculate_ips_shift_weight.do_ips_shift_weight_calculation(survey_data,
+                                                                                                   shift_data,
+                                                                                                   var_serialNum='SERIAL',
+                                                                                                   var_shiftWeight='SHIFT_WT')
 
-    ips_data_management.store_survey_data_with_step_results(run_id, connection, step_configuration)
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["sas_ps_table"], summary_data_out)
 
-    ips_data_management.store_step_summary(run_id, connection, step_configuration)
+    # Update Survey Data With Shift Wt Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data With Shift Wt Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Store Shift Wt Summary
+    idm.store_step_summary(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def non_response_weight_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 26 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 26 April 2018 / 2 October 2018
     Purpose      : Runs the non response weight steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
-    step = "NON_RESPONSE"
+    # Load configuration variables
+    step_name = "NON_RESPONSE"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
-    generic_xml_steps.populate_step_data(run_id, connection, step)
-    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step)
+    # Populate Survey Data For Non Response Wt
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
+    # Populate Non Response Data
+    idm.populate_step_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Copy Non Response Wt PVs For Survey Data
+    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Non Response Wt PVs On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_NON_RESPONSE_SPV',
                               in_id='serial')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
-    generic_xml_steps.copy_step_pvs_for_step_data(run_id, connection, step)
+    # Update Survey Data with Non Response Wt PVs Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
+    # Copy Non Response Wt PVs for Non Response Data
+    idm.copy_step_pvs_for_step_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Non Response Wt PVs On Non Response Data
     process_variables.process(dataset='non_response',
                               in_table_name='SAS_NON_RESPONSE_DATA',
                               out_table_name='SAS_NON_RESPONSE_PV',
                               in_id='REC_ID')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
+    # Update NonResponse Data With PVs Output
+    idm.update_step_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
-    calculate_ips_nonresponse_weight.calculate(SurveyData='SAS_SURVEY_SUBSAMPLE',
-                                               NonResponseData='SAS_NON_RESPONSE_DATA',
-                                               OutputData='SAS_NON_RESPONSE_WT',
-                                               SummaryData='SAS_PS_NON_RESPONSE',
-                                               ResponseTable='SAS_RESPONSE',
-                                               NRStratumDef=['NR_PORT_GRP_PV',
-                                                             'ARRIVEDEPART'],
-                                               ShiftsStratumDef=['NR_PORT_GRP_PV',
-                                                                 'ARRIVEDEPART',
-                                                                 'WEEKDAY_END_PV'],
-                                               var_NRtotals='MIGTOTAL',
-                                               var_NonMigTotals='ORDTOTAL',
-                                               var_SI='',
-                                               var_migSI='MIGSI',
-                                               var_TandTSI='TANDTSI',
-                                               var_PSW='SHIFT_WT',
-                                               var_NRFlag='NR_FLAG_PV',
-                                               var_migFlag='MIG_FLAG_PV',
-                                               var_respCount='COUNT_RESPS',
-                                               var_NRWeight='NON_RESPONSE_WT',
-                                               var_meanSW='MEAN_RESPS_SH_WT',
-                                               var_priorSum='PRIOR_SUM',
-                                               var_meanNRW='MEAN_NR_WT',
-                                               var_grossResp='GROSS_RESP',
-                                               var_gnr='GNR',
-                                               var_serialNum='SERIAL',
-                                               minCountThresh='30')
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    non_response_data = cf.get_table_values(STEP_CONFIGURATION[step_name]["data_table"])
 
-    print("Start - update_survey_data_with_non_response_wt_results")
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
+    # Calculate Non Response Weight
+    survey_data_out, summary_data_out = calculate_ips_nonresponse_weight.do_ips_nrweight_calculation(survey_data,
+                                                                                                     non_response_data,
+                                                                                                     'NON_RESPONSE_WT',
+                                                                                                     'SERIAL')
 
-    print("Start - store_survey_data_with_non_response_wt_results")
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["sas_ps_table"], summary_data_out)
 
-    print("Start - store_non_response_wt_summary")
-    generic_xml_steps.store_step_summary(run_id, connection, step)
+    # Update Survey Data With Non Response Wt Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data With NonResponse Wt Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Store Non Response Wt Summary
+    idm.store_step_summary(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def minimums_weight_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the minimums weight steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
-    step = "MINIMUMS_WEIGHT"
+    # Load configuration variables
+    step_name = "MINIMUMS_WEIGHT"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
-    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step)
+    # Populate Survey Data For Minimums Wt
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
+    # Copy Minimums Wt PVs For Survey Data
+    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Minimums Wt PVs On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_MINIMUMS_SPV',
                               in_id='serial')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
+    # Update Survey Data with Minimums Wt PVs Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
-    calculate_ips_minimums_weight.calculate(SurveyData='SAS_SURVEY_SUBSAMPLE',
-                                            OutputData='SAS_NON_RESPONSE_DATA',
-                                            SummaryData='SAS_PS_MINIMUMS',
-                                            ResponseTable='SAS_RESPONSE',
-                                            MinStratumDef=['MINS_PORT_GRP_PV',
-                                                           'MINS_CTRY_GRP_PV'],
-                                            var_serialNum='SERIAL',
-                                            var_shiftWeight='SHIFT_WT',
-                                            var_NRWeight='NON_RESPONSE_WT',
-                                            var_minWeight='MINS_WT',
-                                            var_minCount='MINS_CASES',
-                                            var_fullRespCount='FULLS_CASES',
-                                            var_minFlag='MINS_FLAG_PV',
-                                            var_sumPriorWeightMin='PRIOR_GROSS_MINS',
-                                            var_sumPriorWeightFull='PRIOR_GROSS_FULLS',
-                                            var_sumPriorWeightAll='PRIOR_GROSS_ALL',
-                                            var_sumPostWeight='POST_SUM',
-                                            var_casesCarriedForward='CASES_CARRIED_FWD',
-                                            minCountThresh='30')
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
-    generic_xml_steps.store_step_summary(run_id, connection, step)
+    # Calculate Minimums Weight
+    output_data, summary_data = calculate_ips_minimums_weight.do_ips_minweight_calculation(df_surveydata=survey_data,
+                                                                                           var_serialNum='SERIAL',
+                                                                                           var_shiftWeight='SHIFT_WT',
+                                                                                           var_NRWeight='NON_RESPONSE_WT',
+                                                                                           var_minWeight='MINS_WT')
+
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], output_data)
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["sas_ps_table"], summary_data)
+
+    # Update Survey Data With Minimums Wt Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data With Minimums Wt Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Store Minimums Wt Summary
+    idm.store_step_summary(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def traffic_weight_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the traffic weight steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
-    step = "TRAFFIC_WEIGHT"
+    # Load configuration variables
+    step_name = "TRAFFIC_WEIGHT"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
-    generic_xml_steps.populate_step_data(run_id, connection, step)
-    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step)
+    # Populate Survey Data For Traffic Wt
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
+    # Populate Traffic Data
+    idm.populate_step_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Copy Traffic Wt PVs For Survey Data
+    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Traffic Wt PV On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_TRAFFIC_SPV',
                               in_id='serial')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
-    generic_xml_steps.copy_step_pvs_for_step_data(run_id, connection, step)
+    # Update Survey Data with Traffic Wt PV Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
+    # Copy Traffic Wt PVs For Traffic Data
+    idm.copy_step_pvs_for_step_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Traffic Wt PV On Traffic Data
     process_variables.process(dataset='traffic',
-                              in_table_name='SAS_NON_RESPONSE_DATA',
+                              in_table_name='SAS_TRAFFIC_DATA',
                               out_table_name='SAS_TRAFFIC_PV',
                               in_id='REC_ID')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
+    # Update Traffic Data With Traffic Wt PV Output
+    idm.update_step_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
-    calculate_ips_traffic_weight.calculate()
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    traffic_data = cf.get_table_values(STEP_CONFIGURATION[step_name]["data_table"])
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
-    generic_xml_steps.store_step_summary(run_id, connection, step)
+    # Calculate Traffic Weight
+    output_data, summary_data = do_ips_trafweight_calculation_with_R(survey_data, traffic_data)
+
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], output_data)
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["sas_ps_table"], summary_data)
+
+    # Update Survey Data With Traffic Wt Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data With Traffic Wt Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Store Traffic Wt Summary
+    idm.store_step_summary(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def unsampled_weight_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the unsampled weight steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
-    step = "UNSAMPLED_WEIGHT"
+    # Load configuration variables
+    step_name = "UNSAMPLED_WEIGHT"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
-    generic_xml_steps.populate_step_data(run_id, connection, step)
-    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step)
+    # Populate Survey Data For Unsampled Wt
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
+    # Populate Unsampled Data
+    idm.populate_step_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Copy Unsampled Wt PVs For Survey Data
+    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Unsampled Wt PV On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_UNSAMPLED_OOH_SPV',
                               in_id='serial')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
-    generic_xml_steps.copy_step_pvs_for_step_data(run_id, connection, step)
+    # Update Survey Data with Unsampled Wt PV Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
+    # Copy Unsampled Wt PVs For Unsampled Data
+    idm.copy_step_pvs_for_step_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Unsampled Wt PV On Unsampled Data
     process_variables.process(dataset='unsampled',
-                              in_table_name='SAS_NON_RESPONSE_DATA',
+                              in_table_name='SAS_UNSAMPLED_OOH_DATA',
                               out_table_name='SAS_UNSAMPLED_OOH_PV',
                               in_id='REC_ID')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
+    # Update Unsampled Data With PV Output
+    idm.update_step_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
-    calculate_ips_unsampled_weight.calculate()
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+    unsampled_data = cf.get_table_values(STEP_CONFIGURATION[step_name]["data_table"])
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
-    generic_xml_steps.store_step_summary(run_id, connection, step)
+    # Calculate Unsampled Weight
+    output_data, summary_data = calculate_ips_unsampled_weight.do_ips_unsampled_weight_calculation(df_surveydata=survey_data,
+                                                                                                   var_serialNum='SERIAL',
+                                                                                                   var_shiftWeight='SHIFT_WT',
+                                                                                                   var_NRWeight='NON_RESPONSE_WT',
+                                                                                                   var_minWeight='MINS_WT',
+                                                                                                   var_trafficWeight='TRAFFIC_WT',
+                                                                                                   var_OOHWeight="UNSAMP_TRAFFIC_WT",
+                                                                                                   df_ustotals=unsampled_data,
+                                                                                                   minCountThresh=30)
+
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], output_data)
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["sas_ps_table"], summary_data)
+
+    # Update Survey Data With Unsampled Wt Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data With Unsampled Wt Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Store Unsampled Weight Summary
+    idm.store_step_summary(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def imbalance_weight_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the imbalance weight steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
-    step = "IMBALANCE_WEIGHT"
+    # Load configuration variables
+    step_name = "IMBALANCE_WEIGHT"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
-    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step)
+    # Populate Survey Data For Imbalance Wt
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
+    # Copy Imbalance Wt PVs For Survey Data
+    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Imbalance Wt PVs On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_IMBALANCE_SPV',
                               in_id='serial')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
+    # Update Survey Data With Imbalance Wt PVs Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
-    calculate_ips_imb_weight.calculate()
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
-    generic_xml_steps.store_step_summary(run_id, connection, step)
+    # Calculate Imbalance Weight
+    survey_data_out, summary_data_out = calculate_ips_imb_weight.do_ips_imbweight_calculation(survey_data,
+                                                                                              var_serialNum="SERIAL",
+                                                                                              var_shiftWeight="SHIFT_WT",
+                                                                                              var_NRWeight="NON_RESPONSE_WT",
+                                                                                              var_minWeight="MINS_WT",
+                                                                                              var_trafficWeight="TRAFFIC_WT",
+                                                                                              var_OOHWeight="UNSAMP_TRAFFIC_WT",
+                                                                                              var_imbalanceWeight="IMBAL_WT")
+
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["sas_ps_table"], summary_data_out)
+
+    # Update Survey Data With Imbalance Wt Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data With Imbalance Wt Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Store Imbalance Weight Summary
+    idm.store_step_summary(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def final_weight_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the final weight steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
-    step = "FINAL_WEIGHT"
+    # Load configuration variables
+    step_name = "FINAL_WEIGHT"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
+    # Populate Survey Data For Final Wt
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
-    calculate_ips_final_weight.calculate()
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
-    generic_xml_steps.store_step_summary(run_id, connection, step)
+    # Calculate Final Weight
+    survey_data_out, summary_data_out = calculate_ips_final_weight.do_ips_final_wt_calculation(survey_data,
+                                                                                         var_serialNum='SERIAL',
+                                                                                         var_shiftWeight='SHIFT_WT',
+                                                                                         var_NRWeight='NON_RESPONSE_WT',
+                                                                                         var_minWeight='MINS_WT',
+                                                                                         var_trafficWeight='TRAFFIC_WT',
+                                                                                         var_unsampWeight='UNSAMP_TRAFFIC_WT',
+                                                                                         var_imbWeight='IMBAL_WT',
+                                                                                         var_finalWeight='FINAL_WT')
+
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["sas_ps_table"], summary_data_out)
+
+    # Update Survey Data With Final Wt Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data With Final Wt Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Store Final Weight Summary
+    idm.store_step_summary(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def stay_imputation_step(run_id,connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the stay imputation steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
-    step = "STAY_IMPUTATION"
+    # Load configuration variables
+    step_name = "STAY_IMPUTATION"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
-    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step)
+    # Populate Survey Data For Stay Imputation
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
+    # Copy Stay Imp PVs For Survey Data
+    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Stay Imp PVs On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_STAY_SPV',
                               in_id='serial')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
+    # Update Survey Data with Stay Imp PV Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
-    calculate_ips_stay_imputation.ips_stay_imp()
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
+    # Calculate Stay Imputation
+    survey_data_out = calculate_ips_stay_imputation.do_ips_stay_imputation(survey_data,
+                                                                           var_serial='SERIAL',
+                                                                           num_levels=1,
+                                                                           measure='mean')
+
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
+
+    # Update Survey Data With Stay Imp Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data With Stay Imp Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def fares_imputation_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the fares imputation steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
-    step = "FARES_IMPUTATION"
+    # Load configuration variables
+    step_name = "FARES_IMPUTATION"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
-    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step)
+    # Populate Survey Data For Fares Imputation
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
+    # Copy Fares Imp PVs For Survey Data
+    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Fares Imp PVs On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_FARES_SPV',
                               in_id='serial')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
+    # Update Survey Data with Fares Imp PV Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
-    calculate_ips_fares_imputation.ips_fares_imp()
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
+    # Calculate Fares Imputation
+    survey_data_out = calculate_ips_fares_imputation.do_ips_fares_imputation(survey_data,
+                                                                             var_serial='SERIAL',
+                                                                             num_levels=9,
+                                                                             measure='mean')
+
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
+
+    # Update Survey Data With Fares Imp Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data With Fares Imp Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def spend_imputation_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the spend imputation steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
-    step = "SPEND_IMPUTATION"
+    # Load configuration variables
+    step_name = "SPEND_IMPUTATION"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
-    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step)
+    # Populate Survey Data For Spend Imputation
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
+    # Copy Spend Imp PVs For Survey Data
+    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Spend Imp PVs On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_SPEND_SPV',
                               in_id='serial')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
+    # Update Survey Data with Spend Imp PV Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
-    calculate_ips_spend_imputation.calculate()
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
+    # Calculate Spend Imputation
+    survey_data_out = calculate_ips_spend_imputation.do_ips_spend_imputation(survey_data,
+                                                                             var_serial="SERIAL",
+                                                                             measure="mean")
+
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
+
+    # Update Survey Data With Spend Imp Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data With Spend Imp Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def rail_imputation_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the rail imputation steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
-    step = "RAIL_IMPUTATION"
+    # Load configuration variables
+    step_name = "RAIL_IMPUTATION"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
-    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step)
+    # Populate Survey Data For Rail Imputation
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
+    # Copy Rail Imp PVs For Survey Data
+    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Rail Imp PVs On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_RAIL_SPV',
                               in_id='serial')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
+    # Update Survey Data with Rail Imp PV Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
-    calculate_ips_rail_imputation.calculate()
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
+    # Calculate Rail Imputation
+    survey_data_out = calculate_ips_rail_imputation.do_ips_railex_imp(survey_data,
+                                                                      var_serial='SERIAL',
+                                                                      var_final_weight='FINAL_WT',
+                                                                      minimum_count_threshold=30)
+
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
+
+    # Update Survey Data With Rail Imp Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data With Rail Imp Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def regional_weights_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the regional weights steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
-    step = "REGIONAL_WEIGHTS"
+    # Load configuration variables
+    step_name = "REGIONAL_WEIGHTS"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
-    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step)
+    # Populate Survey Data For Regional Weights
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
+    # Copy Regional Weights PVs For Survey Data
+    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply Regional Weights PVs On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_REGIONAL_SPV',
                               in_id='serial')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
+    # Update Survey Data with Regional Weights PV Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
-    calculate_ips_regional_weights.calculate()
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
+
+    # Calculate Regional Weights
+    survey_data_out = calculate_ips_regional_weights.do_ips_regional_weight_calculation(survey_data,
+                                                                                        var_serial='SERIAL',
+                                                                                        var_final_weight='FINAL_WT')
+
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
+
+    # Update Survey Data With Regional Weights Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data With Regional Weights Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def town_stay_expenditure_imputation_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the town stay expenditure imputation steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
     Returns      : NA
-    Requirements : NA
-    Dependencies : NA
     """
 
-    step = "TOWN_AND_STAY_EXPENDITURE"
+    # Load configuration variables
+    step_name = "TOWN_AND_STAY_EXPENDITURE"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
-    generic_xml_steps.copy_step_pvs_for_survey_data(run_id, connection, step)
+    # Populate Survey Data For TSE Imputation
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
+    # Copy TSE Imputation PVs For Survey Data
+    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
+
+    # Apply TSE Imputation PVs On Survey Data
     process_variables.process(dataset='survey',
                               in_table_name='SAS_SURVEY_SUBSAMPLE',
                               out_table_name='SAS_TOWN_STAY_SPV',
                               in_id='serial')
 
-    generic_xml_steps.update_survey_data_with_step_pv_output(connection, step)
+    # Update Survey Data with TSE Imputation PV Output
+    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
 
-    # calculation for town stay (still not complete)
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
+    # Calculate TSE Imputation
+    survey_data_out = calculate_ips_town_and_stay_expenditure.do_ips_town_exp_imp(survey_data,
+                                                                                  var_serial="SERIAL",
+                                                                                  var_final_wt="FINAL_WT")
 
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
+
+    # Update Survey Data With TSE Imputation Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data With TSE Imputation Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
 def airmiles_step(run_id, connection):
     """
-    Author       : Thomas Mahoney
-    Date         : 30 April 2018
+    Author       : Thomas Mahoney / Elinor Thorne
+    Date         : 30 April 2018 / 2 October 2018
     Purpose      : Runs the air miles calculation steps of the ips process
     Params       : run_id - the id for the current run.
                    connection - a connection object pointing at the database.
@@ -518,42 +744,121 @@ def airmiles_step(run_id, connection):
     Dependencies : NA
     """
 
-    step = "AIR_MILES"
+    # Load configuration variables
+    step_name = "AIR_MILES"
 
-    generic_xml_steps.populate_survey_data_for_step(run_id, connection, step)
+    # Populate Survey Data For Air Miles
+    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
 
-    calculate_ips_airmiles.calculate()
+    # Retrieve data from SQL
+    survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    generic_xml_steps.update_survey_data_with_step_results(connection, step)
-    generic_xml_steps.store_survey_data_with_step_results(run_id, connection, step)
+    # Calculate Air Miles
+    survey_data_out = calculate_ips_airmiles.do_ips_airmiles_calculation(df_surveydata=survey_data, var_serial='SERIAL')
+
+    # Insert data to SQL
+    cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
+
+    # Update Survey Data with Air Miles Results
+    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+
+    # Store Survey Data with Air Miles Results
+    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
 
 
-if __name__ == '__main__':
+def run_ips(run_id, steps_to_run):
 
     # Connection to the SQL server database
     connection = cf.get_sql_connection()
+
+    if 1 in steps_to_run:
+        try:
+            shift_weight_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 2 in steps_to_run:
+        try:
+            non_response_weight_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 3 in steps_to_run:
+        try:
+            minimums_weight_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 4 in steps_to_run:
+        try:
+            traffic_weight_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 5 in steps_to_run:
+        try:
+            unsampled_weight_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 6 in steps_to_run:
+        try:
+            imbalance_weight_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 7 in steps_to_run:
+        try:
+            final_weight_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 8 in steps_to_run:
+        try:
+            stay_imputation_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 9 in steps_to_run:
+        try:
+            fares_imputation_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 10 in steps_to_run:
+        try:
+            spend_imputation_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 11 in steps_to_run:
+        try:
+            rail_imputation_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 12 in steps_to_run:
+        try:
+            regional_weights_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 13 in steps_to_run:
+        try:
+            town_stay_expenditure_imputation_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
+    if 14 in steps_to_run:
+        try:
+            airmiles_step(run_id, connection)
+        except Exception as err:
+            print(err)
+
     # Run Id (this will be generated automatically and will be unique)
     run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
 
-    # What was this for?
-    version_id = 1891
 
-    # -- Read configuration --
-    with open('data/xml_steps_configuration.json') as config_file:
-        step_configurations = json.load(config_file)
 
-    # -- Processing --
-    shift_weight_step(run_id, connection, step_configurations["SHIFT_WEIGHT"])
-    non_response_weight_step(run_id, connection, step_configurations)
-    minimums_weight_step(run_id, connection, step_configurations)
-    traffic_weight_step(run_id, connection, step_configurations)
-    unsampled_weight_step(run_id, connection, step_configurations)
-    imbalance_weight_step(run_id, connection, step_configurations)
-    final_weight_step(run_id, connection, step_configurations)
-    stay_imputation_step(run_id, connection, step_configurations)
-    fares_imputation_step(run_id, connection, step_configurations)
-    spend_imputation_step(run_id, connection, step_configurations)
-    rail_imputation_step(run_id, connection, step_configurations)
-    regional_weights_step(run_id, connection,step_configurations)
-    town_stay_expenditure_imputation_step(run_id, connection, step_configurations)
-    airmiles_step(run_id, connection, step_configurations)
+if __name__ == '__main__':
+    run_ips()

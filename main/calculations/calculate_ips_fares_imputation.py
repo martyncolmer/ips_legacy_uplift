@@ -59,7 +59,6 @@ def do_ips_fares_imputation(df_input, var_serial, num_levels, measure):
     Dependencies : NA
     """
 
-    # Ensure imputation only occurs on eligible rows
     df_eligible = df_input.loc[df_input[ELIGIBLE_FLAG_VARIABLE] == 1.0]
 
     # Perform the imputation on eligible dataset
@@ -109,6 +108,9 @@ def compute_additional_fares(row):
     Dependencies : NA
     """
 
+    # Force the variable formatting to 8digit date
+    row[DATE_VARIABLE] = row[DATE_VARIABLE].zfill(8)
+
     non_pack_fare = np.NaN
 
     # Sort out child/baby fares
@@ -116,6 +118,7 @@ def compute_additional_fares(row):
         row[OUTPUT_VARIABLE] = row[DONOR_VARIABLE]
 
     else:
+
         # Separate intdate column into usable integer values.
         day = int(row[DATE_VARIABLE][:2])
         month = int(row[DATE_VARIABLE][2:4])
@@ -187,6 +190,7 @@ def compute_additional_spend(row):
 
         elif (((row[DISCOUNTED_PACKAGE_COST_VARIABLE] + row[EXPENDITURE_VARIABLE] +
                 row[BEFAF_VARIABLE]) / row[PERSONS_VARIABLE]) < (row[OUTPUT_VARIABLE] * 2)):
+            print(row['SERIAL'])
             row[SPEND_VARIABLE] = np.nan
             row[SPEND_REASON_KEY_VARIABLE] = 1
 

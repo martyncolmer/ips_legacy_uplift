@@ -71,6 +71,8 @@ def test_calculate(path_to_data):
     py_survey_data = py_survey_data.sort_values(by='SERIAL')
     py_survey_data.index = range(0, len(py_survey_data))
 
+    py_survey_data.to_csv(r'S:\CASPA\IPS\Testing\scratch\integration docs\non_response_outputdata_final_py.csv')
+
     py_summary_data = result_py_data[1]
     py_summary_data.sort_values(by=NR_COLUMNS)
     py_summary_data.index = range(0, len(py_summary_data))
