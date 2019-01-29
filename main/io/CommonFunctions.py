@@ -11,7 +11,6 @@ import logging
 import os
 import pandas as pandas     # pip install this
 import pyodbc
-import winsound
 import zipfile
 import time
 
@@ -1052,14 +1051,6 @@ def round_series_half_up(dataframe):
     import math
 
 
-def beep():
-    winsound.Beep(440, 250) # frequency, duration
-    time.sleep(0.25)        # in seconds (0.25 is 250ms)
-    
-    winsound.Beep(600, 250)
-    time.sleep(0.25)
-
-
 def execute_sql_query(connection, sql_statement):
     cur = connection.cursor()
     cur.execute(sql_statement)
@@ -1079,7 +1070,6 @@ def unpickle_rick(file):
 
     # Send to CSV
     df.to_csv(r"{}\{}".format(path, out_file))
-    beep()
 
 
 def compare_tables():

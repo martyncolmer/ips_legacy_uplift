@@ -68,8 +68,6 @@ def teardown_module(module):
         except Exception:
             continue
 
-    # Play audio notification to indicate test is complete and print duration for performance.
-    cf.beep()
     print("Duration: {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time() - START_TIME))))
 
 

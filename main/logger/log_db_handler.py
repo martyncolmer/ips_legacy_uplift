@@ -1,11 +1,9 @@
 import logging
 import traceback
-import getpass
-import datetime
-import cx_Oracle
-import inspect
+
 
 from main.io import CommonFunctions as cf
+
 
 class IPS_Log_Handler(logging.Handler):
     def __init__(self, **kwargs):

@@ -1,5 +1,8 @@
-numpy
-pandas
-sas7bdat
-pytest
-pyodbc
+numpy==1.16.0
+pandas==0.24.0
+pyodbc==4.0.25
+python-dateutil==2.7.5
+pytz==2018.9
+sas7bdat==2.2.2
+six==1.12.0
+SQLAlchemy==1.2.17

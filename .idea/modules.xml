@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/IPS_Legacy_Uplift.iml" filepath="$PROJECT_DIR$/IPS_Legacy_Uplift.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ips_legacy_uplift.iml" filepath="$PROJECT_DIR$/ips_legacy_uplift.iml" />
     </modules>
   </component>
 </project>
