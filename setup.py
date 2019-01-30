@@ -12,6 +12,6 @@ setup(name='ips_legacy_uplift',
           'sas7bdat',
           'pandas',
           'numpy',
-          'pyodbc'
+          'pyodbc', 'sqlalchemy', 'pytest'
       ],
       zip_safe=False)

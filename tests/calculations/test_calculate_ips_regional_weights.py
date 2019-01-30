@@ -22,7 +22,7 @@ from main.calculations.calculate_ips_regional_weights import do_ips_regional_wei
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 import pytest
-import main.io.CommonFunctions as cf
+import utils.common_functions as cf
 
 OUTPUT_TABLE_NAME = 'SAS_REGIONAL_IMP'
 

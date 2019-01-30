@@ -9,7 +9,7 @@ from pandas.util.testing import assert_frame_equal
 import pytest
 
 from main.calculations.calculate_ips_airmiles import do_ips_airmiles_calculation
-import main.io.CommonFunctions as cf
+import utils.common_functions as cf
 
 # define the table names
 OUT_TABLE_NAME = "SAS_AIR_MILES"

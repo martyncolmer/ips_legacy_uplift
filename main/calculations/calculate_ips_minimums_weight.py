@@ -1,9 +1,8 @@
-import inspect
 import numpy as np
 import pandas as pd
-# import survey_support
-from main.io import CommonFunctions as cf
 
+# import survey_support
+from utils import common_functions as cf
 
 OUTPUT_TABLE_NAME = 'SAS_MINIMUMS_WT'
 SUMMARY_TABLE_NAME = 'SAS_PS_MINIMUMS'
@@ -110,7 +109,8 @@ def do_ips_minweight_calculation(df_surveydata, var_serialNum, var_shiftWeight, 
 
     df_summary[var_minWeight] = np.where(df_summary[PRIOR_WEIGHT_FULL_COLUMN] > 0,
                                          ((df_summary[PRIOR_WEIGHT_MINIMUM_COLUMN] +
-                                           df_summary[PRIOR_WEIGHT_FULL_COLUMN]) / df_summary[PRIOR_WEIGHT_FULL_COLUMN]),
+                                           df_summary[PRIOR_WEIGHT_FULL_COLUMN]) / df_summary[
+                                              PRIOR_WEIGHT_FULL_COLUMN]),
                                          df_summary[var_minWeight])
 
     df_surveydata_sorted.fillna(0, inplace=True)
@@ -201,58 +201,3 @@ def do_ips_minweight_calculation(df_surveydata, var_serialNum, var_shiftWeight, 
     return df_out, df_summary
 
 
-def calculate(SurveyData, var_serialNum, var_shiftWeight, var_NRWeight, var_minWeight):
-    """
-    Author       : James Burr
-    Date         : Jan 2018
-    Purpose      : Performs the setup required for the calculation function, then
-                   calls the function
-    Parameters   : SurveyData - name of the table to retrieve survey data from.
-                 : MinStratumDef - list containing the names of columns to sort by
-                 : var_serialNum - name of the column containing serial number
-                 : var_shiftWeight - name of the column containing calculated shift_wt values
-                 : var_NRWeight - name of the column containing calculated non_response_wt values
-                 : var_minWeight - name of the column to contain calculated min_wt values
-    Returns      : N/A
-    Requirements : 
-    Dependencies :
-    """
-
-    # Call JSON configuration file for error logger setup
-    # survey_support.setup_logging('IPS_logging_config_debug.json')
-
-    # Setup path to the base directory containing data files
-    root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Calculate Minimums Weight"
-    path_to_survey_data = root_data_path + r"\surveydata.sas7bdat"
-
-    # Import data via SAS
-    # This method works for all data sets but is slower
-    # df_surveydata = SAS7BDAT(path_to_survey_data).to_data_frame()
-    # This method is untested with a range of data sets but is faster
-    df_surveydata = pd.read_sas(path_to_survey_data)
-
-    # Import data via SQL
-    # df_surveydata = cf.get_table_values(SurveyData)
-
-    df_surveydata.columns = df_surveydata.columns.str.upper()
-
-    weight_calculated_dataframes = do_ips_minweight_calculation(df_surveydata, var_serialNum, var_shiftWeight,
-                                                                var_NRWeight, var_minWeight)
-
-    # Extract the two data sets returned from do_ips_shift_weight_calculation
-    surveydata_dataframe = weight_calculated_dataframes[0]
-    summary_dataframe = weight_calculated_dataframes[1]
-
-    # Append the generated data to output tables
-    cf.insert_dataframe_into_table(OUTPUT_TABLE_NAME, surveydata_dataframe)
-    cf.insert_dataframe_into_table(SUMMARY_TABLE_NAME, summary_dataframe)
-
-    # Retrieve current function name using inspect:
-    # 0 = frame object, 3 = function name.
-    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
-    function_name = str(inspect.stack()[0][3])
-    audit_message = "Load Minimums Weight calculation: %s()" % function_name
-
-    # Log success message in SAS_RESPONSE and AUDIT_LOG
-    cf.database_logger().info("SUCCESS - Completed Minimums weight calculation.")
-    cf.commit_to_audit_log("Create", "MinimumsWeight", audit_message)

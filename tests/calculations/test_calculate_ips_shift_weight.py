@@ -1,5 +1,5 @@
 import pytest
-import main.io.CommonFunctions as cf
+import utils.common_functions as cf
 from main.calculations.calculate_ips_shift_weight import do_ips_shift_weight_calculation
 import pandas as pd
 from pandas.util.testing import assert_frame_equal

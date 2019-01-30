@@ -2,7 +2,7 @@ import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_final_weight import do_ips_final_wt_calculation
 import pytest
-import main.io.CommonFunctions as cf
+import utils.common_functions as cf
 
 OUTPUT_TABLE_NAME = 'SAS_FINAL_WT'
 SUMMARY_TABLE_NAME = 'SAS_PS_FINAL'
@@ -37,14 +37,14 @@ def test_calculate(data_path):
 
     # Run the calculation step
     surveydata_out, summary_out = do_ips_final_wt_calculation(df_surveydata,
-                                                              var_serialNum='SERIAL',
-                                                              var_shiftWeight='SHIFT_WT',
-                                                              var_NRWeight='NON_RESPONSE_WT',
-                                                              var_minWeight='MINS_WT',
-                                                              var_trafficWeight='TRAFFIC_WT',
-                                                              var_unsampWeight='UNSAMP_TRAFFIC_WT',
-                                                              var_imbWeight='IMBAL_WT',
-                                                              var_finalWeight='FINAL_WT')
+                                                              serial_num='SERIAL',
+                                                              shift_weight='SHIFT_WT',
+                                                              non_response_weight='NON_RESPONSE_WT',
+                                                              min_weight='MINS_WT',
+                                                              traffic_weight='TRAFFIC_WT',
+                                                              unsampled_weight='UNSAMP_TRAFFIC_WT',
+                                                              imbalance_weight='IMBAL_WT',
+                                                              final_weight='FINAL_WT')
 
     def convert_dataframe_to_sql_format(table_name, dataframe):
         cf.insert_dataframe_into_table(table_name, dataframe)

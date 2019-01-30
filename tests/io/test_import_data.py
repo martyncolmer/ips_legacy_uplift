@@ -1,12 +1,12 @@
-from main.io import import_data
+from main.io import import_survey_data
 import pytest
 import json
 import pandas as pd
-from main.io import CommonFunctions as cf
-from main.io import import_traffic_data
-from main.io import ips_data_management as idm
+from utils import common_functions as cf
+from main.io import import_reference_data
+from main.io import data_management as idm
 
-with open('data/xml_steps_configuration.json') as config_file:
+with open('data/steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)
 
 RUN_ID = 'import_test'
@@ -144,7 +144,7 @@ def test_import_survey_data(dataset, data_path):
     """
 
     # Run the import script using the specified data and the test RUN_ID
-    import_data.import_survey_data(data_path, RUN_ID + dataset)
+    import_survey_data.import_survey_data(data_path, RUN_ID + dataset)
 
     # Assert that records were added to the SURVEY_SUBSAMPLE table under the given RUN_ID.
     assert len(cf.select_data('*', 'SURVEY_SUBSAMPLE', 'RUN_ID', RUN_ID + dataset)) > 0
@@ -168,7 +168,7 @@ def test_import_shift_data(dataset, data_path):
     """
 
     # Run the import script using the specified data and the test RUN_ID
-    import_traffic_data.import_traffic_data(RUN_ID + dataset, data_path)
+    import_reference_data.import_traffic_data(RUN_ID + dataset, data_path)
 
     # Assert that records were added to the SURVEY_SUBSAMPLE table under the given RUN_ID.
     assert len(cf.select_data('*', 'SHIFT_DATA', 'RUN_ID', RUN_ID + dataset)) > 0
@@ -192,7 +192,7 @@ def test_import_non_response_data(dataset, data_path):
     """
 
     # Run the import script using the specified data and the test RUN_ID
-    import_traffic_data.import_traffic_data(RUN_ID + dataset, data_path)
+    import_reference_data.import_traffic_data(RUN_ID + dataset, data_path)
 
     # Assert that records were added to the SURVEY_SUBSAMPLE table under the given RUN_ID.
     assert len(cf.select_data('*', 'NON_RESPONSE_DATA', 'RUN_ID', RUN_ID + dataset)) > 0
@@ -216,7 +216,7 @@ def test_import_sea_data(dataset, data_path):
     """
 
     # Run the import script using the specified data and the test RUN_ID
-    import_traffic_data.import_traffic_data(RUN_ID + dataset, data_path)
+    import_reference_data.import_traffic_data(RUN_ID + dataset, data_path)
 
     # Assert that records were added to the SURVEY_SUBSAMPLE table under the given RUN_ID.
     assert len(cf.select_data('*', 'TRAFFIC_DATA', 'RUN_ID', RUN_ID + dataset)) > 0
@@ -240,7 +240,7 @@ def test_import_tunnel_data(dataset, data_path):
     """
 
     # Run the import script using the specified data and the test RUN_ID
-    import_traffic_data.import_traffic_data(RUN_ID + dataset, data_path)
+    import_reference_data.import_traffic_data(RUN_ID + dataset, data_path)
 
     # Assert that records were added to the SURVEY_SUBSAMPLE table under the given RUN_ID.
     assert len(cf.select_data('*', 'TRAFFIC_DATA', 'RUN_ID', RUN_ID + dataset)) > 0
@@ -264,7 +264,7 @@ def test_import_air_data(dataset, data_path):
     """
 
     # Run the import script using the specified data and the test RUN_ID
-    import_traffic_data.import_traffic_data(RUN_ID + dataset, data_path)
+    import_reference_data.import_traffic_data(RUN_ID + dataset, data_path)
 
     # Assert that records were added to the SURVEY_SUBSAMPLE table under the given RUN_ID.
     assert len(cf.select_data('*', 'TRAFFIC_DATA', 'RUN_ID', RUN_ID + dataset)) > 0
@@ -288,7 +288,7 @@ def test_import_unsampled_data(dataset, data_path):
     """
 
     # Run the import script using the specified data and the test RUN_ID
-    import_traffic_data.import_traffic_data(RUN_ID + dataset, data_path)
+    import_reference_data.import_traffic_data(RUN_ID + dataset, data_path)
 
     # Assert that records were added to the SURVEY_SUBSAMPLE table under the given RUN_ID.
     assert len(cf.select_data('*', 'UNSAMPLED_OOH_DATA', 'RUN_ID', RUN_ID + dataset)) > 0

@@ -8,7 +8,7 @@ import os
 import json
 import inspect
 
-from main.io import CommonFunctions as cf
+from utils import common_functions as cf
 
 import pytest
 @pytest.mark.skip('No longer relevant, can be removed when appropriate')

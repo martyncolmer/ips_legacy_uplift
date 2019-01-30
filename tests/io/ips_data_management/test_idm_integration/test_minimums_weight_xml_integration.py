@@ -4,15 +4,14 @@ import pandas as pd
 import time
 
 from pandas.util.testing import assert_frame_equal
-from main.io import CommonFunctions as cf
+from utils import common_functions as cf
 from tests import common_testing_functions as ctf
-from main.io import import_traffic_data
-from main.io import ips_data_management as idm
+from main.io import data_management as idm
 from main.utils import process_variables
 from main.calculations import calculate_ips_minimums_weight
 
 
-with open('data/xml_steps_configuration.json') as config_file:
+with open('data/steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)
 
 RUN_ID = 'test_minimums_weight_xml'
@@ -122,9 +121,6 @@ def test_minimums_weight_step():
 
     # Get and test Survey Data before importing to calculation function
     sas_survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-
-    # TODO: DELETEY
-    cf.log_dtypes(STEP_NAME, sas_survey_data, run_type='xml')
 
     # Run step 5 / 8
     surveydata_out, summary_out = calculate_ips_minimums_weight.do_ips_minweight_calculation(sas_survey_data,

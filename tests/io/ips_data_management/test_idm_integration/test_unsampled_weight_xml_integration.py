@@ -5,14 +5,14 @@ import time
 import numpy as np
 
 from pandas.util.testing import assert_frame_equal
-from main.io import CommonFunctions as cf
+from utils import common_functions as cf
 from tests import common_testing_functions as ctf
-from main.io import ips_data_management as idm
+from main.io import data_management as idm
 from main.calculations.calculate_ips_unsampled_weight import do_ips_unsampled_weight_calculation
 from main.utils import process_variables
-from main.io import import_traffic_data
+from main.io import import_reference_data
 
-with open(r'data/xml_steps_configuration.json') as config_file:
+with open(r'data/steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)
 
 RUN_ID = 'test-idm-int-unsampled_wt'
@@ -42,7 +42,7 @@ def setup_module(module):
     ctf.import_survey_data_into_database(december_survey_data_path, RUN_ID)
 
     unsampled_data_path = (TEST_DATA_DIR + r'\unsampleddata.csv')
-    import_traffic_data.import_traffic_data(RUN_ID, unsampled_data_path)
+    import_reference_data.import_traffic_data(RUN_ID, unsampled_data_path)
 
     # Deletes data from tables as necessary.
     ctf.reset_test_tables(RUN_ID, STEP_CONFIGURATION[STEP_NAME])
@@ -60,8 +60,6 @@ def teardown_module(module):
     # Cleanses Survey Subsample table.
     cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID)
 
-    # Play audio notification to indicate test is complete and print duration for performance.
-    cf.beep()
     print("Duration: {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time() - START_TIME))))
 
 
@@ -194,9 +192,6 @@ def test_unsampled_weight_step():
     # Get and test Unsampled data input
     sas_unsampled_data = cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["data_table"])
 
-    # TODO: DELETEY
-    cf.log_dtypes(STEP_NAME, sas_survey_data, run_type='xml', step_df=sas_unsampled_data)
-
     sas_unsampled_data.to_csv(TEST_DATA_DIR + r'\unsampled_data_in_actual.csv', index=False)
 
     df_unsampled_actual = pd.read_csv(TEST_DATA_DIR + r'\unsampled_data_in_actual.csv', engine='python')
@@ -220,14 +215,14 @@ def test_unsampled_weight_step():
 
     # Run step 9 / 12
     output_data, summary_data = do_ips_unsampled_weight_calculation(df_survey_actual,
-                                                                    var_serialNum='SERIAL',
-                                                                    var_shiftWeight='SHIFT_WT',
-                                                                    var_NRWeight='NON_RESPONSE_WT',
-                                                                    var_minWeight='MINS_WT',
-                                                                    var_trafficWeight='TRAFFIC_WT',
-                                                                    var_OOHWeight="UNSAMP_TRAFFIC_WT",
+                                                                    serial_num='SERIAL',
+                                                                    shift_weight='SHIFT_WT',
+                                                                    nr_weight='NON_RESPONSE_WT',
+                                                                    min_weight='MINS_WT',
+                                                                    traffic_weight='TRAFFIC_WT',
+                                                                    out_of_hours_weight="UNSAMP_TRAFFIC_WT",
                                                                     df_ustotals=df_unsampled_actual,
-                                                                    minCountThresh=30)
+                                                                    min_count_threshold=30)
 
     # Sort and reset the index of the results produced by the calculation
     output_data = sort_and_set_index(output_data, 'SERIAL')
@@ -290,7 +285,7 @@ def test_unsampled_weight_step():
     # Assert all records for corresponding run_id were deleted from ps_table.
     result = cf.select_data('*', STEP_CONFIGURATION[STEP_NAME]["ps_table"], 'RUN_ID', RUN_ID)
     # Indicating no dataframe was pulled from SQL.
-    if result == False:
+    if not result:
         assert True
 
     # Assert SAS_SURVEY_SUBSAMPLE_TABLE was cleansed

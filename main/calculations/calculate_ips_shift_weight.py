@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
-# import survey_support
 
-from main.io import CommonFunctions as cf
+from utils import common_functions as cf
+
+# import survey_support
 
 PATH_TO_TEST_DATA = r"tests/data/calculations/october_2017/shift_weight"
 
@@ -35,7 +36,6 @@ MAXIMUM_WEIGHT_THRESHOLD = '5000'
 
 
 def calculate_factor(row, flag):
-
     """
     Author       : Thomas Mahoney / Nassir Mohammad
     Date         : Apr 2018
@@ -75,7 +75,6 @@ def calculate_ips_shift_factor(df_shiftsdata, df_surveydata):
     Dependencies : NA
     """
 
-
     # -----------------------------------------
     # Get survey records that are shift based
     # -----------------------------------------
@@ -100,7 +99,7 @@ def calculate_ips_shift_factor(df_shiftsdata, df_surveydata):
     df_sample_sorted_no_dup.index = range(df_sample_sorted_no_dup.shape[0])
 
     # Calculate the number of sampled shifts by strata
-    df_totalsampledshifts = df_sample_sorted_no_dup.groupby(SHIFTS_STRATA)[SHIFT_NUMBER_COLUMN]\
+    df_totalsampledshifts = df_sample_sorted_no_dup.groupby(SHIFTS_STRATA)[SHIFT_NUMBER_COLUMN] \
         .agg([('DENOMINATOR', 'count')]).reset_index()
 
     # -----------------------------------------
@@ -112,7 +111,7 @@ def calculate_ips_shift_factor(df_shiftsdata, df_surveydata):
     df_possibleshifts_temp = df_shiftsdata.sort_values(SHIFTS_STRATA)
 
     # Calculate the number of possible shifts by strata
-    df_possibleshifts = df_possibleshifts_temp.groupby(SHIFTS_STRATA)[TOTALS_COLUMN]\
+    df_possibleshifts = df_possibleshifts_temp.groupby(SHIFTS_STRATA)[TOTALS_COLUMN] \
         .agg([('NUMERATOR', 'sum')])
 
     # Flattens the column structure after adding the new numerator column
@@ -179,7 +178,7 @@ def calculate_ips_crossing_factor(df_shiftsdata, df_surveydata):
     # --------------------------------------------------
 
     # Require reset_index() here to compose the correctly laid out data frame
-    df_totalSampledCrossings = df_sorted_sampled_crossings.groupby(SHIFTS_STRATA)[CROSSING_NUMBER_COLUMN]\
+    df_totalSampledCrossings = df_sorted_sampled_crossings.groupby(SHIFTS_STRATA)[CROSSING_NUMBER_COLUMN] \
         .agg([('_FREQ_', 'count'), ('DENOMINATOR', 'count')]).reset_index()
 
     # Not required but incase required in future for similar
@@ -196,7 +195,7 @@ def calculate_ips_crossing_factor(df_shiftsdata, df_surveydata):
     df_sorted_crossingsData = df_crossingsdata.sort_values(SHIFTS_STRATA)
 
     # Require reset_index() here to compose the correctly laid out data frame
-    df_totalCrossings = df_sorted_crossingsData.groupby(SHIFTS_STRATA)[TOTALS_COLUMN]\
+    df_totalCrossings = df_sorted_crossingsData.groupby(SHIFTS_STRATA)[TOTALS_COLUMN] \
         .agg([('_FREQ_', 'count'), ('NUMERATOR', 'sum')]).reset_index()
 
     df_totalCrossings.index = range(df_totalCrossings.shape[0])
@@ -210,11 +209,11 @@ def calculate_ips_crossing_factor(df_shiftsdata, df_surveydata):
 
     df_sorted_outputData = df_outputdata.sort_values(SHIFTS_STRATA)
 
-    df_totalCrossings  = df_totalCrossings[SHIFTS_STRATA + ['NUMERATOR']]
+    df_totalCrossings = df_totalCrossings[SHIFTS_STRATA + ['NUMERATOR']]
     df_totalSampledCrossings = df_totalSampledCrossings[SHIFTS_STRATA + ['DENOMINATOR']]
 
     left_join_1 = df_sorted_outputData.merge(df_totalCrossings, on=SHIFTS_STRATA, how='left') \
-                                      .merge(df_totalSampledCrossings, on = SHIFTS_STRATA, how='left')
+        .merge(df_totalSampledCrossings, on=SHIFTS_STRATA, how='left')
 
     # Calculate crossings factor
     left_join_1[CROSSING_FACTOR_COLUMN] = left_join_1.apply(calculate_factor, axis=1, args=(CROSSING_FLAG_COLUMN,))
@@ -226,7 +225,6 @@ def calculate_ips_crossing_factor(df_shiftsdata, df_surveydata):
 
 
 def do_ips_shift_weight_calculation(df_surveydata, df_shiftsdata, var_serialNum, var_shiftWeight):
-    
     """
     Author       : Richmond Rice / Nassir Mohammad
     Date         : May 2018
@@ -246,7 +244,7 @@ def do_ips_shift_weight_calculation(df_surveydata, df_shiftsdata, var_serialNum,
     # Calculate the Shift Factor for the given data sets
     df_totsampshifts, df_possshifts, df_surveydata_sf = calculate_ips_shift_factor(df_shiftsdata, df_surveydata)
     # Calculate the Crossings Factor for the given data sets
-    df_totsampcrossings,  df_surveydata_merge = calculate_ips_crossing_factor(df_shiftsdata, df_surveydata_sf)
+    df_totsampcrossings, df_surveydata_merge = calculate_ips_crossing_factor(df_shiftsdata, df_surveydata_sf)
 
     # The various column sets used for setting columns, sorting columns,
     # aggregating by, merging data frames.
@@ -364,13 +362,13 @@ def do_ips_shift_weight_calculation(df_surveydata, df_shiftsdata, var_serialNum,
 
     # Group by the necessary columns and aggregate df_surveydata_merge shift weight
     df_surveydata_merge_sorted_grouped = df_surveydata_merge_sorted.groupby(SHIFTS_STRATA +
-                                                                            [MIG_SI_COLUMN])[var_shiftWeight]\
+                                                                            [MIG_SI_COLUMN])[var_shiftWeight] \
         .agg({
-            COUNT_COLUMN: 'count',
-            WEIGHT_SUM_COLUMN: 'sum',
-            MIN_WEIGHT_COLUMN: 'min',
-            AVERAGE_WEIGHT_COLUMN: 'mean',
-            MAX_WEIGHT_COLUMN: 'max'})
+        COUNT_COLUMN: 'count',
+        WEIGHT_SUM_COLUMN: 'sum',
+        MIN_WEIGHT_COLUMN: 'min',
+        AVERAGE_WEIGHT_COLUMN: 'mean',
+        MAX_WEIGHT_COLUMN: 'max'})
 
     # Flatten summary columns to single row after aggregation
     df_surveydata_merge_sorted_grouped = df_surveydata_merge_sorted_grouped.reset_index()
@@ -539,18 +537,18 @@ def calculate(SurveyData, ShiftsData, var_serialNum, var_shiftWeight):
     # ----------------------------------
 
     # Append the generated data to output tables
-    #cf.insert_dataframe_into_table(OutputData, surveydata_dataframe)
-    #cf.insert_dataframe_into_table(SummaryData, summary_dataframe)
+    # cf.insert_dataframe_into_table(OutputData, surveydata_dataframe)
+    # cf.insert_dataframe_into_table(SummaryData, summary_dataframe)
 
     # Retrieve current function name using inspect:
     # 0 = frame object, 3 = function name.
     # See 28.13.4. in https://docs.python.org/2/library/inspect.html
-    #function_name = str(inspect.stack()[0][3])
-    #audit_message = "Load Shift Weight calculation: %s()" %function_name
+    # function_name = str(inspect.stack()[0][3])
+    # audit_message = "Load Shift Weight calculation: %s()" %function_name
 
     # Log success message in SAS_RESPONSE and AUDIT_LOG
-    #cf.database_logger().info("SUCCESS - Completed Shift weight calculation.")
-    #cf.commit_to_audit_log("Create", "ShiftWeigh", audit_message)
-    #print("Completed - Calculate Shift Weight")
+    # cf.database_logger().info("SUCCESS - Completed Shift weight calculation.")
+    # cf.commit_to_audit_log("Create", "ShiftWeigh", audit_message)
+    # print("Completed - Calculate Shift Weight")
 
     # Code to be re-factored when doing main() - End

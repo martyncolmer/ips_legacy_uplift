@@ -1,12 +1,14 @@
-import os
 import time
+
+import os
 import pandas as pd
 
-from main.io import CommonFunctions as cf
-from main.io import import_traffic_data
-from main.io import import_data
-from main.io import ips_data_management as idm
 from main.calculations import calculate_ips_traffic_weight as tr_calc
+from utils import common_functions as cf
+from main.io import import_survey_data
+from main.io import import_reference_data
+from main.io import data_management as idm
+
 
 def import_survey_data_into_database(survey_data_path, run_id):
     """
@@ -64,18 +66,18 @@ def import_test_data_into_database(import_data_dir, run_id, load_survey_data=Tru
     # Cleanse
     cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
-    if load_survey_data == True:
+    if load_survey_data:
         cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', run_id)
         survey_data_path = os.path.join(import_data_dir, 'surveydata.csv')
-        import_data.import_survey_data(survey_data_path, run_id)
+        import_survey_data.import_survey_data(survey_data_path, run_id)
 
     # Import Shift Data
-    import_traffic_data.import_traffic_data(run_id, shift_data_path)
-    import_traffic_data.import_traffic_data(run_id, nr_data_path)
-    import_traffic_data.import_traffic_data(run_id, unsampled_data_path)
-    import_traffic_data.import_traffic_data(run_id, sea_data_path)
-    import_traffic_data.import_traffic_data(run_id, tunnel_data_path)
-    import_traffic_data.import_traffic_data(run_id, air_data_path)
+    import_reference_data.import_traffic_data(run_id, shift_data_path)
+    import_reference_data.import_traffic_data(run_id, nr_data_path)
+    import_reference_data.import_traffic_data(run_id, unsampled_data_path)
+    import_reference_data.import_traffic_data(run_id, sea_data_path)
+    import_reference_data.import_traffic_data(run_id, tunnel_data_path)
+    import_reference_data.import_traffic_data(run_id, air_data_path)
 
 
 def populate_test_pv_table(conn, run_id, pv_run_id):
@@ -128,7 +130,6 @@ def reset_test_tables(run_id, step_config):
         # drop aux tables and r created tables
         cf.drop_table(tr_calc.POP_PROWVEC_TABLE)
         cf.drop_table(tr_calc.R_TRAFFIC_TABLE)
-
 
     # List of tables to cleanse entirely.
     tables_to_unconditionally_cleanse = [idm.SAS_SURVEY_SUBSAMPLE_TABLE,

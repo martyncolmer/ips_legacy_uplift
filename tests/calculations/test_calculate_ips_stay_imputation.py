@@ -38,7 +38,7 @@ from main.calculations.calculate_ips_stay_imputation import do_ips_stay_imputati
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 import pytest
-import main.io.CommonFunctions as cf
+import utils.common_functions as cf
 
 OUTPUT_TABLE_NAME = 'SAS_STAY_IMP'
 

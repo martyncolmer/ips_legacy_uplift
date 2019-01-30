@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_traffic_weight import r_survey_input, r_population_input
-import main.io.CommonFunctions as cf
+import utils.common_functions as cf
 import pytest
 import main.calculations.calculate_ips_traffic_weight as c_tr
 

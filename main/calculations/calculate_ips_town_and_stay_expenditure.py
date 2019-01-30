@@ -4,14 +4,11 @@ Created on March 2018
 Author: Elinor Thorne
 '''
 
-import decimal
-import inspect
 import math
 
+import decimal
 import numpy as np
 import pandas as pd
-
-from main.io import CommonFunctions as cf
 
 OUTPUT_TABLE_NAME = "SAS_TOWN_STAY_IMP"
 FLOW_COLUMN = "FLOW"
@@ -69,7 +66,7 @@ def __calculate_spends_part1(row):
     if row[NIGHTS_IN_LONDON] == 0:
         for count in range(1, 9):
             if math.isnan(row[TOWNCODE + str(count)]):
-            # if pd.isnull(row[TOWNCODE + str(count)]):
+                # if pd.isnull(row[TOWNCODE + str(count)]):
                 if (((row[NIGHTS_NOT_LONDON] != 0) & (not math.isnan(row[NIGHTS_NOT_LONDON])))
                         & (not math.isnan(row[NIGHTS + str(count)]))):
                     row[SPEND_COLUMN + str(count)] = ((row[SPEND_COLUMN]
@@ -130,20 +127,20 @@ def __calculate_spends_part2(row):
     """
 
     if ((row[NIGHTS_IN_LONDON] != 0)
-        & ((row[NIGHTS_NOT_LONDON] != 0)
-           & (not math.isnan(row[NIGHTS_NOT_LONDON])))):
+            & ((row[NIGHTS_NOT_LONDON] != 0)
+               & (not math.isnan(row[NIGHTS_NOT_LONDON])))):
         for count in range(1, 9):
-            if math.isnan(row[TOWNCODE+str(count)]):
-                row[SPEND_COLUMN+str(count)] = 0
-            elif (row[TOWNCODE+str(count)] < 70000) | (row[TOWNCODE+str(count)] > 79999):
+            if math.isnan(row[TOWNCODE + str(count)]):
+                row[SPEND_COLUMN + str(count)] = 0
+            elif (row[TOWNCODE + str(count)] < 70000) | (row[TOWNCODE + str(count)] > 79999):
                 if (((row[NIGHTS_NOT_LONDON] != 0) & (not math.isnan(row[NIGHTS_NOT_LONDON])))
-                        & (not math.isnan(row[NIGHTS+str(count)]))):
-                    row[SPEND_COLUMN+str(count)] = (row[NIGHTS+str(count)]
-                                                    * ((row[SPEND_COLUMN]
-                                                        - row[LONDON_SPEND_COLUMN])
-                                                       / row[NIGHTS_NOT_LONDON]))
+                        & (not math.isnan(row[NIGHTS + str(count)]))):
+                    row[SPEND_COLUMN + str(count)] = (row[NIGHTS + str(count)]
+                                                      * ((row[SPEND_COLUMN]
+                                                          - row[LONDON_SPEND_COLUMN])
+                                                         / row[NIGHTS_NOT_LONDON]))
                 else:
-                    row[SPEND_COLUMN+str(count)] = 0
+                    row[SPEND_COLUMN + str(count)] = 0
 
     return row
 
@@ -282,44 +279,3 @@ def do_ips_town_exp_imp(df_survey_data, var_serial, var_final_wt):
 
     return df_output
 
-
-def calculate(df_survey_data, var_serial, var_final_wt):
-    """
-    Author        : thorne1
-    Date          : 13 Mar 2018
-    Purpose       : Sets up calculation for the town and stay expenditure and
-                  : commits results to SQL database
-    Parameters    : var_serial = var_serialNum
-                    var_final_wt = "FINAL_WT"
-    Returns       : N/A
-    """
-
-    # Call JSON configuration file for error logger setup
-    # survey_support.setup_logging('IPS_logging_config_debug.json')
-    # logger = cf.database_logger()
-
-    # Import data via SAS
-    path_to_survey_data = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Oct Data\Town and Stay Imputation\input_townspend.sas7bdat"
-    df_survey_data = pd.read_sas(path_to_survey_data)
-
-    # Import data via SQL
-    # df_surveydata = cf.get_table_values(input_table_name)
-
-    # Set all of the columns to uppercase
-    df_survey_data.columns = df_survey_data.columns.str.upper()
-
-    # Calculate the values of the imported data set
-    output_dataframe = do_ips_town_exp_imp(df_survey_data, var_serial, var_final_wt)
-
-    # Append the generated data to output tables
-    cf.insert_dataframe_into_table(OUTPUT_TABLE_NAME, output_dataframe)
-
-    # Retrieve current function name using inspect:
-    # 0 = frame object, 3 = function name.
-    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
-    function_name = str(inspect.stack()[0][3])
-    audit_message = "Load Town and Stay Imputation: %s()" % function_name
-
-    # Log success message in SAS_RESPONSE and AUDIT_LOG
-    # logger.info("SUCCESS - Completed Town and Stay Imputation.")
-    cf.commit_to_audit_log("Create", "Town and Stay Imputation", audit_message)

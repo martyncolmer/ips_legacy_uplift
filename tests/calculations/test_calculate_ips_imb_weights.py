@@ -2,7 +2,7 @@ from main.calculations import calculate_ips_imb_weight as imb
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 import pytest
-import main.io.CommonFunctions as cf
+import utils.common_functions as cf
 
 OUTPUT_TABLE_NAME = 'SAS_IMBALANCE_WT'
 SUMMARY_TABLE_NAME = 'SAS_PS_IMBALANCE'

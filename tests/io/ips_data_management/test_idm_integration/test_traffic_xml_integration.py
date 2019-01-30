@@ -1,18 +1,18 @@
-import pytest
-import json
-import pandas as pd
 import time
-import numpy as np
-from pandas.util.testing import assert_frame_equal
-from tests import common_testing_functions as ctf
-from main.io import CommonFunctions as cf
-from main.io import import_traffic_data
-from main.io import ips_data_management as idm
-from main.utils import process_variables
-from main.calculations.calculate_ips_traffic_weight import do_ips_trafweight_calculation_with_R
-import main.calculations.calculate_ips_traffic_weight as tr_calc
 
-with open('data/xml_steps_configuration.json') as config_file: STEP_CONFIGURATION = json.load(config_file)
+import json
+import numpy as np
+import pandas as pd
+import pytest
+from pandas.util.testing import assert_frame_equal
+
+from main.calculations.calculate_ips_traffic_weight import do_ips_trafweight_calculation_with_R
+from utils import common_functions as cf
+from main.io import data_management as idm
+from main.utils import process_variables
+from tests import common_testing_functions as ctf
+
+with open('data/steps_configuration.json') as config_file: STEP_CONFIGURATION = json.load(config_file)
 
 RUN_ID = 'test_traffic_weight_xml'
 STEP_NAME = 'TRAFFIC_WEIGHT'
@@ -83,11 +83,10 @@ def teardown_module(module):
 
 @pytest.mark.parametrize('path_to_data', [
     r'tests/data/ips_data_management/traffic_weight_integration\december'
-    #r'tests/data/ips_data_management/traffic_weight_integration\october', # ignored as data not available
-    #r'tests/data/ips_data_management/traffic_weight_integration\november', # ignored as data not available
-    ])
+    # r'tests/data/ips_data_management/traffic_weight_integration\october', # ignored as data not available
+    # r'tests/data/ips_data_management/traffic_weight_integration\november', # ignored as data not available
+])
 def test_traffic_weight_step(path_to_data):
-
     # Get database connection
     conn = database_connection()
 
@@ -193,9 +192,9 @@ def test_traffic_weight_step(path_to_data):
 
     # Run step 7 : Apply Non Response Wt PVs On Non Response Data
     process_variables.process(dataset='traffic',
-                                  in_table_name='SAS_TRAFFIC_DATA',
-                                  out_table_name='SAS_TRAFFIC_PV',
-                                  in_id='REC_ID')
+                              in_table_name='SAS_TRAFFIC_DATA',
+                              out_table_name='SAS_TRAFFIC_PV',
+                              in_id='REC_ID')
 
     # ###########################
     # run checks 7
@@ -264,9 +263,6 @@ def test_traffic_weight_step(path_to_data):
 
     # import the survey data from SQL and sort and reindex
     df_surveydata_import_actual = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-
-    # TODO: DELETEY
-    cf.log_dtypes(STEP_NAME, df_surveydata_import_actual, run_type='xml', step_df=df_tr_data_import_actual)
 
     df_surveydata_import_actual_sql = df_surveydata_import_actual.sort_values(by='SERIAL')
     df_surveydata_import_actual_sql.index = range(0, len(df_surveydata_import_actual_sql))

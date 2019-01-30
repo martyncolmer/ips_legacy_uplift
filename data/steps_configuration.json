@@ -1,0 +1,224 @@
+{
+  "SHIFT_WEIGHT":
+    {
+      "name": "SHIFT_WEIGHT",
+      "nullify_pvs": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[SHIFT_FLAG_PV]", "[CROSSINGS_FLAG_PV]", "[SHIFT_WT]"],
+      "pv_columns": ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'", "'SHIFT_FLAG_PV'", "'CROSSINGS_FLAG_PV'"],
+      "pv_columns2": ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'"],
+      "ps_columns": ["[RUN_ID]", "[SHIFT_PORT_GRP_PV]", "[ARRIVEDEPART]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[MIGSI]", "[POSS_SHIFT_CROSS]", "[SAMP_SHIFT_CROSS]", "[MIN_SH_WT]", "[MEAN_SH_WT]", "[MAX_SH_WT]", "[COUNT_RESPS]", "[SUM_SH_WT]"],
+      "results_columns": ["[SHIFT_WT]"],
+      "insert_to_populate": ["[PORTROUTE]", "[WEEKDAY]", "[ARRIVEDEPART]", "[TOTAL]", "[AM_PM_NIGHT]"],
+      "delete_tables": ["[dbo].[SAS_SHIFT_WT]", "[dbo].[SAS_PS_SHIFT_DATA]"],
+      "spv_table": "[dbo].[SAS_SHIFT_SPV]",
+      "pv_table": "[dbo].[SAS_SHIFT_PV]",
+      "data_table": "[dbo].[SAS_SHIFT_DATA]",
+      "sas_ps_table": "[dbo].[SAS_PS_SHIFT_DATA]",
+      "ps_table": "[dbo].[PS_SHIFT_DATA]",
+      "temp_table": "[dbo].[SAS_SHIFT_WT]",
+      "table_name": "[dbo].[SHIFT_DATA]",
+      "count": 0,
+      "order": 0
+    },
+  "NON_RESPONSE":
+    {
+      "name": "NON_RESPONSE",
+      "nullify_pvs": ["[NR_PORT_GRP_PV]", "[MIG_FLAG_PV]", "[NR_FLAG_PV]", "[NON_RESPONSE_WT]"],
+      "pv_columns": ["'NR_PORT_GRP_PV'", "'MIG_FLAG_PV'", "'NR_FLAG_PV'"],
+      "pv_columns2": ["'NR_PORT_GRP_PV'", "'WEEKDAY_END_PV'"],
+      "ps_columns": ["[RUN_ID]", "[NR_PORT_GRP_PV]", "[ARRIVEDEPART]", "[WEEKDAY_END_PV]", "[MEAN_RESPS_SH_WT]", "[COUNT_RESPS]", "[PRIOR_SUM]", "[GROSS_RESP]", "[GNR]", "[MEAN_NR_WT]"],
+      "results_columns": ["[NON_RESPONSE_WT]"],
+      "delete_tables": ["[dbo].[SAS_NON_RESPONSE_WT]", "[dbo].[SAS_PS_NON_RESPONSE]"],
+      "spv_table": "[dbo].[SAS_NON_RESPONSE_SPV]",
+      "pv_table": "[dbo].[SAS_NON_RESPONSE_PV]",
+      "data_table": "[dbo].[SAS_NON_RESPONSE_DATA]",
+      "sas_ps_table": "[dbo].[SAS_PS_NON_RESPONSE]",
+      "ps_table": "[dbo].[PS_NON_RESPONSE]",
+      "temp_table": "[dbo].[SAS_NON_RESPONSE_WT]",
+      "table_name": "[dbo].[NON_RESPONSE_DATA]",
+      "insert_to_populate": ["[PORTROUTE]", "[WEEKDAY]", "[ARRIVEDEPART]", "[AM_PM_NIGHT]", "[SAMPINTERVAL]", "[MIGTOTAL]", "[ORDTOTAL]"],
+      "count": 0,
+      "order": 0
+    },
+  "MINIMUMS_WEIGHT":
+    {
+      "name": "MINIMUMS_WEIGHT",
+      "nullify_pvs": ["[MINS_PORT_GRP_PV]", "[MINS_CTRY_GRP_PV]", "[MINS_NAT_GRP_PV]", "[MINS_CTRY_PORT_GRP_PV]", "[MINS_FLAG_PV]", "[MINS_WT]"],
+      "pv_columns": ["'MINS_PORT_GRP_PV'", "'MINS_CTRY_GRP_PV'", "'MINS_NAT_GRP_PV'", "'MINS_FLAG_PV'", "'MINS_CTRY_PORT_GRP_PV'"],
+      "pv_columns2": ["'MINS_FLAG_PV'", "'MINS_PORT_GRP_PV'","'MINS_CTRY_GRP_PV'","'MINS_NAT_GRP_PV'", "'MINS_CTRY_PORT_GRP_PV'"],
+      "ps_columns": ["[RUN_ID]", "[MINS_PORT_GRP_PV]", "[ARRIVEDEPART]", "[MINS_CTRY_GRP_PV]", "[MINS_NAT_GRP_PV]", "[MINS_CTRY_PORT_GRP_PV]", "[MINS_CASES]", "[FULLS_CASES]", "[PRIOR_GROSS_MINS]", "[PRIOR_GROSS_FULLS]", "[PRIOR_GROSS_ALL]", "[MINS_WT]", "[POST_SUM]", "[CASES_CARRIED_FWD]"],
+      "results_columns": ["[MINS_WT]"],
+      "delete_tables": ["[dbo].[SAS_MINIMUMS_WT]", "[dbo].[SAS_PS_MINIMUMS]"],
+      "spv_table": "[dbo].[SAS_MINIMUMS_SPV]",
+      "ps_table": "[dbo].[PS_MINIMUMS]",
+      "temp_table": "[dbo].[SAS_MINIMUMS_WT]",
+      "sas_ps_table": "[dbo].[SAS_PS_MINIMUMS]",
+      "count": 0
+    },
+  "TRAFFIC_WEIGHT":
+    {
+      "name": "TRAFFIC_WEIGHT",
+      "nullify_pvs": ["[SAMP_PORT_GRP_PV]", "[FOOT_OR_VEHICLE_PV]", "[HAUL_PV]", "[TRAFFIC_WT]"],
+      "pv_columns": ["'SAMP_PORT_GRP_PV'"],
+      "pv_columns2": ["'SAMP_PORT_GRP_PV'", "'FOOT_OR_VEHICLE_PV'", "'HAUL_PV'"],
+      "ps_columns": ["[RUN_ID]", "[SAMP_PORT_GRP_PV]", "[ARRIVEDEPART]", "[FOOT_OR_VEHICLE_PV]", "[CASES]", "[TRAFFICTOTAL]", "[SUM_TRAFFIC_WT]", "[TRAFFIC_WT]"],
+      "results_columns": ["[TRAFFIC_WT]"],
+      "delete_tables": ["[dbo].[SAS_TRAFFIC_WT]", "[dbo].[SAS_PS_TRAFFIC]"],
+      "spv_table": "[dbo].[SAS_TRAFFIC_SPV]",
+      "pv_table": "[dbo].[SAS_TRAFFIC_PV]",
+      "data_table": "[dbo].[SAS_TRAFFIC_DATA]",
+      "temp_table": "[dbo].[SAS_TRAFFIC_WT]",
+      "sas_ps_table": "[dbo].[SAS_PS_TRAFFIC]",
+      "ps_table": "[dbo].[PS_TRAFFIC]",
+      "table_name": "[dbo].[TRAFFIC_DATA]",
+      "insert_to_populate": ["[PORTROUTE]", "[ARRIVEDEPART]", "[TRAFFICTOTAL]", "[PERIODSTART]", "[PERIODEND]"
+        , "[AM_PM_NIGHT]", "[HAUL]", "[VEHICLE]"],
+      "count": 0,
+      "order": 0
+    },
+  "UNSAMPLED_WEIGHT":
+    {
+      "name": "UNSAMPLED_WEIGHT",
+      "nullify_pvs": ["[UNSAMP_PORT_GRP_PV]", "[UNSAMP_REGION_GRP_PV]", "[UNSAMP_TRAFFIC_WT]"],
+      "pv_columns": ["'UNSAMP_PORT_GRP_PV'", "'UNSAMP_REGION_GRP_PV'"],
+      "pv_columns2": ["'UNSAMP_PORT_GRP_PV'", "'UNSAMP_REGION_GRP_PV'"],
+      "ps_columns": ["[RUN_ID]", "[UNSAMP_PORT_GRP_PV]", "[ARRIVEDEPART]", "[UNSAMP_REGION_GRP_PV]", "[CASES]", "[SUM_PRIOR_WT]", "[SUM_UNSAMP_TRAFFIC_WT]", "[UNSAMP_TRAFFIC_WT]"],
+      "results_columns": ["[UNSAMP_TRAFFIC_WT]"],
+      "delete_tables": ["[dbo].[SAS_UNSAMPLED_OOH_WT]", "[dbo].[SAS_PS_UNSAMPLED_OOH]"],
+      "spv_table": "[dbo].[SAS_UNSAMPLED_OOH_SPV]",
+      "pv_table": "[dbo].[SAS_UNSAMPLED_OOH_PV]",
+      "data_table": "[dbo].[SAS_UNSAMPLED_OOH_DATA]",
+      "sas_ps_table": "[dbo].[SAS_PS_UNSAMPLED_OOH]",
+      "ps_table": "[dbo].[PS_UNSAMPLED_OOH]",
+      "temp_table": "[dbo].[SAS_UNSAMPLED_OOH_WT]",
+      "table_name": "[dbo].[UNSAMPLED_OOH_DATA]",
+      "insert_to_populate": ["[PORTROUTE]", "[REGION]", "[ARRIVEDEPART]", "[UNSAMP_TOTAL]"],
+      "count": 2,
+      "order": 1
+    },
+  "IMBALANCE_WEIGHT":
+    {
+      "name": "IMBALANCE_WEIGHT",
+      "nullify_pvs": ["[IMBAL_PORT_GRP_PV]", "[IMBAL_PORT_FACT_PV]", "[IMBAL_CTRY_FACT_PV]", "[IMBAL_ELIGIBLE_PV]", "[IMBAL_WT]"],
+      "pv_columns": ["'IMBAL_PORT_GRP_PV'", "'IMBAL_CTRY_FACT_PV'", "'IMBAL_PORT_FACT_PV'", "'IMBAL_ELIGIBLE_PV'"],
+      "pv_columns2": ["'IMBAL_PORT_GRP_PV'", "'IMBAL_CTRY_FACT_PV'", "'IMBAL_PORT_FACT_PV'", "'IMBAL_ELIGIBLE_PV'"],
+      "ps_columns": ["[RUN_ID]", "[FLOW]", "[SUM_PRIOR_WT]", "[SUM_IMBAL_WT]"],
+      "results_columns": ["[IMBAL_WT]"],
+      "delete_tables": ["[dbo].[SAS_IMBALANCE_WT]", "[dbo].[SAS_PS_IMBALANCE]"],
+      "spv_table": "[dbo].[SAS_IMBALANCE_SPV]",
+      "ps_table": "[dbo].[PS_IMBALANCE]",
+      "sas_ps_table": "[dbo].[SAS_PS_IMBALANCE]",
+      "temp_table": "[dbo].[SAS_IMBALANCE_WT]",
+      "count": 4
+    },
+  "FINAL_WEIGHT":
+    {
+      "name": "FINAL_WEIGHT",
+      "nullify_pvs": ["[FINAL_WT]"],
+      "ps_columns": ["[RUN_ID]", "[SERIAL]", "[SHIFT_WT]", "[NON_RESPONSE_WT]", "[MINS_WT]", "[TRAFFIC_WT]", "[UNSAMP_TRAFFIC_WT]", "[IMBAL_WT]", "[FINAL_WT]"],
+      "results_columns": ["[FINAL_WT]"],
+      "delete_tables": ["[dbo].[SAS_FINAL_WT]", "[dbo].[SAS_PS_FINAL]"],
+      "ps_table": "[dbo].[PS_FINAL]",
+      "sas_ps_table": "[dbo].[SAS_PS_FINAL]",
+      "temp_table": "[dbo].[SAS_FINAL_WT]"
+    },
+  "STAY_IMPUTATION":
+    {
+      "name": "STAY_IMPUTATION",
+      "nullify_pvs": ["[STAY_IMP_FLAG_PV]", "[STAY_IMP_ELIGIBLE_PV]", "[STAYIMPCTRYLEVEL1_PV]", "[STAYIMPCTRYLEVEL2_PV]"
+      , "[STAYIMPCTRYLEVEL3_PV]", "[STAYIMPCTRYLEVEL4_PV]", "[STAY_PURPOSE_GRP_PV]", "[STAY]", "[STAYK]"],
+      "copy_pvs": ["[STAY_IMP_FLAG_PV]", "[STAY_IMP_ELIGIBLE_PV]", "[STAY_PURPOSE_GRP_PV]"],
+      "copy_pvs2": ["[STAYIMPCTRYLEVEL1_PV]", "[STAYIMPCTRYLEVEL2_PV]", "[STAYIMPCTRYLEVEL3_PV]", "[STAYIMPCTRYLEVEL4_PV]"],
+      "pv_columns": ["'STAY_IMP_FLAG_PV'", "'STAY_IMP_ELIGIBLE_PV'", "'STAYIMPCTRYLEVEL1_PV'", "'STAYIMPCTRYLEVEL2_PV'",
+        "'STAYIMPCTRYLEVEL3_PV'", "'STAYIMPCTRYLEVEL4_PV'", "'STAY_PURPOSE_GRP_PV'"],
+      "pv_columns2": ["'STAY_IMP_FLAG_PV'", "'STAY_IMP_ELIGIBLE_PV'", "'STAYIMPCTRYLEVEL1_PV'",
+        "'STAYIMPCTRYLEVEL2_PV'", "'STAYIMPCTRYLEVEL3_PV'", "'STAYIMPCTRYLEVEL4_PV'", "'STAY_PURPOSE_GRP_PV'"],
+      "results_columns": ["[STAY]", "[STAYK]"],
+      "delete_tables": ["[dbo].[SAS_STAY_IMP]"],
+      "spv_table": "[dbo].[SAS_STAY_SPV]",
+      "temp_table": "[dbo].[SAS_STAY_IMP]",
+      "count": 4
+    },
+  "FARES_IMPUTATION":
+    {
+      "name": "FARES_IMPUTATION",
+      "nullify_pvs": ["[FARES_IMP_FLAG_PV]", "[FARES_IMP_ELIGIBLE_PV]", "[DISCNT_PACKAGE_COST_PV]", "[DISCNT_F1_PV]"
+      , "[DISCNT_F2_PV]", "[FAGE_PV]", "[OPERA_PV]", "[TYPE_PV]", "[UKPORT1_PV]", "[UKPORT2_PV]", "[UKPORT3_PV]", "[UKPORT4_PV]"
+      , "[OSPORT1_PV]", "[OSPORT2_PV]", "[OSPORT3_PV]", "[OSPORT4_PV]", "[APD_PV]", "[QMFARE_PV]", "[DUTY_FREE_PV]", "[FARE]", "[FAREK]"
+      , "[SPEND]","[SPENDIMPREASON]"],
+      "pv_columns": ["'FARES_IMP_FLAG_PV'", "'FARES_IMP_ELIGIBLE_PV'", "'DISCNT_F1_PV'", "'DISCNT_PACKAGE_COST_PV'"
+      , "'DISCNT_F2_PV'", "'FAGE_PV'", "'TYPE_PV'", "'OPERA_PV'", "'UKPORT1_PV'", "'UKPORT2_PV'", "'UKPORT3_PV'", "'UKPORT4_PV'"
+      , "'OSPORT1_PV'", "'OSPORT2_PV'", "'OSPORT3_PV'", "'OSPORT4_PV'", "'APD_PV'", "'QMFARE_PV'", "'DUTY_FREE_PV'"],
+      "results_columns": ["[FARE]", "[FAREK]", "[SPEND]", "[SPENDIMPREASON]"],
+      "delete_tables": ["[dbo].[SAS_FARES_IMP]"],
+      "spv_table": "[dbo].[SAS_FARES_SPV]",
+      "ps_table": "[dbo].[PS_FARES_IMPUTATION]",
+      "temp_table": "[dbo].[SAS_FARES_IMP]",
+      "count": 19
+    },
+  "SPEND_IMPUTATION":
+    {
+      "name": "SPEND_IMPUTATION",
+      "nullify_pvs": ["[SPEND_IMP_FLAG_PV]", "[SPEND_IMP_ELIGIBLE_PV]", "[UK_OS_PV]", "[PUR1_PV]", "[PUR2_PV]", "[PUR3_PV]", "[DUR1_PV]"
+      , "[DUR2_PV]", "[SPENDK]"],
+      "pv_columns": ["'SPEND_IMP_ELIGIBLE_PV'", "'SPEND_IMP_FLAG_PV'", "'UK_OS_PV'" , "'PUR1_PV'"
+      , "'PUR2_PV'", "'PUR3_PV'", "'DUR1_PV'", "'DUR2_PV'"],
+      "results_columns": ["[SPENDK]"],
+      "delete_tables": ["[dbo].[SAS_SPEND_IMP]"],
+      "spv_table": "[dbo].[SAS_SPEND_SPV]",
+      "ps_table": "[dbo].[PS_SPEND_IMPUTATION]",
+      "temp_table": "[dbo].[SAS_SPEND_IMP]",
+      "count": 8
+    },
+  "RAIL_IMPUTATION":
+    {
+      "name": "RAIL_IMPUTATION",
+      "nullify_pvs": ["[RAIL_CNTRY_GRP_PV]", "[RAIL_EXERCISE_PV]", "[RAIL_IMP_ELIGIBLE_PV]"],
+      "pv_columns": ["'RAIL_CNTRY_GRP_PV'", "'RAIL_EXERCISE_PV'", "'RAIL_IMP_ELIGIBLE_PV'"],
+      "results_columns": "",
+      "delete_tables": ["[dbo].[SAS_RAIL_IMP]"],
+      "ps_table": "[dbo].[PS_RAIL_IMPUTATION]",
+      "spv_table": "[dbo].[SAS_RAIL_SPV]",
+      "temp_table": "[dbo].[SAS_RAIL_IMP]",
+      "count": 3
+    },
+  "REGIONAL_WEIGHTS":
+    {
+      "name": "REGIONAL_WEIGHTS",
+      "nullify_pvs": ["[PURPOSE_PV]", "[STAYIMPCTRYLEVEL1_PV]", "[STAYIMPCTRYLEVEL2_PV]","[STAYIMPCTRYLEVEL3_PV]"
+      , "[STAYIMPCTRYLEVEL4_PV]", "[REG_IMP_ELIGIBLE_PV]", "[VISIT_WT]", "[VISIT_WTK]", "[STAY_WT]", "[STAY_WTK]", "[EXPENDITURE_WT]"
+      , "[EXPENDITURE_WTK]", "[NIGHTS1]", "[NIGHTS2]", "[NIGHTS3]", "[NIGHTS4]", "[NIGHTS5]", "[NIGHTS6]", "[NIGHTS7]", "[NIGHTS8]"
+      , "[STAY1K]", "[STAY2K]", "[STAY3K]", "[STAY4K]", "[STAY5K]", "[STAY6K]", "[STAY7K]", "[STAY8K]"],
+      "pv_columns": ["'PURPOSE_PV'", "'STAYIMPCTRYLEVEL1_PV'", "'STAYIMPCTRYLEVEL2_PV'"
+      , "'STAYIMPCTRYLEVEL3_PV'", "'STAYIMPCTRYLEVEL4_PV'", "'REG_IMP_ELIGIBLE_PV'"],
+      "results_columns": ["[VISIT_WT]", "[VISIT_WTK]", "[STAY_WT]", "[STAY_WTK]", "[EXPENDITURE_WT]", "[EXPENDITURE_WTK]", "[NIGHTS1]", "[NIGHTS2]", "[NIGHTS3]", "[NIGHTS4]", "[NIGHTS5]", "[NIGHTS6]", "[NIGHTS7]", "[NIGHTS8]", "[STAY1K]", "[STAY2K]", "[STAY3K]", "[STAY4K]", "[STAY5K]", "[STAY6K]", "[STAY7K]", "[STAY8K]"],
+      "delete_tables": ["[dbo].[SAS_REGIONAL_IMP]"],
+      "spv_table": "[dbo].[SAS_REGIONAL_SPV]",
+      "ps_table": "[dbo].[PS_REGIONAL_WEIGHTS]",
+      "temp_table": "[dbo].[SAS_REGIONAL_IMP]",
+      "count": 6
+    },
+  "TOWN_AND_STAY_EXPENDITURE":
+    {
+      "name": "TOWN_AND_STAY_EXPENDITURE",
+      "nullify_pvs": ["[PURPOSE_PV]", "[STAYIMPCTRYLEVEL1_PV]", "[STAYIMPCTRYLEVEL2_PV]", "[STAYIMPCTRYLEVEL3_PV]"
+      , "[STAYIMPCTRYLEVEL4_PV]", "[TOWN_IMP_ELIGIBLE_PV]", "[SPEND1]", "[SPEND2]", "[SPEND3]", "[SPEND4]", "[SPEND5]", "[SPEND6]"
+      , "[SPEND7]", "[SPEND8]"],
+      "pv_columns": ["'PURPOSE_PV'", "'STAYIMPCTRYLEVEL1_PV'", "'STAYIMPCTRYLEVEL2_PV'",
+        "'STAYIMPCTRYLEVEL3_PV'", "'STAYIMPCTRYLEVEL4_PV'", "'TOWN_IMP_ELIGIBLE_PV'"],
+      "results_columns": ["[SPEND1]", "[SPEND2]", "[SPEND3]", "[SPEND4]", "[SPEND5]", "[SPEND6]", "[SPEND7]", "[SPEND8]"],
+      "delete_tables": ["[dbo].[SAS_TOWN_STAY_IMP]"],
+      "spv_table": "[dbo].[SAS_TOWN_STAY_SPV]",
+      "ps_table": "[dbo].[PS_TOWN_AND_STAY_EXPENDITURE]",
+      "temp_table": "[dbo].[SAS_TOWN_STAY_IMP]",
+      "count": 6
+    },
+  "AIR_MILES":
+    {
+      "name": "AIR_MILES",
+      "nullify_pvs": ["[DIRECTLEG]", "[OVLEG]", "[UKLEG]"],
+      "results_columns": ["[DIRECTLEG]", "[OVLEG]", "[UKLEG]"],
+      "delete_tables": ["[dbo].[SAS_AIR_MILES]"],
+      "ps_table": "[dbo].[PS_AIR_MILES]",
+      "temp_table": "[dbo].[SAS_AIR_MILES]"
+    }
+}

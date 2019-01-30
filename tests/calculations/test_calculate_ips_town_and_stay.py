@@ -2,7 +2,7 @@ import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from main.calculations import calculate_ips_town_and_stay_expenditure as tse
 import pytest
-import main.io.CommonFunctions as cf
+import utils.common_functions as cf
 
 OUTPUT_TABLE_NAME = 'SAS_TOWN_STAY_IMP'
 

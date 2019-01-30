@@ -1,35 +1,31 @@
-import inspect
 import math
+
 import numpy as np
 import pandas as pd
-from main.io import CommonFunctions as cf
+from pandas import DataFrame
 
 FLOW_VARIABLE = 'FLOW'
-
-path_to_data = r"tests/data/calculations/october_2017/air_miles"
-
-OUTPUT_TABLE_NAME = 'SAS_AIR_MILES'
 DIST1 = 'UKLEG'
 DIST2 = 'OVLEG'
 DIST3 = 'DIRECTLEG'
 AIR1_COLUMNS = ['PROUTELATDEG', 'PROUTELATMIN', 'PROUTELATSEC',
-                 'PROUTELONDEG', 'PROUTELONMIN', 'PROUTELONSEC',
-                 'APORTLATDEG', 'APORTLATMIN', 'APORTLATSEC',
-                 'APORTLONDEG', 'APORTLONMIN', 'APORTLONSEC',
-                 'PROUTELATNS', 'APORTLATNS',
-                 'PROUTELONEW', 'APORTLONEW']
+                'PROUTELONDEG', 'PROUTELONMIN', 'PROUTELONSEC',
+                'APORTLATDEG', 'APORTLATMIN', 'APORTLATSEC',
+                'APORTLONDEG', 'APORTLONMIN', 'APORTLONSEC',
+                'PROUTELATNS', 'APORTLATNS',
+                'PROUTELONEW', 'APORTLONEW']
 AIR2_COLUMNS = ['CPORTLATDEG', 'CPORTLATMIN', 'CPORTLATSEC',
-                 'CPORTLONDEG', 'CPORTLONMIN', 'CPORTLONSEC',
-                 'APORTLATDEG', 'APORTLATMIN', 'APORTLATSEC',
-                 'APORTLONDEG', 'APORTLONMIN', 'APORTLONSEC',
-                 'CPORTLATNS', 'APORTLATNS', 'CPORTLONEW',
-                  'APORTLONEW']
+                'CPORTLONDEG', 'CPORTLONMIN', 'CPORTLONSEC',
+                'APORTLATDEG', 'APORTLATMIN', 'APORTLATSEC',
+                'APORTLONDEG', 'APORTLONMIN', 'APORTLONSEC',
+                'CPORTLATNS', 'APORTLATNS', 'CPORTLONEW',
+                'APORTLONEW']
 AIR3_COLUMNS = ['PROUTELATDEG', 'PROUTELATMIN', 'PROUTELATSEC',
-                 'PROUTELONDEG', 'PROUTELONMIN', 'PROUTELONSEC',
-                 'CPORTLATDEG', 'CPORTLATMIN', 'CPORTLATSEC',
-                 'CPORTLONDEG', 'CPORTLONMIN', 'CPORTLONSEC',
-                 'PROUTELATNS', 'CPORTLATNS', 'PROUTELONEW',
-                  'CPORTLONEW']
+                'PROUTELONDEG', 'PROUTELONMIN', 'PROUTELONSEC',
+                'CPORTLATDEG', 'CPORTLATMIN', 'CPORTLATSEC',
+                'CPORTLONDEG', 'CPORTLONMIN', 'CPORTLONSEC',
+                'PROUTELATNS', 'CPORTLATNS', 'PROUTELONEW',
+                'CPORTLONEW']
 AIRMILES_COLUMNS = ['START_LAT_DEGREE', 'START_LAT_MIN', 'START_LAT_SEC',
                     'START_LON_DEGREE', 'START_LON_MIN', 'START_LON_SEC',
                     'END_LAT_DEGREE', 'END_LAT_MIN', 'END_LAT_SEC',
@@ -38,7 +34,7 @@ AIRMILES_COLUMNS = ['START_LAT_DEGREE', 'START_LAT_MIN', 'START_LAT_SEC',
                     'END_LON_DIR']
 
 
-def calculate_airmiles(df_air_ext):
+def calculate_airmiles(df_air_ext: DataFrame) -> DataFrame:
     """
     Author       : Thomas Mahoney / Nassir Mohammad
     Date         : 19 / 09 / 2018
@@ -124,7 +120,7 @@ def calculate_airmiles(df_air_ext):
     return df_air_ext
 
 
-def do_ips_airmiles_calculation(df_surveydata, var_serial):
+def do_ips_airmiles_calculation(df_surveydata: DataFrame, var_serial: str) -> DataFrame:
     """
     Author       : Thomas Mahoney
     Date         : 01 / 03 / 2018
@@ -174,50 +170,3 @@ def do_ips_airmiles_calculation(df_surveydata, var_serial):
     df_airmiles_merged.sort_values(by=var_serial)
 
     return df_airmiles_merged
-
-
-def calculate(input_table_name, var_serial):
-    """
-    Author       : Thomas Mahoney
-    Date         : 27 / 02 / 2018
-    Purpose      : Imports the required data set for calculating the IPS air miles
-                   values. This function also triggers the air miles calculation 
-                   function using the imported data as the data source. Once the
-                   calculation is complete it the returned data frame will be 
-                   appended to the specified oracle database table. 
-    Parameters   : input_table_name - the name of the table containing the source data.                            
-                   var_serial - variable holding the serial number column reference
-    Returns      : NA
-    Requirements : NA
-    Dependencies : NA
-    """
-
-    # Call JSON configuration file for error logger setup
-    # survey_support.setup_logging('IPS_logging_config_debug.json')
-
-    # Import data
-    df_surveydata = pd.read_pickle(path_to_data + '/airmiles_input.pkl')
-
-    # Import data via SQL
-    # df_surveydata = cf.get_table_values(input_table_name)
-
-    # Set all of the columns imported to uppercase
-    df_surveydata.columns = df_surveydata.columns.str.upper()
-
-    # Calculate the Air miles values of the imported data set.
-    print("Start - Calculate Air Miles")
-    output_dataframe = do_ips_airmiles_calculation(df_surveydata, var_serial)
-
-    # Append the generated data to output tables
-    # cf.insert_into_table_many(output_table_name, output_dataframe)
-    cf.insert_dataframe_into_table(OUTPUT_TABLE_NAME, output_dataframe)
-
-    # Create audit message
-    function_name = str(inspect.stack()[0][3])
-    audit_message = "Load Air miles calculation: %s()" % function_name
-
-    # Log success message in SAS_RESPONSE and AUDIT_LOG
-    cf.database_logger().info("SUCCESS - Completed Air Miles calculation.")
-    cf.commit_to_audit_log("Create", "Air Miles", audit_message)
-    print("Completed - Calculate Air Miles")
-

@@ -7,9 +7,9 @@ Created on 6 Nov 2018
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_traffic_weight import do_ips_trafweight_calculation_with_R
-import main.io.CommonFunctions as cf
+import utils.common_functions as cf
 import pytest
-import main.io.ips_data_management as idm
+import main.io.data_management as idm
 import main.calculations.calculate_ips_traffic_weight as tr_calc
 
 

@@ -1,8 +1,8 @@
 import pytest
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
-import main.io.CommonFunctions as cf
-import main.io.ips_data_management as idm
+import utils.common_functions as cf
+import main.io.data_management as idm
 
 TEST_DATA_DIR = 'tests/data/ips_data_management'
 
@@ -120,7 +120,7 @@ def test_store_survey_data_with_step_results(step_name, nullify_pvs, ps_table, p
             WHERE RUN_ID = '{}'""".format(step_config['ps_table'], run_id)
         cur = database_connection.cursor()
         result = cur.execute(sql).fetchone()
-        assert result == None
+        assert result is None
 
     result = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
     assert len(result) == 0

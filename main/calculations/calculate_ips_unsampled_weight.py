@@ -1,27 +1,16 @@
-import pandas as pd
 import numpy as np
-from main.io import CommonFunctions as cf
-import subprocess
 import os
+import pandas as pd
+import subprocess
+from sqlalchemy import create_engine
+from typing import Tuple
 
-PATH_TO_DATA = 'tests/data/calculations/october_2017/unsampled_weight'
+from utils import common_functions as cf
 
-OUTPUT_TABLE_NAME = 'SAS_UNSAMPLED_OOH_WT'
-SUMMARY_TABLE_NAME = 'SAS_PS_UNSAMPLED_OOH'
 OOH_STRATA = ['UNSAMP_PORT_GRP_PV',
               'UNSAMP_REGION_GRP_PV',
               'ARRIVEDEPART']
-POPULATION_TOTALS_TABLE_NAME = 'SAS_UNSAMPLED_OOH_DATA'
 TOTALS_COLUMN = 'UNSAMP_TOTAL'
-MAX_RULE_LENGTH = '512'
-MODEL_GROUP = 'C_GROUP'
-MODEL_GROUP_COLUMN = 'C_GROUP'
-GES_BOUND_TYPE = 'G'  # 'G' => cal. weights bound, 'F' => final weights bound
-GES_UPPER_BOUND = ''
-GES_LOWER_BOUND = '1.0'
-GES_MAX_DIFFERENCE = '1E-8'
-GES_MAX_ITERATIONS = '50'
-GES_MAX_DISTANCE = '1E-8'
 CASE_COUNT_COLUMN = 'CASES'
 OOH_WEIGHT_SUM_COLUMN = 'SUM_UNSAMP_TRAFFIC_WT'
 PRIOR_WEIGHT_SUM_COLUMN = 'SUM_PRIOR_WT'
@@ -31,7 +20,7 @@ POST_WEIGHT_COLUMN = 'POSTWEIGHT'
 
 
 # Prepare survey data
-def r_survey_input(survey_input):
+def r_survey_input(survey_input: pd.DataFrame) -> None:
     """
     Author       : David Powell
     Date         : 07/06/2018
@@ -45,19 +34,10 @@ def r_survey_input(survey_input):
 
     # Load survey Data
     df_survey_input = survey_input
-    df_survey_input_copy = survey_input
 
     # Sort input values
     sort1 = ['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV', 'ARRIVEDEPART']
 
-
-    # df_survey_input.UNSAMP_REGION_GRP_PV = df_survey_input.UNSAMP_REGION_GRP_PV.fillna(-1)
-    # df_survey_input.UNSAMP_REGION_GRP_PV = df_survey_input.UNSAMP_REGION_GRP_PV.apply(float)
-    # df_survey_input.UNSAMP_REGION_GRP_PV = df_survey_input.UNSAMP_REGION_GRP_PV.apply(int)
-    # df_survey_input.UNSAMP_REGION_GRP_PV = df_survey_input.UNSAMP_REGION_GRP_PV.replace(-1, "")
-    # df_survey_input.UNSAMP_REGION_GRP_PV = df_survey_input.UNSAMP_REGION_GRP_PV.apply(str)
-
-    #df_survey_input['UNSAMP_REGION_GRP_PV'] = df_survey_input['UNSAMP_REGION_GRP_PV'].apply(pd.to_numeric)
     df_survey_input_sorted = df_survey_input.sort_values(sort1)
 
     # Cleanse data
@@ -66,7 +46,7 @@ def r_survey_input(survey_input):
     df_survey_input_sorted = df_survey_input_sorted[~df_survey_input_sorted['ARRIVEDEPART'].isnull()]
 
     # Create lookup. Group by and aggregate
-    #lookup_dataframe = df_survey_input_copy
+    # lookup_dataframe = df_survey_input_copy
     lookup_dataframe = df_survey_input_sorted
 
     lookup_dataframe["count"] = ""
@@ -97,122 +77,15 @@ def r_survey_input(survey_input):
                                      'OOHDesignWeight', 'T1']]
 
     # # ROUND VALUES - Added to match SAS output
-    # df_r_ges_input = df_r_ges_input.round({'OOHDesignWeight': 7})
     df_r_ges_input.UNSAMP_REGION_GRP_PV = pd.to_numeric(df_r_ges_input.UNSAMP_REGION_GRP_PV, errors='coerce')
 
-    cf.insert_dataframe_into_table("dbo.survey_unsamp_aux",df_r_ges_input)
+    cf.insert_dataframe_into_table("dbo.survey_unsamp_aux", df_r_ges_input)
 
-    # df_aux_variables = df_aux_variables.drop(columns=['count_x','count_y','T1','OOHDesignWeight'], axis = 1)
-    df_aux_variables = df_aux_variables.drop(columns=['T1','OOHDesignWeight'], axis = 1)
-
-    return df_aux_variables
-
-
-# # Prepare population totals to create AUX lookup variables
-# def r_population_input(survey_input, ustotals):
-#     """
-#     Author       : David Powell
-#     Date         : 07/06/2018
-#     Purpose      : Creates population data that feeds into the R GES weighting
-#     Parameters   : survey_input - A data frame containing the survey data for
-#                    processing month
-#                    ustotals - A data frame containing population information for
-#                    processing year
-#     Returns      : A data frame containing the information needed for GES weighting
-#     Requirements : NA
-#     Dependencies : NA
-#     """
-#
-#     df_survey_input = survey_input
-#     df_us_totals = ustotals
-#
-#     # Sort input values
-#     sort1 = ['UNSAMP_PORT_GRP_PV','UNSAMP_REGION_GRP_PV','ARRIVEDEPART']
-#     df_us_totals = df_us_totals.sort_values(sort1)
-#
-#     # Create population totals
-#     df_us_totals = df_us_totals.fillna('NOTHING')
-#     df_pop_totals = df_us_totals.groupby(['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV',
-#                                           'ARRIVEDEPART']).agg({"UNSAMP_TOTAL": 'sum'}).reset_index()
-#
-#     df_pop_totals.rename(columns={'UNSAMP_TOTAL': 'uplift'}, inplace=True)
-#     df_pop_totals = df_pop_totals.replace('NOTHING', np.NaN)
-#     df_pop_totals = df_pop_totals.sort_values(sort1)
-#
-#     # Create unsampled design weight used within GES weighting
-#     df_survey_input['SHIFT_WT'] = df_survey_input.SHIFT_WT.astype(np.float)
-#     df_survey_input = df_survey_input.round({'SHIFT_WT': 3})
-#     values = df_survey_input.SHIFT_WT * df_survey_input.NON_RESPONSE_WT * df_survey_input.MINS_WT * df_survey_input.TRAFFIC_WT
-#     df_survey_input['OOHDesignWeight'] = values
-#     df_survey_input = df_survey_input.sort_values(sort1)
-#
-#     df_survey_input = df_survey_input[df_survey_input.OOHDesignWeight > 0]
-#     df_survey_input = df_survey_input.fillna('NOTHING')
-#
-#     df_prev_totals = df_survey_input.groupby(['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV',
-#                                               'ARRIVEDEPART']).agg({"OOHDesignWeight": 'sum'}).reset_index()
-#
-#     df_prev_totals.rename(columns={'OOHDesignWeight': 'prevtotals'}, inplace=True)
-#
-#     df_prev_totals = df_prev_totals.replace('NOTHING', np.NaN)
-#     df_prev_totals = df_prev_totals.sort_values(sort1)
-#
-#     df_pop_totals = df_pop_totals[df_pop_totals.uplift > 0]
-#
-#     df_pop_totals = df_pop_totals.fillna('NOTHING')
-#     df_prev_totals = df_prev_totals.fillna('NOTHING')
-#
-#     # Merge populations totals to create one dataframe lookup
-#     df_lifted_totals = pd.merge(df_prev_totals, df_pop_totals, on=['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV',
-#                                                                    'ARRIVEDEPART'], how='left')
-#
-#     df_lifted_totals = df_lifted_totals.replace('NOTHING', np.NaN)
-#     df_lifted_totals['uplift'] = df_lifted_totals['uplift'].fillna(0)
-#
-#     values = df_lifted_totals.prevtotals + df_lifted_totals.uplift
-#     df_lifted_totals['UNSAMP_TOTAL'] = values
-#
-#     # Create lookup. Group by and aggregate. Allocates T_1 - T_n.
-#     lookup_dataframe = df_survey_input
-#     lookup_dataframe["count"] = ""
-#     lookup_dataframe = lookup_dataframe.groupby(['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV',
-#                                                  'ARRIVEDEPART']).agg({"count": 'count'}).reset_index()
-#
-#     # Cleanse data
-#     lookup_dataframe = lookup_dataframe.replace('NOTHING', np.NaN)
-#     lookup_dataframe.drop(["count"], axis=1)
-#     lookup_dataframe["T1"] = range(len(lookup_dataframe))
-#     lookup_dataframe["T1"] = lookup_dataframe["T1"] + 1
-#
-#     # Create population totals for current survey data - Cleanse data and merge
-#     lookup_dataframe_aux = lookup_dataframe[['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV', 'ARRIVEDEPART', 'T1']]
-#     lookup_dataframe_aux['T1'] = lookup_dataframe_aux.T1.astype(np.int64)
-#
-#     df_mod_totals = pd.merge(df_lifted_totals, lookup_dataframe_aux, on=['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV',
-#                                                                          'ARRIVEDEPART'], how='left')
-#
-#     df_mod_totals['C_group'] = 1
-#     df_mod_totals = df_mod_totals.drop(columns=['ARRIVEDEPART', 'UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV'])
-#     df_mod_totals = df_mod_totals.pivot_table(index='C_group',
-#                                               columns='T1',
-#                                               values='UNSAMP_TOTAL')
-#
-#     df_mod_totals = df_mod_totals.add_prefix('T_')
-#
-#     from sqlalchemy import create_engine
-#
-#     cf.drop_table('poprowvec_unsamp')
-#
-#     # @TODO: MAKE THIS USE ENV VARIABLES
-#     con = create_engine('mssql+pyodbc://ips_dev:ips_dev@CR1VWSQL14-D-01/ips_test?driver=SQL+Server+Native+Client+10.0')
-#
-#     df_mod_totals.to_sql('poprowvec_unsamp', con, if_exists='replace')
-#
-#     return df_mod_totals
+    df_aux_variables.drop(columns=['T1', 'OOHDesignWeight'], axis=1)
 
 
 # Prepare population totals to create AUX lookup variables
-def r_population_input(survey_input, ustotals):
+def r_population_input(survey_input: pd.DataFrame, ustotals: pd.DataFrame) -> None:
     """
     Author       : David Powell
     Date         : 07/06/2018
@@ -226,16 +99,8 @@ def r_population_input(survey_input, ustotals):
     Dependencies : NA
     """
 
-    # Load SAS files into dataframes (this data will come from Oracle eventually)
-    # path_to_SurveyData = PATH_TO_DATA + r"/survey_input.pkl"
-    # path_to_PopTotals = PATH_TO_DATA + r"/trtotals.pkl"
-
-    # df_survey_input = pd.read_pickle(path_to_SurveyData)
-    # df_tr_totals = pd.read_pickle(path_to_PopTotals)
-
     df_survey_input = survey_input
     df_us_totals = ustotals
-
 
     sort1 = ['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV', 'ARRIVEDEPART']
 
@@ -307,17 +172,12 @@ def r_population_input(survey_input, ustotals):
     df_mod_totals['C_group'] = 1
     df_mod_totals = df_mod_totals.drop(['ARRIVEDEPART', 'UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV'], axis=1)
 
-
     # # ROUND VALUES - Added to match SAS output
-    # df_mod_totals = df_mod_totals.round({'UNSAMP_TOTAL': 3})
-
     df_mod_totals = df_mod_totals.pivot_table(index='C_group',
                                               columns='T1',
                                               values='UNSAMP_TOTAL')
 
     df_mod_totals = df_mod_totals.add_prefix('T_')
-
-    from sqlalchemy import create_engine
 
     cf.drop_table('poprowvec_unsamp')
 
@@ -327,14 +187,13 @@ def r_population_input(survey_input, ustotals):
     server = os.getenv("DB_SERVER")
 
     # recreate proc_vec table
-    con = create_engine('mssql+pyodbc://' + username + ':' + username + '@' + server + '/' + database +'?driver=SQL+Server+Native+Client+11.0')
+    con = create_engine(
+        'mssql+pyodbc://' + username + ':' + username + '@' + server + '/' + database + '?driver=SQL+Server+Native+Client+11.0')
 
     df_mod_totals.to_sql('poprowvec_unsamp', con, if_exists='replace')
 
-    return df_mod_totals
 
-
-def run_r_ges_script():
+def run_r_ges_script() -> None:
     """
     Author       : David Powell
     Date         : 07/06/2018
@@ -348,13 +207,14 @@ def run_r_ges_script():
     print("Starting R script.....")
 
     retcode = subprocess.call(["C:/Applications/RStudio/R-3.4.4/bin/Rscript",
-                           "--vanilla",
-                           "r_scripts/ges_r_step5.r"])
+                               "--vanilla",
+                               "r_scripts/ges_r_step5.r"])
 
     print("R processed finished.")
 
 
-def do_ips_ges_weighting(df_surveydata,df_ustotals):
+def do_ips_ges_weighting(df_surveydata: pd.DataFrame, df_ustotals: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+
     # Deletes from poprowvec and survey_unsamp_aux tables
     cf.delete_from_table('survey_unsamp_aux')
     cf.drop_table('poprowvec_unsamp')
@@ -363,7 +223,8 @@ def do_ips_ges_weighting(df_surveydata,df_ustotals):
     # Call the GES weighting macro
     df_surveydata = df_surveydata.sort_values('SERIAL')
 
-    df_survey = r_survey_input(df_surveydata)
+    r_survey_input(df_surveydata)
+
     r_population_input(df_surveydata, df_ustotals)
 
     run_r_ges_script()
@@ -371,12 +232,12 @@ def do_ips_ges_weighting(df_surveydata,df_ustotals):
     df_summarydata = cf.get_table_values('r_unsampled')
     df_summarydata = df_summarydata[['SERIAL', 'UNSAMP_TRAFFIC_WT']]
 
-    return df_surveydata, df_summarydata
+    return Tuple[df_surveydata, df_summarydata]
 
 
-def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftWeight, var_NRWeight,
-                                        var_minWeight, var_trafficWeight, var_OOHWeight, 
-                                        df_ustotals, minCountThresh):
+def do_ips_unsampled_weight_calculation(df_surveydata: pd.DataFrame, serial_num: str, shift_weight: str,
+                                        nr_weight: str, min_weight: str, traffic_weight: str, out_of_hours_weight: str,
+                                        df_ustotals: pd.DataFrame, min_count_threshold: int):
     """
     Author       : Thomas Mahoney / Nassir Mohammad
     Date         : Apr 2018
@@ -405,8 +266,8 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
     ooh_design_weight_column = 'OOHDESIGNWEIGHT'
     # Create new column for design weights (Generate the design weights)
     df_surveydata[ooh_design_weight_column] = \
-        df_surveydata[var_shiftWeight] * df_surveydata[var_NRWeight] * df_surveydata[var_minWeight] * df_surveydata[
-            var_trafficWeight]
+        df_surveydata[shift_weight] * df_surveydata[nr_weight] * df_surveydata[min_weight] * df_surveydata[
+            traffic_weight]
 
     df_ustotals['REGION'] = df_ustotals['REGION'].replace(0, np.NaN)
     df_ustotals['UNSAMP_REGION_GRP_PV'] = df_ustotals['UNSAMP_REGION_GRP_PV'].replace(0, np.NaN)
@@ -418,33 +279,33 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
     df_ustotals.index = range(df_ustotals.shape[0])
 
     # Replace blank values with 'NOTHING' as python drops blanks during the aggregation process.  
-    popTotals = df_ustotals.fillna('NOTHING')
+    pop_totals = df_ustotals.fillna('NOTHING')
 
     # Summarise the uplift totals over the strata
-    popTotals = popTotals.groupby(OOH_STRATA)[TOTALS_COLUMN].agg([(UPLIFT_COLUMN, 'sum')])
-    popTotals.reset_index(inplace=True)
+    pop_totals = pop_totals.groupby(OOH_STRATA)[TOTALS_COLUMN].agg([(UPLIFT_COLUMN, 'sum')])
+    pop_totals.reset_index(inplace=True)
 
     # Replace the previously added 'NOTHING' values with their original blank values  
-    popTotals = popTotals.replace('NOTHING', np.NaN)
+    pop_totals = pop_totals.replace('NOTHING', np.NaN)
 
     # Summarise the previous totals over the strata
     # Only use values where the OODesignWeight is greater than zero
     df_surveydata = df_surveydata.sort_values(by=OOH_STRATA)
 
-    prevTotals = df_surveydata.loc[df_surveydata[ooh_design_weight_column] > 0]
+    prev_totals = df_surveydata.loc[df_surveydata[ooh_design_weight_column] > 0]
 
     # Replace blank values with 'NOTHING' as python drops blanks during the aggregation process.  
-    prevTotals = prevTotals.fillna('NOTHING')
-    prevTotals = prevTotals.groupby(OOH_STRATA)[ooh_design_weight_column].agg([(PREVIOUS_TOTAL_COLUMN, 'sum')])
-    prevTotals.reset_index(inplace=True)
+    prev_totals = prev_totals.fillna('NOTHING')
+    prev_totals = prev_totals.groupby(OOH_STRATA)[ooh_design_weight_column].agg([(PREVIOUS_TOTAL_COLUMN, 'sum')])
+    prev_totals.reset_index(inplace=True)
 
     # Replace the previously added 'NOTHING' values with their original blank values  
-    prevTotals = prevTotals.replace('NOTHING', np.NaN)
+    prev_totals = prev_totals.replace('NOTHING', np.NaN)
 
-    popTotals = popTotals.sort_values(by=OOH_STRATA)
+    pop_totals = pop_totals.sort_values(by=OOH_STRATA)
 
     # Generate the lifted totals data set from the two sets created
-    liftedTotals = pd.merge(prevTotals, popTotals, on=OOH_STRATA, how='left')
+    liftedTotals = pd.merge(prev_totals, pop_totals, on=OOH_STRATA, how='left')
 
     # Fill blank uplift and prevtotal values with zero
     liftedTotals[UPLIFT_COLUMN].fillna(0, inplace=True)
@@ -458,30 +319,25 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
 
     ges_dataframes = do_ips_ges_weighting(df_surveydata, df_ustotals)
 
-    # ges_dataframes = do_ips_ges_weighting(df_surveydata, var_serialNum, ooh_design_weight_column, OOH_STRATA,
-    #                                       liftedTotals, TOTALS_COLUMN, MAX_RULE_LENGTH,
-    #                                       MODEL_GROUP_COLUMN, var_OOHWeight, 'CalWeight', GES_BOUND_TYPE,
-    #                                       GES_UPPER_BOUND, GES_LOWER_BOUND, GES_MAX_DIFFERENCE, GES_MAX_ITERATIONS,
-    #                                       GES_MAX_DISTANCE)
     # @TODO: WORK FROM HERE
 
     df_survey = ges_dataframes[0]
     df_output = ges_dataframes[1]
     # Sort df_surveydata dataframe before merge
-    df_survey = df_survey.sort_values(by=var_serialNum)
-    df_output = df_output.sort_values(by=var_serialNum)
+    df_survey = df_survey.sort_values(by=serial_num)
+    df_output = df_output.sort_values(by=serial_num)
 
     df_survey.index = range(0, len(df_survey))
     df_output.index = range(0, len(df_output))
 
     # Merge the df_surveydata and output data frame to generate the summary table
-    df_survey[var_OOHWeight] = df_output[var_OOHWeight]
+    df_survey[out_of_hours_weight] = df_output[out_of_hours_weight]
 
     # Fill blank UNSAMP_TRAFFIC_WT values with 1.0
-    df_survey[var_OOHWeight].fillna(1.0, inplace=True)
+    df_survey[out_of_hours_weight].fillna(1.0, inplace=True)
 
     # Generate POSTWEIGHT values from the UNSAMP_TRAFFIC_WT and ooh_design_weight_column values
-    df_survey[POST_WEIGHT_COLUMN] = df_survey[var_OOHWeight] * df_survey[ooh_design_weight_column]
+    df_survey[POST_WEIGHT_COLUMN] = df_survey[out_of_hours_weight] * df_survey[ooh_design_weight_column]
 
     # Sort the data ready for summarising    
     df_survey = df_survey.sort_values(by=OOH_STRATA)
@@ -493,7 +349,7 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
     df_summary = df_summary.fillna('NOTHING')
 
     # Generate a dataframe containing the count of each evaluated group
-    df_cases = df_summary.groupby(OOH_STRATA)[var_OOHWeight].agg([(CASE_COUNT_COLUMN, 'count')])
+    df_cases = df_summary.groupby(OOH_STRATA)[out_of_hours_weight].agg([(CASE_COUNT_COLUMN, 'count')])
 
     # Flattens the column structure after adding the new CASE_COUNT_COLUMN column
     df_cases = df_cases.reset_index()
@@ -502,7 +358,7 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
     df_summary = df_summary.groupby(OOH_STRATA).agg({
         ooh_design_weight_column: 'sum',
         POST_WEIGHT_COLUMN: 'sum',
-        var_OOHWeight: 'mean'
+        out_of_hours_weight: 'mean'
     })
 
     # Flattens the column structure after adding the new ooh_design_weight_column and POSTWEIGHT columns
@@ -516,7 +372,8 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
     # Replace the previously added 'NOTHING' values with their original blank values  
     df_summary = df_summary.replace('NOTHING', np.NaN)
 
-    output_column_order = ['UNSAMP_PORT_GRP_PV','UNSAMP_REGION_GRP_PV','ARRIVEDEPART','CASES','SUM_PRIOR_WT','SUM_UNSAMP_TRAFFIC_WT','UNSAMP_TRAFFIC_WT']
+    output_column_order = ['UNSAMP_PORT_GRP_PV', 'UNSAMP_REGION_GRP_PV', 'ARRIVEDEPART', 'CASES', 'SUM_PRIOR_WT',
+                           'SUM_UNSAMP_TRAFFIC_WT', 'UNSAMP_TRAFFIC_WT']
     df_summary = df_summary[output_column_order]
     df_summary.ARRIVEDEPART = df_summary.ARRIVEDEPART.astype(int)
     # Identify groups where the total has been uplifted but the
@@ -525,7 +382,7 @@ def do_ips_unsampled_weight_calculation(df_surveydata, var_serialNum, var_shiftW
     # Create unsampled data set for rows outside of the threshold
     df_unsampled_thresholds_check = \
         df_summary[(df_summary[OOH_WEIGHT_SUM_COLUMN] > df_summary[PRIOR_WEIGHT_SUM_COLUMN])
-                   & (df_summary[CASE_COUNT_COLUMN] < minCountThresh)]
+                   & (df_summary[CASE_COUNT_COLUMN] < min_count_threshold)]
 
     # Collect data outside of specified threshold
     threshold_string = ""

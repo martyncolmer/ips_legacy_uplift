@@ -1,15 +1,13 @@
 import pytest
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
-import main.io.CommonFunctions as cf
-import main.io.ips_data_management as idm
-from main.io import import_data
-from main.io import import_traffic_data
-from main.io.CommonFunctions import get_sql_connection
-from main.main import shift_weight_step
+import utils.common_functions as cf
+import main.io.data_management as idm
+from main.io import import_survey_data
+from main.io import import_reference_data
+from utils.common_functions import get_sql_connection
 import numpy.testing as npt
 import os
-import sys
 
 TEST_DATA_DIR = 'tests/data/ips_data_management/'
 STEP_PV_OUTPUT_PATH = TEST_DATA_DIR + 'update_survey_data_with_step_pv_output/'
@@ -28,7 +26,8 @@ def database_connection():
 @pytest.mark.usefixtures("database_connection")
 class TestIpsDataManagement:
 
-    def get_rec_id(self, value, table, database_connection):
+    @staticmethod
+    def get_rec_id(value, table, database_connection):
         # value = 'min' or 'max'
         # table = table name
         # Retrieve rec_id
@@ -42,12 +41,13 @@ class TestIpsDataManagement:
         result = cur.execute(sql).fetchone()
         return result[0]
 
-    def amend_rec_id(self, dataframe, rec_id, ascend=True):
+    @staticmethod
+    def amend_rec_id(dataframe, rec_id, ascend=True):
         '''
         This function retrieves REC_ID from text file and inputs to test result dataframe.
         '''
 
-        if ascend==True:
+        if ascend:
             for row in range(0, len(dataframe['REC_ID'])):
                 dataframe['REC_ID'][row] = rec_id
                 rec_id = rec_id + 1
@@ -58,7 +58,8 @@ class TestIpsDataManagement:
 
         return dataframe
 
-    def import_data_into_database(self):
+    @staticmethod
+    def import_data_into_database():
         '''
         This function prepares all the data necessary to run all 14 steps.
         The input files have been edited to make sure data types match the database tables.
@@ -79,15 +80,15 @@ class TestIpsDataManagement:
         unsampled_data_path = r'\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Unsampled Traffic Q1 2017.csv'
 
         # Import survey data function to go here
-        import_data.import_survey_data(survey_data_path, run_id, version_id)
+        import_survey_data.import_survey_data(survey_data_path, run_id)
 
         # Import Shift Data
-        import_traffic_data.import_traffic_data(run_id, shift_data_path)
-        import_traffic_data.import_traffic_data(run_id, nr_data_path)
-        import_traffic_data.import_traffic_data(run_id, sea_data_path)
-        import_traffic_data.import_traffic_data(run_id, tunnel_data_path)
-        import_traffic_data.import_traffic_data(run_id, air_data_path)
-        import_traffic_data.import_traffic_data(run_id, unsampled_data_path)
+        import_reference_data.import_traffic_data(run_id, shift_data_path)
+        import_reference_data.import_traffic_data(run_id, nr_data_path)
+        import_reference_data.import_traffic_data(run_id, sea_data_path)
+        import_reference_data.import_traffic_data(run_id, tunnel_data_path)
+        import_reference_data.import_traffic_data(run_id, air_data_path)
+        import_reference_data.import_traffic_data(run_id, unsampled_data_path)
 
     def test_update_survey_data_with_step_pv_output_with_name_shift_weight(self, database_connection):
 

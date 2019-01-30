@@ -1,10 +1,10 @@
 import pytest
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
-import main.io.CommonFunctions as cf
-import main.io.ips_data_management as idm
-from main.io.CommonFunctions import get_sql_connection
-from main.io.ips_data_management import SURVEY_SUBSAMPLE_TABLE
+import utils.common_functions as cf
+import main.io.data_management as idm
+from utils.common_functions import get_sql_connection
+from main.io.data_management import SURVEY_SUBSAMPLE_TABLE
 
 
 TEST_DATA_DIR = 'tests/data/ips_data_management/'

@@ -1,7 +1,7 @@
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_minimums_weight import do_ips_minweight_calculation
-import main.io.CommonFunctions as cf
+import utils.common_functions as cf
 import pytest
 import tests.config
 

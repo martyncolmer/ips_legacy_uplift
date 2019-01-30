@@ -1,18 +1,17 @@
-import pytest
-import json
-import pandas as pd
 import time
 
+import json
+import pandas as pd
+import pytest
 from pandas.util.testing import assert_frame_equal
-from main.io import CommonFunctions as cf
-from tests import common_testing_functions as ctf
-from main.io import import_data
-from main.io import import_traffic_data
-from main.io import ips_data_management as idm
-from main.calculations import calculate_ips_shift_weight
-from main.utils import process_variables
 
-with open(r'data/xml_steps_configuration.json') as config_file:
+from main.calculations import calculate_ips_shift_weight
+from utils import common_functions as cf
+from main.io import data_management as idm
+from main.utils import process_variables
+from tests import common_testing_functions as ctf
+
+with open(r'data/steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)
 
 RUN_ID = 'test-idm-integration-shift-wt'
@@ -24,6 +23,7 @@ PV_RUN_ID = 'TEMPLATE'
 
 START_TIME = time.time()
 print("Module level start time: {}".format(START_TIME))
+
 
 @pytest.fixture(scope='module')
 def database_connection():
@@ -59,8 +59,6 @@ def teardown_module(module):
     # Cleanses Survey Subsample table.
     cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID)
 
-    # Play audio notification to indicate test is complete and print duration for performance.
-    cf.beep()
     print("Duration: {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time() - START_TIME))))
 
 
@@ -194,9 +192,6 @@ def test_shift_weight_step():
     # Get and test Shift data input
     sas_shift_data = cf.get_table_values(STEP_CONFIGURATION[STEP_NAME]["data_table"])
 
-    # TODO: DELETEY
-    cf.log_dtypes(STEP_NAME, sas_survey_data, run_type='xml', step_df=sas_shift_data)
-
     sas_shift_data.to_csv(TEST_DATA_DIR + '\shift_data_in_actual.csv', index=False)
 
     cols = ['PORTROUTE', 'WEEKDAY', 'ARRIVEDEPART', 'TOTAL', 'AM_PM_NIGHT',
@@ -285,7 +280,7 @@ def test_shift_weight_step():
     # Assert all records for corresponding run_id were deleted from ps_table.
     result = cf.select_data('*', STEP_CONFIGURATION[STEP_NAME]["ps_table"], 'RUN_ID', RUN_ID)
     # Indicating no dataframe was pulled from SQL.
-    if result == False:
+    if not result:
         assert True
 
     # Assert SAS_SURVEY_SUBSAMPLE_TABLE was cleansed

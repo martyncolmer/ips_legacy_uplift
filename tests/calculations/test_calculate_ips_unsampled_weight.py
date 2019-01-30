@@ -63,7 +63,7 @@
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_unsampled_weight import do_ips_unsampled_weight_calculation
-import main.io.CommonFunctions as cf
+import utils.common_functions as cf
 import pytest
 import tests.config
 
@@ -121,14 +121,14 @@ def test_calculate(data_path):
 
     # Run the calculation step
     output_data, summary_data = do_ips_unsampled_weight_calculation(df_surveydata,
-                                                                    var_serialNum='SERIAL',
-                                                                    var_shiftWeight='SHIFT_WT',
-                                                                    var_NRWeight='NON_RESPONSE_WT',
-                                                                    var_minWeight='MINS_WT',
-                                                                    var_trafficWeight='TRAFFIC_WT',
-                                                                    var_OOHWeight="UNSAMP_TRAFFIC_WT",
+                                                                    serial_num='SERIAL',
+                                                                    shift_weight='SHIFT_WT',
+                                                                    nr_weight='NON_RESPONSE_WT',
+                                                                    min_weight='MINS_WT',
+                                                                    traffic_weight='TRAFFIC_WT',
+                                                                    out_of_hours_weight="UNSAMP_TRAFFIC_WT",
                                                                     df_ustotals=df_ustotals,
-                                                                    minCountThresh=30)
+                                                                    min_count_threshold=30)
 
     # Write the test result data to SQL then pull it back for comparison
     df_survey_result = convert_dataframe_to_sql_format(OUTPUT_TABLE_NAME, output_data)

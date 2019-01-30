@@ -5,11 +5,11 @@ import time
 
 from pandas.util.testing import assert_frame_equal
 from tests import common_testing_functions as ctf
-from main.io import CommonFunctions as cf
-from main.io import ips_data_management as idm
+from utils import common_functions as cf
+from main.io import data_management as idm
 from main.calculations import calculate_ips_final_weight
 
-with open(r'data/xml_steps_configuration.json') as config_file:
+with open(r'data/steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)
 
 RUN_ID = 'test-idm-integration-final-wt'
@@ -50,8 +50,6 @@ def teardown_module(module):
     # Cleanses Survey Subsample table
     cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID)
 
-    # Play audio notification to indicate test is complete and print duration for performance
-    cf.beep()
     print("Duration: {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time() - START_TIME))))
 
 
@@ -84,9 +82,6 @@ def test_final_weight_step():
     # Save the Survey Data before importing to calculation function
     sas_survey_data.to_csv(TEST_DATA_DIR + '\sas_survey_data_actual.csv', index=False)
 
-    # TODO: DELETEY
-    cf.log_dtypes(STEP_NAME, sas_survey_data, run_type='xml')
-
     actual_results = pd.read_csv(TEST_DATA_DIR + '\sas_survey_data_actual.csv')
     expected_results = pd.read_csv(TEST_DATA_DIR + '\sas_survey_data_expected.csv')
 
@@ -104,14 +99,14 @@ def test_final_weight_step():
 
     # Run the next step and test
     surveydata_out, summary_out = calculate_ips_final_weight.do_ips_final_wt_calculation(sas_survey_data,
-                                                                                         var_serialNum='SERIAL',
-                                                                                         var_shiftWeight='SHIFT_WT',
-                                                                                         var_NRWeight='NON_RESPONSE_WT',
-                                                                                         var_minWeight='MINS_WT',
-                                                                                         var_trafficWeight='TRAFFIC_WT',
-                                                                                         var_unsampWeight='UNSAMP_TRAFFIC_WT',
-                                                                                         var_imbWeight='IMBAL_WT',
-                                                                                         var_finalWeight='FINAL_WT')
+                                                                                         serial_num='SERIAL',
+                                                                                         shift_weight='SHIFT_WT',
+                                                                                         non_response_weight='NON_RESPONSE_WT',
+                                                                                         min_weight='MINS_WT',
+                                                                                         traffic_weight='TRAFFIC_WT',
+                                                                                         unsampled_weight='UNSAMP_TRAFFIC_WT',
+                                                                                         imbalance_weight='IMBAL_WT',
+                                                                                         final_weight='FINAL_WT')
 
     # Test survey data from calculation function before inserting to db
     surveydata_out.to_csv(TEST_DATA_DIR + '\surveydata_out_actual.csv', index=False)

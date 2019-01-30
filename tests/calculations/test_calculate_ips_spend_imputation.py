@@ -2,7 +2,7 @@ from main.calculations.calculate_ips_spend_imputation import do_ips_spend_imputa
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 import pytest
-import main.io.CommonFunctions as cf
+import utils.common_functions as cf
 
 OUTPUT_TABLE_NAME = 'SAS_SPEND_IMP'
 

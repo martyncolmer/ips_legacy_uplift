@@ -1,16 +1,15 @@
-'''
+"""
 Created on 7 Mar 2018
 
 @author: thorne1
-'''
-import inspect
+"""
 
 import numpy as np
 import pandas as pd
-# import survey_support
 
 from main.calculations import ips_impute as imp
-from main.io import CommonFunctions as cf
+
+# import survey_support
 
 OUTPUT_TABLE_NAME = "SAS_SPEND_IMP"
 STEM_VARIABLE = [["UK_OS_PV", "STAYIMPCTRYLEVEL1_PV", "DUR1_PV", "PUR1_PV"],
@@ -53,7 +52,7 @@ def do_ips_spend_imputation(df_survey_data, var_serial, measure):
                                               (df_eligible[STAY_VARIABLE] + 1.0), np.NaN)
     df_eligible.drop(df_eligible[df_eligible[ELIGIBLE_FLAG_VARIABLE] != 1.0].index,
                      inplace=True)
-    
+
     def selection(row):
         if row[IMPUTATION_FLAG_VARIABLE] != 1.0:
             if (row[DONOR_VARIABLE] > 0) & (row[STAYDAYS_VARIABLE] > 0):
@@ -61,29 +60,29 @@ def do_ips_spend_imputation(df_survey_data, var_serial, measure):
             elif row[DONOR_VARIABLE] == 0:
                 row[OTHER_DONOR_VARIABLE] = 0
             else:
-                row[IMPUTATION_FLAG_VARIABLE] = 1 
+                row[IMPUTATION_FLAG_VARIABLE] = 1
         return row
-    
+
     df_eligible = df_eligible.apply(selection, axis=1)
 
     # Perform the imputation
     df_output = imp.ips_impute(df_eligible, var_serial,
                                STEM_VARIABLE, STEM_THRESHOLD, num_levels, OTHER_DONOR_VARIABLE,
                                OUTPUT_VARIABLE, measure, IMPUTATION_FLAG_VARIABLE, IMPUTATION_LEVEL_VARIABLE)
-    
+
     # Merge and cleanse
     df_final_output = pd.merge(df_eligible, df_output, on=var_serial, how='left')
     df_final_output.drop(IMPUTATION_LEVEL_VARIABLE + "_x", axis=1, inplace=True)
     df_final_output.rename(columns={IMPUTATION_LEVEL_VARIABLE + "_y": IMPUTATION_LEVEL_VARIABLE}, inplace=True)
-    
+
     # Create final output with required columns 
     df_final_output = df_final_output[[var_serial, OUTPUT_VARIABLE, IMPUTATION_LEVEL_VARIABLE,
                                        STAYDAYS_VARIABLE]]
     df_final_output.loc[df_final_output[IMPUTATION_LEVEL_VARIABLE].notnull(),
                         OUTPUT_VARIABLE] = (df_final_output[OUTPUT_VARIABLE] * df_final_output[STAYDAYS_VARIABLE])
     df_final_output[OUTPUT_VARIABLE] = df_final_output[OUTPUT_VARIABLE].apply(lambda x: round(x, 0))
-    
+
     # Cleanse df before returning
     df_final_output = df_final_output[[var_serial, IMPUTATION_LEVEL_VARIABLE, OUTPUT_VARIABLE]]
-    
+
     return df_final_output

@@ -4,13 +4,13 @@ import pandas as pd
 import time
 
 from pandas.util.testing import assert_frame_equal
-from main.io import CommonFunctions as cf
+from utils import common_functions as cf
 from tests import common_testing_functions as ctf
-from main.io import ips_data_management as idm
+from main.io import data_management as idm
 from main.calculations import calculate_ips_spend_imputation
 from main.utils import process_variables
 
-with open(r'data/xml_steps_configuration.json') as config_file:
+with open(r'data/steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)
 
 RUN_ID = 'test-idm-integration-spend-imp'
@@ -57,8 +57,6 @@ def teardown_module(module):
     # # Cleanses Survey Subsample table
     cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID)
 
-    # Play audio notification to indicate test is complete and print duration for performance
-    cf.beep()
     print("Duration: {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time() - START_TIME))))
 
 
@@ -127,9 +125,6 @@ def test_spend_weight_step():
 
     # Get Survey Data before importing to calculation function
     sas_survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-
-    # TODO: DELETEY
-    cf.log_dtypes(STEP_NAME, sas_survey_data, run_type='xml')
 
     # Run the next step and test
     surveydata_out = calculate_ips_spend_imputation.do_ips_spend_imputation(sas_survey_data,

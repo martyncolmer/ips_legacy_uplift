@@ -1,10 +1,10 @@
-import pandas as pd
 import numpy as np
-from sqlalchemy import create_engine
-import subprocess
-from main.io import CommonFunctions as cf
 import os
-from pandas.util.testing import assert_frame_equal
+import pandas as pd
+import subprocess
+from sqlalchemy import create_engine
+
+from utils import common_functions as cf
 
 PATH_TO_DATA = r"tests/data/calculations/october_2017/traffic_weight"
 SERIAL = 'SERIAL'
@@ -144,9 +144,9 @@ def r_population_input(df_survey_input, df_tr_totals):
     df_pop_totals_match = df_pop_totals[df_pop_totals[SAMP_PORT_GRP_PV].isin(unique)]
 
     # Create traffic totals
-    df_pop_totals_match = df_pop_totals_match.sort_values([ARRIVEDEPART,SAMP_PORT_GRP_PV])
+    df_pop_totals_match = df_pop_totals_match.sort_values([ARRIVEDEPART, SAMP_PORT_GRP_PV])
     df_traffic_totals = df_pop_totals_match.groupby([SAMP_PORT_GRP_PV,
-                                                    ARRIVEDEPART]).agg({TRAFFIC_TOTAL_COLUMN: 'sum'}).reset_index()
+                                                     ARRIVEDEPART]).agg({TRAFFIC_TOTAL_COLUMN: 'sum'}).reset_index()
 
     # Create lookup. Group by and aggregate
     lookup_dataframe = df_survey_input_sorted.copy()
@@ -160,7 +160,7 @@ def r_population_input(df_survey_input, df_tr_totals):
     lookup_dataframe[T1] = lookup_dataframe[T1] + 1
 
     # Create population totals for current survey data - Cleanse data and merge
-    lookup_dataframe_aux = lookup_dataframe[[SAMP_PORT_GRP_PV,ARRIVEDEPART, T1]]
+    lookup_dataframe_aux = lookup_dataframe[[SAMP_PORT_GRP_PV, ARRIVEDEPART, T1]]
     lookup_dataframe_aux[T1] = lookup_dataframe_aux.T1.astype(np.int64)
 
     df_mod_totals = pd.merge(df_traffic_totals, lookup_dataframe_aux, on=[SAMP_PORT_GRP_PV,
@@ -185,7 +185,10 @@ def r_population_input(df_survey_input, df_tr_totals):
     server = os.getenv("DB_SERVER")
 
     # recreate proc_vec table
-    con = create_engine('mssql+pyodbc://' + username + ':' + username + '@' + server + '/' + database +'?driver=SQL+Server+Native+Client+11.0')
+    # TODO: ???
+    con = create_engine(
+        'mssql+pyodbc://' + username + ':' + username + '@' + server + '/' + database +
+        '?driver=SQL+Server+Native+Client+11.0')
 
     # note the index gets added so needs to be removed when re-read from SQL
     df_mod_pop_totals.to_sql(POP_PROWVEC_TABLE, con, if_exists='replace')
@@ -198,7 +201,6 @@ def r_population_input(df_survey_input, df_tr_totals):
 
 # call R as a subprocess
 def run_r_ges_script():
-
     """
     Author       : David Powell
     Date         : 07/06/2018
@@ -211,7 +213,7 @@ def run_r_ges_script():
 
     print("Starting R script.....")
 
-    #TODO: change hardcoded locations
+    # TODO: change hardcoded locations
     retcode = subprocess.call(["C:/Applications/RStudio/R-3.4.4/bin/Rscript",
                                "--vanilla",
                                "r_scripts/ges_r_step4.r"])
@@ -221,8 +223,8 @@ def run_r_ges_script():
 
 # generates the summary data
 def generate_ips_tw_summary(df_survey, df_output_merge_final,
-                            var_serialNum, var_trafficWeight,
-                            df_popTotals, minCountThresh):
+                            serial_um, traffic_weight,
+                            pop_totals, min_count_thresh):
     """
     Author       : Nassir Mohammad
     Date         : 08 Mar 2018
@@ -249,23 +251,24 @@ def generate_ips_tw_summary(df_survey, df_output_merge_final,
                     'MINS_WT', 'TRAFDESIGNWEIGHT']
     df_survey = df_survey[cols_to_keep]
 
-    df_survey_sorted = df_survey.sort_values(var_serialNum)
+    df_survey_sorted = df_survey.sort_values(serial_um)
 
     # drop duplicate column (with 'None' values) across both tables before merging
-    df_survey_sorted_dropped = df_survey_sorted.drop(var_trafficWeight, 1)
+    df_survey_sorted_dropped = df_survey_sorted.drop(traffic_weight, 1)
 
     # merge tables
-    df_summary_tmp = df_survey_sorted_dropped.merge(df_output_merge_final, on=var_serialNum, how='outer')
+    df_summary_tmp = df_survey_sorted_dropped.merge(df_output_merge_final, on=serial_um, how='outer')
 
     # only keep rows where var_priorWeight > 0
     df_summary_tmp = df_summary_tmp[df_summary_tmp[TRAFFIC_DESIGN_WEIGHT_COLUMN] > 0]
 
     # calculate and add the post weight column
-    df_summary_tmp[POST_WEIGHT_COLUMN] = df_summary_tmp[TRAFFIC_DESIGN_WEIGHT_COLUMN] * df_summary_tmp[var_trafficWeight]
+    df_summary_tmp[POST_WEIGHT_COLUMN] = df_summary_tmp[TRAFFIC_DESIGN_WEIGHT_COLUMN] * df_summary_tmp[
+        traffic_weight]
 
-    keep_list = [var_serialNum, STRATA[1],
+    keep_list = [serial_um, STRATA[1],
                  STRATA[0], TRAFFIC_DESIGN_WEIGHT_COLUMN,
-                 var_trafficWeight, POST_WEIGHT_COLUMN]
+                 traffic_weight, POST_WEIGHT_COLUMN]
 
     # only keep the selected columns
     df_summary = df_summary_tmp[keep_list]
@@ -279,7 +282,7 @@ def generate_ips_tw_summary(df_survey, df_output_merge_final,
     # method will possibly be deprecated - may not be an issue
     df_tmp5 = df_summary_sorted.groupby(STRATA) \
         .agg({POST_WEIGHT_COLUMN: {COUNT_COLUMN: 'count', POST_SUM_COLUMN: 'sum'},
-              var_trafficWeight: {var_trafficWeight: 'mean'},
+              traffic_weight: {traffic_weight: 'mean'},
               })
 
     # drop the additional column indexes
@@ -289,38 +292,38 @@ def generate_ips_tw_summary(df_survey, df_output_merge_final,
     df_tmp5 = df_tmp5.reset_index()
 
     # reorder columns for SAS comparison
-    col_order = [STRATA[0], STRATA[1], COUNT_COLUMN, POST_SUM_COLUMN, var_trafficWeight]
+    col_order = [STRATA[0], STRATA[1], COUNT_COLUMN, POST_SUM_COLUMN, traffic_weight]
     df_summary_varpostweight = df_tmp5[col_order]
 
     # add in the traffic totals
-    df_popTotals_stratadef_sort = df_popTotals.sort_values(STRATA)
+    df_popTotals_stratadef_sort = pop_totals.sort_values(STRATA)
 
     # Re-index the data frame
     df_popTotals_stratadef_sort.index = range(df_popTotals_stratadef_sort.shape[0])
 
     df_merged = pd.merge(df_popTotals_stratadef_sort, df_summary_varpostweight, on=STRATA, how='outer')
 
-    df_merged[var_trafficWeight] = df_merged[var_trafficWeight].apply(lambda x: round(x, 3))
+    df_merged[traffic_weight] = df_merged[traffic_weight].apply(lambda x: round(x, 3))
     df_merged[POST_SUM_COLUMN] = df_merged[POST_SUM_COLUMN].apply(lambda x: round(x, 3))
 
     # # reorder columns for SAS comparison
-    col_order = [STRATA[0], STRATA[1], COUNT_COLUMN, TRAFFIC_TOTAL_COLUMN, POST_SUM_COLUMN, var_trafficWeight]
+    col_order = [STRATA[0], STRATA[1], COUNT_COLUMN, TRAFFIC_TOTAL_COLUMN, POST_SUM_COLUMN, traffic_weight]
     df_summary_merge_sum_traftot = df_merged[col_order]
 
     # perform checks and log
     df_sum = df_summary_merge_sum_traftot
-    df_sum_check = df_sum[(df_sum[COUNT_COLUMN].isnull()) | (df_sum[COUNT_COLUMN] < minCountThresh)]
+    df_sum_check = df_sum[(df_sum[COUNT_COLUMN].isnull()) | (df_sum[COUNT_COLUMN] < min_count_thresh)]
     df_sum_check = df_sum_check[STRATA]
 
     if len(df_sum_check) > 0:
         threshold_string_cap = 4000
-        warningStr = "Respondent count below minimum threshold for"
+        warning_str = "Respondent count below minimum threshold for"
 
         # Loop over classificatory variables
         threshold_string = ""
         for index, record in df_sum_check.iterrows():
             threshold_string += \
-                warningStr + " " + STRATA[0] + " = " + str(record[0]) \
+                warning_str + " " + STRATA[0] + " = " + str(record[0]) \
                 + " " + STRATA[1] + "=" + str(record[1]) + "\n"
 
         threshold_string_capped = threshold_string[:threshold_string_cap]
@@ -387,4 +390,3 @@ def do_ips_trafweight_calculation_with_R(survey_data, trtotals):
     cf.insert_dataframe_into_table(SUMMARY_TABLE_NAME, df_summary_merge_sum_traftot)
 
     return ret_out_final, df_summary_merge_sum_traftot
-

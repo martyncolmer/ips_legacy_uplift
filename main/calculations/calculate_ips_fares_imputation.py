@@ -1,14 +1,12 @@
-import inspect
 import math
 
 import numpy as np
-import pandas as pd
-# import survey_support
 
 from main.calculations import ips_impute
-from main.io import CommonFunctions as cf
+from pandas import DataFrame, Series
 
-OUTPUT_TABLE_NAME = 'SAS_FARES_IMP'
+# import survey_support
+
 DATE_VARIABLE = 'INTDATE'
 DONOR_VARIABLE = 'DVFARE'
 OUTPUT_VARIABLE = 'FARE'
@@ -45,7 +43,7 @@ STRATA_BASE_LIST = [['INTMONTH', 'TYPE_PV', 'UKPORT1_PV', 'OSPORT1_PV', 'OPERA_P
                     ['INTMONTH', 'TYPE_PV', 'OSPORT4_PV']]
 
 
-def do_ips_fares_imputation(df_input, var_serial, num_levels, measure):
+def do_ips_fares_imputation(df_input: DataFrame, var_serial: str, num_levels: int, measure: str) -> DataFrame:
     """
     Author       : James Burr
     Date         : 19 Feb 2018
@@ -97,7 +95,7 @@ def do_ips_fares_imputation(df_input, var_serial, num_levels, measure):
     return df_output
 
 
-def compute_additional_fares(row):
+def compute_additional_fares(row: Series):
     """
     Author       : James Burr
     Date         : 13 March 2018
@@ -141,7 +139,8 @@ def compute_additional_fares(row):
                 non_pack_fare = row[BABY_FARE_VARIABLE] * (row[OUTPUT_VARIABLE] - row[APD_VARIABLE])
 
             elif row[AGE_FARE_VARIABLE] == 2:
-                non_pack_fare = (row[CHILD_FARE_VARIABLE] * (row[OUTPUT_VARIABLE] - row[APD_VARIABLE])) + row[APD_VARIABLE]
+                non_pack_fare = (row[CHILD_FARE_VARIABLE] * (row[OUTPUT_VARIABLE] - row[APD_VARIABLE])) + \
+                                row[APD_VARIABLE]
 
             elif row[AGE_FARE_VARIABLE] == 6:
                 non_pack_fare = row[OUTPUT_VARIABLE]
@@ -196,7 +195,7 @@ def compute_additional_spend(row):
 
         else:
             row[SPEND_VARIABLE] = ((row[DISCOUNTED_PACKAGE_COST_VARIABLE] + row[EXPENDITURE_VARIABLE]
-                             + row[BEFAF_VARIABLE]) / row[PERSONS_VARIABLE]) - (row[OUTPUT_VARIABLE] - 2)
+                                    + row[BEFAF_VARIABLE]) / row[PERSONS_VARIABLE]) - (row[OUTPUT_VARIABLE] - 2)
 
     # DVPackage is 0
     else:
@@ -207,8 +206,8 @@ def compute_additional_spend(row):
             row[SPEND_VARIABLE] = 0
 
         elif row[EXPENDITURE_VARIABLE] == 999999 or row[EXPENDITURE_VARIABLE] == np.nan \
-              or row[BEFAF_VARIABLE] == 999999 or row[BEFAF_VARIABLE] == np.nan \
-              or row[PERSONS_VARIABLE] == np.nan:
+                or row[BEFAF_VARIABLE] == 999999 or row[BEFAF_VARIABLE] == np.nan \
+                or row[PERSONS_VARIABLE] == np.nan:
             row[SPEND_VARIABLE] = np.nan
 
         else:
@@ -222,52 +221,3 @@ def compute_additional_spend(row):
 
     return row
 
-
-def ips_fares_imp(survey_data, var_serial, num_levels, measure):
-    """
-    Author       : James Burr
-    Date         : 19 Feb 2018
-    Purpose      : Imputes fares for IPS system
-    Parameters   : survey_data - the IPS survey dataset
-                   var_serial - the serial number field name
-                   num_levels - number of imputation levels
-                   measure - Measure function (e.g. mean)
-    Returns      : Dataframe containing the imputed records
-    Requirements : NA
-    Dependencies : NA
-    """
-
-    # Call JSON configuration file for error logger setup
-    # survey_support.setup_logging('IPS_logging_config_debug.json')
-
-    # Setup path to the base directory containing data files
-    root_data_path = r"\\nsdata3\Social_Surveys_team\CASPA\IPS\Testing\Fares Imputation"
-
-    # This commented out to be changed when data is availabe for this step
-    path_to_survey_data = root_data_path + r"\surveydata.sas7bdat"
-
-    # Import data
-    # This method is untested with a range of data sets but is faster
-    df_surveydata = pd.read_sas(path_to_survey_data)
-
-    df_surveydata[DATE_VARIABLE] = df_surveydata[DATE_VARIABLE].astype(str)
-
-    # Import data via SQL
-    # df_surveydata = cf.get_table_values(SurveyData)
-
-    df_surveydata.columns = df_surveydata.columns.str.upper()
-
-    df_output = do_ips_fares_imputation(df_surveydata, var_serial, num_levels, measure)
-
-    # Append the generated data to output tables
-    cf.insert_dataframe_into_table(OUTPUT_TABLE_NAME, df_output)
-
-    # Retrieve current function name using inspect:
-    # 0 = frame object, 3 = function name.
-    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
-    function_name = str(inspect.stack()[0][3])
-    audit_message = "Load Fares Imputation calculation: %s()" % function_name
-
-    # Log success message in SAS_RESPONSE and AUDIT_LOG
-    cf.database_logger().info("SUCCESS - Completed Fares Imputation.")
-    cf.commit_to_audit_log("Create", "FaresImputation", audit_message)

@@ -5,12 +5,12 @@ import time
 
 from tests import common_testing_functions as ctf
 from pandas.util.testing import assert_frame_equal
-from main.io import CommonFunctions as cf
-from main.io import ips_data_management as idm
+from utils import common_functions as cf
+from main.io import data_management as idm
 from main.calculations import calculate_ips_airmiles
 
 
-with open('data/xml_steps_configuration.json') as config_file:
+with open('data/steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)
 
 RUN_ID = 'test_air_miles_xml'
@@ -52,9 +52,6 @@ def teardown_module(module):
     # Cleanses Survey Subsample table.
     cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID)
 
-    # Play audio notification to indicate test is complete and print duration for performance.
-    cf.beep()
-
     print("Teardown")
 
 
@@ -76,9 +73,6 @@ def test_air_miles_step():
     assert table_len == 19980
 
     sas_survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-
-    # TODO: DELETEY
-    cf.log_dtypes(STEP_NAME, sas_survey_data, run_type='xml')
 
     # Run step 2 / 4
     surveydata_out = calculate_ips_airmiles.do_ips_airmiles_calculation(sas_survey_data,

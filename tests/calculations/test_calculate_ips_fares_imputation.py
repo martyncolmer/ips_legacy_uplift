@@ -1,9 +1,10 @@
 
-from main.calculations.calculate_ips_fares_imputation import do_ips_fares_imputation
 import pandas as pd
-from pandas.util.testing import assert_frame_equal
 import pytest
-import main.io.CommonFunctions as cf
+from pandas.util.testing import assert_frame_equal
+
+import utils.common_functions as cf
+from main.calculations.calculate_ips_fares_imputation import do_ips_fares_imputation
 
 OUTPUT_TABLE_NAME = 'SAS_FARES_IMP'
 

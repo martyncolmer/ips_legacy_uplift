@@ -1,19 +1,17 @@
-import pytest
-import json
-import pandas as pd
 import time
 
+import json
+import pandas as pd
+import pytest
 from pandas.util.testing import assert_frame_equal
-from main.io import CommonFunctions as cf
-from tests import common_testing_functions as ctf
-from main.io import import_traffic_data
-from main.io import ips_data_management as idm
-from main.utils import process_variables
-from main.calculations import calculate_ips_minimums_weight
 
 from main.calculations import calculate_ips_nonresponse_weight as non_resp
+from utils import common_functions as cf
+from main.io import data_management as idm
+from main.utils import process_variables
+from tests import common_testing_functions as ctf
 
-with open('data/xml_steps_configuration.json') as config_file: STEP_CONFIGURATION = json.load(config_file)
+with open('data/steps_configuration.json') as config_file: STEP_CONFIGURATION = json.load(config_file)
 
 RUN_ID = 'test_nonresponse_weight_xml'
 TEST_DATA_DIR = r'tests\data\ips_data_management\non_response_weight_step'
@@ -203,9 +201,9 @@ def test_non_response_weight_step(path_to_data):
 
     # Run step 7 : Apply Non Response Wt PVs On Non Response Data
     process_variables.process(dataset='non_response',
-                                  in_table_name='SAS_NON_RESPONSE_DATA',
-                                  out_table_name='SAS_NON_RESPONSE_PV',
-                                  in_id='REC_ID')
+                              in_table_name='SAS_NON_RESPONSE_DATA',
+                              out_table_name='SAS_NON_RESPONSE_PV',
+                              in_id='REC_ID')
 
     # ###########################
     # run checks 7
@@ -246,9 +244,6 @@ def test_non_response_weight_step(path_to_data):
     df_surveydata_import_actual_sql.index = range(0, len(df_surveydata_import_actual_sql))
 
     df_nr_data_import_actual = cf.get_table_values(SAS_NON_RESPONSE_DATA_TABLE_NAME)
-
-    # TODO: DELETEY
-    cf.log_dtypes(STEP_NAME, df_surveydata_import_actual, run_type='xml', step_df=df_nr_data_import_actual)
 
     # fix formatting in actual data
     df_surveydata_import_actual_sql.drop(['EXPENDCODE'], axis=1, inplace=True)
@@ -330,7 +325,7 @@ def test_non_response_weight_step(path_to_data):
     result = cf.select_data('*', step_config["ps_table"], 'RUN_ID', RUN_ID)
 
     # Indicating no dataframe was pulled from SQL.
-    if result == False:
+    if not result:
         assert True
 
     # Assert SAS_SURVEY_SUBSAMPLE_TABLE was cleansed

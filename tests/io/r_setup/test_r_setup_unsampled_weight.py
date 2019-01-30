@@ -4,17 +4,14 @@ Created on 04 Jun 2018
 @author: David Powell
 '''
 
-import pandas as pd
 import numpy as np
-import pytest as pytest
-from sas7bdat import SAS7BDAT
+import pandas as pd
 from pandas.util.testing import assert_frame_equal
+
 from main.calculations.calculate_ips_unsampled_weight import r_survey_input, r_population_input
-import sys
 
 
 def test_r_survey_input():
-
     # Import the test data
     survey_input = pd.read_pickle('tests/data/r_setup/October_2017/unsampled_weight/survey_input.pkl')
 
@@ -35,7 +32,6 @@ def test_r_survey_input():
 
 
 def test_r_population_input():
-
     # Import the test data
     survey_input = pd.read_pickle('tests/data/r_setup/October_2017/unsampled_weight/survey_input.pkl')
 

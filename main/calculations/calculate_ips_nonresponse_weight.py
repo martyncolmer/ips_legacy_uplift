@@ -1,10 +1,9 @@
-import inspect
-
 import numpy as np
 import pandas as pd
-# import survey_support
 
-from main.io import CommonFunctions as cf
+from utils import common_functions as cf
+
+# import survey_support
 
 NON_RESPONSE_DATA_TABLE_NAME = 'SAS_NON_RESPONSE_DATA'
 OUTPUT_TABLE_NAME = 'SAS_NON_RESPONSE_WT'
@@ -29,7 +28,7 @@ GROSS_RESP_COLUMN = 'GROSS_RESP'
 GNR_COLUMN = 'GNR'
 
 
-def do_ips_nrweight_calculation(survey_data, non_response_data,  non_response_weight_column, var_serial):
+def do_ips_nrweight_calculation(survey_data, non_response_data, non_response_weight_column, var_serial):
     """
     Author       : James Burr
     Date         : Jan 2018
@@ -64,11 +63,9 @@ def do_ips_nrweight_calculation(survey_data, non_response_data,  non_response_we
 
     # Add gross values using the primary sampling weight and add two new columns
     # to df_grossmignonresp
-    df_grossmignonresp['grossmignonresp'] = df_grossmignonresp[PSW_COLUMN] * \
-                                            df_grossmignonresp[NR_TOTALS_COLUMN]
+    df_grossmignonresp['grossmignonresp'] = df_grossmignonresp[PSW_COLUMN] * df_grossmignonresp[NR_TOTALS_COLUMN]
 
-    df_grossmignonresp['grossordnonresp'] = df_grossmignonresp[PSW_COLUMN] * \
-                                            df_grossmignonresp[NON_MIG_TOTALS_COLUMN]
+    df_grossmignonresp['grossordnonresp'] = df_grossmignonresp[PSW_COLUMN] * df_grossmignonresp[NON_MIG_TOTALS_COLUMN]
 
     # Validate that non-response totals can be grossed
     df_migtotal_not_zero = df_grossmignonresp[df_grossmignonresp[NR_TOTALS_COLUMN] != 0]
@@ -95,10 +92,8 @@ def do_ips_nrweight_calculation(survey_data, non_response_data,  non_response_we
     df_surveydata_sliced = df_surveydata_sliced.sort_values(by=NON_RESPONSE_STRATA)
 
     # Create two new columns as aggregations of SHIFT_WT
-    df_sumresp = df_surveydata_sliced.groupby(NON_RESPONSE_STRATA)\
-        [PSW_COLUMN].agg({
-        GROSS_RESP_COLUMN: 'sum',
-        RESP_COUNT_COLUMN: 'count'})
+    df_sumresp = df_surveydata_sliced.groupby(NON_RESPONSE_STRATA)[PSW_COLUMN].agg({GROSS_RESP_COLUMN: 'sum',
+                                                                                    RESP_COUNT_COLUMN: 'count'})
 
     # Flattens the column structure after adding the new gross_resp and count_resps columns
     df_sumresp = df_sumresp.reset_index()
@@ -111,9 +106,7 @@ def do_ips_nrweight_calculation(survey_data, non_response_data,  non_response_we
     df_surveydata_sliced = df_surveydata_sliced.sort_values(by=NON_RESPONSE_STRATA)
 
     # Create new column using the sum of ShiftWt
-    df_sumordnonresp = df_surveydata_sliced.groupby(NON_RESPONSE_STRATA) \
-        [PSW_COLUMN].agg({ \
-        'grossordnonresp': 'sum'})
+    df_sumordnonresp = df_surveydata_sliced.groupby(NON_RESPONSE_STRATA)[PSW_COLUMN].agg({'grossordnonresp': 'sum'})
 
     # Flattens the column structure after adding the new grossordnonresp column
     df_sumordnonresp = df_sumordnonresp.reset_index()
@@ -144,7 +137,8 @@ def do_ips_nrweight_calculation(survey_data, non_response_data,  non_response_we
                                   df_gnr['grossordnonresp'] + df_gnr['grossmignonresp'] + df_gnr['grossinelresp'], 0)
 
     df_gnr[non_response_weight_column] = np.where(df_gnr[GROSS_RESP_COLUMN] != 0,
-                                    (df_gnr[GNR_COLUMN] + df_gnr[GROSS_RESP_COLUMN]) / df_gnr[GROSS_RESP_COLUMN], np.NaN)
+                                                  (df_gnr[GNR_COLUMN] + df_gnr[GROSS_RESP_COLUMN]) / df_gnr[
+                                                      GROSS_RESP_COLUMN], np.NaN)
 
     df_gross_resp_is_zero = df_gnr[df_gnr[GROSS_RESP_COLUMN] == 0]
 
@@ -171,8 +165,8 @@ def do_ips_nrweight_calculation(survey_data, non_response_data,  non_response_we
     df_out = df_out.sort_values(by=NON_RESPONSE_STRATA)
 
     # Create and add three new columns calculated using SHIFT_WT
-    df_summary = df_out.groupby(SHIFTS_STRATA)[PSW_COLUMN].agg({MEAN_SW_COLUMN: 'mean', \
-                                                                RESP_COUNT_COLUMN: 'count', \
+    df_summary = df_out.groupby(SHIFTS_STRATA)[PSW_COLUMN].agg({MEAN_SW_COLUMN: 'mean',
+                                                                RESP_COUNT_COLUMN: 'count',
                                                                 PRIOR_SUM_COLUMN: 'sum'})
 
     # Flatten column structure
@@ -192,7 +186,8 @@ def do_ips_nrweight_calculation(survey_data, non_response_data,  non_response_we
 
     # Merge the updated dataframe with specific columns from GNR.
     df_summary = df_gnr[NON_RESPONSE_STRATA + [GNR_COLUMN, GROSS_RESP_COLUMN]].merge(df_summary,
-                                                                                     on=NON_RESPONSE_STRATA, how='outer')
+                                                                                     on=NON_RESPONSE_STRATA,
+                                                                                     how='outer')
 
     # Calculate new non_response_wt value if condition is met
     df_out[non_response_weight_column] = np.where(df_out[MIG_FLAG_COLUMN] == 0,
@@ -226,46 +221,3 @@ def do_ips_nrweight_calculation(survey_data, non_response_data,  non_response_we
     return df_out, df_summary
 
 
-def calculate(survey_data, non_response_weight_column, var_serial):
-    """
-    Author       : James Burr
-    Date         : Jan 2018
-    Purpose      : Function called to setup and initiate the calculation
-   Parameters   : survey_data = the IPS survey records for the period.
-                 : non_response_weight_column = Variable holding the name of the non-resp. weight field
-                 : var_serial = Variable holding the name of the record number field
-    Returns      : N/A
-    Requirements : 
-    Dependencies : 
-    """
-
-    # Call JSON configuration file for error logger setup
-    # survey_support.setup_logging('IPS_logging_config_debug.json')
-
-    # Import data via SQL
-    df_surveydata = cf.get_table_values(survey_data)
-    df_nonresponsedata = cf.get_table_values(NON_RESPONSE_DATA_TABLE_NAME)
-
-    df_surveydata.columns = df_surveydata.columns.str.upper()
-    df_nonresponsedata.columns = df_nonresponsedata.columns.str.upper()
-
-    weight_calculated_dataframes = do_ips_nrweight_calculation(df_surveydata, df_nonresponsedata,
-                                                               non_response_weight_column, var_serial)
-
-    # Extract the two data sets returned from do_ips_nrweight_calculation
-    surveydata_dataframe = weight_calculated_dataframes[0]
-    summary_dataframe = weight_calculated_dataframes[1]
-
-    # Append the generated data to output tables
-    cf.insert_dataframe_into_table(OUTPUT_TABLE_NAME, surveydata_dataframe)
-    cf.insert_dataframe_into_table(SUMMARY_TABLE_NAME, summary_dataframe)
-
-    # Retrieve current function name using inspect:
-    # 0 = frame object, 3 = function name. 
-    # See 28.13.4. in https://docs.python.org/2/library/inspect.html
-    function_name = str(inspect.stack()[0][3])
-    audit_message = "Load NonResponse Weight calculation: %s()" % function_name
-
-    # Log success message in SAS_RESPONSE and AUDIT_LOG
-    cf.database_logger().info("SUCCESS - Completed NonResponse weight calculation.")
-    cf.commit_to_audit_log("Create", "NonReponse", audit_message)
