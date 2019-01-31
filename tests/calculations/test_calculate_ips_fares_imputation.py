@@ -3,16 +3,16 @@ import pandas as pd
 import pytest
 from pandas.util.testing import assert_frame_equal
 
-import utils.common_functions as cf
+import main.utils.common_functions as cf
 from main.calculations.calculate_ips_fares_imputation import do_ips_fares_imputation
 
 OUTPUT_TABLE_NAME = 'SAS_FARES_IMP'
 
 
 @pytest.mark.parametrize('data_path', [
-    r'tests\data\calculations\december_2017\fares',
-    r'tests\data\calculations\november_2017\fares',
-    r'tests\data\calculations\october_2017\fares',
+    r'../data/calculations/december_2017/fares',
+    r'../data/calculations/november_2017/fares',
+    r'../data/calculations/october_2017/fares',
     ])
 def test_calculate(data_path):
     """

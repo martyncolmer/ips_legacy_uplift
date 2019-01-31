@@ -5,9 +5,9 @@ import pandas as pd
 
 from main.calculations import calculate_ips_traffic_weight as tr_calc
 from utils import common_functions as cf
-from main.io import import_survey_data
-from main.io import import_reference_data
-from main.io import data_management as idm
+from main.db import import_survey_data
+from main.db import import_reference_data
+from main.db import data_management as idm
 
 
 def import_survey_data_into_database(survey_data_path, run_id):

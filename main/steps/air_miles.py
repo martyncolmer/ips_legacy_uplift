@@ -1,5 +1,5 @@
 from calculations import calculate_ips_airmiles
-from io import data_management as idm
+from db import data_management as idm
 from utils import common_functions as cf
 from main import STEP_CONFIGURATION
 

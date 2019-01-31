@@ -8,7 +8,7 @@ Modified last: 14th Sep 2018
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 from main.calculations import calculate_ips_nonresponse_weight as non_resp
-import main.io.data_management as idm
+import main.db.data_management as idm
 import utils.common_functions as cf
 import pytest
 

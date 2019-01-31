@@ -9,7 +9,7 @@ from pandas.util.testing import assert_frame_equal
 from main.calculations.calculate_ips_traffic_weight import do_ips_trafweight_calculation_with_R
 import utils.common_functions as cf
 import pytest
-import main.io.data_management as idm
+import main.db.data_management as idm
 import main.calculations.calculate_ips_traffic_weight as tr_calc
 
 

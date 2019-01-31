@@ -23,7 +23,7 @@ import steps.traffic_weight
 import steps.unsampled_weight
 from utils import common_functions as cf
 from tests import common_testing_functions as ctf
-from main.io import data_management as idm
+from main.db import data_management as idm
 
 with open(r'data/steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)

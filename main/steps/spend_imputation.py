@@ -1,5 +1,5 @@
 from calculations import calculate_ips_spend_imputation
-from io import data_management as idm
+from db import data_management as idm
 from main import STEP_CONFIGURATION
 from utils import process_variables, common_functions as cf
 
