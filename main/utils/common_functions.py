@@ -4,15 +4,13 @@ Created on 24 Nov 2017
 @author: Elinor Thorne
 """
 
-import pyodbc
-
 import logging
 import os
+import sqlite3
 from sqlite3.dbapi2 import Connection
+from typing import Optional
 
 import pandas
-from typing import Optional
-import sqlite3
 
 
 def database_logger() -> logging.Logger:
@@ -48,46 +46,6 @@ def standard_log_message(err_msg: str, current_working_file: str, func_name: str
     return (err_msg
             + ' - File "' + current_working_file
             + '", in ' + func_name + '()')
-
-
-def validate_file(xfile: str, current_working_file: str, function_name: str) -> bool:
-    """
-    Author        : Elinor Thorne
-    Date          : 7 Dec 2017
-    Purpose       : Generic function to validate file. Validation includes: 
-                  : empty string instead of filename,
-                  : checking file exists, and if file is empty  
-    Parameters    : xfile (file is reserved keyword) - file to validate
-                  : function_name - source function of failed validation 
-    Returns       : True/False (boolean)  
-    Requirements  : None
-    Dependencies  : inspect,
-                    database_logger(),
-    """
-
-    if xfile == "":
-        # If file name not given
-        err_msg = "ERROR: File name not provided"
-        database_logger().error(standard_log_message(err_msg
-                                                     , current_working_file
-                                                     , function_name))
-        return False
-    if not os.path.exists(xfile):
-        # If file does not exist
-        err_msg = "ERROR: File does not exist"
-        database_logger().error(standard_log_message(err_msg
-                                                     , current_working_file
-                                                     , function_name))
-        return False
-    if os.path.getsize(xfile) == 0:
-        # If file is empty 
-        err_msg = "ERROR: File is empty"
-        database_logger().error(standard_log_message(err_msg
-                                                     , current_working_file
-                                                     , function_name))
-        return False
-    else:
-        return True
 
 
 def get_sql_connection() -> Optional[Connection]:
@@ -150,6 +108,7 @@ def drop_table(table_name: str) -> None:
     except Exception as err:
         print(err)
     finally:
+        cur.close()
         conn.close()
 
 
@@ -206,6 +165,7 @@ def delete_from_table(table_name: str, condition1: str = None, operator: str = N
     except Exception as err:
         print(err)
     finally:
+        cur.close()
         conn.close()
 
 
@@ -260,14 +220,14 @@ def get_table_values(table_name: str) -> pandas.DataFrame:
     sql = "SELECT * from " + table_name
 
     try:
-        return pandas.read_sql(sql, conn)
+        return pandas.read_sql(sql, con=conn)
     except Exception as err:
         print(err)
     finally:
         conn.close()
 
 
-def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame, fast=True) -> int:
+def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame, fast=True) -> None:
     """
     Author       : Thomas Mahoney
     Date         : 02 Jan 2018
@@ -284,49 +244,19 @@ def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame, fa
     conn = get_sql_connection()
     if conn is None:
         print("Cannot get database connection")
-        return 0
+        return None
 
     cur = conn.cursor()
-    cur.fast_executemany = fast
 
     dataframe = dataframe.where((pandas.notnull(dataframe)), None)
-
-    # Extract the dataframe values into a collection of rows
-    rows = [tuple(x) for x in dataframe.values]
-
-    # Force the dataframe columns to be uppercase
     dataframe.columns = dataframe.columns.astype(str)
 
-    # Generate a list of columns from the dataframe column collection
-    columns_list = dataframe.columns.tolist()
-
-    # Create the column header string by stripping the unneeded syntax from the column list+63
-
-    columns_string = str(columns_list)
-    columns_string = columns_string.replace(']', "").replace('[', "").replace("'", "")
-
-    # Create a value string to hold the SQL query's parameter placeholders.
-    value_string = ""
-
-    # Populate the string for each column in the dataframe.
-    for x in range(0, len(dataframe.columns.tolist())):
-        if x is 0:
-            value_string += "?"
-        else:
-            value_string += ", ?"
-
-    # Use the strings created above to build the sql query.
-    sql = "INSERT into " + table_name + \
-          "(" + columns_string + ") VALUES (" + value_string + ")"
-
     try:
-        cur.executemany(sql, rows)
+        dataframe.to_sql(table_name, con=conn, if_exists='replace',
+                         chunksize=5000, index=False)
     except Exception as err:
         print(err)
-        return 0
+        return None
     finally:
         cur.close()
         conn.close()
-
-    # Returns number of rows added to table for validation
-    return len(rows)

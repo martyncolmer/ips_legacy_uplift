@@ -107,6 +107,8 @@ def compute_additional_fares(row: Series):
     """
 
     # Force the variable formatting to 8digit date
+
+    row[DATE_VARIABLE] = str(row[DATE_VARIABLE])
     row[DATE_VARIABLE] = row[DATE_VARIABLE].zfill(8)
 
     non_pack_fare = np.NaN

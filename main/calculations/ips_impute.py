@@ -27,6 +27,7 @@ def ips_impute(df_input, var_serial_num, strata_base_list, thresh_base_list, num
 
     # Create the donor set, in which the impute flag is false    
     df_output = df_input
+    # df_output.set_index([['INTMONTH', 'TYPE_PV', 'UKPORT1_PV', 'OSPORT1_PV', 'OPERA_PV']], inplace=True, drop=False)
 
     df_to_impute = df_input.loc[df_input[var_impute_flag] == 1.0]
 
@@ -154,9 +155,8 @@ def ips_impute_match(remainder, df_input, output, strata, var_value, impute_var,
     """
 
     # Create sorted dataframes from passed-in data
-    df_remainder = remainder
 
-    df_remainder = df_remainder.sort_values(strata)
+    df_remainder = remainder.sort_values(strata)
 
     df_input = df_input.sort_values(strata)
 
@@ -165,7 +165,12 @@ def ips_impute_match(remainder, df_input, output, strata, var_value, impute_var,
     # df_remainder = pd.merge(df_remainder, df_input, how = "outer"
     #                       , indicator = True).query("_merge == 'left_only'")
 
-    df_remainder = pd.merge(df_remainder, df_input, how="left")
+    # df_remainder = pd.merge(df_remainder, df_input, how="left")
+
+    df_remainder['INTMONTH'] = pd.to_numeric(df_remainder['INTMONTH'])
+    df_input['INTMONTH'] = pd.to_numeric(df_input['INTMONTH'])
+
+    df_remainder.merge(df_input, how="left")
 
     # df_remainder = df_remainder.drop('_merge', axis = 1)
     df_remainder = df_remainder.reset_index(drop=True)
@@ -176,8 +181,11 @@ def ips_impute_match(remainder, df_input, output, strata, var_value, impute_var,
     # Indicator = True creates a new column '_merge' which identifies which
     # dataset contributed each column. This column is used further below.
     df_output = output
-    df_output = df_output.merge(df_input, how="left"
-                                , on=strata, indicator=True)
+
+    df_output['INTMONTH'] = pd.to_numeric(df_output['INTMONTH'])
+    df_input['INTMONTH'] = pd.to_numeric(df_input['INTMONTH'])
+
+    df_output = df_output.merge(df_input, how="left", on=strata, indicator=True)
 
     df_output.sort_values(strata, inplace=True)
 
@@ -190,7 +198,7 @@ def ips_impute_match(remainder, df_input, output, strata, var_value, impute_var,
     # calculate imputed column, collect the count value and record which 
     # iteration level this row was imputed in.
 
-    if (var_value not in df_output.columns):
+    if var_value not in df_output.columns:
         df_output[var_value] = 0
 
     condition = (df_output[var_level].isnull()) & (df_output[var_impute_flag] == 1.0) & (df_output['_merge'] == 'both')
@@ -205,4 +213,4 @@ def ips_impute_match(remainder, df_input, output, strata, var_value, impute_var,
 
     df_output = df_output.sort_values(strata)
 
-    return (df_output, df_remainder)
+    return df_output, df_remainder
