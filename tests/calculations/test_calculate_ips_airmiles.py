@@ -5,18 +5,18 @@ Created on 17 Sep 2019
 '''
 
 import pandas as pd
-from pandas.util.testing import assert_frame_equal
 import pytest
+from pandas.util.testing import assert_frame_equal
 
-from main.calculations.calculate_ips_airmiles import do_ips_airmiles_calculation
 import utils.common_functions as cf
+from main.calculations.calculate_ips_airmiles import do_ips_airmiles_calculation
 
 # define the table names
 OUT_TABLE_NAME = "SAS_AIR_MILES"
-SAS_SURVEY_SUBSAMPLE_TABLE = "[dbo].[SAS_SURVEY_SUBSAMPLE]"
+SAS_SURVEY_SUBSAMPLE_TABLE = "SAS_SURVEY_SUBSAMPLE"
+
 
 def clear_tables():
-
     # clear the input SQL server tables for the step
     cf.delete_from_table(SAS_SURVEY_SUBSAMPLE_TABLE)
 
@@ -30,12 +30,11 @@ def convert_dataframe_to_sql_format(table_name, dataframe):
 
 
 @pytest.mark.parametrize('path_to_data', [
-    r'tests\data\calculations\december_2017\air_miles',
-    r'tests\data\calculations\november_2017\air_miles',
-    r'tests\data\calculations\october_2017\air_miles',
-    ])
+    r'../data/calculations/december_2017/air_miles',
+    r'../data/calculations/november_2017/air_miles',
+    r'../data/calculations/october_2017/air_miles',
+])
 def test_calculate(path_to_data):
-
     # clear the input and output tables
     clear_tables()
 
@@ -63,4 +62,4 @@ def test_calculate(path_to_data):
     clear_tables()
 
     # Check the results match
-    assert_frame_equal(py_out_data, test_result_survey_sql,  check_dtype=False, check_like=True)
+    assert_frame_equal(py_out_data, test_result_survey_sql, check_dtype=False, check_like=True)

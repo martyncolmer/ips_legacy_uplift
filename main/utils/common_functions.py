@@ -250,6 +250,7 @@ def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame, fa
 
     dataframe = dataframe.where((pandas.notnull(dataframe)), None)
     dataframe.columns = dataframe.columns.astype(str)
+    dataframe.columns = dataframe.columns.str.upper()
 
     try:
         dataframe.to_sql(table_name, con=conn, if_exists='replace',
