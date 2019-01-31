@@ -8,8 +8,11 @@ import pyodbc
 
 import logging
 import os
+from sqlite3.dbapi2 import Connection
+
 import pandas
 from typing import Optional
+import sqlite3
 
 
 def database_logger() -> logging.Logger:
@@ -87,7 +90,7 @@ def validate_file(xfile: str, current_working_file: str, function_name: str) -> 
         return True
 
 
-def get_sql_connection() -> Optional[pyodbc.Connection]:
+def get_sql_connection() -> Optional[Connection]:
     """
     Author       : Thomas Mahoney / Nassir Mohammad (edits)
     Date         : 11 / 07 / 2018
@@ -100,16 +103,17 @@ def get_sql_connection() -> Optional[pyodbc.Connection]:
     """
 
     # Get credentials and decrypt
-    username = os.getenv("DB_USER_NAME")
-    password = os.getenv("DB_PASSWORD")
-    database = os.getenv("DB_NAME")
-    server = os.getenv("DB_SERVER")
+    # username = os.getenv("DB_USER_NAME")
+    # password = os.getenv("DB_PASSWORD")
+    # database = os.getenv("DB_NAME")
+    # server = os.getenv("DB_SERVER")
 
     # Attempt to connect to the database
     try:
-        conn = pyodbc.connect(driver="{SQL Server}", server=server,
-                              database=database, uid=username, pwd=password,
-                              autocommit=True, p_str=None)
+        # conn = pyodbc.connect(driver="{ODBC Driver 17 for SQL Server}", server=server,
+        #                       database=database, uid=username, pwd=password,
+        #                       autocommit=True, p_str=None)
+        conn: Connection = sqlite3.connect("../data/ips.db")
     except Exception as err:
         # print("computer says no")
         database_logger().error(err, exc_info=True)
@@ -321,6 +325,7 @@ def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame, fa
         print(err)
         return 0
     finally:
+        cur.close()
         conn.close()
 
     # Returns number of rows added to table for validation

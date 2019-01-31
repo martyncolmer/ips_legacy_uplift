@@ -1,10 +1,11 @@
-
 import pandas as pd
 import pytest
 from pandas.util.testing import assert_frame_equal
 
 import main.utils.common_functions as cf
 from main.calculations.calculate_ips_fares_imputation import do_ips_fares_imputation
+
+import sqlite3
 
 OUTPUT_TABLE_NAME = 'SAS_FARES_IMP'
 
@@ -13,7 +14,7 @@ OUTPUT_TABLE_NAME = 'SAS_FARES_IMP'
     r'../data/calculations/december_2017/fares',
     r'../data/calculations/november_2017/fares',
     r'../data/calculations/october_2017/fares',
-    ])
+])
 def test_calculate(data_path):
     """
     Author        : Thomas Mahoney
@@ -28,9 +29,18 @@ def test_calculate(data_path):
     cf.delete_from_table(OUTPUT_TABLE_NAME)
 
     # Read the test input data in and write it to the import table
-    path_to_surveydata = data_path + r"\surveydata.csv"
+    path_to_surveydata = data_path + r"/surveydata.csv"
     df_surveydata = pd.read_csv(path_to_surveydata, engine='python')
-    cf.insert_dataframe_into_table('SAS_SURVEY_SUBSAMPLE', df_surveydata)
+
+    # cf.insert_dataframe_into_table('SAS_SURVEY_SUBSAMPLE', df_surveydata)
+
+    conn = cf.get_sql_connection()
+    if conn is None:
+        print("Cannot get database connection")
+        return 0
+
+    df_surveydata.to_sql('SAS_SURVEY_SUBSAMPLE', con=conn, if_exists='replace',
+                         chunksize=5000, index=False)
 
     # Read the data from SQL (as it will in the production ready system)
     df_surveydata = cf.get_table_values('SAS_SURVEY_SUBSAMPLE')
