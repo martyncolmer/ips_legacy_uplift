@@ -9,9 +9,9 @@ SUMMARY_TABLE_NAME = 'SAS_PS_FINAL'
 
 
 @pytest.mark.parametrize('data_path', [
-    r'tests\data\calculations\december_2017\final_weight',
-    r'tests\data\calculations\november_2017\final_weight',
-    r'tests\data\calculations\october_2017\final_weight',
+    r'../data\calculations/december_2017/final_weight',
+    r'../data\calculations/november_2017/final_weight',
+    r'../data\calculations/october_2017/final_weight',
     ])
 def test_calculate(data_path):
     """
@@ -69,5 +69,5 @@ def test_calculate(data_path):
     df_survey_expected = df_survey_expected.sort_values('SERIAL')
     df_survey_expected.index = range(0, len(df_survey_expected))
 
-    assert_frame_equal(df_survey_result, df_survey_expected)
+    assert_frame_equal(df_survey_result, df_survey_expected, check_like=True, check_dtype=False)
 

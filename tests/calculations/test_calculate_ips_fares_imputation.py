@@ -1,5 +1,3 @@
-from timeit import default_timer as timer
-
 import pandas as pd
 import pytest
 from pandas.util.testing import assert_frame_equal
@@ -70,7 +68,6 @@ def test_calculate(data_path):
     df_survey_expected = pd.read_csv(path_to_survey_result, engine='python')
     df_survey_expected = convert_dataframe_to_sql_format(OUTPUT_TABLE_NAME, df_survey_expected)
 
-    start = timer()
     # Sort the dataframes for comparison
     df_survey_result = df_survey_result.sort_values('SERIAL')
     df_survey_result.index = range(0, len(df_survey_result))
@@ -78,8 +75,5 @@ def test_calculate(data_path):
     df_survey_expected = df_survey_expected.sort_values('SERIAL')
     df_survey_expected.index = range(0, len(df_survey_expected))
 
-    end = timer()
-    print(" time for df_survey_result.index: " + str(end - start))
     # Check the output matches our expected results
     assert_frame_equal(df_survey_result, df_survey_expected, check_like=True, check_dtype=False)
-
