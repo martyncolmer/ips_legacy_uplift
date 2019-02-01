@@ -28,7 +28,7 @@ def test_calculate(data_path):
                                           num_levels=9,
                                           measure='mean')
 
-    path_to_survey_result = data_path + r"\outputdata_final.csv"
+    path_to_survey_result = data_path + r"/outputdata_final.csv"
     df_survey_expected = pd.read_csv(path_to_survey_result, engine='python')
 
     # Sort the dataframes for comparison

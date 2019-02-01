@@ -4,9 +4,6 @@ from pandas.util.testing import assert_frame_equal
 
 from main.calculations.calculate_ips_final_weight import do_ips_final_wt_calculation
 
-OUTPUT_TABLE_NAME = 'SAS_FINAL_WT'
-SUMMARY_TABLE_NAME = 'SAS_PS_FINAL'
-
 
 @pytest.mark.parametrize('data_path', [
     r'../data/calculations/december_2017/final_weight',

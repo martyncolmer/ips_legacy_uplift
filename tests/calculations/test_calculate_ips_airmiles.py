@@ -30,6 +30,7 @@ def test_calculate(path_to_data):
     test_result = pd.read_csv(path_to_data + '/airmiles_output.csv', engine='python')
     test_result = test_result.sort_values(by='SERIAL')
     test_result.index = range(0, len(test_result))
+
     test_result.columns = test_result.columns.str.upper()
 
     assert_frame_equal(py_out_data, test_result, check_dtype=False, check_like=True)
