@@ -1,5 +1,6 @@
-from pandas import DataFrame
 from typing import Tuple
+
+from pandas import DataFrame
 
 NUMBER_RECORDS_DISPLAYED = 20
 
@@ -36,9 +37,8 @@ def do_ips_final_wt_calculation(df_surveydata: DataFrame, serial_num, shift_weig
                                     df_final_weight[unsampled_weight] * df_final_weight[imbalance_weight]
 
     # Generate summary output
-    df_summary = df_final_weight[[serial_num, shift_weight, non_response_weight
-        , min_weight, traffic_weight, unsampled_weight
-        , imbalance_weight, final_weight]]
+    df_summary = df_final_weight[[serial_num, shift_weight, non_response_weight, min_weight, traffic_weight,
+                                  unsampled_weight, imbalance_weight, final_weight]]
 
     # Sort summary, then select var_recordsDisplayed number of random rows for
     # inclusion in the summary dataset
@@ -49,4 +49,4 @@ def do_ips_final_wt_calculation(df_surveydata: DataFrame, serial_num, shift_weig
     # Condense output dataset to the two required variables
     df_output = df_final_weight[[serial_num, final_weight]]
 
-    return Tuple[df_output, df_summary]
+    return df_output, df_summary
