@@ -22,6 +22,16 @@ def test_calculate(data_path):
     # Read the test input data in and write it to the import table
     path_to_surveydata = data_path + r"/surveydata.csv"
     df_surveydata = pd.read_csv(path_to_surveydata, engine='python', na_values=['£', '?', ' '])
+    df_surveydata['APORTLATNS'] = df_surveydata['APORTLATNS'].astype('category')
+    df_surveydata['APORTLONEW'] = df_surveydata['APORTLONEW'].astype('category')
+    df_surveydata['CPORTLATNS'] = df_surveydata['CPORTLATNS'].astype('category')
+    df_surveydata['CPORTLONEW'] = df_surveydata['CPORTLONEW'].astype('category')
+
+    df_surveydata['PROUTELATNS'] = df_surveydata['PROUTELATNS'].astype('category')
+    df_surveydata['PROUTELONEW'] = df_surveydata['PROUTELONEW'].astype('category')
+
+    df_surveydata['SAMP_PORT_GRP_PV'] = df_surveydata['SAMP_PORT_GRP_PV'].astype('category')
+    df_surveydata.drop(['EXPENDCODE'], axis=1)
 
     output_data = do_ips_fares_imputation(df_surveydata,
                                           var_serial='SERIAL',

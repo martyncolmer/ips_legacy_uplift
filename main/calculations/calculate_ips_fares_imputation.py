@@ -71,7 +71,8 @@ def do_ips_fares_imputation(df_input: DataFrame, var_serial: str, num_levels: in
 
     df_input.sort_values(var_serial, inplace=True)
 
-    df_output = df_input.merge(df_output, on=var_serial, how='left')
+    # df_output = df_input.merge(df_output, on=var_serial, how='left')
+    df_output = df_input.merge(df_output, how='left', left_on=var_serial, right_on=var_serial)
 
     # Above merge creates fares_x and fares_y column; this line removes the empty
     # fares_x column and keeps then renames the imputed fares_y column 

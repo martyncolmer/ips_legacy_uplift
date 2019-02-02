@@ -166,10 +166,8 @@ def ips_impute_match(remainder, df_input, output, strata, var_value, impute_var,
 
     # df_remainder = pd.merge(df_remainder, df_input, how="left")
 
-    # df_remainder['INTMONTH'] = pd.to_numeric(df_remainder['INTMONTH'])
-    # df_input['INTMONTH'] = pd.to_numeric(df_input['INTMONTH'])
-
-    df_remainder.merge(df_input, how="left")
+    # TODO: This doesn't seem to do anything?
+    # df_remainder.merge(df_input, how="left")
 
     # df_remainder = df_remainder.drop('_merge', axis = 1)
     df_remainder = df_remainder.reset_index(drop=True)
@@ -180,9 +178,6 @@ def ips_impute_match(remainder, df_input, output, strata, var_value, impute_var,
     # Indicator = True creates a new column '_merge' which identifies which
     # dataset contributed each column. This column is used further below.
     df_output = output
-
-    # df_output['INTMONTH'] = pd.to_numeric(df_output['INTMONTH'])
-    # df_input['INTMONTH'] = pd.to_numeric(df_input['INTMONTH'])
 
     df_output = df_output.merge(df_input, how="left", on=strata, indicator=True)
 
