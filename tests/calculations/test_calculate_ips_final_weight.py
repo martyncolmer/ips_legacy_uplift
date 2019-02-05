@@ -45,7 +45,7 @@ def test_calculate(data_path):
     df_survey_expected.index = range(0, len(df_survey_expected))
 
     df_survey_expected.columns = df_survey_expected.columns.str.upper()
-    # round the values for comparison
+    # PS: round the values for comparison
     df_survey_result['FINAL_WT'] = df_survey_result['FINAL_WT'].apply(lambda x: round(x, 3))
     df_survey_expected['FINAL_WT'] = df_survey_expected['FINAL_WT'].apply(lambda x: round(x, 3))
 

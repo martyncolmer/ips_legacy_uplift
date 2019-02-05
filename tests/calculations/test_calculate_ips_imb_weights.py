@@ -20,7 +20,7 @@ def test_calculate(data_path):
     """
 
     # Read the test input data in and write it to the import table
-    path_to_surveydata = data_path + r"\surveydata.csv"
+    path_to_surveydata = data_path + r"/surveydata.csv"
     df_surveydata = pd.read_csv(path_to_surveydata, engine='python')
 
     # Run the calculation step

@@ -154,8 +154,6 @@ def calculate_ips_crossing_factor(df_shiftsdata, df_surveydata):
     Dependencies : NA
     """
 
-    print("Calculate IPS Crossing Factor")
-
     # Set the new data frames from the SAS data sets
     df_crossingsdata = df_shiftsdata
     df_outputdata = df_surveydata
@@ -347,11 +345,11 @@ def do_ips_shift_weight_calculation(df_surveydata, df_shiftsdata, var_serialNum,
         cf.database_logger().error('Error: Case(s) missing migration sampling interval' + threshold_string)
 
     # --------------------------------------------------------------------
-    # Calculate shift weight
+    # Calculate shift weight: PS - add round to match expected in test?
     # --------------------------------------------------------------------
-    df_surveydata_merge[var_shiftWeight] = df_surveydata_merge[FACTOR_COLUMN] \
-                                           * df_surveydata_merge[CROSSING_FACTOR_COLUMN] \
-                                           * df_surveydata_merge[MIG_SI_COLUMN]
+    df_surveydata_merge[var_shiftWeight] = round(
+        df_surveydata_merge[FACTOR_COLUMN] * df_surveydata_merge[CROSSING_FACTOR_COLUMN] * df_surveydata_merge[
+            MIG_SI_COLUMN], 3)
 
     # --------------------------------------------------------------------
     # produce shift weight summary output
@@ -372,6 +370,16 @@ def do_ips_shift_weight_calculation(df_surveydata, df_shiftsdata, var_serialNum,
 
     # Flatten summary columns to single row after aggregation
     df_surveydata_merge_sorted_grouped = df_surveydata_merge_sorted_grouped.reset_index()
+
+    # PS: round column
+    df_surveydata_merge_sorted_grouped[WEIGHT_SUM_COLUMN] = df_surveydata_merge_sorted_grouped[WEIGHT_SUM_COLUMN].round(
+        3)
+    df_surveydata_merge_sorted_grouped[MIN_WEIGHT_COLUMN] = df_surveydata_merge_sorted_grouped[MIN_WEIGHT_COLUMN].round(
+        3)
+    df_surveydata_merge_sorted_grouped[AVERAGE_WEIGHT_COLUMN] = df_surveydata_merge_sorted_grouped[
+        AVERAGE_WEIGHT_COLUMN].round(3)
+    df_surveydata_merge_sorted_grouped[MAX_WEIGHT_COLUMN] = df_surveydata_merge_sorted_grouped[MAX_WEIGHT_COLUMN].round(
+        3)
 
     # --------------------------------------------------------------------
     # Merge possible shifts to summary
@@ -418,6 +426,13 @@ def do_ips_shift_weight_calculation(df_surveydata, df_shiftsdata, var_serialNum,
 
     # Flatten summary high columns to single row after aggregation
     df_summary_high = df_summary_high.reset_index()
+
+    # PS: round column
+    df_summary_high[COUNT_COLUMN] = df_summary_high[COUNT_COLUMN].round(3)
+    df_summary_high[AVERAGE_WEIGHT_COLUMN] = df_summary_high[AVERAGE_WEIGHT_COLUMN].round(3)
+    df_summary_high[MIN_WEIGHT_COLUMN] = df_summary_high[MIN_WEIGHT_COLUMN].round(3)
+    df_summary_high[AVERAGE_WEIGHT_COLUMN] = df_summary_high[AVERAGE_WEIGHT_COLUMN].round(3)
+    df_summary_high[MAX_WEIGHT_COLUMN] = df_summary_high[MAX_WEIGHT_COLUMN].round(3)
 
     # # test code start
     # df_test = pd.read_pickle(path_to_data+ r"\highsummary.pkl")

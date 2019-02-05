@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 
 
 def ips_impute(df_input, var_serial_num, strata_base_list, thresh_base_list, num_levels,
@@ -39,7 +38,7 @@ def ips_impute(df_input, var_serial_num, strata_base_list, thresh_base_list, num
     # each iteration of the while loop, accessed through the key which uses
     # the iteration number to define it. SAS creates intermediate datasets in 
     # this style, but may not use them.
-    dictionary_of_dataframes = {}
+    # dictionary_of_dataframes = {}
 
     count = 'COUNT'
 
@@ -47,7 +46,7 @@ def ips_impute(df_input, var_serial_num, strata_base_list, thresh_base_list, num
 
     # Loop until no more records can be imputed or max number of iterations is reached
     while (level < num_levels) & (not df_to_impute.empty):
-        key_name = 'df_output_match_' + str(level)
+        # key_name = 'df_output_match_' + str(level)
 
         # strata_base_list is a list containing other lists, which control sorting
         # at each iteration level.
@@ -74,7 +73,7 @@ def ips_impute(df_input, var_serial_num, strata_base_list, thresh_base_list, num
         df_to_impute = df_output_frames[1]
 
         # Stores a copy of the current output dataset (may be redundant)
-        dictionary_of_dataframes[key_name] = df_output.copy()
+        # dictionary_of_dataframes[key_name] = df_output.copy()
 
         level += 1
 
