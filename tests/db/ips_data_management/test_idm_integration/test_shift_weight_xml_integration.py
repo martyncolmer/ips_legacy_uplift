@@ -5,10 +5,9 @@ import pandas as pd
 import pytest
 from pandas.util.testing import assert_frame_equal
 
-from main.calculations import calculate_ips_shift_weight
-from utils import common_functions as cf
-from main.db import data_management as idm
-from main.utils import process_variables
+from ips.calculations import calculate_ips_shift_weight
+from ips.utils import common_functions as cf, process_variables
+from ips.db import data_management as idm
 from tests import common_testing_functions as ctf
 
 with open(r'data/steps_configuration.json') as config_file:

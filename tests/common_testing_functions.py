@@ -3,11 +3,9 @@ import time
 import os
 import pandas as pd
 
-from main.calculations import calculate_ips_traffic_weight as tr_calc
-from utils import common_functions as cf
-from main.db import import_survey_data
-from main.db import import_reference_data
-from main.db import data_management as idm
+from ips.calculations import calculate_ips_traffic_weight as tr_calc
+from ips.utils import common_functions as cf
+from ips.db import data_management as idm, import_reference_data, import_survey_data
 
 
 def import_survey_data_into_database(survey_data_path, run_id):

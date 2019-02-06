@@ -5,9 +5,9 @@ import time
 
 from pandas.util.testing import assert_frame_equal
 from tests import common_testing_functions as ctf
-from utils import common_functions as cf
-from main.db import data_management as idm
-from main.calculations import calculate_ips_final_weight
+from ips.utils import common_functions as cf
+from ips.db import data_management as idm
+from ips.calculations import calculate_ips_final_weight
 
 with open(r'data/steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)

@@ -5,10 +5,9 @@ import time
 
 from pandas.util.testing import assert_frame_equal
 from tests import common_testing_functions as ctf
-from utils import common_functions as cf
-from main.db import data_management as idm
-from main.calculations.calculate_ips_rail_imputation import do_ips_railex_imp
-from main.utils import process_variables
+from ips.utils import common_functions as cf, process_variables
+from ips.db import data_management as idm
+from ips.calculations.calculate_ips_rail_imputation import do_ips_railex_imp
 
 with open(r'data/steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)

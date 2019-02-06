@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 from pandas.util.testing import assert_frame_equal
 
-from main.calculations.calculate_ips_spend_imputation import do_ips_spend_imputation
+from ips.calculations.calculate_ips_spend_imputation import do_ips_spend_imputation
 
 
 @pytest.mark.parametrize('data_path', [

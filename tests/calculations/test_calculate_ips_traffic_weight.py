@@ -8,9 +8,7 @@ import pandas as pd
 import pytest
 from pandas.util.testing import assert_frame_equal
 
-import main.calculations.calculate_ips_traffic_weight as tr_calc
-import main.db.data_management as idm
-from main.calculations.calculate_ips_traffic_weight import do_ips_trafweight_calculation_with_R
+from ips.calculations.calculate_ips_traffic_weight import do_ips_trafweight_calculation_with_R
 
 
 @pytest.mark.parametrize('path_to_data', [

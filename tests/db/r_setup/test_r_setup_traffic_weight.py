@@ -8,10 +8,10 @@ Created on 04 Jun 2018
 import pandas as pd
 import numpy as np
 from pandas.util.testing import assert_frame_equal
-from main.calculations.calculate_ips_traffic_weight import r_survey_input, r_population_input
-import utils.common_functions as cf
+from ips.calculations.calculate_ips_traffic_weight import r_survey_input, r_population_input
+import ips.utils.common_functions as cf
 import pytest
-import main.calculations.calculate_ips_traffic_weight as c_tr
+import ips.calculations.calculate_ips_traffic_weight as c_tr
 
 SURVEY_TRAFFIC_AUX_TABLE = c_tr.SURVEY_TRAFFIC_AUX_TABLE
 POP_PROWVEC_TABLE = c_tr.POP_PROWVEC_TABLE

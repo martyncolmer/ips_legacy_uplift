@@ -4,11 +4,10 @@ import pandas as pd
 import time
 
 from pandas.util.testing import assert_frame_equal
-from utils import common_functions as cf
+from ips.utils import common_functions as cf, process_variables
 from tests import common_testing_functions as ctf
-from main.db import data_management as idm
-from main.calculations.calculate_ips_regional_weights import do_ips_regional_weight_calculation
-from main.utils import process_variables
+from ips.db import data_management as idm
+from ips.calculations.calculate_ips_regional_weights import do_ips_regional_weight_calculation
 
 with open(r'data/steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)

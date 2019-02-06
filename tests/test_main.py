@@ -7,23 +7,22 @@ import pandas as pd
 
 from pandas.util.testing import assert_frame_equal
 
-import steps.air_miles
-import steps.fares_imputation
-import steps.final_weight
-import steps.imbalance_weight
-import steps.minimums_weight
-import steps.non_response_weight
-import steps.rail_imputation
-import steps.regional_weights
-import steps.shift_weight
-import steps.spend_imputation
-import steps.stay_imputation
-import steps.town_stay_expenditure
-import steps.traffic_weight
-import steps.unsampled_weight
-from utils import common_functions as cf
+import ips.steps.air_miles
+import ips.steps.final_weight
+import ips.steps.imbalance_weight
+import ips.steps.minimums_weight
+import ips.steps.non_response_weight
+import ips.steps.rail_imputation
+import ips.steps.regional_weights
+import ips.steps.shift_weight
+import ips.steps.spend_imputation
+import ips.steps.stay_imputation
+import ips.steps.town_stay_expenditure
+import ips.steps.traffic_weight
+import ips.steps.unsampled_weight
+from ips.utils import common_functions as cf
 from tests import common_testing_functions as ctf
-from main.db import data_management as idm
+from ips.db import data_management as idm
 
 with open(r'data/steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)
@@ -94,7 +93,7 @@ def test_shift_weight_step():
     summary_file = os.path.join(dir_path, SUMMARY_DATA_FILENAME)
 
     # Run Shift Weight step
-    steps.shift_weight.shift_weight_step(RUN_ID, conn)
+    ips.steps.shift_weight.shift_weight_step(RUN_ID, conn)
 
     # Get results of Survey Data and compare
     sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
@@ -142,7 +141,7 @@ def test_non_response_weight_steps():
     summary_file = os.path.join(dir_path, SUMMARY_DATA_FILENAME)
 
     # Run Non Response Weight step
-    steps.non_response_weight.non_response_weight_step(RUN_ID, conn)
+    ips.steps.non_response_weight.non_response_weight_step(RUN_ID, conn)
 
     # Get results of Survey Data and compare
     sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
@@ -193,7 +192,7 @@ def test_minimums_weight_step():
     summary_file = os.path.join(dir_path, SUMMARY_DATA_FILENAME)
 
     # Run Shift Weight step
-    steps.minimums_weight.minimums_weight_step(RUN_ID, conn)
+    ips.steps.minimums_weight.minimums_weight_step(RUN_ID, conn)
 
     # Get results of Survey Data and compare
     sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
@@ -245,7 +244,7 @@ def test_traffic_weight_step():
     summary_file = os.path.join(dir_path, SUMMARY_DATA_FILENAME)
 
     # Run Shift Weight step
-    steps.traffic_weight.traffic_weight_step(RUN_ID, conn)
+    ips.steps.traffic_weight.traffic_weight_step(RUN_ID, conn)
 
     # Get results of Survey Data and compare
     sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
@@ -290,7 +289,7 @@ def test_unsampled_weight_step():
     summary_file = os.path.join(dir_path, SUMMARY_DATA_FILENAME)
 
     # Run Shift Weight step
-    steps.unsampled_weight.unsampled_weight_step(RUN_ID, conn)
+    ips.steps.unsampled_weight.unsampled_weight_step(RUN_ID, conn)
 
     # Get results of Survey Data and compare
     sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
@@ -369,7 +368,7 @@ def test_imbalance_weight_step():
     summary_file = os.path.join(dir_path, SUMMARY_DATA_FILENAME)
 
     # Run Shift Weight step
-    steps.imbalance_weight.imbalance_weight_step(RUN_ID, conn)
+    ips.steps.imbalance_weight.imbalance_weight_step(RUN_ID, conn)
 
     # Get results of Survey Data and compare
     sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
@@ -427,7 +426,7 @@ def test_final_weight_step():
     summary_file = os.path.join(dir_path, SUMMARY_DATA_FILENAME)
 
     # Run Shift Weight step
-    steps.final_weight.final_weight_step(RUN_ID, conn)
+    ips.steps.final_weight.final_weight_step(RUN_ID, conn)
 
     # Get results of Survey Data and compare
     sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
@@ -486,7 +485,7 @@ def test_stay_imputation_step():
     survey_file = os.path.join(dir_path, SURVEY_DATA_FILENAME)
 
     # Run Shift Weight step
-    steps.stay_imputation.stay_imputation_step(RUN_ID, conn)
+    ips.steps.stay_imputation.stay_imputation_step(RUN_ID, conn)
 
     # Get results of Survey Data and compare
     sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
@@ -515,7 +514,7 @@ def test_fares_imputation_step():
     survey_file = os.path.join(dir_path, SURVEY_DATA_FILENAME)
 
     # Run Shift Weight step
-    steps.fares_imputation.fares_imputation_step(RUN_ID, conn)
+    ips.steps.fares_imputation.fares_imputation_step(RUN_ID, conn)
 
     # Get results of Survey Data and compare
     sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
@@ -552,7 +551,7 @@ def test_spend_imputation_step():
     conn = database_connection()
 
     # Run Spend Imputation step
-    steps.spend_imputation.spend_imputation_step(RUN_ID, conn)
+    ips.steps.spend_imputation.spend_imputation_step(RUN_ID, conn)
 
     sql = """
         SELECT [SERIAL], [SPENDK], [SPEND] as 'newspend'
@@ -604,7 +603,7 @@ def test_rail_imputation_step():
     survey_file = os.path.join(dir_path, SURVEY_DATA_FILENAME)
 
     # Run Spend Imputation step
-    steps.rail_imputation.rail_imputation_step(RUN_ID, conn)
+    ips.steps.rail_imputation.rail_imputation_step(RUN_ID, conn)
 
     # Get results of Survey Data and compare
     sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
@@ -643,7 +642,7 @@ def test_regional_weights_step():
     survey_file = os.path.join(dir_path, SURVEY_DATA_FILENAME)
 
     # Run Spend Imputation step
-    steps.regional_weights.regional_weights_step(RUN_ID, conn)
+    ips.steps.regional_weights.regional_weights_step(RUN_ID, conn)
 
     # Get results of Survey Data and compare
     # sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
@@ -683,7 +682,7 @@ def test_town_stay_expenditure_imputation_step():
     survey_file = os.path.join(dir_path, SURVEY_DATA_FILENAME)
 
     # Run Spend Imputation step
-    steps.town_stay_expenditure.town_stay_expenditure_imputation_step(RUN_ID, conn)
+    ips.steps.town_stay_expenditure.town_stay_expenditure_imputation_step(RUN_ID, conn)
 
     # Get results of Survey Data and compare
     # sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])
@@ -726,7 +725,7 @@ def test_airmiles_step():
     survey_file = os.path.join(dir_path, SURVEY_DATA_FILENAME)
 
     # Run Spend Imputation step
-    steps.air_miles.airmiles_step(RUN_ID, conn)
+    ips.steps.air_miles.airmiles_step(RUN_ID, conn)
 
     # Get results of Survey Data and compare
     sql_cols = " , ".join(STEP_CONFIGURATION[step_name]['nullify_pvs'])

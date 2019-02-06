@@ -1,8 +1,8 @@
 import pytest
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
-import utils.common_functions as cf
-import main.db.data_management as idm
+import ips.utils.common_functions as cf
+import ips.db.data_management as idm
 
 TEST_DATA_DIR = 'tests/data/ips_data_management'
 

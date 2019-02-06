@@ -9,7 +9,7 @@ import pandas as pd
 import pytest
 from pandas.util.testing import assert_frame_equal
 
-from main.calculations import calculate_ips_nonresponse_weight as non_resp
+from ips.calculations import calculate_ips_nonresponse_weight as non_resp
 
 # columns to sort the summary results by in order to check calculated dataframes match expected results
 NR_COLUMNS = ['NR_PORT_GRP_PV', 'ARRIVEDEPART', 'WEEKDAY_END_PV', 'MEAN_RESPS_SH_WT',

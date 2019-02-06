@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 from pandas.util.testing import assert_frame_equal
 
-from main.calculations.calculate_ips_shift_weight import do_ips_shift_weight_calculation
+from ips.calculations.calculate_ips_shift_weight import do_ips_shift_weight_calculation
 
 
 @pytest.mark.parametrize('data_path', [
