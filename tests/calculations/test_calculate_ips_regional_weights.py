@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 from pandas.util.testing import assert_frame_equal
 
-from ips.calculations.calculate_ips_regional_weights import do_ips_regional_weight_calculation
+from ips import do_ips_regional_weight_calculation
 
 
 @pytest.mark.parametrize('data_path', [

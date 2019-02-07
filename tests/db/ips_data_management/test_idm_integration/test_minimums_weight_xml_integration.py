@@ -4,10 +4,10 @@ import pandas as pd
 import time
 
 from pandas.util.testing import assert_frame_equal
-from ips.utils import common_functions as cf, process_variables
+from ips import common_functions as cf, process_variables
 from tests import common_testing_functions as ctf
-from ips.db import data_management as idm
-from ips.calculations import calculate_ips_minimums_weight
+from ips import data_management as idm
+from ips import calculate_ips_minimums_weight
 
 with open('data/steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)
@@ -141,8 +141,8 @@ def test_minimums_weight_step():
     idm.store_step_summary(RUN_ID, conn, STEP_CONFIGURATION["MINIMUMS_WEIGHT"])
 
     # Extract our test results from the survey and summary tables then write the results to csv.
-    df_survey_actual = cf.select_data('*', '[dbo].[SURVEY_SUBSAMPLE]', 'RUN_ID', RUN_ID)
-    df_summary_actual = cf.select_data('*', '[dbo].[PS_MINIMUMS]', 'RUN_ID', RUN_ID)
+    df_survey_actual = cf.select_data('*', 'SURVEY_SUBSAMPLE', 'RUN_ID', RUN_ID)
+    df_summary_actual = cf.select_data('*', 'PS_MINIMUMS', 'RUN_ID', RUN_ID)
 
     df_survey_actual.to_csv(TEST_DATA_DIR + '\survey_subsample_actual.csv', index=False)
     df_summary_actual.to_csv(TEST_DATA_DIR + '\ps_minimums_actual.csv', index=False)

@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 from pandas.util.testing import assert_frame_equal
 
-from ips.calculations.calculate_ips_minimums_weight import do_ips_minweight_calculation
+from ips import do_ips_minweight_calculation
 
 
 # SAS data for november and october is incorrect.

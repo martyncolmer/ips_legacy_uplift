@@ -1,13 +1,13 @@
 import json
 import os
-import pytest
 import time
+
 import numpy as np
 import pandas as pd
-
+import pytest
 from pandas.util.testing import assert_frame_equal
 
-import ips.steps.air_miles
+import ips
 import ips.steps.final_weight
 import ips.steps.imbalance_weight
 import ips.steps.minimums_weight
@@ -20,29 +20,29 @@ import ips.steps.stay_imputation
 import ips.steps.town_stay_expenditure
 import ips.steps.traffic_weight
 import ips.steps.unsampled_weight
+from ips.db import data_management as idm
 from ips.utils import common_functions as cf
 from tests import common_testing_functions as ctf
-from ips.db import data_management as idm
 
 with open(r'data/steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)
 
 RUN_ID = 'test-main'
 PV_RUN_ID = 'TEMPLATE'
-TEST_DATA_DIR = r'tests\data\main\dec'
+TEST_DATA_DIR = r'data/main/dec'
 SURVEY_DATA_FILENAME = 'surveydata_out_expected.csv'
 SUMMARY_DATA_FILENAME = 'summary_out_expected.csv'
 
 START_TIME = time.time()
 print("Module level start time: {}".format(START_TIME))
 
-@pytest.fixture(scope='module')
+
 def database_connection():
-    '''
+    """
     This fixture provides the database connection. It is added to the function argument of each test
     and picked up by the test from there. The fixture allows us to re-use the same database connection
     over and over again.
-    '''
+    """
     return cf.get_sql_connection()
 
 
@@ -50,7 +50,7 @@ def setup_module(module):
     """ setup any state specific to the execution of the given module."""
 
     # Import data to database
-    import_data_dir = r'tests\data\import_data\dec'
+    import_data_dir = r'data/import_data/dec'
     ctf.import_test_data_into_database(import_data_dir, RUN_ID)
 
     # populates test data within pv table
@@ -61,16 +61,16 @@ def setup_module(module):
 def teardown_module(module):
     """ teardown any state that was previously setup with a setup_module
         method.
-        """
+    """
     cf.delete_from_table(idm.SURVEY_SUBSAMPLE_TABLE, 'RUN_ID', '=', RUN_ID)
 
     # List of tables to cleanse where [RUN_ID] = RUN_ID
-    tables_to_cleanse = ['[dbo].[PROCESS_VARIABLE_PY]',
-                         '[dbo].[PROCESS_VARIABLE_TESTING]',
-                         '[dbo].[TRAFFIC_DATA]',
-                         '[dbo].[SHIFT_DATA]',
-                         '[dbo].[NON_RESPONSE_DATA]',
-                         '[dbo].[UNSAMPLED_OOH_DATA]',
+    tables_to_cleanse = ['PROCESS_VARIABLE_PY',
+                         'PROCESS_VARIABLE_TESTING',
+                         'TRAFFIC_DATA',
+                         'SHIFT_DATA',
+                         'NON_RESPONSE_DATA',
+                         'UNSAMPLED_OOH_DATA',
                          idm.SURVEY_SUBSAMPLE_TABLE]
 
     # Try to delete from each table in list where condition.  If exception occurs,
@@ -279,6 +279,7 @@ def test_traffic_weight_step():
 
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
+
 @pytest.mark.xfail
 def test_unsampled_weight_step():
     # Assign variables
@@ -334,8 +335,8 @@ def test_unsampled_weight_step():
 
     # Formatting and fudgery
     actual_results['UNSAMP_REGION_GRP_PV'] = pd.to_numeric(actual_results['UNSAMP_REGION_GRP_PV'],
-                                                             errors='coerce',
-                                                             downcast='float')
+                                                           errors='coerce',
+                                                           downcast='float')
     actual_results = actual_results.sort_values(
         ['UNSAMP_PORT_GRP_PV', 'ARRIVEDEPART', 'UNSAMP_REGION_GRP_PV', 'CASES', 'SUM_PRIOR_WT', 'SUM_UNSAMP_TRAFFIC_WT',
          'UNSAMP_TRAFFIC_WT'])
@@ -349,14 +350,15 @@ def test_unsampled_weight_step():
         ['UNSAMP_PORT_GRP_PV', 'ARRIVEDEPART', 'UNSAMP_REGION_GRP_PV', 'cases', 'sum_prior_wt', 'sum_unsamp_traffic_wt',
          'unsamp_traffic_wt'])
     expected_results[['cases', 'sum_prior_wt', 'sum_unsamp_traffic_wt',
-                    'unsamp_traffic_wt']] = expected_results[['cases', 'sum_prior_wt', 'sum_unsamp_traffic_wt',
-                                                            'unsamp_traffic_wt']].round(3)
+                      'unsamp_traffic_wt']] = expected_results[['cases', 'sum_prior_wt', 'sum_unsamp_traffic_wt',
+                                                                'unsamp_traffic_wt']].round(3)
     expected_results.index = range(0, len(expected_results))
 
     actual_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\unsampled_summary_actual.csv')
     expected_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\unsampled_summary_expected.csv')
 
     assert_frame_equal(actual_results, expected_results, check_dtype=False, check_like=True)
+
 
 @pytest.mark.xfail
 def test_imbalance_weight_step():
@@ -415,6 +417,7 @@ def test_imbalance_weight_step():
     expected_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\imbalance_summary_expected.csv')
 
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
+
 
 @pytest.mark.xfail
 def test_final_weight_step():
@@ -594,6 +597,7 @@ def test_spend_imputation_step():
 
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
 
+
 @pytest.mark.xfail
 def test_rail_imputation_step():
     # Assign variables
@@ -632,6 +636,7 @@ def test_rail_imputation_step():
     expected_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\rail_expected.csv')
 
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
+
 
 @pytest.mark.xfail
 def test_regional_weights_step():
@@ -672,6 +677,7 @@ def test_regional_weights_step():
     actual_results.to_csv(r'S:\CASPA\IPS\Testing\scratch\compare these\regional_actual.csv')
 
     assert_frame_equal(actual_results, expected_results, check_dtype=False)
+
 
 @pytest.mark.xfail
 def test_town_stay_expenditure_imputation_step():

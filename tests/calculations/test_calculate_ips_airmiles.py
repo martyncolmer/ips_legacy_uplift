@@ -9,7 +9,7 @@ import pytest
 from pandas import DataFrame
 from pandas.util.testing import assert_frame_equal
 
-from ips.calculations.calculate_ips_airmiles import do_ips_airmiles_calculation
+from ips import do_ips_airmiles_calculation
 
 
 @pytest.mark.parametrize('path_to_data', [

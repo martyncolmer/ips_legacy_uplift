@@ -1,9 +1,9 @@
 import math
 
 import numpy as np
+from pandas import DataFrame, Series
 
 from ips.calculations import ips_impute
-from pandas import DataFrame, Series
 
 # import survey_support
 
@@ -75,7 +75,7 @@ def do_ips_fares_imputation(df_input: DataFrame, var_serial: str, num_levels: in
     df_output = df_input.merge(df_output, how='left', left_on=var_serial, right_on=var_serial)
 
     # Above merge creates fares_x and fares_y column; this line removes the empty
-    # fares_x column and keeps then renames the imputed fares_y column 
+    # fares_x column and keeps then renames the imputed fares_y column
     df_output = df_output.drop([OUTPUT_VARIABLE + '_x', IMPUTATION_LEVEL_VARIABLE + '_x'], axis=1)
 
     df_output.rename(index=str, columns={OUTPUT_VARIABLE + '_y': OUTPUT_VARIABLE,
@@ -223,4 +223,3 @@ def compute_additional_spend(row):
     row[SPEND_VARIABLE] = round(row[SPEND_VARIABLE], 0)
 
     return row
-

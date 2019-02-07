@@ -1,7 +1,7 @@
 from ips.calculations import calculate_ips_final_weight
 from ips.db import data_management as idm
 from ips.utils import common_functions as cf
-from ips import STEP_CONFIGURATION
+from ips.main import STEP_CONFIGURATION
 
 
 def final_weight_step(run_id, connection):

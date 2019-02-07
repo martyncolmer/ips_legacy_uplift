@@ -1,6 +1,6 @@
 from ips.calculations import calculate_ips_regional_weights
 from ips.db import data_management as idm
-from ips import STEP_CONFIGURATION
+from ips.main import STEP_CONFIGURATION
 from ips.utils import common_functions as cf, process_variables
 
 

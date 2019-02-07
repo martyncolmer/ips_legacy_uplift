@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 from pandas.util.testing import assert_frame_equal
 
-from ips.calculations import calculate_ips_imb_weight as imb
+from ips import calculate_ips_imb_weight as imb
 
 
 @pytest.mark.parametrize('data_path', [

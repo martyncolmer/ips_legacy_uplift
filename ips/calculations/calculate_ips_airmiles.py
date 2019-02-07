@@ -1,4 +1,5 @@
 import math
+from ips.calculations import parallelise_dataframe
 
 import numpy as np
 import pandas as pd
@@ -38,11 +39,11 @@ def calculate_airmiles(df_air_ext: DataFrame) -> DataFrame:
     """
     Author       : Thomas Mahoney / Nassir Mohammad
     Date         : 19 / 09 / 2018
-    Purpose      : Calculates the air miles values for the given data set. 
+    Purpose      : Calculates the air miles values for the given data set.
     Parameters   : df_air_ext - A data frame containing the information needed to
                                 produce an air miles output.
     Returns      : A data frame containing the air miles calculation produced and
-                   the associated record's serial number. 
+                   the associated record's serial number.
     Requirements : NA
     Dependencies : NA
     """
@@ -50,7 +51,23 @@ def calculate_airmiles(df_air_ext: DataFrame) -> DataFrame:
     # convert all None Type to NaN
     df_air_ext.fillna(value=np.nan, inplace=True)
 
-    # Set up variables to be used in the air miles calculations
+    # run this in parallel
+    df_air_ext = parallelise_dataframe(df_air_ext, extract_rows)
+
+    # Selects and returns the calculated air miles and serials
+    df_air_ext = df_air_ext[['SERIAL', 'AIRMILES']]
+
+    return df_air_ext
+
+
+def extract_rows(df):
+    vls = []
+    for _, row in df.iterrows():
+        vls.append(get_airmiles(row))
+    return pd.DataFrame(vls)
+
+
+def get_airmiles(row):
     sec_60 = 60
     sec_3600 = 3600
     earth_diameter = 7918
@@ -58,66 +75,56 @@ def calculate_airmiles(df_air_ext: DataFrame) -> DataFrame:
     pi2 = 6.283185307
     deg_rad_factor = 0.017453292
 
-    # Uses an apply function to calculate the air miles values for the imported data
-    def get_airmiles(row):
+    # Set seconds to zero if they are missing to allow calculation to proceed
+    if math.isnan(row['START_LAT_SEC']):
+        row['START_LAT_SEC'] = 0
+    if math.isnan(row['END_LAT_SEC']):
+        row['END_LAT_SEC'] = 0
+    if math.isnan(row['START_LON_SEC']):
+        row['START_LON_SEC'] = 0
+    if math.isnan(row['END_LON_SEC']):
+        row['END_LON_SEC'] = 0
 
-        # Set seconds to zero if they are missing to allow calculation to proceed
-        if math.isnan(row['START_LAT_SEC']):
-            row['START_LAT_SEC'] = 0
-        if math.isnan(row['END_LAT_SEC']):
-            row['END_LAT_SEC'] = 0
-        if math.isnan(row['START_LON_SEC']):
-            row['START_LON_SEC'] = 0
-        if math.isnan(row['END_LON_SEC']):
-            row['END_LON_SEC'] = 0
+    lat1 = row['START_LAT_DEGREE'] + (((row['START_LAT_MIN'] * sec_60) + row['START_LAT_SEC']) / sec_3600)
+    lat2 = row['END_LAT_DEGREE'] + (((row['END_LAT_MIN'] * sec_60) + row['END_LAT_SEC']) / sec_3600)
+    lon1 = row['START_LON_DEGREE'] + (((row['START_LON_MIN'] * sec_60) + row['START_LON_SEC']) / sec_3600)
+    lon2 = row['END_LON_DEGREE'] + (((row['END_LON_MIN'] * sec_60) + row['END_LON_SEC']) / sec_3600)
 
-        lat1 = row['START_LAT_DEGREE'] + (((row['START_LAT_MIN'] * sec_60) + row['START_LAT_SEC']) / sec_3600)
-        lat2 = row['END_LAT_DEGREE'] + (((row['END_LAT_MIN'] * sec_60) + row['END_LAT_SEC']) / sec_3600)
-        lon1 = row['START_LON_DEGREE'] + (((row['START_LON_MIN'] * sec_60) + row['START_LON_SEC']) / sec_3600)
-        lon2 = row['END_LON_DEGREE'] + (((row['END_LON_MIN'] * sec_60) + row['END_LON_SEC']) / sec_3600)
+    lat1_rad = lat1 * deg_rad_factor
+    lat2_rad = lat2 * deg_rad_factor
+    lon1_rad = lon1 * deg_rad_factor
+    lon2_rad = lon2 * deg_rad_factor
 
-        lat1_rad = lat1 * deg_rad_factor
-        lat2_rad = lat2 * deg_rad_factor
-        lon1_rad = lon1 * deg_rad_factor
-        lon2_rad = lon2 * deg_rad_factor
+    if row['START_LON_DIR'] == row['END_LON_DIR']:
+        lon_diff_rad = abs(lon1_rad - lon2_rad)
+    else:
+        lon_diff_rad = (lon1_rad + lon2_rad)
 
-        if row['START_LON_DIR'] == row['END_LON_DIR']:
-            lon_diff_rad = abs(lon1_rad - lon2_rad)
-        else:
-            lon_diff_rad = (lon1_rad + lon2_rad)
+        if lon_diff_rad > pi:
+            lon_diff_rad = pi2 - lon_diff_rad
 
-            if lon_diff_rad > pi:
-                lon_diff_rad = pi2 - lon_diff_rad
+    cos_lon_diff = math.cos(lon_diff_rad)
+    sin_lat1 = math.sin(lat1_rad)
+    sin_lat2 = math.sin(lat2_rad)
+    cos_lat1 = math.cos(lat1_rad)
+    cos_lat2 = math.cos(lat2_rad)
 
-        cos_lon_diff = math.cos(lon_diff_rad)
-        sin_lat1 = math.sin(lat1_rad)
-        sin_lat2 = math.sin(lat2_rad)
-        cos_lat1 = math.cos(lat1_rad)
-        cos_lat2 = math.cos(lat2_rad)
+    if row['START_LAT_DIR'] == 'S':
+        sin_lat1 = sin_lat1 * (-1)
 
-        if row['START_LAT_DIR'] == 'S':
-            sin_lat1 = sin_lat1 * (-1)
+    if row['END_LAT_DIR'] == 'S':
+        sin_lat2 = sin_lat2 * (-1)
 
-        if row['END_LAT_DIR'] == 'S':
-            sin_lat2 = sin_lat2 * (-1)
+    cosx = (sin_lat1 * sin_lat2) + (cos_lat1 * cos_lat2 * cos_lon_diff)
 
-        cosx = (sin_lat1 * sin_lat2) + (cos_lat1 * cos_lat2 * cos_lon_diff)
+    if cosx > 1:
+        cosx = 1
 
-        if cosx > 1:
-            cosx = 1
-
-        tan_halfx = math.sqrt((1 - cosx) / (1 + cosx))
-        atan_halfx = math.atan(tan_halfx)
-        if not math.isnan(atan_halfx):
-            row['AIRMILES'] = round((atan_halfx * earth_diameter))
-        return row
-
-    df_air_ext = df_air_ext.apply(get_airmiles, axis=1)
-
-    # Selects and returns the calculated air miles and serials 
-    df_air_ext = df_air_ext[['SERIAL', 'AIRMILES']]
-
-    return df_air_ext
+    tan_halfx = math.sqrt((1 - cosx) / (1 + cosx))
+    atan_halfx = math.atan(tan_halfx)
+    if not math.isnan(atan_halfx):
+        row['AIRMILES'] = round((atan_halfx * earth_diameter))
+    return row
 
 
 def do_ips_airmiles_calculation(df_surveydata: DataFrame, var_serial: str) -> DataFrame:

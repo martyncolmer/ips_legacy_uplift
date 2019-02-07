@@ -1,11 +1,11 @@
+import os
 import time
 
-import os
 import pandas as pd
 
 from ips.calculations import calculate_ips_traffic_weight as tr_calc
-from ips.utils import common_functions as cf
 from ips.db import data_management as idm, import_reference_data, import_survey_data
+from ips.utils import common_functions as cf
 
 
 def import_survey_data_into_database(survey_data_path, run_id):
@@ -46,12 +46,12 @@ def import_survey_data_into_database(survey_data_path, run_id):
 
 
 def import_test_data_into_database(import_data_dir, run_id, load_survey_data=True):
-    '''
+    """
     This function prepares all the data necessary to run all 14 steps for testing.
     Note that no process variables are uploaded and are expected to be present in the database.
 
     load_survey_data is set to True as 2 of 14 tests were written to use different survey data
-    '''
+    """
 
     # Import data paths (these will be passed in through the user)
     shift_data_path = os.path.join(import_data_dir, 'Poss shifts Dec 2017.csv')
@@ -91,23 +91,23 @@ def populate_test_pv_table(conn, run_id, pv_run_id):
     cf.delete_from_table('PROCESS_VARIABLE_TESTING', 'RUN_ID', '=', run_id)
     cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
 
-    sql1 = """
-    INSERT INTO [PROCESS_VARIABLE_TESTING]
-    SELECT * FROM [PROCESS_VARIABLE_PY]
-    WHERE [RUN_ID] = '{}'
-    """.format(pv_run_id)
+    sql1 = f"""
+    INSERT INTO PROCESS_VARIABLE_TESTING
+    SELECT * FROM PROCESS_VARIABLE_PY
+    WHERE RUN_ID = '{pv_run_id}'
+    """
 
-    sql2 = """
-    UPDATE [PROCESS_VARIABLE_TESTING]
-    SET [RUN_ID] = '{}'
-    WHERE [RUN_ID] = '{}'
-    """.format(run_id, pv_run_id)
+    sql2 = f"""
+    UPDATE PROCESS_VARIABLE_TESTING
+    SET RUN_ID = '{run_id}'
+    WHERE RUN_ID = '{pv_run_id}'
+    """
 
-    sql3 = """
-    INSERT INTO [PROCESS_VARIABLE_PY]
-    SELECT * FROM [PROCESS_VARIABLE_TESTING]
-    WHERE RUN_ID = '{}'
-    """.format(run_id)
+    sql3 = f"""
+    INSERT INTO PROCESS_VARIABLE_PY
+    SELECT * FROM PROCESS_VARIABLE_TESTING
+    WHERE RUN_ID = '{run_id}'
+    """
 
     cur.execute(sql1)
     cur.execute(sql2)
@@ -148,8 +148,7 @@ def reset_test_tables(run_id, step_config):
             continue
 
     # List of tables to cleanse where [RUN_ID] = RUN_ID.
-    tables_to_cleanse = ['[dbo].[PROCESS_VARIABLE_PY]',
-                         '[dbo].[PROCESS_VARIABLE_TESTING]']
+    tables_to_cleanse = ['PROCESS_VARIABLE_PY', 'PROCESS_VARIABLE_TESTING']
 
     # Try to delete from each table in list where condition.  If exception occurs,
     # assume table is already empty, and continue deleting from tables in list.
@@ -170,7 +169,7 @@ def reset_test_tables(run_id, step_config):
 
 def populate_test_data(table_name, run_id, step_config, dataset):
     step_name = step_config['name'].lower()
-    test_dir = os.path.join(r'tests\data\main\dec\new_test', step_name)
+    test_dir = os.path.join(r'data/main/dec/new_test', step_name)
     file_name = dataset + '_out_expected.csv'
 
     expect_df = cf.select_data('*', table_name, 'RUN_ID', run_id)

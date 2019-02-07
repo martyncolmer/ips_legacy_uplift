@@ -1,26 +1,30 @@
-import pytest
-import pandas as pd
-from pandas.util.testing import assert_frame_equal
-import ips.utils.common_functions as cf
-import ips.db.data_management as idm
-from ips.db import import_reference_data, import_survey_data
-from ips.utils.common_functions import get_sql_connection
-import numpy.testing as npt
 import os
 
-TEST_DATA_DIR = 'tests/data/ips_data_management/'
+import numpy.testing as npt
+import pandas as pd
+import pytest
+from pandas.util.testing import assert_frame_equal
+
+import ips.db.data_management as idm
+import ips.utils.common_functions as cf
+from ips.db import import_reference_data, import_survey_data
+from ips.utils.common_functions import get_sql_connection
+
+TEST_DATA_DIR = 'data/ips_data_management/'
 STEP_PV_OUTPUT_PATH = TEST_DATA_DIR + 'update_survey_data_with_step_pv_output/'
 COPY_PV_PATH = TEST_DATA_DIR + 'copy_step_pvs_for_step_data/'
 UPDATE_STEP_DATA_WITH_STEP_PV_OUTPUT_PATH = TEST_DATA_DIR + "update_step_data_with_step_pv_output/"
 
+
 @pytest.fixture()
 def database_connection():
-        '''
-        This fixture provides the database connection. It is added to the function argument of each test
-        and picked up by the test from there. The fixture allows us to re-use the same database connection
-        over and over again.
-        '''
-        return get_sql_connection()
+    """
+    This fixture provides the database connection. It is added to the function argument of each test
+    and picked up by the test from there. The fixture allows us to re-use the same database connection
+    over and over again.
+    """
+    return get_sql_connection()
+
 
 @pytest.mark.usefixtures("database_connection")
 class TestIpsDataManagement:
@@ -32,19 +36,19 @@ class TestIpsDataManagement:
         # Retrieve rec_id
 
         cur = database_connection.cursor()
-        sql = """
-            SELECT {}([REC_ID])
-              FROM {}
-              """.format(value, table)
+        sql = f"""
+            SELECT {value}(REC_ID)
+              FROM {table}
+              """
 
         result = cur.execute(sql).fetchone()
         return result[0]
 
     @staticmethod
     def amend_rec_id(dataframe, rec_id, ascend=True):
-        '''
+        """
         This function retrieves REC_ID from text file and inputs to test result dataframe.
-        '''
+        """
 
         if ascend:
             for row in range(0, len(dataframe['REC_ID'])):
@@ -59,12 +63,12 @@ class TestIpsDataManagement:
 
     @staticmethod
     def import_data_into_database():
-        '''
+        """
         This function prepares all the data necessary to run all 14 steps.
         The input files have been edited to make sure data types match the database tables.
         Note that no process variables are uploaded and are expected to be present in the database.
         :return:
-        '''
+        """
         run_id = '9e5c1872-3f8e-4ae5-85dc-c67a602d011e'
 
         version_id = 1891
@@ -92,7 +96,7 @@ class TestIpsDataManagement:
     def test_update_survey_data_with_step_pv_output_with_name_shift_weight(self, database_connection):
 
         step_config = {'name': "SHIFT_WEIGHT",
-                       'spv_table': '[dbo].[SAS_SHIFT_SPV]',
+                       'spv_table': 'SAS_SHIFT_SPV',
                        "pv_columns": ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'", "'SHIFT_FLAG_PV'",
                                       "'CROSSINGS_FLAG_PV'"]
                        }
@@ -146,7 +150,7 @@ class TestIpsDataManagement:
         updated_results_without_pvs = results.drop(columns_to_drop, axis=1)
         original_test_data = test_survey_data.drop(columns_to_drop, axis=1)
 
-        assert_frame_equal(updated_results_without_pvs, original_test_data, check_dtype=False,check_like=True)
+        assert_frame_equal(updated_results_without_pvs, original_test_data, check_dtype=False, check_like=True)
 
         # check that spv_table has been deleted
         results_2 = cf.get_table_values(step_config['spv_table'])
@@ -157,11 +161,11 @@ class TestIpsDataManagement:
 
     def test_update_survey_data_with_step_pv_output_with_name_minimums_weight(self, database_connection):
         step_config = {'name': "MINIMUMS_WEIGHT",
-                       'spv_table': '[dbo].[SAS_MINIMUMS_SPV]',
+                       'spv_table': 'SAS_MINIMUMS_SPV',
                        "pv_columns": ["'MINS_FLAG_PV'", "'MINS_PORT_GRP_PV'", "'MINS_CTRY_GRP_PV'", "'MINS_NAT_GRP_PV'",
                                       "'MINS_CTRY_PORT_GRP_PV'"],
-                       "temp_table": "[dbo].[SAS_MINIMUMS_WT]",
-                       "sas_ps_table": "[dbo].[SAS_PS_MINIMUMS]",
+                       "temp_table": "SAS_MINIMUMS_WT",
+                       "sas_ps_table": "SAS_PS_MINIMUMS",
                        }
 
         run_id = 'update-survey-pvs'
@@ -233,8 +237,8 @@ class TestIpsDataManagement:
         assert len(results) == 0
 
     def test_copy_step_pvs_for_step_data_shift_weight(self, database_connection):
-        step_config = {'name': '[dbo].[SHIFT_DATA]'
-            , 'pv_table': '[dbo].[SAS_SHIFT_PV]'
+        step_config = {'name': 'SHIFT_DATA'
+            , 'pv_table': 'SAS_SHIFT_PV'
             , 'pv_columns': ["'SHIFT_PORT_GRP_PV'", "'WEEKDAY_END_PV'", "'AM_PM_NIGHT_PV'"]
             , 'order': 0
                        }
@@ -269,7 +273,7 @@ class TestIpsDataManagement:
         test_results = results[['PROCVAR_NAME', 'PROCVAR_RULE']]
 
         # check that the PROCVAR_NAME and PROCVAR_RULE string match the ones from test data for the required pvs only
-        npt.assert_array_equal(test_inserted_data_2,test_results)
+        npt.assert_array_equal(test_inserted_data_2, test_results)
 
         # Assert step_configuration["pv_table"] has 0 records
         result = cf.get_table_values(step_config['pv_table'])
@@ -280,8 +284,8 @@ class TestIpsDataManagement:
         cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
 
     def test_copy_step_pvs_for_step_data_unsampled_weight(self, database_connection):
-        step_config = {'name': '[dbo].[UNSAMPLED_WEIGHT]'
-            , 'pv_table': '[dbo].[SAS_UNSAMPLED_OOH_PV]'
+        step_config = {'name': 'UNSAMPLED_WEIGHT'
+            , 'pv_table': 'SAS_UNSAMPLED_OOH_PV'
             , 'pv_columns': ["'UNSAMP_PORT_GRP_PV'", "'UNSAMP_REGION_GRP_PV'"]
             , 'order': 0
                        }
@@ -316,7 +320,7 @@ class TestIpsDataManagement:
         test_results = results[['PROCVAR_NAME', 'PROCVAR_RULE']]
 
         # check that the PROCVAR_NAME and PROCVAR_RULE string match the ones from test data for the required pvs only
-        npt.assert_array_equal(test_inserted_data_2,test_results)
+        npt.assert_array_equal(test_inserted_data_2, test_results)
 
         # Assert step_configuration["pv_table"] has 0 records
         result = cf.get_table_values(step_config['pv_table'])
@@ -329,10 +333,10 @@ class TestIpsDataManagement:
     def test_update_step_data_with_step_pv_output(self, database_connection):
         # step_config and variables
         step_config = {"pv_columns2": ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]"],
-                       "pv_table": "[dbo].[SAS_SHIFT_PV]",
-                       "data_table": "[dbo].[SAS_SHIFT_DATA]",
-                       "temp_table": "[dbo].[SAS_SHIFT_WT]",
-                       "sas_ps_table": "[dbo].[SAS_PS_SHIFT_DATA]"}
+                       "pv_table": "SAS_SHIFT_PV",
+                       "data_table": "SAS_SHIFT_DATA",
+                       "temp_table": "SAS_SHIFT_WT",
+                       "sas_ps_table": "SAS_PS_SHIFT_DATA"}
 
         # Set up test data/tables
         test_shift_pv_data = pd.read_csv(UPDATE_STEP_DATA_WITH_STEP_PV_OUTPUT_PATH + 'test_shift_pv_data.csv')
@@ -348,7 +352,6 @@ class TestIpsDataManagement:
 
         # write the results back to csv, and read the csv back (this solves the data type matching issues)
         results = cf.get_table_values(step_config['data_table'])
-
 
         temp_output = UPDATE_STEP_DATA_WITH_STEP_PV_OUTPUT_PATH + 'copy_update_step_data_with_step_pv_output.csv'
         results.to_csv(temp_output, index=False)
@@ -374,7 +377,8 @@ class TestIpsDataManagement:
         sorted_test_shift_pv_data_2 = sorted_test_shift_pv_data_1.reset_index(drop=True)
 
         # check that the two dataframes match
-        assert_frame_equal(results_3, sorted_test_shift_pv_data_2, check_names=False, check_like=True, check_dtype=False)
+        assert_frame_equal(results_3, sorted_test_shift_pv_data_2, check_names=False, check_like=True,
+                           check_dtype=False)
 
         # Assert temp tables had been cleanse in function
         results = cf.get_table_values(step_config['pv_table'])

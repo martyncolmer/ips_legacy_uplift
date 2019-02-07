@@ -1,10 +1,12 @@
-import pytest
 import pandas as pd
+import pytest
 from pandas.util.testing import assert_frame_equal
-import ips.utils.common_functions as cf
-import ips.db.data_management as idm
 
-TEST_DATA_DIR = 'tests/data/ips_data_management'
+import ips.db.data_management as idm
+import ips.utils.common_functions as cf
+
+TEST_DATA_DIR = 'data/ips_data_management'
+
 
 @pytest.fixture(scope='module')
 def database_connection():
@@ -17,18 +19,20 @@ def database_connection():
 
 
 @pytest.mark.parametrize('step_name, temp_table, results_columns, prefix',
-                         [("SHIFT_WEIGHT", "[dbo].[SAS_SHIFT_WT]", ["[SHIFT_WT]"], '/shift_wt_'),
-                          ("UNSAMPLED_WEIGHT", '[dbo].[SAS_UNSAMPLED_OOH_WT]', ["[UNSAMP_TRAFFIC_WT]"], '/unsampled_wt_'),
-                          ("FARES_IMPUTATION", '[dbo].[SAS_FARES_IMP]', ["[FARE]", "[FAREK]", "[SPEND]", "[SPENDIMPREASON]"], '/fares_imp_'),
-                          ("IMBALANCE_WEIGHT", '[dbo].[SAS_IMBALANCE_WT]', ["[IMBAL_WT]"], '/imb_wt_'),
-                          ("STAY_IMPUTATION", '[dbo].[SAS_STAY_IMP]', ["[STAY]", "[STAYK]"], '/stay_imp_'),
-                          ("SPEND_IMPUTATION", '[dbo].[SAS_SPEND_IMP]', ["[SPENDK]"], '/spend_imp_')])
+                         [("SHIFT_WEIGHT", "SAS_SHIFT_WT", ["[SHIFT_WT]"], '/shift_wt_'),
+                          ("UNSAMPLED_WEIGHT", 'SAS_UNSAMPLED_OOH_WT', ["[UNSAMP_TRAFFIC_WT]"],
+                           '/unsampled_wt_'),
+                          ("FARES_IMPUTATION", 'SAS_FARES_IMP',
+                           ["[FARE]", "[FAREK]", "[SPEND]", "[SPENDIMPREASON]"], '/fares_imp_'),
+                          ("IMBALANCE_WEIGHT", 'SAS_IMBALANCE_WT', ["[IMBAL_WT]"], '/imb_wt_'),
+                          ("STAY_IMPUTATION", 'SAS_STAY_IMP', ["[STAY]", "[STAYK]"], '/stay_imp_'),
+                          ("SPEND_IMPUTATION", 'SAS_SPEND_IMP', ["[SPENDK]"], '/spend_imp_')])
 def test_update_survey_data_with_step_results(step_name, temp_table, results_columns, prefix, database_connection):
-    '''
+    """
     # This test is parameterised. The values for the arguments of this test function
     # are taken from the parameters specified in pytest.mark.parametrize
     # see https://docs.pytest.org/en/latest/parametrize.html
-    '''
+    """
 
     # step_config and variables
     step_config = {"name": step_name,
@@ -39,8 +43,10 @@ def test_update_survey_data_with_step_results(step_name, temp_table, results_col
 
     # Cleanse and set up test data/tables
     cf.delete_from_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
-    sas_survey_subsample_input = pd.read_csv(TEST_DATA_DIR + folder + prefix + 'sas_survey_subsample_test_input.csv', dtype=object)
-    cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection, fast=False)
+    sas_survey_subsample_input = pd.read_csv(TEST_DATA_DIR + folder + prefix + 'sas_survey_subsample_test_input.csv',
+                                             dtype=object)
+    cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection,
+                                   fast=False)
 
     cf.delete_from_table(step_config["temp_table"])
     sas_shift_wt_input = pd.read_csv(TEST_DATA_DIR + folder + prefix + 'temp_table_test_input.csv', dtype=object)
@@ -69,15 +75,22 @@ def test_update_survey_data_with_step_results(step_name, temp_table, results_col
 
 
 @pytest.mark.parametrize('step_name, nullify_pvs, ps_table, prefix',
-                         [("SHIFT_WEIGHT", ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[SHIFT_FLAG_PV]", "[CROSSINGS_FLAG_PV]", "[SHIFT_WT]"], "[dbo].[PS_SHIFT_DATA]", '/shift_wt_'),
-                          ("UNSAMPLED_WEIGHT", ["[UNSAMP_PORT_GRP_PV]", "[UNSAMP_REGION_GRP_PV]", "[UNSAMP_TRAFFIC_WT]"], "[dbo].[PS_UNSAMPLED_OOH]", '/uns_wt_'),
-                          ("SPEND_IMPUTATION", ["[SPEND_IMP_FLAG_PV]", "[SPEND_IMP_ELIGIBLE_PV]", "[UK_OS_PV]", "[PUR1_PV]", "[PUR2_PV]", "[PUR3_PV]", "[DUR1_PV]", "[DUR2_PV]", "[SPENDK]"], "[dbo].[PS_SPEND_IMPUTATION]", '/spend_imp_')])
+                         [("SHIFT_WEIGHT",
+                           ["[SHIFT_PORT_GRP_PV]", "[WEEKDAY_END_PV]", "[AM_PM_NIGHT_PV]", "[SHIFT_FLAG_PV]",
+                            "[CROSSINGS_FLAG_PV]", "[SHIFT_WT]"], "PS_SHIFT_DATA", '/shift_wt_'),
+                          (
+                          "UNSAMPLED_WEIGHT", ["[UNSAMP_PORT_GRP_PV]", "[UNSAMP_REGION_GRP_PV]", "[UNSAMP_TRAFFIC_WT]"],
+                          "PS_UNSAMPLED_OOH", '/uns_wt_'),
+                          ("SPEND_IMPUTATION",
+                           ["[SPEND_IMP_FLAG_PV]", "[SPEND_IMP_ELIGIBLE_PV]", "[UK_OS_PV]", "[PUR1_PV]", "[PUR2_PV]",
+                            "[PUR3_PV]", "[DUR1_PV]", "[DUR2_PV]", "[SPENDK]"], "PS_SPEND_IMPUTATION",
+                           '/spend_imp_')])
 def test_store_survey_data_with_step_results(step_name, nullify_pvs, ps_table, prefix, database_connection):
-    '''
+    """
     # This test is parameterised. The values for the arguments of this test function
     # are taken from the parameters specified in pytest.mark.parametrize
     # see https://docs.pytest.org/en/latest/parametrize.html
-    '''
+    """
 
     # step_config and variables
     step_config = {"name": step_name,
@@ -98,16 +111,19 @@ def test_store_survey_data_with_step_results(step_name, nullify_pvs, ps_table, p
     cf.delete_from_table(step_config['ps_table'], 'RUN_ID', '=', run_id)
 
     # Set up records in SURVEY_SUBSAMPLE with above run_id
-    survey_subsample_input = pd.read_csv(TEST_DATA_DIR + folder + prefix + 'survey_subsample_test_input.csv', dtype=object)
+    survey_subsample_input = pd.read_csv(TEST_DATA_DIR + folder + prefix + 'survey_subsample_test_input.csv',
+                                         dtype=object)
     cf.insert_dataframe_into_table(idm.SURVEY_SUBSAMPLE_TABLE, survey_subsample_input, database_connection, fast=False)
 
     # Set up records in SAS_SURVEY_SUBSAMPLE with above run_id
     sas_survey_subsample_input = pd.read_csv(TEST_DATA_DIR + folder + prefix + 'sss_test_input.csv', dtype=object)
-    cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection, fast=False)
+    cf.insert_dataframe_into_table(idm.SAS_SURVEY_SUBSAMPLE_TABLE, sas_survey_subsample_input, database_connection,
+                                   fast=False)
 
     # Set up records in ps_table with above run_id
     if step_name in applicable_ps_tables:
-        ps_shift_data_input = pd.read_csv(TEST_DATA_DIR + folder + prefix + 'summary_table_test_input.csv', dtype=object)
+        ps_shift_data_input = pd.read_csv(TEST_DATA_DIR + folder + prefix + 'summary_table_test_input.csv',
+                                          dtype=object)
         cf.insert_dataframe_into_table(step_config['ps_table'], ps_shift_data_input, database_connection, fast=False)
 
     # Run function
@@ -149,8 +165,8 @@ def test_store_survey_data_with_step_results(step_name, nullify_pvs, ps_table, p
 
 def test_store_step_summary(database_connection):
     # step_config and variables
-    step_config = {"ps_table": "[dbo].[PS_SHIFT_DATA]",
-                   "sas_ps_table": "[dbo].[SAS_PS_SHIFT_DATA]",
+    step_config = {"ps_table": "PS_SHIFT_DATA",
+                   "sas_ps_table": "SAS_PS_SHIFT_DATA",
                    "ps_columns": ["[RUN_ID]", "[SHIFT_PORT_GRP_PV]", "[ARRIVEDEPART]", "[WEEKDAY_END_PV]",
                                   "[AM_PM_NIGHT_PV]", "[MIGSI]", "[POSS_SHIFT_CROSS]", "[SAMP_SHIFT_CROSS]",
                                   "[MIN_SH_WT]", "[MEAN_SH_WT]", "[MAX_SH_WT]", "[COUNT_RESPS]", "[SUM_SH_WT]"]}

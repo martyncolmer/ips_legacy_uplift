@@ -69,7 +69,7 @@ def import_traffic_data(run_id: str, filename: str) -> None:
         """.format(run_id, datasource_id)
     else:
         sql = """
-        DELETE FROM [{}]
+        DELETE FROM {}
         WHERE RUN_ID = '{}'
         """.format(table_name, run_id)
 

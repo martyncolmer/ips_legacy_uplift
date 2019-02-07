@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 
-from ips.calculations.calculate_ips_unsampled_weight import r_survey_input, r_population_input
+from ips import r_survey_input, r_population_input
 
 
 def test_r_survey_input():

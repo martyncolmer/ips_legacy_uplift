@@ -5,9 +5,9 @@ import time
 
 from tests import common_testing_functions as ctf
 from pandas.util.testing import assert_frame_equal
-from ips.utils import common_functions as cf
-from ips.db import data_management as idm
-from ips.calculations import calculate_ips_airmiles
+from ips import common_functions as cf
+from ips import data_management as idm
+from ips import calculate_ips_airmiles
 
 with open('data/steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)

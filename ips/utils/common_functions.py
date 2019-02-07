@@ -5,11 +5,9 @@ Created on 24 Nov 2017
 """
 
 import logging
-import os
 import sqlite3
 from sqlite3.dbapi2 import Connection
 from typing import Optional
-
 import pandas
 
 
@@ -105,11 +103,9 @@ def drop_table(table_name: str) -> None:
 
     try:
         cur.execute(sql)
+        conn.commit()
     except Exception as err:
         print(err)
-    finally:
-        cur.close()
-        conn.close()
 
 
 def delete_from_table(table_name: str, condition1: str = None, operator: str = None,
@@ -162,11 +158,9 @@ def delete_from_table(table_name: str, condition1: str = None, operator: str = N
 
     try:
         cur.execute(sql)
+        conn.commit()
     except Exception as err:
         print(err)
-    finally:
-        cur.close()
-        conn.close()
 
 
 def select_data(column_name: str, table_name: str, condition1: str, condition2: str) -> Optional[pandas.DataFrame]:
@@ -185,18 +179,16 @@ def select_data(column_name: str, table_name: str, condition1: str, condition2: 
         print("Cannot get database connection")
         return None
 
-    sql = """
-        SELECT {} 
-        FROM {}
-        WHERE {} = '{}'
-        """.format(column_name, table_name, condition1, condition2)
+    sql = f"""
+        SELECT {column_name} 
+        FROM {table_name}
+        WHERE {condition1} = '{condition2}'
+        """
 
     try:
         return pandas.read_sql(sql, conn)
     except Exception as err:
         print(err)
-    finally:
-        conn.close()
 
     return None
 
@@ -223,8 +215,6 @@ def get_table_values(table_name: str) -> pandas.DataFrame:
         return pandas.read_sql(sql, con=conn)
     except Exception as err:
         print(err)
-    finally:
-        conn.close()
 
 
 def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame, fast=True) -> None:
@@ -260,4 +250,4 @@ def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame, fa
         return None
     finally:
         cur.close()
-        conn.close()
+

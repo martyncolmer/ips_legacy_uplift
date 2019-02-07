@@ -1,6 +1,6 @@
 from ips.calculations.calculate_ips_traffic_weight import do_ips_trafweight_calculation_with_R
 from ips.db import data_management as idm
-from ips import STEP_CONFIGURATION
+from ips.main import STEP_CONFIGURATION
 from ips.utils import common_functions as cf, process_variables
 
 

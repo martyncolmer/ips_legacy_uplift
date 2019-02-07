@@ -79,7 +79,7 @@ def r_survey_input(survey_input: pd.DataFrame) -> None:
     # # ROUND VALUES - Added to match SAS output
     df_r_ges_input.UNSAMP_REGION_GRP_PV = pd.to_numeric(df_r_ges_input.UNSAMP_REGION_GRP_PV, errors='coerce')
 
-    cf.insert_dataframe_into_table("dbo.survey_unsamp_aux", df_r_ges_input)
+    cf.insert_dataframe_into_table("survey_unsamp_aux", df_r_ges_input)
 
     df_aux_variables.drop(columns=['T1', 'OOHDesignWeight'], axis=1)
 

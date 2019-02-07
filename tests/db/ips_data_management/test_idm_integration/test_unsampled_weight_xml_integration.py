@@ -5,10 +5,10 @@ import time
 import numpy as np
 
 from pandas.util.testing import assert_frame_equal
-from ips.utils import common_functions as cf, process_variables
+from ips import common_functions as cf, process_variables
 from tests import common_testing_functions as ctf
-from ips.db import data_management as idm, import_reference_data
-from ips.calculations.calculate_ips_unsampled_weight import do_ips_unsampled_weight_calculation
+from ips import data_management as idm, import_reference_data
+from ips import do_ips_unsampled_weight_calculation
 
 with open(r'data/steps_configuration.json') as config_file:
     STEP_CONFIGURATION = json.load(config_file)

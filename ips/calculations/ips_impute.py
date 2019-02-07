@@ -34,12 +34,6 @@ def ips_impute(df_input, var_serial_num, strata_base_list, thresh_base_list, num
 
     level = 0
 
-    # dictionary_of_dataframes will contain a copy of the output dataframe at
-    # each iteration of the while loop, accessed through the key which uses
-    # the iteration number to define it. SAS creates intermediate datasets in 
-    # this style, but may not use them.
-    # dictionary_of_dataframes = {}
-
     count = 'COUNT'
 
     df_output[count] = 0
@@ -54,26 +48,31 @@ def ips_impute(df_input, var_serial_num, strata_base_list, thresh_base_list, num
         # Only the list for the current iteration is passed from strata_base_list
 
         # Calculate the imputed values to be used
-        df_segment_output = ips_impute_segment(df_impute_from, level
-                                               , strata_base_list[level], impute_var
-                                               , impute_function, var_value
-                                               , count, thresh_base_list[level])
+        df_segment_output = ips_impute_segment(df_impute_from,
+                                               level,
+                                               strata_base_list[level],
+                                               impute_var,
+                                               impute_function,
+                                               var_value,
+                                               count,
+                                               thresh_base_list[level])
 
         # Use values from segment output to impute missing values 
-        df_output_frames = ips_impute_match(df_to_impute, df_segment_output, df_output
-                                            , strata_base_list[level]
-                                            , var_value, impute_var, level
-                                            , var_impute_level, var_impute_flag
-                                            , count)
+        df_output_frames = ips_impute_match(df_to_impute,
+                                            df_segment_output,
+                                            df_output,
+                                            strata_base_list[level],
+                                            var_value,
+                                            level,
+                                            var_impute_level,
+                                            var_impute_flag,
+                                            count)
 
         # Store output from each iteration, which is fed into next iteration
         df_output = df_output_frames[0]
 
         # Stores the remaining values needing imputing
         df_to_impute = df_output_frames[1]
-
-        # Stores a copy of the current output dataset (may be redundant)
-        # dictionary_of_dataframes[key_name] = df_output.copy()
 
         level += 1
 
@@ -130,7 +129,7 @@ def ips_impute_segment(df_input, level, strata, impute_var, function, var_value,
     return df_output
 
 
-def ips_impute_match(remainder, df_input, output, strata, var_value, impute_var, level,
+def ips_impute_match(remainder, df_input, output, strata, var_value, level,
                      var_level, var_impute_flag, var_count):
     """
     Author       : James Burr

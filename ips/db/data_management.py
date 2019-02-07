@@ -3,9 +3,9 @@ import os
 from ips.utils import common_functions as cf
 from tests import common_testing_functions as ctf
 
-SURVEY_SUBSAMPLE_TABLE = "[dbo].[SURVEY_SUBSAMPLE]"
-SAS_SURVEY_SUBSAMPLE_TABLE = "[dbo].[SAS_SURVEY_SUBSAMPLE]"
-SAS_PROCESS_VARIABLES_TABLE = "[dbo].[SAS_PROCESS_VARIABLE]"
+SURVEY_SUBSAMPLE_TABLE = "SURVEY_SUBSAMPLE"
+SAS_SURVEY_SUBSAMPLE_TABLE = "SAS_SURVEY_SUBSAMPLE"
+SAS_PROCESS_VARIABLES_TABLE = "SAS_PROCESS_VARIABLE"
 COLUMNS_TO_MOVE = ['SERIAL', 'AGE', 'AM_PM_NIGHT', 'ANYUNDER16', 'APORTLATDEG', 'APORTLATMIN', 'APORTLATSEC',
                    'APORTLATNS', 'APORTLONDEG', 'APORTLONMIN', 'APORTLONSEC', 'APORTLONEW', 'ARRIVEDEPART',
                    'BABYFARE', 'BEFAF', 'CHANGECODE', 'CHILDFARE', 'COUNTRYVISIT', 'CPORTLATDEG',
@@ -59,11 +59,11 @@ def nullify_survey_subsample_values(run_id: str, conn, pv_values):
     columns_to_null = ", ".join(map(str, columns_to_null))
 
     # Create SQL Statement
-    sql = """
-    UPDATE {} 
-        SET {} 
-        WHERE RUN_ID = '{}'
-    """.format(SURVEY_SUBSAMPLE_TABLE, columns_to_null, run_id)
+    sql = f"""
+    UPDATE {SURVEY_SUBSAMPLE_TABLE} 
+        SET {columns_to_null} 
+        WHERE RUN_ID = '{run_id}'
+    """
 
     # Execute and commits the SQL command
     cur = conn.cursor()
@@ -90,15 +90,15 @@ def move_survey_subsample_to_sas_table(run_id, conn, step_name):
         respnse = "BETWEEN 1 and 6"
 
     # Create and execute SQL Statement
-    sql = """
-    INSERT INTO {} 
-        ({})
-            (SELECT {} 
-            FROM {}
-            WHERE RUN_ID = '{}'
+    sql = f"""
+    INSERT INTO {SAS_SURVEY_SUBSAMPLE_TABLE} 
+        ({columns})
+            (SELECT {columns} 
+            FROM {SURVEY_SUBSAMPLE_TABLE}
+            WHERE RUN_ID = '{run_id}'
             AND SERIAL NOT LIKE '9999%'
-            AND RESPNSE {})
-    """.format(SAS_SURVEY_SUBSAMPLE_TABLE, columns, columns, SURVEY_SUBSAMPLE_TABLE, run_id, respnse)
+            AND RESPNSE {respnse})
+    """
 
     cur = conn.cursor()
     cur.execute(sql)
@@ -151,13 +151,13 @@ def populate_step_data(run_id, conn, step_configuration):
     cf.delete_from_table(data_table)
 
     # Create and execute SQL statement
-    sql = """
-    INSERT INTO {}
-        ({})
-    SELECT {}
-    FROM {} AS CALC
-    WHERE RUN_ID = '{}'
-    """.format(data_table, cols, calc_columns, table, run_id)
+    sql = f"""
+    INSERT INTO {data_table}
+        ({cols})
+    SELECT {calc_columns}
+    FROM {table} AS CALC
+    WHERE RUN_ID = '{run_id}'
+    """
 
     try:
         cur = conn.cursor()
@@ -198,12 +198,12 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
     count = 0
     for item in step_configuration["pv_columns"]:
         count = count + 1
-        sql = """
-        INSERT INTO {}
-            (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, {}
-            FROM PROCESS_VARIABLE_PY AS PV WHERE PV.RUN_ID = '{}' 
-            AND UPPER(PV.PV_NAME) IN ({}))
-        """.format(SAS_PROCESS_VARIABLES_TABLE, count, run_id, item)
+        sql = f"""
+        INSERT INTO {SAS_PROCESS_VARIABLES_TABLE}
+            (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)(SELECT PV.PV_NAME, PV.PV_DEF, {count}
+            FROM PROCESS_VARIABLE_PY AS PV WHERE PV.RUN_ID = '{run_id}' 
+            AND UPPER(PV.PV_NAME) IN ({item}))
+        """
         cur.execute(sql)
         conn.commit()
 
@@ -227,13 +227,13 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
     set_statement = ", ".join(map(str, cols))
 
     # Construct and execute SQL statement
-    sql = """
-        UPDATE {}
-            SET {}
-            FROM {} as SSS
-            JOIN {} as CALC
+    sql = f"""
+        UPDATE {SAS_SURVEY_SUBSAMPLE_TABLE}
+            SET {set_statement}
+            FROM {SAS_SURVEY_SUBSAMPLE_TABLE} as SSS
+            JOIN {spv_table} as CALC
             ON SSS.SERIAL = CALC.SERIAL
-        """.format(SAS_SURVEY_SUBSAMPLE_TABLE, set_statement, SAS_SURVEY_SUBSAMPLE_TABLE, spv_table)
+        """
 
     cur = conn.cursor()
     cur.execute(sql)
@@ -269,14 +269,14 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
     if step_configuration["name"] == 'UNSAMPLED_WEIGHT':
         order = step_configuration["order"] + 1
         for item in step_configuration["pv_columns2"]:
-            sql = ("""
-                 INSERT INTO {}
-                 ([PROCVAR_NAME], [PROCVAR_RULE], [PROCVAR_ORDER])
-                     (SELECT pv.[PV_NAME], pv.[PV_DEF], {}
-                     FROM [dbo].[PROCESS_VARIABLE_PY] AS pv
-                     WHERE pv.[RUN_ID] = '{}'
-                     AND UPPER(pv.[PV_NAME]) in ({}))
-                 """.format(SAS_PROCESS_VARIABLES_TABLE, order, run_id, item))
+            sql = (f"""
+                 INSERT INTO {SAS_PROCESS_VARIABLES_TABLE}
+                 (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)
+                     (SELECT pv.PV_NAME, pv.PV_DEF, {order}
+                     FROM PROCESS_VARIABLE_PY AS pv
+                     WHERE pv.RUN_ID = '{run_id}'
+                     AND UPPER(pv.[PV_NAME]) in ({item}))
+                 """)
             cur = conn.cursor()
             cur.execute(sql)
             conn.commit()
@@ -287,14 +287,14 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
             cols.append(item)
         pv_columns = ", ".join(map(str, cols))
 
-        sql = """
-            INSERT INTO {}
-            ([PROCVAR_NAME], [PROCVAR_RULE], [PROCVAR_ORDER])
-                (SELECT pv.[PV_NAME], pv.[PV_DEF], {}
-                FROM [dbo].[PROCESS_VARIABLE_PY] AS pv
-                WHERE pv.[RUN_ID] = '{}'
-                AND UPPER(pv.[PV_NAME]) in ({})) 
-        """.format(SAS_PROCESS_VARIABLES_TABLE, step_configuration["order"], run_id, pv_columns)
+        sql = f"""
+            INSERT INTO {SAS_PROCESS_VARIABLES_TABLE}
+            (PROCVAR_NAME, PROCVAR_RULE, PROCVAR_ORDER)
+                (SELECT pv.PV_NAME, pv.PV_DEF, {step_configuration["order"]}
+                FROM PROCESS_VARIABLE_PY AS pv
+                WHERE pv.RUN_ID = '{run_id}'
+                AND UPPER(pv.PV_NAME) in ({pv_columns})) 
+        """
         cur = conn.cursor()
         cur.execute(sql)
         conn.commit()
@@ -318,13 +318,13 @@ def update_step_data_with_step_pv_output(conn, step_configuration):
     # Construct and execute SQL statement
     pv_table = step_configuration["pv_table"]
     data_table = step_configuration["data_table"]
-    sql = """
-            UPDATE {}
-                SET {}
-                FROM {} as SSS
-                JOIN {} as CALC
+    sql = f"""
+            UPDATE {data_table}
+                SET {set_statement}
+                FROM {data_table} as SSS
+                JOIN {pv_table} as CALC
                 ON SSS.REC_ID = CALC.REC_ID
-            """.format(data_table, set_statement, data_table, pv_table)
+            """
 
     cur = conn.cursor()
     cur.execute(sql)
@@ -350,13 +350,13 @@ def sql_update_statement(table_to_update_from, columns_to_update):
     columns = " , ".join(cols)
 
     # Construct SQL statement and execute
-    sql = """
-            UPDATE {}
-            SET {}
-            FROM {} as SSS
-            JOIN {} as temp
+    sql = f"""
+            UPDATE {SAS_SURVEY_SUBSAMPLE_TABLE}
+            SET {columns}
+            FROM {SAS_SURVEY_SUBSAMPLE_TABLE} as SSS
+            JOIN {table_to_update_from} as temp
             ON SSS.SERIAL = temp.SERIAL            
-            """.format(SAS_SURVEY_SUBSAMPLE_TABLE, columns, SAS_SURVEY_SUBSAMPLE_TABLE, table_to_update_from)
+            """
 
     return sql
 
@@ -398,11 +398,11 @@ def update_survey_data_with_step_results(conn, step_configuration):
         sql1 = sql_update_statement(table, results_columns)
     elif step == "IMBALANCE_WEIGHT":
         sql1 = sql_update_statement(table, results_columns)
-        sql2 = """
-                UPDATE {}
-                SET [IMBAL_WT] = 1.00
-                WHERE [IMBAL_WT] IS NULL
-                """.format(SAS_SURVEY_SUBSAMPLE_TABLE)
+        sql2 = f"""
+                UPDATE {SAS_SURVEY_SUBSAMPLE_TABLE}
+                SET IMBAL_WT = 1.00
+                WHERE IMBAL_WT IS NULL
+                """
     elif step == "STAY_IMPUTATION":
         sql1 = sql_update_statement(table, results_columns)
         sql2 = """
@@ -420,21 +420,14 @@ def update_survey_data_with_step_results(conn, step_configuration):
         """
         sql2 = sql_update_statement(table, results_columns)
     else:
-        sql1 = """
-        UPDATE {}
-        SET {}.[SPEND] = {}.[SPEND]
-        FROM {}
-        INNER JOIN {}
-        on ({}.[SERIAL] = {}.[SERIAL])
-        WHERE {}.[SPEND] >=0
-        """.format(SAS_SURVEY_SUBSAMPLE_TABLE,
-                   SAS_SURVEY_SUBSAMPLE_TABLE,
-                   table,
-                   SAS_SURVEY_SUBSAMPLE_TABLE,
-                   table,
-                   SAS_SURVEY_SUBSAMPLE_TABLE,
-                   table,
-                   table)
+        sql1 = f"""
+        UPDATE {SAS_SURVEY_SUBSAMPLE_TABLE}
+        SET {SAS_SURVEY_SUBSAMPLE_TABLE}.SPEND = {table}.SPEND
+        FROM {SAS_SURVEY_SUBSAMPLE_TABLE}
+        INNER JOIN {table}
+        on ({SAS_SURVEY_SUBSAMPLE_TABLE}.SERIAL = {table}.SERIAL)
+        WHERE {table}.SPEND >=0
+        """
 
         sql2 = ""
 
@@ -468,14 +461,14 @@ def store_survey_data_with_step_results(run_id, conn, step_configuration):
     set_statement = " , ".join(cols)
 
     # Create SQL statement and execute
-    sql = """
-    UPDATE {}
-    SET {}
-    FROM {} as SS
-    JOIN {} as SSS
+    sql = f"""
+    UPDATE {SURVEY_SUBSAMPLE_TABLE}
+    SET {set_statement}
+    FROM {SURVEY_SUBSAMPLE_TABLE} as SS
+    JOIN {SAS_SURVEY_SUBSAMPLE_TABLE} as SSS
     ON SS.SERIAL = SSS.SERIAL
-    AND SS.RUN_ID = '{}'
-    """.format(SURVEY_SUBSAMPLE_TABLE, set_statement, SURVEY_SUBSAMPLE_TABLE, SAS_SURVEY_SUBSAMPLE_TABLE, run_id)
+    AND SS.RUN_ID = '{run_id}'
+    """
 
     cur = conn.cursor()
     cur.execute(sql)
@@ -523,11 +516,11 @@ def store_step_summary(run_id, conn, step_configuration):
     selection = " , ".join(selection)
 
     # Create and execute SQL statement
-    sql = """
-    INSERT INTO {}
-    ({})
-    SELECT '{}', {} FROM {}
-    """.format(ps_table, columns, run_id, selection, sas_ps_table)
+    sql = f"""
+    INSERT INTO {ps_table}
+    ({columns})
+    SELECT '{run_id}', {selection} FROM {sas_ps_table}
+    """
 
     try:
         cur = conn.cursor()

@@ -6,9 +6,9 @@ import pandas as pd
 import pytest
 from pandas.util.testing import assert_frame_equal
 
-from ips.calculations.calculate_ips_traffic_weight import do_ips_trafweight_calculation_with_R
-from ips.utils import common_functions as cf, process_variables
-from ips.db import data_management as idm
+from ips import do_ips_trafweight_calculation_with_R
+from ips import common_functions as cf, process_variables
+from ips import data_management as idm
 from tests import common_testing_functions as ctf
 
 with open('data/steps_configuration.json') as config_file: STEP_CONFIGURATION = json.load(config_file)
