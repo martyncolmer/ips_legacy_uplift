@@ -111,3 +111,5 @@ Python/
 ######################
 .idea/*
 venv/*
+.gitignore~
+..gitignore.un~
