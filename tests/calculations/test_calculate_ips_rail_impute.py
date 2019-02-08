@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 from pandas.util.testing import assert_frame_equal
 
-from ips import do_ips_railex_imp
+from ips.calculations.calculate_ips_rail_imputation import do_ips_railex_imp
 
 
 @pytest.mark.parametrize('data_path', [
