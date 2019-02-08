@@ -66,9 +66,8 @@ def nullify_survey_subsample_values(run_id: str, conn, pv_values):
     """
 
     # Execute and commits the SQL command
-    cur = conn.cursor()
-    cur.execute(sql)
-    conn.commit()
+
+    conn.engine.execute(sql)
 
 
 def move_survey_subsample_to_sas_table(run_id, conn, step_name):
@@ -89,7 +88,6 @@ def move_survey_subsample_to_sas_table(run_id, conn, step_name):
     else:
         respnse = "BETWEEN 1 and 6"
 
-    # Create and execute SQL Statement
     sql = f"""
     INSERT INTO {SAS_SURVEY_SUBSAMPLE_TABLE} 
         ({columns})
@@ -100,9 +98,7 @@ def move_survey_subsample_to_sas_table(run_id, conn, step_name):
             AND RESPNSE {respnse})
     """
 
-    cur = conn.cursor()
-    cur.execute(sql)
-    conn.commit()
+    conn.engine.execute(sql)
 
 
 def populate_survey_data_for_step(run_id, conn, step_configuration):
@@ -160,9 +156,7 @@ def populate_step_data(run_id, conn, step_configuration):
     """
 
     try:
-        cur = conn.cursor()
-        cur.execute(sql)
-        conn.commit()
+        conn.engine.execute(sql)
     except Exception as err:
         print(err)
 
@@ -186,7 +180,6 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
     multiple_inserts = ["UNSAMPLED_WEIGHT", "IMBALANCE_WEIGHT", "FARES_IMPUTATION", "SPEND_IMPUTATION",
                         "RAIL_IMPUTATION", "REGIONAL_WEIGHTS", "TOWN_AND_STAY_EXPENDITURE"]
     spv_table = step_configuration["spv_table"]
-    cur = conn.cursor()
 
     # Cleanse tables
     cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
@@ -204,8 +197,7 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
             FROM PROCESS_VARIABLE_PY AS PV WHERE PV.RUN_ID = '{run_id}' 
             AND UPPER(PV.PV_NAME) IN ({item}))
         """
-        cur.execute(sql)
-        conn.commit()
+        conn.engine.execute(sql)
 
 
 def update_survey_data_with_step_pv_output(conn, step_configuration):
@@ -235,9 +227,7 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
             ON SSS.SERIAL = CALC.SERIAL
         """
 
-    cur = conn.cursor()
-    cur.execute(sql)
-    conn.commit()
+    conn.engine.execute(sql)
 
     # Cleanse temp tables
     cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
@@ -277,9 +267,7 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
                      WHERE pv.RUN_ID = '{run_id}'
                      AND UPPER(pv.[PV_NAME]) in ({item}))
                  """)
-            cur = conn.cursor()
-            cur.execute(sql)
-            conn.commit()
+            conn.engine.execute(sql)
             order = order + 1
     else:
         cols = []
@@ -295,9 +283,7 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
                 WHERE pv.RUN_ID = '{run_id}'
                 AND UPPER(pv.PV_NAME) in ({pv_columns})) 
         """
-        cur = conn.cursor()
-        cur.execute(sql)
-        conn.commit()
+        conn.engine.execute(sql)
 
 
 def update_step_data_with_step_pv_output(conn, step_configuration):
@@ -326,9 +312,7 @@ def update_step_data_with_step_pv_output(conn, step_configuration):
                 ON SSS.REC_ID = CALC.REC_ID
             """
 
-    cur = conn.cursor()
-    cur.execute(sql)
-    conn.commit()
+    conn.engine.execute(sql)
 
     # Cleanse temporary tables
     cf.delete_from_table(step_configuration["pv_table"])
@@ -431,11 +415,10 @@ def update_survey_data_with_step_results(conn, step_configuration):
 
         sql2 = ""
 
-    cur = conn.cursor()
-    cur.execute(sql1)
+    conn.engine.execute(sql1)
+
     if sql2 != "":
-        cur.execute(sql2)
-    conn.commit()
+        conn.engine.execute(sql2)
 
     cf.delete_from_table(table)
 
@@ -470,9 +453,7 @@ def store_survey_data_with_step_results(run_id, conn, step_configuration):
     AND SS.RUN_ID = '{run_id}'
     """
 
-    cur = conn.cursor()
-    cur.execute(sql)
-    conn.commit()
+    conn.engine.execute(sql)
 
     if os.getenv("POPULATE_TEST_DATA") == 'True':
         ctf.populate_test_data(SURVEY_SUBSAMPLE_TABLE, run_id, step_configuration, dataset='survey')
@@ -523,9 +504,7 @@ def store_step_summary(run_id, conn, step_configuration):
     """
 
     try:
-        cur = conn.cursor()
-        cur.execute(sql)
-        conn.commit()
+        conn.engine.execute(sql)
     except Exception as err:
         print(err)
 

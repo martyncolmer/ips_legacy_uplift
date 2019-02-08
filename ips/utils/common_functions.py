@@ -5,19 +5,20 @@ Created on 24 Nov 2017
 """
 
 import logging
-import sqlite3
-from sqlite3.dbapi2 import Connection
 from typing import Optional
 import pandas
+import pyodbc
+import os
+import sqlalchemy
 
 
 def database_logger() -> logging.Logger:
     """
     Author        : Elinor Thorne
     Date          : 5 Jan 2018
-    Purpose       : Sets up and returns database logger object   
+    Purpose       : Sets up and returns database logger object
     Parameters    : None
-    Returns       : Database logger object  
+    Returns       : Database logger object
     Requirements  : None
     Dependencies  : social_surveys.setup_logging
     """
@@ -31,12 +32,12 @@ def standard_log_message(err_msg: str, current_working_file: str, func_name: str
     """
     Author        : Elinor Thorne
     Date          : 5 Jan 2018
-    Purpose       : Creates a standard log message which includes the user's 
+    Purpose       : Creates a standard log message which includes the user's
                   : error message, the filename and function name
     Parameters    : err_msg - user's custom error message
                   : current_working_file - source dir path of failure
                   : func_name - source function of failure
-    Returns       : String  
+    Returns       : String
     Requirements  : None
     Dependencies  : None
     """
@@ -46,7 +47,7 @@ def standard_log_message(err_msg: str, current_working_file: str, func_name: str
             + '", in ' + func_name + '()')
 
 
-def get_sql_connection() -> Optional[Connection]:
+def get_sql_connection():
     """
     Author       : Thomas Mahoney / Nassir Mohammad (edits)
     Date         : 11 / 07 / 2018
@@ -59,17 +60,21 @@ def get_sql_connection() -> Optional[Connection]:
     """
 
     # Get credentials and decrypt
-    # username = os.getenv("DB_USER_NAME")
-    # password = os.getenv("DB_PASSWORD")
-    # database = os.getenv("DB_NAME")
-    # server = os.getenv("DB_SERVER")
+    username = os.getenv("DB_USER_NAME")
+    password = os.getenv("DB_PASSWORD")
+    database = os.getenv("DB_NAME")
+    server = os.getenv("DB_SERVER")
 
     # Attempt to connect to the database
     try:
+        # conn = sqlalchemy.create_engine(f"mssql+pyodbc://{username}:{password}@{server}/{database}")
+        conn = sqlalchemy.create_engine\
+            (f"mssql+pyodbc://{username}:{password}@{server}/{database}?driver=ODBC+Driver+17+for+SQL+Server")
+
         # conn = pyodbc.connect(driver="{ODBC Driver 17 for SQL Server}", server=server,
         #                       database=database, uid=username, pwd=password,
         #                       autocommit=True, p_str=None)
-        conn: Connection = sqlite3.connect("../data/ips.db")
+        # conn: Connection = sqlite3.connect("../data/ips.db")
     except Exception as err:
         # print("computer says no")
         database_logger().error(err, exc_info=True)
@@ -82,9 +87,9 @@ def drop_table(table_name: str) -> None:
     """
     Author        : Elinor Thorne
     Date          : 7 Dec 2017
-    Purpose       : Generic SQL query to drop table  
+    Purpose       : Generic SQL query to drop table
     Parameters    : table_name - name of table to drop
-    Returns       : True/False (bool)  
+    Returns       : True/False (bool)
     Requirements  : None
     Dependencies  : check_table()
                   : get_sql_connection()
@@ -96,14 +101,11 @@ def drop_table(table_name: str) -> None:
         print("Cannot get database connection")
         return None
 
-    cur = conn.cursor()
-
     # Create and execute SQL query
     sql = "DROP TABLE " + table_name
 
     try:
-        cur.execute(sql)
-        conn.commit()
+        conn.engine.execute(sql)
     except Exception as err:
         print(err)
 
@@ -113,20 +115,20 @@ def delete_from_table(table_name: str, condition1: str = None, operator: str = N
     """
     Author         : Elinor Thorne
     Date           : 7 Dec 2017
-    Purpose        : Generic SQL query to delete contents of table   
+    Purpose        : Generic SQL query to delete contents of table
     Parameters     : table_name - name of table
                      condition1 - first condition / value
-                     operator - comparison operator i.e    
+                     operator - comparison operator i.e
                      '=' Equal
                      '!=' Not Equal
                      '>' Greater than
                      '>=' Greater than or equal, etc
                      https://www.techonthenet.com/oracle/comparison_operators.php
                      condition2 - second condition / value
-                     condition3 - third condition / value used for BETWEEN 
-                     ranges, i.e: "DELETE FROM table_name WHERE condition1 
+                     condition3 - third condition / value used for BETWEEN
+                     ranges, i.e: "DELETE FROM table_name WHERE condition1
                      BETWEEN condition2 AND condition3"
-    Returns         : True/False (bool)   
+    Returns         : True/False (bool)
     Requirements    : None
     Dependencies    : check_table(),
                       get_sql_connection,
@@ -136,7 +138,6 @@ def delete_from_table(table_name: str, condition1: str = None, operator: str = N
     if conn is None:
         print("Cannot get database connection")
         return None
-    cur = conn.cursor()
 
     # Create and execute SQL query
     if condition1 is None:
@@ -157,8 +158,7 @@ def delete_from_table(table_name: str, condition1: str = None, operator: str = N
                + " AND " + condition3)
 
     try:
-        cur.execute(sql)
-        conn.commit()
+        conn.engine.execute(sql)
     except Exception as err:
         print(err)
 
@@ -186,7 +186,7 @@ def select_data(column_name: str, table_name: str, condition1: str, condition2: 
         """
 
     try:
-        return pandas.read_sql(sql, conn)
+        return pandas.DataFrame(conn.engine.execute(sql))
     except Exception as err:
         print(err)
 
@@ -212,7 +212,7 @@ def get_table_values(table_name: str) -> pandas.DataFrame:
     sql = "SELECT * from " + table_name
 
     try:
-        return pandas.read_sql(sql, con=conn)
+        return pandas.DataFrame(conn.engine.execute(sql))
     except Exception as err:
         print(err)
 
@@ -231,23 +231,76 @@ def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame, fa
 
     # Check if connection to database exists and creates one if necessary.
 
-    conn = get_sql_connection()
-    if conn is None:
+    eng = get_sql_connection()
+
+    if eng is None:
         print("Cannot get database connection")
         return None
 
-    cur = conn.cursor()
+    with eng.connect() as con:
 
-    dataframe = dataframe.where((pandas.notnull(dataframe)), None)
-    dataframe.columns = dataframe.columns.astype(str)
-    dataframe.columns = dataframe.columns.str.upper()
+        dataframe = dataframe.where((pandas.notnull(dataframe)), None)
+        dataframe.columns = dataframe.columns.astype(str)
+        dataframe.columns = dataframe.columns.str.upper()
 
-    try:
-        dataframe.to_sql(table_name, con=conn, if_exists='replace',
-                         chunksize=5000, index=False)
-    except Exception as err:
-        print(err)
-        return None
-    finally:
-        cur.close()
+        try:
+            dataframe.to_sql(table_name, con=con, if_exists='replace',
+                             chunksize=5000, index=False)
+        except Exception as err:
+            print(err)
+            return None
 
+
+# def insert_dataframe_into_table(table_name, dataframe, connection=False, fast=True):
+#     """
+#     Author       : Thomas Mahoney
+#     Date         : 02 Jan 2018
+#     Purpose      : Inserts a full dataframe into an SQL table
+#     Params       : table_name - the name of the target table in the sql database.
+#                    dataframe - the dataframe to be added to the selected table.
+#     Returns      : The number of rows added to the database.
+#     Requirements : NA
+#     Dependencies : NA
+#     """
+#
+#     # Check if connection to database exists and creates one if necessary.
+#     if not connection:
+#         connection = get_sql_connection()
+#
+#     cur = connection.cursor()
+#     cur.fast_executemany = fast
+#
+#     dataframe = dataframe.where((pandas.notnull(dataframe)), None)
+#
+#     # Extract the dataframe values into a collection of rows
+#     rows = [tuple(x) for x in dataframe.values]
+#
+#     # Force the dataframe columns to be uppercase
+#     dataframe.columns = dataframe.columns.astype(str)
+#
+#     # Generate a list of columns from the dataframe column collection
+#     columns_list = dataframe.columns.tolist()
+#
+#     # Create the column header string by stripping the unneeded syntax from the column list+63
+#
+#     columns_string = str(columns_list)
+#     columns_string = columns_string.replace(']', "").replace('[', "").replace("'", "")
+#
+#     # Create a value string to hold the SQL query's parameter placeholders.
+#     value_string = ""
+#
+#     # Populate the string for each column in the dataframe.
+#     for x in range(0, len(dataframe.columns.tolist())):
+#         if x is 0:
+#             value_string += "?"
+#         else:
+#             value_string += ", ?"
+#
+#     # Use the strings created above to build the sql query.
+#     sql = "INSERT into " + table_name + \
+#           "(" + columns_string + ") VALUES (" + value_string + ")"
+#
+#     cur.executemany(sql, rows)
+#
+#     # Returns number of rows added to table for validation
+#     return len(rows)
