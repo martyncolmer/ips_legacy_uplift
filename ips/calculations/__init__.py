@@ -1,6 +1,7 @@
 import multiprocessing
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 
 
 def parallelise_dataframe(df, func):
