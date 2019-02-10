@@ -271,11 +271,12 @@ def do_ips_town_exp_imp(df_survey_data, var_serial, var_final_wt):
         Returns       : row
         """
         for col in range(1, len(row)):
-            new_value = decimal.Decimal(str(row[col])).quantize(decimal.Decimal('0'), rounding=decimal.ROUND_HALF_UP)
-            row[col] = new_value
+            if row[col] > 0.0:
+                new_value = decimal.Decimal(str(row[col])).quantize(decimal.Decimal('0'), rounding=decimal.ROUND_HALF_UP)
+                row[col] = round(new_value)
         return row
 
-    df_output.apply(round_number, axis=1)
+    df_output = df_output.apply(round_number, axis=1)
 
     return df_output
 
