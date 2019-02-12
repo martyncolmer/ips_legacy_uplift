@@ -24,7 +24,6 @@ def import_traffic_data(run_id: str, filename: str) -> None:
     if conn is None:
         print("Cannot get database connection")
         return
-    cur = conn.cursor()
 
     # Convert CSV to dataframe and stage
     dataframe = pd.read_csv(filename)
@@ -74,13 +73,11 @@ def import_traffic_data(run_id: str, filename: str) -> None:
         """.format(table_name, run_id)
 
     try:
-        cf.delete_from_table("")
-        cur.execute(sql)
+        # cf.delete_from_table("")
+        conn.engine.execute(sql)
         cf.insert_dataframe_into_table(table_name, dataframe)
     except Exception as err:
         print(err)
         return None
-    finally:
-        conn.close()
 
     return None

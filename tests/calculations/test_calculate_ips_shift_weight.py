@@ -28,8 +28,8 @@ def test_calculate(data_path):
     # Run the calculation step
     output_data, summary_data = do_ips_shift_weight_calculation(df_surveydata,
                                                                 df_shiftsdata,
-                                                                var_serialNum='SERIAL',
-                                                                var_shiftWeight='SHIFT_WT')
+                                                                serial_number='SERIAL',
+                                                                shift_weight='SHIFT_WT')
 
     df_survey_result = output_data
     df_summary_result = summary_data

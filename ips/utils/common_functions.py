@@ -10,6 +10,7 @@ import pandas
 import pyodbc
 import os
 import sqlalchemy
+import traceback
 
 
 def database_logger() -> logging.Logger:
@@ -160,6 +161,7 @@ def delete_from_table(table_name: str, condition1: str = None, operator: str = N
     try:
         conn.engine.execute(sql)
     except Exception as err:
+        traceback.print_exc()
         print(err)
 
 
@@ -244,63 +246,9 @@ def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame, fa
         dataframe.columns = dataframe.columns.str.upper()
 
         try:
-            dataframe.to_sql(table_name, con=con, if_exists='replace',
-                             chunksize=5000, index=False)
+            dataframe.to_sql(table_name, con=con, if_exists='append',
+                             chunksize=1000, index=False)
         except Exception as err:
             print(err)
             return None
 
-
-# def insert_dataframe_into_table(table_name, dataframe, connection=False, fast=True):
-#     """
-#     Author       : Thomas Mahoney
-#     Date         : 02 Jan 2018
-#     Purpose      : Inserts a full dataframe into an SQL table
-#     Params       : table_name - the name of the target table in the sql database.
-#                    dataframe - the dataframe to be added to the selected table.
-#     Returns      : The number of rows added to the database.
-#     Requirements : NA
-#     Dependencies : NA
-#     """
-#
-#     # Check if connection to database exists and creates one if necessary.
-#     if not connection:
-#         connection = get_sql_connection()
-#
-#     cur = connection.cursor()
-#     cur.fast_executemany = fast
-#
-#     dataframe = dataframe.where((pandas.notnull(dataframe)), None)
-#
-#     # Extract the dataframe values into a collection of rows
-#     rows = [tuple(x) for x in dataframe.values]
-#
-#     # Force the dataframe columns to be uppercase
-#     dataframe.columns = dataframe.columns.astype(str)
-#
-#     # Generate a list of columns from the dataframe column collection
-#     columns_list = dataframe.columns.tolist()
-#
-#     # Create the column header string by stripping the unneeded syntax from the column list+63
-#
-#     columns_string = str(columns_list)
-#     columns_string = columns_string.replace(']', "").replace('[', "").replace("'", "")
-#
-#     # Create a value string to hold the SQL query's parameter placeholders.
-#     value_string = ""
-#
-#     # Populate the string for each column in the dataframe.
-#     for x in range(0, len(dataframe.columns.tolist())):
-#         if x is 0:
-#             value_string += "?"
-#         else:
-#             value_string += ", ?"
-#
-#     # Use the strings created above to build the sql query.
-#     sql = "INSERT into " + table_name + \
-#           "(" + columns_string + ") VALUES (" + value_string + ")"
-#
-#     cur.executemany(sql, rows)
-#
-#     # Returns number of rows added to table for validation
-#     return len(rows)

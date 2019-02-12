@@ -89,32 +89,30 @@ def populate_test_pv_table(conn, run_id, pv_run_id):
         Error explained in http://sourceitsoftware.blogspot.com/2008/06/connection-is-busy-with-results-for.html
         """
 
-    cur = conn.cursor()
-
     cf.delete_from_table('PROCESS_VARIABLE_TESTING', 'RUN_ID', '=', run_id)
     cf.delete_from_table('PROCESS_VARIABLE_PY', 'RUN_ID', '=', run_id)
 
     sql1 = f"""
-    INSERT INTO PROCESS_VARIABLE_TESTING
-    SELECT * FROM PROCESS_VARIABLE_PY
-    WHERE RUN_ID = '{pv_run_id}'
+        INSERT INTO PROCESS_VARIABLE_TESTING
+        SELECT * FROM PROCESS_VARIABLE_PY
+        WHERE RUN_ID = '{pv_run_id}'
     """
 
     sql2 = f"""
-    UPDATE PROCESS_VARIABLE_TESTING
-    SET RUN_ID = '{run_id}'
-    WHERE RUN_ID = '{pv_run_id}'
+        UPDATE PROCESS_VARIABLE_TESTING
+        SET RUN_ID = '{run_id}'
+        WHERE RUN_ID = '{pv_run_id}'
     """
 
     sql3 = f"""
-    INSERT INTO PROCESS_VARIABLE_PY
-    SELECT * FROM PROCESS_VARIABLE_TESTING
-    WHERE RUN_ID = '{run_id}'
+        INSERT INTO PROCESS_VARIABLE_PY
+        SELECT * FROM PROCESS_VARIABLE_TESTING
+        WHERE RUN_ID = '{run_id}'
     """
 
-    cur.execute(sql1)
-    cur.execute(sql2)
-    cur.execute(sql3)
+    conn.engine.execute(sql1)
+    conn.engine.execute(sql2)
+    conn.engine.execute(sql3)
 
 
 def reset_test_tables(run_id, step_config):

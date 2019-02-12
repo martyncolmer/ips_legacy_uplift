@@ -38,4 +38,4 @@ def test_calculate(data_path):
     df_survey_expected = df_survey_expected.sort_values('SERIAL')
     df_survey_expected.index = range(0, len(df_survey_expected))
 
-    assert_frame_equal(surveydata_out, df_survey_expected)
+    assert_frame_equal(surveydata_out, df_survey_expected, check_dtype=False)

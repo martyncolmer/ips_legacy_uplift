@@ -1,7 +1,8 @@
+import sys
+
 import pandas
 
 from ips.utils import common_functions
-import sys
 
 
 def extract_data(df: pandas.DataFrame) -> pandas.DataFrame:
@@ -50,7 +51,7 @@ def extract_data(df: pandas.DataFrame) -> pandas.DataFrame:
     return df_new
 
 
-def import_survey_data(survey_data_path: str, run_id: str) -> None:
+def import_survey_data(survey_data_path: str, run_id: str) -> pandas.DataFrame:
     """
     Author       : Thomas Mahoney
     Date         : 26 / 04 / 2018
@@ -76,6 +77,8 @@ def import_survey_data(survey_data_path: str, run_id: str) -> None:
     if 'INTDATE' in df.columns:
         df['INTDATE'] = df['INTDATE'].astype(str).str.rjust(8, '0')
 
+    # df.Day = df.Day.astype(str)
+
     # Call the extract data function to select only the needed columns.
     df_survey_data = extract_data(df)
 
@@ -84,3 +87,5 @@ def import_survey_data(survey_data_path: str, run_id: str) -> None:
 
     # Insert the imported data into the survey_subsample table on the database.
     common_functions.insert_dataframe_into_table('SURVEY_SUBSAMPLE', df_survey_data)
+    return df_survey_data
+

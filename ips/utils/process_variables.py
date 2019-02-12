@@ -49,8 +49,6 @@ def get_pvs(conn=None):
         conn = cf.get_sql_connection()
 
     # Create a cursor object from the connection
-    cur = conn.cursor()
-
     # Specify the sql query for retrieving the process variable statements from the database
     sql = """SELECT 
                 PROCVAR_NAME,PROCVAR_RULE
@@ -60,10 +58,10 @@ def get_pvs(conn=None):
                 PROCVAR_ORDER"""
 
     # Execute the sql query
-    cur.execute(sql)
+    v = conn.engine.execute(sql)
 
     # Return the pv statements obtained from the sql query
-    return cur.fetchall()
+    return v.fetchall()
 
 
 def process(in_table_name, out_table_name, in_id, dataset):

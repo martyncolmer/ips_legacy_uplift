@@ -55,8 +55,8 @@ def shift_weight_step(run_id, connection):
     survey_data_out, summary_data_out = \
         calculate_ips_shift_weight.do_ips_shift_weight_calculation(survey_data,
                                                                    shift_data,
-                                                                   var_serialNum='SERIAL',
-                                                                   var_shiftWeight='SHIFT_WT')
+                                                                   serial_number='SERIAL',
+                                                                   shift_weight='SHIFT_WT')
 
     # Insert data to SQL
     cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
