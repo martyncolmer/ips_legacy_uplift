@@ -1,7 +1,7 @@
 import sys
 
 import pandas
-
+import ips.dataimport.schemas.survey_data_schema as survey_data_schema
 from ips.utils import common_functions
 
 
@@ -70,7 +70,9 @@ def import_survey_data(survey_data_path: str, run_id: str) -> pandas.DataFrame:
         print("Input file is not a csv")
         sys.exit(1)
 
-    df: pandas.DataFrame = pandas.read_csv(survey_data_path, engine='python')
+    df: pandas.DataFrame = pandas.read_csv(survey_data_path,
+                                           engine='python',
+                                           na_values=['£', '?', ' '], dtype=survey_data_schema.get_schema())
 
     # Fill left side of INTDATE column with an additional 0 if length less than 8 characters
     df.columns = df.columns.str.upper()

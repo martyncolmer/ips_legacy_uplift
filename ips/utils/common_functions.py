@@ -214,7 +214,10 @@ def get_table_values(table_name: str) -> pandas.DataFrame:
     sql = "SELECT * from " + table_name
 
     try:
-        return pandas.DataFrame(conn.engine.execute(sql))
+        res = conn.engine.execute(sql)
+        df = pandas.DataFrame(res.fetchall())
+        df.columns = res.keys()
+        return df
     except Exception as err:
         print(err)
 

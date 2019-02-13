@@ -1,15 +1,15 @@
 import multiprocessing
 import os
-import ips.db.import_reference_data as rd
-import ips.db.import_survey_data as survey
 import uuid
 import ips.utils.common_functions as cf
 import ips.steps.shift_weight as shift_weight
+import ips.db.import_survey_data as survey
+from ips.dataimport.import_csv import import_csv, CSVType
 
 run_id = str(uuid.uuid4())
 
 
-def parallelise_calculation(func_list, df):
+def parallelise_calculation(func_list):
     num_partitions = len(func_list)
     pool = multiprocessing.Pool(num_partitions)
 
@@ -25,55 +25,55 @@ def step_1():
     print(f"shift_weight calculation, process id: {os.getpid()}")
 
 
-def step_2(df):
+def step_2():
     print(f"Calculation 2, process id: {os.getpid()}")
 
 
-def step_3(df):
+def step_3():
     print(f"Calculation 3, process id: {os.getpid()}")
 
 
-def step_4(df):
+def step_4():
     print(f"Calculation 4, process id: {os.getpid()}")
 
 
-def step_5(df):
+def step_5():
     print(f"Calculation 5, process id: {os.getpid()}")
 
 
-def step_6(df):
+def step_6():
     print(f"Calculation 6, process id: {os.getpid()}")
 
 
-def step_7(df):
+def step_7():
     print(f"Calculation 7, process id: {os.getpid()}")
 
 
-def step_8(df):
+def step_8():
     print(f"Calculation 8, process id: {os.getpid()}")
 
 
-def step_9(df):
+def step_9():
     print(f"Calculation 9, process id: {os.getpid()}")
 
 
-def step_10(df):
+def step_10():
     print(f"Calculation 10, process id: {os.getpid()}")
 
 
-def step_11(df):
+def step_11():
     print(f"Calculation 11, process id: {os.getpid()}")
 
 
-def step_12(df):
+def step_12():
     print(f"Calculation 12, process id: {os.getpid()}")
 
 
-def step_13(df):
+def step_13():
     print(f"Calculation 13, process id: {os.getpid()}")
 
 
-def step_14(df):
+def step_14():
     print(f"Calculation 14, process id: {os.getpid()}")
 
 
@@ -98,25 +98,44 @@ reference_data = {
     "Unsampled": "../tests/data/import_data/dec/Unsampled Traffic Dec 2017.csv"
 }
 
-survey_data = "../tests/data/import_data/dec/surveydata.csv"
+survey_data = "../tests/data/import_data/dec/survey_data_in_actual.csv"
 
 
 def run_calculations():
-    df = setup_calculations()
+    setup_calculations()
 
     print("calculations setup done")
 
     for x in dag_adjacency_list:
         lst = dag_adjacency_list[x]
         print(f"--> Start Step: {x}")
-        parallelise_calculation(lst, df)
+        parallelise_calculation(lst)
         print(f"--> End Step: {x}\n")
 
 
 def setup_calculations():
-    for x in reference_data:
-        rd.import_traffic_data(run_id, reference_data[x])
+    import_reference_data()
     return survey.import_survey_data(survey_data, run_id)
+
+
+def import_reference_data():
+    import_sea = import_csv(file_type=CSVType.Sea, run_id=run_id, file_name=reference_data['Sea'])
+    import_air = import_csv(file_type=CSVType.Air, run_id=run_id, file_name=reference_data['Air'])
+    import_tunnel = import_csv(file_type=CSVType.Tunnel, run_id=run_id, file_name=reference_data['Tunnel'])
+    import_shift = import_csv(file_type=CSVType.Shift, run_id=run_id, file_name=reference_data['Shift'])
+    import_non_response = import_csv(file_type=CSVType.NonResponse,
+                                     run_id=run_id,
+                                     file_name=reference_data['Non Response'])
+    import_unsampled = import_csv(file_type=CSVType.Unsampled,
+                                  run_id=run_id,
+                                  file_name=reference_data['Unsampled'])
+
+    import_sea()
+    import_air()
+    import_tunnel()
+    import_shift()
+    import_non_response()
+    import_unsampled()
 
 
 if __name__ == '__main__':

@@ -27,6 +27,7 @@ def import_traffic_data(run_id: str, filename: str) -> None:
 
     # Convert CSV to dataframe and stage
     dataframe = pd.read_csv(filename)
+
     dataframe.columns = dataframe.columns.str.upper()
     dataframe.columns = dataframe.columns.str.replace(' ', '')
     dataframe["RUN_ID"] = run_id
@@ -73,7 +74,6 @@ def import_traffic_data(run_id: str, filename: str) -> None:
         """.format(table_name, run_id)
 
     try:
-        # cf.delete_from_table("")
         conn.engine.execute(sql)
         cf.insert_dataframe_into_table(table_name, dataframe)
     except Exception as err:

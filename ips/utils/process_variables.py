@@ -110,9 +110,9 @@ def process(in_table_name, out_table_name, in_id, dataset):
     # Create a new dataframe from the modified data using the columns specified
     df_out = df_data[columns]
 
-    for column in df_out:
-        if df_out[column].dtype == np.int64:
-            df_out[column] = df_out[column].astype(int)
+    # for column in df_out:
+    #     if df_out[column].dtype == np.int64:
+    #         df_out[column] = df_out[column].astype(int)
 
     # Insert the dataframe to the output table
     cf.insert_dataframe_into_table(out_table_name, df_out)
