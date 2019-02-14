@@ -48,7 +48,7 @@ def standard_log_message(err_msg: str, current_working_file: str, func_name: str
             + '", in ' + func_name + '()')
 
 
-def get_sql_connection():
+def get_sql_connection() -> Optional[sqlalchemy.engine.base.Engine]:
     """
     Author       : Thomas Mahoney / Nassir Mohammad (edits)
     Date         : 11 / 07 / 2018
@@ -69,7 +69,7 @@ def get_sql_connection():
     # Attempt to connect to the database
     try:
         # conn = sqlalchemy.create_engine(f"mssql+pyodbc://{username}:{password}@{server}/{database}")
-        conn = sqlalchemy.create_engine\
+        return sqlalchemy.create_engine\
             (f"mssql+pyodbc://{username}:{password}@{server}/{database}?driver=ODBC+Driver+17+for+SQL+Server")
 
         # conn = pyodbc.connect(driver="{ODBC Driver 17 for SQL Server}", server=server,
@@ -79,9 +79,8 @@ def get_sql_connection():
     except Exception as err:
         # print("computer says no")
         database_logger().error(err, exc_info=True)
-        return None
-    else:
-        return conn
+
+    return None
 
 
 def drop_table(table_name: str) -> None:
@@ -188,7 +187,10 @@ def select_data(column_name: str, table_name: str, condition1: str, condition2: 
         """
 
     try:
-        return pandas.DataFrame(conn.engine.execute(sql))
+        res = conn.engine.execute(sql)
+        df = pandas.DataFrame(res.fetchall())
+        df.columns = res.keys()
+        return df
     except Exception as err:
         print(err)
 
@@ -222,7 +224,7 @@ def get_table_values(table_name: str) -> pandas.DataFrame:
         print(err)
 
 
-def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame, fast=True) -> None:
+def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame) -> None:
     """
     Author       : Thomas Mahoney
     Date         : 02 Jan 2018

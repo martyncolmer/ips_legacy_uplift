@@ -1,4 +1,3 @@
-import numpy as np
 import random
 
 from ips.utils import common_functions as cf
@@ -20,12 +19,13 @@ def modify_values(row, pvs, dataset):
     Requirements : this function must be called through a pandas apply statement.
     Dependencies : NA
     """
-    for pv in pvs:
-        code = str(pv[1])
-        try:
-            exec(code)
-        except KeyError:
-            print("Key Not Found")
+    # for pv in pvs:
+    #
+    #     code = str(pv[1])
+    #     try:
+    #         exec(code)
+    #     except KeyError:
+    #         print("Key Not Found")
 
     if dataset in ('survey', 'shift'):
         row['SHIFT_PORT_GRP_PV'] = str(row['SHIFT_PORT_GRP_PV'])[:10]
@@ -86,7 +86,7 @@ def process(in_table_name, out_table_name, in_id, dataset):
     df_data = cf.get_table_values(in_table_name)
 
     # Fill nan values (Is this needed?)
-    df_data.fillna(value=np.NaN, inplace=True)
+    # df_data.fillna(value=np.NaN, inplace=True)
 
     # Get the process variable statements
     process_variables = get_pvs()

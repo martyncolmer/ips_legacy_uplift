@@ -4,7 +4,7 @@ import time
 import pandas as pd
 
 from ips.calculations import calculate_ips_traffic_weight as tr_calc
-from ips.db import data_management as idm, import_reference_data, import_survey_data
+from ips.db import data_management as idm, import_reference_data
 from ips.utils import common_functions as cf
 
 
