@@ -2,6 +2,9 @@ import random
 
 from ips.utils import common_functions as cf
 import base64
+# for exec
+import math
+import sys
 
 random.seed(123456)
 
@@ -20,12 +23,26 @@ def modify_values(row, pvs, dataset):
     Requirements : this function must be called through a pandas apply statement.
     Dependencies : NA
     """
+
     for pv in pvs:
         code = base64.b64decode(str(pv[1]))
         try:
             exec(code)
+        except ValueError:
+            print(f"Key Not Found for PV: {pv[0]}")
+            print(pvs)
+
         except KeyError:
-            print("Key Not Found")
+            print(f"Key Not Found for PV: {pv[0]}")
+            print(pvs)
+
+        except TypeError:
+            print(f"Type error on PV: {pv[0]}")
+            print(pvs)
+
+        except SyntaxError:
+            print(f"Syntax error in PV: {pv[0]}")
+            print(pvs)
 
     if dataset in ('survey', 'shift'):
         row['SHIFT_PORT_GRP_PV'] = str(row['SHIFT_PORT_GRP_PV'])[:10]

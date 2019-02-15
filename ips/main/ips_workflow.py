@@ -2,6 +2,7 @@ import multiprocessing
 import os
 
 import ips.steps.shift_weight as shift_weight
+import ips.steps.fares_imputation as fares_imputation
 import ips.utils.common_functions as cf
 from functools import partial
 
@@ -19,12 +20,13 @@ def parallelise_calculation(func_list, run_id):
 
 
 def step_1(run_id):
-    shift_weight.shift_weight_step(run_id, cf.get_sql_connection())
     print(f"shift_weight calculation, process id: {os.getpid()}")
+    shift_weight.shift_weight_step(run_id, cf.get_sql_connection())
 
 
 def step_2(run_id):
-    print(f"Calculation 2, process id: {os.getpid()}")
+    print(f"fares_imputation.fares_imputation calculation, process id: {os.getpid()}")
+    fares_imputation.fares_imputation_step(run_id, cf.get_sql_connection())
 
 
 def step_3(run_id):
