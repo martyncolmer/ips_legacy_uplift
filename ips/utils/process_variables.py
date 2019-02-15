@@ -1,6 +1,7 @@
 import random
 
 from ips.utils import common_functions as cf
+import base64
 
 random.seed(123456)
 
@@ -19,13 +20,12 @@ def modify_values(row, pvs, dataset):
     Requirements : this function must be called through a pandas apply statement.
     Dependencies : NA
     """
-    # for pv in pvs:
-    #
-    #     code = str(pv[1])
-    #     try:
-    #         exec(code)
-    #     except KeyError:
-    #         print("Key Not Found")
+    for pv in pvs:
+        code = base64.b64decode(str(pv[1]))
+        try:
+            exec(code)
+        except KeyError:
+            print("Key Not Found")
 
     if dataset in ('survey', 'shift'):
         row['SHIFT_PORT_GRP_PV'] = str(row['SHIFT_PORT_GRP_PV'])[:10]
@@ -33,7 +33,7 @@ def modify_values(row, pvs, dataset):
     return row
 
 
-def get_pvs(conn=None):
+def get_pvs():
     """
     Author       : Thomas Mahoney
     Date         : 27 / 03 / 2018
@@ -44,24 +44,27 @@ def get_pvs(conn=None):
     Dependencies : NA
     """
 
-    # Connect to the database
-    if conn is None:
-        conn = cf.get_sql_connection()
+    engine = cf.get_sql_connection()
 
-    # Create a cursor object from the connection
-    # Specify the sql query for retrieving the process variable statements from the database
-    sql = """SELECT 
-                PROCVAR_NAME,PROCVAR_RULE
-             FROM 
-                SAS_PROCESS_VARIABLE
-             ORDER BY 
-                PROCVAR_ORDER"""
+    if engine is None:
+        raise ConnectionError("Cannot get database connection")
 
-    # Execute the sql query
-    v = conn.engine.execute(sql)
+    with engine.connect() as conn:
 
-    # Return the pv statements obtained from the sql query
-    return v.fetchall()
+        # Create a cursor object from the connection
+        # Specify the sql query for retrieving the process variable statements from the database
+        sql = """SELECT 
+                    PROCVAR_NAME,PROCVAR_RULE
+                 FROM 
+                    SAS_PROCESS_VARIABLE
+                 ORDER BY 
+                    PROCVAR_ORDER"""
+
+        # Execute the sql query
+        v = conn.engine.execute(sql)
+
+        # Return the pv statements obtained from the sql query
+        return v.fetchall()
 
 
 def process(in_table_name, out_table_name, in_id, dataset):

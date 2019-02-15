@@ -2,6 +2,7 @@ from ips.calculations import calculate_ips_shift_weight
 from ips.db import data_management as idm
 from ips.main import STEP_CONFIGURATION
 from ips.utils import common_functions as cf, process_variables
+import ips.dataimport.schemas.sas_shift_schema as sas_shift_schema
 
 
 def shift_weight_step(run_id, connection):
@@ -50,6 +51,8 @@ def shift_weight_step(run_id, connection):
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
     shift_data = cf.get_table_values(STEP_CONFIGURATION[step_name]["data_table"])
+
+    shift_data = sas_shift_schema.convert_dtype(shift_data)
 
     # Calculate Shift Weight
     survey_data_out, summary_data_out = \

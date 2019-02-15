@@ -7,7 +7,6 @@ Created on 24 Nov 2017
 import logging
 from typing import Optional
 import pandas
-import pyodbc
 import os
 import sqlalchemy
 import traceback
@@ -23,9 +22,6 @@ def database_logger() -> logging.Logger:
     Requirements  : None
     Dependencies  : social_surveys.setup_logging
     """
-    # Database logger setup
-    # ss.setup_logging(os.path.dirname(os.getcwd())
-    #                  + "\\IPS_Logger\\IPS_logging_config_debug.json")
     return logging.getLogger(__name__)
 
 
@@ -48,7 +44,7 @@ def standard_log_message(err_msg: str, current_working_file: str, func_name: str
             + '", in ' + func_name + '()')
 
 
-def get_sql_connection() -> Optional[sqlalchemy.engine.base.Engine]:
+def get_sql_connection() -> sqlalchemy.engine.base.Engine:
     """
     Author       : Thomas Mahoney / Nassir Mohammad (edits)
     Date         : 11 / 07 / 2018
@@ -66,21 +62,12 @@ def get_sql_connection() -> Optional[sqlalchemy.engine.base.Engine]:
     database = os.getenv("DB_NAME")
     server = os.getenv("DB_SERVER")
 
-    # Attempt to connect to the database
     try:
-        # conn = sqlalchemy.create_engine(f"mssql+pyodbc://{username}:{password}@{server}/{database}")
         return sqlalchemy.create_engine\
             (f"mssql+pyodbc://{username}:{password}@{server}/{database}?driver=ODBC+Driver+17+for+SQL+Server")
-
-        # conn = pyodbc.connect(driver="{ODBC Driver 17 for SQL Server}", server=server,
-        #                       database=database, uid=username, pwd=password,
-        #                       autocommit=True, p_str=None)
-        # conn: Connection = sqlite3.connect("../data/ips.db")
     except Exception as err:
-        # print("computer says no")
         database_logger().error(err, exc_info=True)
-
-    return None
+        raise err
 
 
 def drop_table(table_name: str) -> None:
@@ -96,18 +83,20 @@ def drop_table(table_name: str) -> None:
                   : database_logger()
     """
 
-    conn = get_sql_connection()
-    if conn is None:
-        print("Cannot get database connection")
-        return None
+    engine = get_sql_connection()
 
-    # Create and execute SQL query
-    sql = "DROP TABLE " + table_name
+    if engine is None:
+        raise ConnectionError("Cannot get database connection")
 
-    try:
-        conn.engine.execute(sql)
-    except Exception as err:
-        print(err)
+    with engine.connect() as conn:
+
+        # Create and execute SQL query
+        sql = "DROP TABLE " + table_name
+
+        try:
+            conn.engine.execute(sql)
+        except Exception as err:
+            print(err)
 
 
 def delete_from_table(table_name: str, condition1: str = None, operator: str = None,
@@ -134,34 +123,36 @@ def delete_from_table(table_name: str, condition1: str = None, operator: str = N
                       get_sql_connection,
     """
 
-    conn = get_sql_connection()
-    if conn is None:
-        print("Cannot get database connection")
-        return None
+    engine = get_sql_connection()
 
-    # Create and execute SQL query
-    if condition1 is None:
-        # DELETE FROM table_name
-        sql = ("DELETE FROM " + table_name)
-    elif condition3 is None:
-        # DELETE FROM table_name WHERE condition1 <operator> condition2
-        sql = ("DELETE FROM " + table_name
-               + " WHERE " + condition1
-               + " " + operator
-               + " '" + condition2 + "'")
-    else:
-        # DELETE FROM table_name WHERE condition1 BETWEEN condition2 AND condition3
-        sql = ("DELETE FROM " + table_name
-               + " WHERE " + condition1
-               + " " + operator
-               + " '" + condition2 + "'"
-               + " AND " + condition3)
+    if engine is None:
+        raise ConnectionError("Cannot get database connection")
 
-    try:
-        conn.engine.execute(sql)
-    except Exception as err:
-        traceback.print_exc()
-        print(err)
+    with engine.connect() as conn:
+
+        # Create and execute SQL query
+        if condition1 is None:
+            # DELETE FROM table_name
+            sql = ("DELETE FROM " + table_name)
+        elif condition3 is None:
+            # DELETE FROM table_name WHERE condition1 <operator> condition2
+            sql = ("DELETE FROM " + table_name
+                   + " WHERE " + condition1
+                   + " " + operator
+                   + " '" + condition2 + "'")
+        else:
+            # DELETE FROM table_name WHERE condition1 BETWEEN condition2 AND condition3
+            sql = ("DELETE FROM " + table_name
+                   + " WHERE " + condition1
+                   + " " + operator
+                   + " '" + condition2 + "'"
+                   + " AND " + condition3)
+
+        try:
+            conn.engine.execute(sql)
+        except Exception as err:
+            traceback.print_exc()
+            print(err)
 
 
 def select_data(column_name: str, table_name: str, condition1: str, condition2: str) -> Optional[pandas.DataFrame]:
@@ -175,24 +166,23 @@ def select_data(column_name: str, table_name: str, condition1: str, condition2: 
     Requirements  : None
     """
 
-    conn = get_sql_connection()
-    if conn is None:
-        print("Cannot get database connection")
-        return None
+    engine = get_sql_connection()
 
-    sql = f"""
-        SELECT {column_name} 
-        FROM {table_name}
-        WHERE {condition1} = '{condition2}'
-        """
+    if engine is None:
+        raise ConnectionError("Cannot get database connection")
 
-    try:
-        res = conn.engine.execute(sql)
-        df = pandas.DataFrame(res.fetchall())
-        df.columns = res.keys()
-        return df
-    except Exception as err:
-        print(err)
+    with engine.connect() as conn:
+
+        sql = f"""
+            SELECT {column_name} 
+            FROM {table_name}
+            WHERE {condition1} = '{condition2}'
+            """
+
+        try:
+            return pandas.read_sql_query(sql, con=conn)
+        except Exception as err:
+            print(err)
 
     return None
 
@@ -207,24 +197,22 @@ def get_table_values(table_name: str) -> pandas.DataFrame:
     Requirements : NA
     Dependencies : NA
     """
-    conn = get_sql_connection()
 
-    if conn is None:
-        print("Cannot get database connection")
-        return pandas.DataFrame()
+    engine = get_sql_connection()
 
-    sql = "SELECT * from " + table_name
+    if engine is None:
+        raise ConnectionError("Cannot get database connection")
 
-    try:
-        res = conn.engine.execute(sql)
-        df = pandas.DataFrame(res.fetchall())
-        df.columns = res.keys()
-        return df
-    except Exception as err:
-        print(err)
+    with engine.connect() as conn:
+
+        try:
+            return pandas.read_sql_table(table_name=table_name, con=conn)
+        except Exception as err:
+            print(err)
 
 
 def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame) -> None:
+
     """
     Author       : Thomas Mahoney
     Date         : 02 Jan 2018
@@ -238,13 +226,13 @@ def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame) ->
 
     # Check if connection to database exists and creates one if necessary.
 
-    eng = get_sql_connection()
+    engine = get_sql_connection()
 
-    if eng is None:
+    if engine is None:
         print("Cannot get database connection")
         return None
 
-    with eng.connect() as con:
+    with engine.connect() as con:
 
         dataframe = dataframe.where((pandas.notnull(dataframe)), None)
         dataframe.columns = dataframe.columns.astype(str)
@@ -256,4 +244,3 @@ def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame) ->
         except Exception as err:
             print(err)
             return None
-
