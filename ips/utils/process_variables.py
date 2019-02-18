@@ -1,10 +1,9 @@
 import random
 
 from ips.utils import common_functions as cf
-import base64
+import numpy as np
 # for exec
 import math
-import sys
 
 random.seed(123456)
 
@@ -25,24 +24,25 @@ def modify_values(row, pvs, dataset):
     """
 
     for pv in pvs:
-        code = base64.b64decode(str(pv[1]))
+        code = pv[1]
+        #  code = base64.b64decode(pv[1]).decode('utf-8')
         try:
             exec(code)
         except ValueError:
             print(f"Key Not Found for PV: {pv[0]}")
-            print(pvs)
+            print(code)
 
         except KeyError:
             print(f"Key Not Found for PV: {pv[0]}")
-            print(pvs)
+            print(code)
 
         except TypeError:
             print(f"Type error on PV: {pv[0]}")
-            print(pvs)
+            print(code)
 
         except SyntaxError:
             print(f"Syntax error in PV: {pv[0]}")
-            print(pvs)
+            print(code)
 
     if dataset in ('survey', 'shift'):
         row['SHIFT_PORT_GRP_PV'] = str(row['SHIFT_PORT_GRP_PV'])[:10]
@@ -105,8 +105,8 @@ def process(in_table_name, out_table_name, in_id, dataset):
     # Extract the table's content into a local dataframe
     df_data = cf.get_table_values(in_table_name)
 
-    # Fill nan values (Is this needed?)
-    # df_data.fillna(value=np.NaN, inplace=True)
+    # Fill nan values
+    df_data.fillna(value=np.NaN, inplace=True)
 
     # Get the process variable statements
     process_variables = get_pvs()

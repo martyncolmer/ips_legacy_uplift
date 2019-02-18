@@ -13,4 +13,5 @@ def parallelise_dataframe(df, func):
 
     pool.close()
     pool.join()
+
     return df

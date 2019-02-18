@@ -26,7 +26,8 @@ def airmiles_step(run_id, connection):
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
 
     # Calculate Air Miles
-    survey_data_out = calculate_ips_airmiles.do_ips_airmiles_calculation(df_surveydata=survey_data, var_serial='SERIAL')
+    survey_data_out = calculate_ips_airmiles.do_ips_airmiles_calculation(df_surveydata=survey_data,
+                                                                         var_serial='SERIAL')
 
     # Insert data to SQL
     cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)

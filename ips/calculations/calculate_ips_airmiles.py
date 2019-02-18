@@ -52,7 +52,8 @@ def calculate_airmiles(df_air_ext: DataFrame) -> DataFrame:
     df_air_ext.fillna(value=np.nan, inplace=True)
 
     # run this in parallel
-    df_air_ext = parallelise_dataframe(df_air_ext, extract_rows)
+    # df_air_ext = parallelise_dataframe(df_air_ext, extract_rows)
+    df_air_ext = extract_rows(df_air_ext)
 
     # Selects and returns the calculated air miles and serials
     df_air_ext = df_air_ext[['SERIAL', 'AIRMILES']]

@@ -3,6 +3,13 @@ import os
 
 import ips.steps.shift_weight as shift_weight
 import ips.steps.fares_imputation as fares_imputation
+import ips.steps.stay_imputation as stay_imputation
+import ips.steps.minimums_weight as minimums_weight
+import ips.steps.spend_imputation as spend_imputation
+import ips.steps.non_response_weight as non_response_weight
+import ips.steps.traffic_weight as traffic_weight
+
+import ips.steps.air_miles as airmiles
 import ips.utils.common_functions as cf
 from functools import partial
 
@@ -31,26 +38,32 @@ def step_2(run_id):
 
 def step_3(run_id):
     print(f"Calculation 3, process id: {os.getpid()}")
+    stay_imputation.stay_imputation_step(run_id, cf.get_sql_connection())
 
 
 def step_4(run_id):
     print(f"Calculation 4, process id: {os.getpid()}")
+    airmiles.airmiles_step(run_id, cf.get_sql_connection())
 
 
 def step_5(run_id):
     print(f"Calculation 5, process id: {os.getpid()}")
+    minimums_weight.minimums_weight_step(run_id, cf.get_sql_connection())
 
 
 def step_6(run_id):
     print(f"Calculation 6, process id: {os.getpid()}")
+    spend_imputation.spend_imputation_step(run_id, cf.get_sql_connection())
 
 
 def step_7(run_id):
     print(f"Calculation 7, process id: {os.getpid()}")
+    non_response_weight.non_response_weight_step(run_id, cf.get_sql_connection())
 
 
 def step_8(run_id):
     print(f"Calculation 8, process id: {os.getpid()}")
+    traffic_weight.traffic_weight_step(run_id, cf.get_sql_connection())
 
 
 def step_9(run_id):
