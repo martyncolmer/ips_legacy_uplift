@@ -7,7 +7,7 @@ from ips.utils import common_functions as cf
 def import_non_response(file_name, file_type, run_id):
     conn = cf.get_sql_connection()
     if conn is None:
-        print("Cannot get database connection")
+        print("import_non_response: Cannot get database connection")
         return
 
     data_schema = non_response_schema.get_schema()

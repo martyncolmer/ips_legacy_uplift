@@ -7,7 +7,7 @@ from ips.utils import common_functions as cf
 def import_shift(file_name, file_type, run_id):
     conn = cf.get_sql_connection()
     if conn is None:
-        print("Cannot get database connection")
+        print("import_shift: Cannot get database connection")
         return
 
     data_schema = shift_schema.get_schema()

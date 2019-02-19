@@ -4,7 +4,7 @@ from ips.main import STEP_CONFIGURATION
 from ips.utils import common_functions as cf, process_variables
 
 
-def town_stay_expenditure_imputation_step(run_id, connection):
+def town_stay_expenditure_imputation_step(run_id):
     """
     Author       : Thomas Mahoney / Elinor Thorne
     Date         : 30 April 2018 / 2 October 2018
@@ -18,10 +18,10 @@ def town_stay_expenditure_imputation_step(run_id, connection):
     step_name = "TOWN_AND_STAY_EXPENDITURE"
 
     # Populate Survey Data For TSE Imputation
-    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
+    idm.populate_survey_data_for_step(run_id, STEP_CONFIGURATION[step_name])
 
     # Copy TSE Imputation PVs For Survey Data
-    idm.copy_step_pvs_for_survey_data(run_id, connection, STEP_CONFIGURATION[step_name])
+    idm.copy_step_pvs_for_survey_data(run_id, STEP_CONFIGURATION[step_name])
 
     # Apply TSE Imputation PVs On Survey Data
     process_variables.process(dataset='survey',
@@ -30,7 +30,7 @@ def town_stay_expenditure_imputation_step(run_id, connection):
                               in_id='serial')
 
     # Update Survey Data with TSE Imputation PV Output
-    idm.update_survey_data_with_step_pv_output(connection, STEP_CONFIGURATION[step_name])
+    idm.update_survey_data_with_step_pv_output(STEP_CONFIGURATION[step_name])
 
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
@@ -44,7 +44,7 @@ def town_stay_expenditure_imputation_step(run_id, connection):
     cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
 
     # Update Survey Data With TSE Imputation Results
-    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+    idm.update_survey_data_with_step_results(STEP_CONFIGURATION[step_name])
 
     # Store Survey Data With TSE Imputation Results
-    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
+    idm.store_survey_data_with_step_results(run_id, STEP_CONFIGURATION[step_name])

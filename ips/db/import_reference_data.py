@@ -22,7 +22,7 @@ def import_traffic_data(run_id: str, filename: str) -> None:
     # Connection variables
     conn = cf.get_sql_connection()
     if conn is None:
-        print("Cannot get database connection")
+        print("import_traffic_data: Cannot get database connection")
         return
 
     # Convert CSV to dataframe and stage

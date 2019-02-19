@@ -10,6 +10,10 @@ import pandas
 import os
 import sqlalchemy
 import traceback
+import common_cache as cac
+
+cache = cac.Cache(expire=100)
+eng = {}
 
 
 def database_logger() -> logging.Logger:
@@ -44,7 +48,7 @@ def standard_log_message(err_msg: str, current_working_file: str, func_name: str
             + '", in ' + func_name + '()')
 
 
-def get_sql_connection() -> sqlalchemy.engine.base.Engine:
+def get_sql_connection():
     """
     Author       : Thomas Mahoney / Nassir Mohammad (edits)
     Date         : 11 / 07 / 2018
@@ -56,6 +60,14 @@ def get_sql_connection() -> sqlalchemy.engine.base.Engine:
     Dependencies : NA
     """
 
+    global eng
+
+    pid = os.getpid()
+
+    if pid in eng:
+        x = eng[pid]
+        return x.connect()
+
     # Get credentials and decrypt
     username = os.getenv("DB_USER_NAME")
     password = os.getenv("DB_PASSWORD")
@@ -63,8 +75,10 @@ def get_sql_connection() -> sqlalchemy.engine.base.Engine:
     server = os.getenv("DB_SERVER")
 
     try:
-        return sqlalchemy.create_engine\
+        engine = sqlalchemy.create_engine \
             (f"mssql+pyodbc://{username}:{password}@{server}/{database}?driver=ODBC+Driver+17+for+SQL+Server")
+        eng[pid] = engine
+        return engine.connect()
     except Exception as err:
         database_logger().error(err, exc_info=True)
         raise err
@@ -83,20 +97,20 @@ def drop_table(table_name: str) -> None:
                   : database_logger()
     """
 
-    engine = get_sql_connection()
+    conn = get_sql_connection()
 
-    if engine is None:
-        raise ConnectionError("Cannot get database connection")
+    if conn is None:
+        raise ConnectionError("drop_table: Cannot get database connection")
 
-    with engine.connect() as conn:
+    # Create and execute SQL query
+    sql = "DROP TABLE IF EXISTS " + table_name
 
-        # Create and execute SQL query
-        sql = "DROP TABLE " + table_name
-
-        try:
-            conn.engine.execute(sql)
-        except Exception as err:
-            print(err)
+    try:
+        conn.engine.execute(sql)
+    except Exception as err:
+        print(err)
+    finally:
+        conn.close()
 
 
 def delete_from_table(table_name: str, condition1: str = None, operator: str = None,
@@ -123,36 +137,36 @@ def delete_from_table(table_name: str, condition1: str = None, operator: str = N
                       get_sql_connection,
     """
 
-    engine = get_sql_connection()
+    conn = get_sql_connection()
 
-    if engine is None:
-        raise ConnectionError("Cannot get database connection")
+    if conn is None:
+        raise ConnectionError("delete_from_table: Cannot get database connection")
 
-    with engine.connect() as conn:
+    # Create and execute SQL query
+    if condition1 is None:
+        # DELETE FROM table_name
+        sql = ("DELETE FROM " + table_name)
+    elif condition3 is None:
+        # DELETE FROM table_name WHERE condition1 <operator> condition2
+        sql = ("DELETE FROM " + table_name
+               + " WHERE " + condition1
+               + " " + operator
+               + " '" + condition2 + "'")
+    else:
+        # DELETE FROM table_name WHERE condition1 BETWEEN condition2 AND condition3
+        sql = ("DELETE FROM " + table_name
+               + " WHERE " + condition1
+               + " " + operator
+               + " '" + condition2 + "'"
+               + " AND " + condition3)
 
-        # Create and execute SQL query
-        if condition1 is None:
-            # DELETE FROM table_name
-            sql = ("DELETE FROM " + table_name)
-        elif condition3 is None:
-            # DELETE FROM table_name WHERE condition1 <operator> condition2
-            sql = ("DELETE FROM " + table_name
-                   + " WHERE " + condition1
-                   + " " + operator
-                   + " '" + condition2 + "'")
-        else:
-            # DELETE FROM table_name WHERE condition1 BETWEEN condition2 AND condition3
-            sql = ("DELETE FROM " + table_name
-                   + " WHERE " + condition1
-                   + " " + operator
-                   + " '" + condition2 + "'"
-                   + " AND " + condition3)
-
-        try:
-            conn.engine.execute(sql)
-        except Exception as err:
-            traceback.print_exc()
-            print(err)
+    try:
+        conn.engine.execute(sql)
+    except Exception as err:
+        traceback.print_exc()
+        print(err)
+    finally:
+        conn.close()
 
 
 def select_data(column_name: str, table_name: str, condition1: str, condition2: str) -> Optional[pandas.DataFrame]:
@@ -166,23 +180,23 @@ def select_data(column_name: str, table_name: str, condition1: str, condition2: 
     Requirements  : None
     """
 
-    engine = get_sql_connection()
+    conn = get_sql_connection()
 
-    if engine is None:
-        raise ConnectionError("Cannot get database connection")
+    if conn is None:
+        raise ConnectionError("select_data: Cannot get database connection")
 
-    with engine.connect() as conn:
+    sql = f"""
+        SELECT {column_name} 
+        FROM {table_name}
+        WHERE {condition1} = '{condition2}'
+        """
 
-        sql = f"""
-            SELECT {column_name} 
-            FROM {table_name}
-            WHERE {condition1} = '{condition2}'
-            """
-
-        try:
-            return pandas.read_sql_query(sql, con=conn)
-        except Exception as err:
-            print(err)
+    try:
+        return pandas.read_sql_query(sql, con=conn)
+    except Exception as err:
+        print(err)
+    finally:
+        conn.close()
 
     return None
 
@@ -198,25 +212,29 @@ def get_table_values(table_name: str) -> pandas.DataFrame:
     Dependencies : NA
     """
 
-    engine = get_sql_connection()
+    if cache[table_name] is not None:
+        return cache[table_name]
 
-    if engine is None:
-        raise ConnectionError("Cannot get database connection")
+    conn = get_sql_connection()
 
-    with engine.connect() as conn:
+    if conn is None:
+        raise ConnectionError("get_table_values: Cannot get database connection")
 
-        try:
-            return pandas.read_sql_table(table_name=table_name, con=conn)
-        except Exception as err:
-            print(err)
+    try:
+        r = pandas.read_sql_table(table_name=table_name, con=conn)
+        cache[table_name] = r
+        return r
+    except Exception as err:
+        print(err)
+    finally:
+        conn.close()
 
 
 def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame) -> None:
-
     """
     Author       : Thomas Mahoney
     Date         : 02 Jan 2018
-    Purpose      : Inserts a full dataframe into an SQL table
+    Purpose      : Inserts a full dataframe into a SQL table
     Params       : table_name - the name of the target table in the sql database.
                    dataframe - the dataframe to be added to the selected table.
     Returns      : The number of rows added to the database.
@@ -226,21 +244,35 @@ def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame) ->
 
     # Check if connection to database exists and creates one if necessary.
 
-    engine = get_sql_connection()
+    conn = get_sql_connection()
 
-    if engine is None:
-        print("Cannot get database connection")
+    if conn is None:
+        print("insert_dataframe_into_table: Cannot get database connection")
         return None
 
-    with engine.connect() as con:
+    dataframe = dataframe.where((pandas.notnull(dataframe)), None)
+    dataframe.columns = dataframe.columns.astype(str)
+    dataframe.columns = dataframe.columns.str.upper()
 
-        dataframe = dataframe.where((pandas.notnull(dataframe)), None)
-        dataframe.columns = dataframe.columns.astype(str)
-        dataframe.columns = dataframe.columns.str.upper()
+    try:
+        dataframe.to_sql(table_name, con=conn, if_exists='append',
+                         chunksize=1000, index=False)
+    except Exception as err:
+        print(err)
+        return None
+    finally:
+        conn.close()
 
-        try:
-            dataframe.to_sql(table_name, con=con, if_exists='append',
-                             chunksize=1000, index=False)
-        except Exception as err:
-            print(err)
-            return None
+
+def execute_sql_statement(sql):
+    conn = get_sql_connection()
+
+    if conn is None:
+        raise ConnectionError("execute_sql_statement: Cannot get database connection")
+
+    try:
+        conn.engine.execute(sql)
+    except Exception as err:
+        print(err)
+    finally:
+        conn.close()

@@ -43,7 +43,7 @@ COLUMNS_TO_MOVE = ['SERIAL', 'AGE', 'AM_PM_NIGHT', 'ANYUNDER16', 'APORTLATDEG', 
                    'FAREKEY', 'TYPEINTERVIEW']
 
 
-def nullify_survey_subsample_values(run_id: str, conn, pv_values):
+def nullify_survey_subsample_values(run_id: str, pv_values):
     """
     Author       : Elinor Thorne
     Date         : Apr 2018
@@ -67,10 +67,10 @@ def nullify_survey_subsample_values(run_id: str, conn, pv_values):
 
     # Execute and commits the SQL command
 
-    conn.engine.execute(sql)
+    cf.execute_sql_statement(sql)
 
 
-def move_survey_subsample_to_sas_table(run_id, conn, step_name):
+def move_survey_subsample_to_sas_table(run_id, step_name):
     """
     Author       : Elinor Thorne
     Date         : Apr 2018
@@ -98,10 +98,10 @@ def move_survey_subsample_to_sas_table(run_id, conn, step_name):
             AND RESPNSE {respnse})
     """
 
-    conn.engine.execute(sql)
+    cf.execute_sql_statement(sql)
 
 
-def populate_survey_data_for_step(run_id, conn, step_configuration):
+def populate_survey_data_for_step(run_id, step_configuration):
     """
     Author       : Elinor Thorne
     Date         : 13 Apr 2018
@@ -118,11 +118,11 @@ def populate_survey_data_for_step(run_id, conn, step_configuration):
     for table in step_configuration["delete_tables"]:
         cf.delete_from_table(table)
 
-    nullify_survey_subsample_values(run_id, conn, step_configuration["nullify_pvs"])
-    move_survey_subsample_to_sas_table(run_id, conn, step_configuration["name"])
+    nullify_survey_subsample_values(run_id, step_configuration["nullify_pvs"])
+    move_survey_subsample_to_sas_table(run_id, step_configuration["name"])
 
 
-def populate_step_data(run_id, conn, step_configuration):
+def populate_step_data(run_id, step_configuration):
     """
     Author       : Elinor Thorne
     Date         : April 2018
@@ -155,16 +155,10 @@ def populate_step_data(run_id, conn, step_configuration):
     WHERE RUN_ID = '{run_id}'
     """
 
-    try:
-        conn.engine.execute(sql)
-    except Exception as err:
-        print(err)
-
-        # TODO: log and handle error
-        pass
+    cf.execute_sql_statement(sql)
 
 
-def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
+def copy_step_pvs_for_survey_data(run_id, step_configuration):
     """
     Author       : Elinor Thorne
     Date         : April 2018
@@ -197,10 +191,10 @@ def copy_step_pvs_for_survey_data(run_id, conn, step_configuration):
             FROM PROCESS_VARIABLE_PY AS PV WHERE PV.RUN_ID = '{run_id}' 
             AND UPPER(PV.PV_NAME) IN ({item}))
         """
-        conn.engine.execute(sql)
+        cf.execute_sql_statement(sql)
 
 
-def update_survey_data_with_step_pv_output(conn, step_configuration):
+def update_survey_data_with_step_pv_output(step_configuration):
     """
     Author       : Elinor Thorne / Nassir Mohammad
     Date         : Apr 2018
@@ -227,7 +221,7 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
             ON SSS.SERIAL = CALC.SERIAL
         """
 
-    conn.engine.execute(sql)
+    cf.execute_sql_statement(sql)
 
     # Cleanse temp tables
     cf.delete_from_table(SAS_PROCESS_VARIABLES_TABLE)
@@ -240,7 +234,7 @@ def update_survey_data_with_step_pv_output(conn, step_configuration):
         cf.delete_from_table(step_configuration["sas_ps_table"])
 
 
-def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
+def copy_step_pvs_for_step_data(run_id, step_configuration):
     """
     Author       : Elinor Thorne / Nassir Mohammad
     Date         : July 2018
@@ -267,7 +261,7 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
                      WHERE pv.RUN_ID = '{run_id}'
                      AND UPPER(pv.[PV_NAME]) in ({item}))
                  """)
-            conn.engine.execute(sql)
+            cf.execute_sql_statement(sql)
             order = order + 1
     else:
         cols = []
@@ -283,10 +277,10 @@ def copy_step_pvs_for_step_data(run_id, conn, step_configuration):
                 WHERE pv.RUN_ID = '{run_id}'
                 AND UPPER(pv.PV_NAME) in ({pv_columns})) 
         """
-        conn.engine.execute(sql)
+        cf.execute_sql_statement(sql)
 
 
-def update_step_data_with_step_pv_output(conn, step_configuration):
+def update_step_data_with_step_pv_output(step_configuration):
     """
     Author       : Elinor Thorne / Nassir Mohammad
     Date         : July 2018
@@ -312,7 +306,7 @@ def update_step_data_with_step_pv_output(conn, step_configuration):
                 ON SSS.REC_ID = CALC.REC_ID
             """
 
-    conn.engine.execute(sql)
+    cf.execute_sql_statement(sql)
 
     # Cleanse temporary tables
     cf.delete_from_table(step_configuration["pv_table"])
@@ -345,7 +339,7 @@ def sql_update_statement(table_to_update_from, columns_to_update):
     return sql
 
 
-def update_survey_data_with_step_results(conn, step_configuration):
+def update_survey_data_with_step_results(step_configuration):
     """
     Author       : Elinor Thorne
     Date         : May 2018
@@ -398,9 +392,9 @@ def update_survey_data_with_step_results(conn, step_configuration):
         UPDATE sss
             SET sss.SPEND = ssi.NEWSPEND
             from SAS_SURVEY_SUBSAMPLE as sss
-	        inner join SAS_SPEND_IMP as ssi on
-	        sss.SERIAL = ssi.SERIAL
-        WHERE sss.SERIAL in (select ssi2.serial from sas_spend_imp ssi2 where ssi2.newspend >= 0)
+            inner join SAS_SPEND_IMP as ssi on
+            sss.SERIAL = ssi.SERIAL
+            WHERE sss.SERIAL in (select ssi2.serial from sas_spend_imp ssi2 where ssi2.newspend >= 0)
         """
         sql2 = sql_update_statement(table, results_columns)
     else:
@@ -415,15 +409,15 @@ def update_survey_data_with_step_results(conn, step_configuration):
 
         sql2 = ""
 
-    conn.engine.execute(sql1)
+    cf.execute_sql_statement(sql1)
 
     if sql2 != "":
-        conn.engine.execute(sql2)
+        cf.execute_sql_statement(sql2)
 
     cf.delete_from_table(table)
 
 
-def store_survey_data_with_step_results(run_id, conn, step_configuration):
+def store_survey_data_with_step_results(run_id, step_configuration):
     """
     Author       : Elinor Thorne
     Date         : April 2018
@@ -453,7 +447,7 @@ def store_survey_data_with_step_results(run_id, conn, step_configuration):
     AND SS.RUN_ID = '{run_id}'
     """
 
-    conn.engine.execute(sql)
+    cf.execute_sql_statement(sql)
 
     if os.getenv("POPULATE_TEST_DATA") == 'True':
         ctf.populate_test_data(SURVEY_SUBSAMPLE_TABLE, run_id, step_configuration, dataset='survey')
@@ -473,7 +467,7 @@ def store_survey_data_with_step_results(run_id, conn, step_configuration):
     cf.delete_from_table(SAS_SURVEY_SUBSAMPLE_TABLE)
 
 
-def store_step_summary(run_id, conn, step_configuration):
+def store_step_summary(run_id, step_configuration):
     """
     Author       : Elinor Thorne
     Date         : May 2018
@@ -498,15 +492,12 @@ def store_step_summary(run_id, conn, step_configuration):
 
     # Create and execute SQL statement
     sql = f"""
-    INSERT INTO {ps_table}
-    ({columns})
-    SELECT '{run_id}', {selection} FROM {sas_ps_table}
+        INSERT INTO {ps_table}
+        ({columns})
+        SELECT '{run_id}', {selection} FROM {sas_ps_table}
     """
 
-    try:
-        conn.engine.execute(sql)
-    except Exception as err:
-        print(err)
+    cf.execute_sql_statement(sql)
 
     if os.getenv("POPULATE_TEST_DATA") == 'True':
         ctf.populate_test_data(ps_table, run_id, step_configuration, dataset='summary')

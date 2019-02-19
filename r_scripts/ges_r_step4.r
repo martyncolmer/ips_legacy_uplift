@@ -15,7 +15,6 @@
 
 #ch <- dbConnect(drv, 'jdbc:sqlserver://the.server.address.net;databaseName=DataWarehouse', 'USERNAME', 'PASSWORD');
 
-library(RJDBC)
 library(ReGenesees)
 library(RODBC)
 
@@ -38,7 +37,7 @@ poprowvec <- sqlFetch(ch, "dbo.poprowvec_traffic")
 survey_input_aux <- sqlFetch(ch, "dbo.survey_traffic_aux")
 
 #close the ODBC connection
-# odbcClose(ch)
+odbcClose(ch)
 
 # set work directory
 # setwd("R:/CASPA/IPS/Testing/Q3 2017/traffic weight")
@@ -89,10 +88,10 @@ survey_input_aux[,"TRAFFIC_WT"]<-survey_input_aux[, "tw_weight"] / survey_input_
 
 r_traffic <- survey_input_aux
 
-# open sql channel
-# ch <- odbcDriverConnect(
-# "Driver=ODBC Driver 17 for SQL Server; Server=localhost; Database=ips; UID=ips; Pwd=yourStrong123Password"
-# )
+open sql channel
+ch <- odbcDriverConnect(
+"Driver=ODBC Driver 17 for SQL Server; Server=localhost; Database=ips; UID=ips; Pwd=yourStrong123Password"
+)
 
 
 # Write data frame to sql

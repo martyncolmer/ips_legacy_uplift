@@ -208,7 +208,7 @@ def run_r_ges_script():
     # TODO: change hardcoded locations
     subprocess.call(["Rscript", "--vanilla", "../r_scripts/ges_r_step4.r"])
 
-    print("R processed finished.")
+    print("R process finished.")
 
 
 # generates the summary data

@@ -4,7 +4,7 @@ from ips.utils import common_functions as cf
 from ips.main import STEP_CONFIGURATION
 
 
-def airmiles_step(run_id, connection):
+def airmiles_step(run_id):
     """
     Author       : Thomas Mahoney / Elinor Thorne
     Date         : 30 April 2018 / 2 October 2018
@@ -20,7 +20,7 @@ def airmiles_step(run_id, connection):
     step_name = "AIR_MILES"
 
     # Populate Survey Data For Air Miles
-    idm.populate_survey_data_for_step(run_id, connection, STEP_CONFIGURATION[step_name])
+    idm.populate_survey_data_for_step(run_id, STEP_CONFIGURATION[step_name])
 
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
@@ -33,7 +33,7 @@ def airmiles_step(run_id, connection):
     cf.insert_dataframe_into_table(STEP_CONFIGURATION[step_name]["temp_table"], survey_data_out)
 
     # Update Survey Data with Air Miles Results
-    idm.update_survey_data_with_step_results(connection, STEP_CONFIGURATION[step_name])
+    idm.update_survey_data_with_step_results(STEP_CONFIGURATION[step_name])
 
     # Store Survey Data with Air Miles Results
-    idm.store_survey_data_with_step_results(run_id, connection, STEP_CONFIGURATION[step_name])
+    idm.store_survey_data_with_step_results(run_id, STEP_CONFIGURATION[step_name])

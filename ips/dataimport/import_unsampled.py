@@ -7,7 +7,7 @@ from ips.utils import common_functions as cf
 def import_unsampled(file_name, file_type, run_id):
     conn = cf.get_sql_connection()
     if conn is None:
-        print("Cannot get database connection")
+        print("import_unsampled: Cannot get database connection")
         return
 
     data_schema = unsampled_schema.get_schema()
