@@ -53,6 +53,9 @@ def do_ips_nrweight_calculation(survey_data, non_response_data, non_response_wei
     df_nonresponsedata_sorted = non_response_data.sort_values(SHIFTS_STRATA)
     df_surveydata_sorted = survey_data.sort_values(SHIFTS_STRATA)
 
+    df_surveydata_sorted[PSW_COLUMN].fillna(value=pd.np.nan, inplace=True)
+
+
     df_psw = df_surveydata_sorted.groupby(SHIFTS_STRATA)[PSW_COLUMN].agg({PSW_COLUMN: 'mean'})
 
     # Flattens the column structure
@@ -63,6 +66,7 @@ def do_ips_nrweight_calculation(survey_data, non_response_data, non_response_wei
 
     # Add gross values using the primary sampling weight and add two new columns
     # to df_grossmignonresp
+    df_grossmignonresp['SHIFT_WT'].fillna(0, inplace=True)
     df_grossmignonresp['grossmignonresp'] = df_grossmignonresp[PSW_COLUMN] * df_grossmignonresp[NR_TOTALS_COLUMN]
 
     df_grossmignonresp['grossordnonresp'] = df_grossmignonresp[PSW_COLUMN] * df_grossmignonresp[NON_MIG_TOTALS_COLUMN]
@@ -70,8 +74,9 @@ def do_ips_nrweight_calculation(survey_data, non_response_data, non_response_wei
     # Validate that non-response totals can be grossed
     df_migtotal_not_zero = df_grossmignonresp[df_grossmignonresp[NR_TOTALS_COLUMN] != 0]
 
+    # TODO: Return error
     if len(df_migtotal_not_zero[df_migtotal_not_zero['grossmignonresp'].isnull()]) > 0:
-        logger.error('Error: Unable to gross up non-response total.')
+        logger.error('Unable to gross up non-response total.')
 
     # Summarise over non-response strata
     df_grossmignonresp = df_grossmignonresp.sort_values(by=NON_RESPONSE_STRATA)
@@ -149,7 +154,7 @@ def do_ips_nrweight_calculation(survey_data, non_response_data, non_response_wei
                             + df_gross_resp_is_zero.columns[0] + " : " + str(record[0])
 
     if len(df_gross_resp_is_zero) > 0:
-        logger.error('Error: Gross response is 0.' + threshold_string)
+        logger.error('Gross response is 0.' + threshold_string)
 
     # Sort df_gnr and df_surveydata ready for producing summary
     df_gnr = df_gnr.sort_values(by=NON_RESPONSE_STRATA)
@@ -212,7 +217,7 @@ def do_ips_nrweight_calculation(survey_data, non_response_data, non_response_wei
                             + df_merged_thresholds.columns[0] + " : " + str(record[0]) + " | " \
                             + df_merged_thresholds.columns[1] + " : " + str(record[1])
     if len(df_merged_thresholds) > 0:
-        logger.warning('WARNING: Respondent count below minimum threshold for : '
+        logger.warning('Respondent count below minimum threshold for : '
                        + threshold_string)
 
     # Reduce output to just key value pairs

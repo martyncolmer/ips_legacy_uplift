@@ -5,10 +5,6 @@ from ips.utils import common_functions as cf
 
 
 def import_traffic(file_name, file_type, run_id):
-    conn = cf.get_sql_connection()
-    if conn is None:
-        print("import_traffic: Cannot get database connection")
-        return
 
     data_schema = traffic_schema.get_schema()
 
@@ -27,12 +23,12 @@ def import_traffic(file_name, file_type, run_id):
     dataframe['DATA_SOURCE_ID'].replace([datasource_type], datasource_id, inplace=True)
 
     sql = f"""
-                    DELETE FROM [TRAFFIC_DATA]
+                    DELETE FROM TRAFFIC_DATA
                     WHERE RUN_ID = '{run_id}'
                     AND DATA_SOURCE_ID = '{datasource_id}'"""
 
     try:
-        conn.engine.execute(sql)
+        cf.execute_sql_statement(sql)
         cf.insert_dataframe_into_table('TRAFFIC_DATA', dataframe)
     except Exception as err:
         print(err)

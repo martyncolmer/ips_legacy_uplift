@@ -10,9 +10,8 @@ import pandas
 import os
 import sqlalchemy
 import traceback
-import common_cache as cac
+import pandas as pd
 
-cache = cac.Cache(expire=100)
 eng = {}
 
 
@@ -212,18 +211,15 @@ def get_table_values(table_name: str) -> pandas.DataFrame:
     Dependencies : NA
     """
 
-    if cache[table_name] is not None:
-        return cache[table_name]
-
     conn = get_sql_connection()
 
     if conn is None:
         raise ConnectionError("get_table_values: Cannot get database connection")
 
     try:
-        r = pandas.read_sql_table(table_name=table_name, con=conn)
-        cache[table_name] = r
-        return r
+        return pandas.read_sql_table(table_name=table_name, con=conn)
+        # df.fillna(value=pd.np.nan, inplace=True)
+        # return df
     except Exception as err:
         print(err)
     finally:

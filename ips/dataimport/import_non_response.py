@@ -5,10 +5,6 @@ from ips.utils import common_functions as cf
 
 
 def import_non_response(file_name, file_type, run_id):
-    conn = cf.get_sql_connection()
-    if conn is None:
-        print("import_non_response: Cannot get database connection")
-        return
 
     data_schema = non_response_schema.get_schema()
     # Convert CSV to dataframe and stage
@@ -30,7 +26,7 @@ def import_non_response(file_name, file_type, run_id):
             """
 
     try:
-        conn.engine.execute(sql)
+        cf.execute_sql_statement(sql)
         cf.insert_dataframe_into_table('NON_RESPONSE_DATA', dataframe)
     except Exception as err:
         print(err)

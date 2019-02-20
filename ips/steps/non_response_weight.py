@@ -10,7 +10,6 @@ def non_response_weight_step(run_id):
     Date         : 26 April 2018 / 2 October 2018
     Purpose      : Runs the non response weight steps of the ips process
     Params       : run_id - the id for the current run.
-                   connection - a connection object pointing at the database.
     Returns      : NA
     """
 
@@ -49,6 +48,7 @@ def non_response_weight_step(run_id):
 
     # Retrieve data from SQL
     survey_data = cf.get_table_values(idm.SAS_SURVEY_SUBSAMPLE_TABLE)
+
     non_response_data = cf.get_table_values(STEP_CONFIGURATION[step_name]["data_table"])
 
     # Calculate Non Response Weight

@@ -5,10 +5,6 @@ from ips.utils import common_functions as cf
 
 
 def import_unsampled(file_name, file_type, run_id):
-    conn = cf.get_sql_connection()
-    if conn is None:
-        print("import_unsampled: Cannot get database connection")
-        return
 
     data_schema = unsampled_schema.get_schema()
     # Convert CSV to dataframe and stage
@@ -27,13 +23,10 @@ def import_unsampled(file_name, file_type, run_id):
     datasource_id = datasource_id
     dataframe['DATA_SOURCE_ID'].replace(['Unsampled'], datasource_id, inplace=True)
 
-    sql = f"""
-                    DELETE FROM NON_RESPONSE_DATA
-                    WHERE RUN_ID = '{run_id}'
-                    """
+    sql = f"DELETE FROM UNSAMPLED_OOH_DATA WHERE RUN_ID = '{run_id}'"
 
     try:
-        conn.engine.execute(sql)
+        cf.execute_sql_statement(sql)
         cf.insert_dataframe_into_table('UNSAMPLED_OOH_DATA', dataframe)
     except Exception as err:
         print(err)

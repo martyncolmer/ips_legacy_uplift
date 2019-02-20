@@ -5,10 +5,6 @@ from ips.utils import common_functions as cf
 
 
 def import_shift(file_name, file_type, run_id):
-    conn = cf.get_sql_connection()
-    if conn is None:
-        print("import_shift: Cannot get database connection")
-        return
 
     data_schema = shift_schema.get_schema()
 
@@ -32,7 +28,7 @@ def import_shift(file_name, file_type, run_id):
             """
 
     try:
-        conn.engine.execute(sql)
+        cf.execute_sql_statement(sql)
         cf.insert_dataframe_into_table('SHIFT_DATA', dataframe)
     except Exception as err:
         print(err)
