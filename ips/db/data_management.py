@@ -59,11 +59,9 @@ def nullify_survey_subsample_values(run_id: str, pv_values):
     columns_to_null = ", ".join(map(str, columns_to_null))
 
     # Create SQL Statement
-    sql = f"""
-    UPDATE {SURVEY_SUBSAMPLE_TABLE} 
-        SET {columns_to_null} 
-        WHERE RUN_ID = '{run_id}'
-    """
+    sql = f"""UPDATE {SURVEY_SUBSAMPLE_TABLE} 
+        SET {columns_to_null}
+        WHERE RUN_ID = '{run_id}'"""
 
     # Execute and commits the SQL command
 
@@ -333,7 +331,7 @@ def sql_update_statement(table_to_update_from, columns_to_update):
             SET {columns}
             FROM {SAS_SURVEY_SUBSAMPLE_TABLE} as SSS
             JOIN {table_to_update_from} as temp
-            ON SSS.SERIAL = temp.SERIAL            
+            ON SSS.SERIAL = temp.SERIAL
             """
 
     return sql

@@ -53,9 +53,6 @@ def do_ips_nrweight_calculation(survey_data, non_response_data, non_response_wei
     df_nonresponsedata_sorted = non_response_data.sort_values(SHIFTS_STRATA)
     df_surveydata_sorted = survey_data.sort_values(SHIFTS_STRATA)
 
-    df_surveydata_sorted[PSW_COLUMN].fillna(value=pd.np.nan, inplace=True)
-
-
     df_psw = df_surveydata_sorted.groupby(SHIFTS_STRATA)[PSW_COLUMN].agg({PSW_COLUMN: 'mean'})
 
     # Flattens the column structure

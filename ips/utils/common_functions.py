@@ -104,10 +104,13 @@ def drop_table(table_name: str) -> None:
     # Create and execute SQL query
     sql = "DROP TABLE IF EXISTS " + table_name
 
+    trans = conn.begin()
     try:
         conn.engine.execute(sql)
+        trans.commit()
     except Exception as err:
         print(err)
+        trans.rollback()
     finally:
         conn.close()
 
@@ -159,10 +162,14 @@ def delete_from_table(table_name: str, condition1: str = None, operator: str = N
                + " '" + condition2 + "'"
                + " AND " + condition3)
 
+    trans = conn.begin()
+
     try:
         conn.engine.execute(sql)
+        trans.commit()
     except Exception as err:
         traceback.print_exc()
+        trans.rollback()
         print(err)
     finally:
         conn.close()
@@ -250,11 +257,15 @@ def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame) ->
     dataframe.columns = dataframe.columns.astype(str)
     dataframe.columns = dataframe.columns.str.upper()
 
+    trans = conn.begin()
+
     try:
         dataframe.to_sql(table_name, con=conn, if_exists='append',
                          chunksize=1000, index=False)
+        trans.commit()
     except Exception as err:
         print(err)
+        trans.rollback()
         return None
     finally:
         conn.close()
@@ -266,9 +277,13 @@ def execute_sql_statement(sql):
     if conn is None:
         raise ConnectionError("execute_sql_statement: Cannot get database connection")
 
+    trans = conn.begin()
+
     try:
         conn.engine.execute(sql)
+        trans.commit()
     except Exception as err:
         print(err)
+        trans.rollback()
     finally:
         conn.close()

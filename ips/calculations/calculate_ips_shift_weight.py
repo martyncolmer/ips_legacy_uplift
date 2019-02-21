@@ -5,8 +5,6 @@ from ips.utils import common_functions as cf
 
 # import survey_support
 
-PATH_TO_TEST_DATA = r"tests/data/calculations/october_2017/shift_weight"
-
 OUTPUT_TABLE_NAME = 'SAS_SHIFT_WT'
 SUMMARY_TABLE_NAME = 'SAS_PS_SHIFT_DATA'
 SHIFTS_STRATA = ['SHIFT_PORT_GRP_PV',
@@ -35,7 +33,7 @@ MINIMUM_WEIGHT_THRESHOLD = '50'
 MAXIMUM_WEIGHT_THRESHOLD = '5000'
 
 
-def _calculate_factor(row, flag):
+def calculate_factor(row, flag):
     """
     Author       : Thomas Mahoney / Nassir Mohammad
     Date         : Apr 2018
@@ -56,7 +54,7 @@ def _calculate_factor(row, flag):
         return np.nan
 
 
-def _calculate_ips_shift_factor(df_shiftsdata, df_surveydata):
+def calculate_ips_shift_factor(df_shiftsdata, df_surveydata):
     """
     Author       :  Thomas Mahoney / Nassir Mohammad
     Date         :  Apr 2018
@@ -129,7 +127,7 @@ def _calculate_ips_shift_factor(df_shiftsdata, df_surveydata):
         .merge(df_totalsampledshifts,
                on=SHIFTS_STRATA, how='left')
 
-    left_join_1[FACTOR_COLUMN] = left_join_1.apply(_calculate_factor, axis=1, args=(FLAG_COLUMN,))
+    left_join_1[FACTOR_COLUMN] = left_join_1.apply(calculate_factor, axis=1, args=(FLAG_COLUMN,))
 
     df_surveydata_merge = left_join_1.drop(['NUMERATOR', 'DENOMINATOR'], 1)
 
@@ -137,7 +135,7 @@ def _calculate_ips_shift_factor(df_shiftsdata, df_surveydata):
     return df_totalsampledshifts, df_possibleshifts, df_surveydata_merge
 
 
-def _calculate_ips_crossing_factor(df_shiftsdata, df_surveydata):
+def calculate_ips_crossing_factor(df_shiftsdata, df_surveydata):
     """
     Author       :  Nassir Mohammad
     Date         :  Apr 2018
@@ -214,7 +212,7 @@ def _calculate_ips_crossing_factor(df_shiftsdata, df_surveydata):
         .merge(df_total_sampled_crossings, on=SHIFTS_STRATA, how='left')
 
     # Calculate crossings factor
-    left_join_1[CROSSING_FACTOR_COLUMN] = left_join_1.apply(_calculate_factor, axis=1, args=(CROSSING_FLAG_COLUMN,))
+    left_join_1[CROSSING_FACTOR_COLUMN] = left_join_1.apply(calculate_factor, axis=1, args=(CROSSING_FLAG_COLUMN,))
 
     # Drop numerator and denominator columns
     df_surveydata_merge = left_join_1.drop(['NUMERATOR', 'DENOMINATOR'], 1)
@@ -240,9 +238,9 @@ def do_ips_shift_weight_calculation(df_surveydata, df_shiftsdata, serial_number,
     """
 
     # Calculate the Shift Factor for the given data sets
-    df_totsampshifts, df_possshifts, df_surveydata_sf = _calculate_ips_shift_factor(df_shiftsdata, df_surveydata)
+    df_totsampshifts, df_possshifts, df_surveydata_sf = calculate_ips_shift_factor(df_shiftsdata, df_surveydata)
     # Calculate the Crossings Factor for the given data sets
-    df_totsampcrossings, df_surveydata_merge = _calculate_ips_crossing_factor(df_shiftsdata, df_surveydata_sf)
+    df_totsampcrossings, df_surveydata_merge = calculate_ips_crossing_factor(df_shiftsdata, df_surveydata_sf)
 
     # The various column sets used for setting columns, sorting columns,
     # aggregating by, merging data frames.
