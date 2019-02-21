@@ -221,5 +221,3 @@ def do_ips_nrweight_calculation(survey_data, non_response_data, non_response_wei
     df_out = df_out[[var_serial, non_response_weight_column]]
 
     return df_out, df_summary
-
-

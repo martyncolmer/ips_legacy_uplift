@@ -10,9 +10,8 @@ import pandas
 import os
 import sqlalchemy
 import traceback
-import pandas as pd
 
-eng = {}
+eng = None
 
 
 def database_logger() -> logging.Logger:
@@ -61,11 +60,8 @@ def get_sql_connection():
 
     global eng
 
-    pid = os.getpid()
-
-    if pid in eng:
-        x = eng[pid]
-        return x.connect()
+    if eng is not None:
+        return eng
 
     # Get credentials and decrypt
     username = os.getenv("DB_USER_NAME")
@@ -76,8 +72,8 @@ def get_sql_connection():
     try:
         engine = sqlalchemy.create_engine \
             (f"mssql+pyodbc://{username}:{password}@{server}/{database}?driver=ODBC+Driver+17+for+SQL+Server")
-        eng[pid] = engine
-        return engine.connect()
+        eng = engine
+        return engine
     except Exception as err:
         database_logger().error(err, exc_info=True)
         raise err
@@ -96,23 +92,19 @@ def drop_table(table_name: str) -> None:
                   : database_logger()
     """
 
-    conn = get_sql_connection()
+    engine = get_sql_connection()
 
-    if conn is None:
+    if engine is None:
         raise ConnectionError("drop_table: Cannot get database connection")
 
     # Create and execute SQL query
     sql = "DROP TABLE IF EXISTS " + table_name
 
-    trans = conn.begin()
-    try:
-        conn.engine.execute(sql)
-        trans.commit()
-    except Exception as err:
-        print(err)
-        trans.rollback()
-    finally:
-        conn.close()
+    with engine.begin() as conn:
+        try:
+            conn.execute(sql)
+        except Exception as err:
+            print(err)
 
 
 def delete_from_table(table_name: str, condition1: str = None, operator: str = None,
@@ -139,9 +131,9 @@ def delete_from_table(table_name: str, condition1: str = None, operator: str = N
                       get_sql_connection,
     """
 
-    conn = get_sql_connection()
+    engine = get_sql_connection()
 
-    if conn is None:
+    if engine is None:
         raise ConnectionError("delete_from_table: Cannot get database connection")
 
     # Create and execute SQL query
@@ -162,17 +154,12 @@ def delete_from_table(table_name: str, condition1: str = None, operator: str = N
                + " '" + condition2 + "'"
                + " AND " + condition3)
 
-    trans = conn.begin()
-
-    try:
-        conn.engine.execute(sql)
-        trans.commit()
-    except Exception as err:
-        traceback.print_exc()
-        trans.rollback()
-        print(err)
-    finally:
-        conn.close()
+    with engine.begin() as conn:
+        try:
+            conn.execute(sql)
+        except Exception as err:
+            traceback.print_exc()
+            print(err)
 
 
 def select_data(column_name: str, table_name: str, condition1: str, condition2: str) -> Optional[pandas.DataFrame]:
@@ -186,9 +173,9 @@ def select_data(column_name: str, table_name: str, condition1: str, condition2: 
     Requirements  : None
     """
 
-    conn = get_sql_connection()
+    engine = get_sql_connection()
 
-    if conn is None:
+    if engine is None:
         raise ConnectionError("select_data: Cannot get database connection")
 
     sql = f"""
@@ -197,12 +184,11 @@ def select_data(column_name: str, table_name: str, condition1: str, condition2: 
         WHERE {condition1} = '{condition2}'
         """
 
-    try:
-        return pandas.read_sql_query(sql, con=conn)
-    except Exception as err:
-        print(err)
-    finally:
-        conn.close()
+    with engine.begin() as conn:
+        try:
+            return pandas.read_sql_query(sql, con=conn)
+        except Exception as err:
+            print(err)
 
     return None
 
@@ -218,19 +204,16 @@ def get_table_values(table_name: str) -> pandas.DataFrame:
     Dependencies : NA
     """
 
-    conn = get_sql_connection()
+    engine = get_sql_connection()
 
-    if conn is None:
+    if engine is None:
         raise ConnectionError("get_table_values: Cannot get database connection")
 
-    try:
-        return pandas.read_sql_table(table_name=table_name, con=conn)
-        # df.fillna(value=pd.np.nan, inplace=True)
-        # return df
-    except Exception as err:
-        print(err)
-    finally:
-        conn.close()
+    with engine.begin() as conn:
+        try:
+            return pandas.read_sql_table(table_name=table_name, con=conn)
+        except Exception as err:
+            print(err)
 
 
 def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame) -> None:
@@ -247,43 +230,39 @@ def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame) ->
 
     # Check if connection to database exists and creates one if necessary.
 
-    conn = get_sql_connection()
+    engine = get_sql_connection()
 
-    if conn is None:
+    if engine is None:
         print("insert_dataframe_into_table: Cannot get database connection")
         return None
 
+    # dataframe = dataframe.where((pandas.notnull(dataframe)), None)
+    # dataframe.columns = dataframe.columns.astype(str)
+    # dataframe.columns = dataframe.columns.str.upper()
     dataframe = dataframe.where((pandas.notnull(dataframe)), None)
+    # Force the dataframe columns to be uppercase
     dataframe.columns = dataframe.columns.astype(str)
-    dataframe.columns = dataframe.columns.str.upper()
 
-    trans = conn.begin()
-
-    try:
-        dataframe.to_sql(table_name, con=conn, if_exists='append',
-                         chunksize=1000, index=False)
-        trans.commit()
-    except Exception as err:
-        print(err)
-        trans.rollback()
-        return None
-    finally:
-        conn.close()
+    with engine.begin() as conn:
+        try:
+            dataframe.to_sql(table_name, con=conn, if_exists='append',
+                             chunksize=5000, index=False)
+        except Exception as err:
+            print(err)
+            return None
 
 
 def execute_sql_statement(sql):
-    conn = get_sql_connection()
 
-    if conn is None:
+    engine = get_sql_connection()
+
+    if engine is None:
         raise ConnectionError("execute_sql_statement: Cannot get database connection")
 
-    trans = conn.begin()
+    with engine.begin() as conn:
 
-    try:
-        conn.engine.execute(sql)
-        trans.commit()
-    except Exception as err:
-        print(err)
-        trans.rollback()
-    finally:
-        conn.close()
+        try:
+            conn.engine.execute(sql)
+        except Exception as err:
+            print(err)
+
