@@ -8,11 +8,8 @@ import logging
 from typing import Optional
 import pandas
 import os
-import sqlalchemy
+import pyodbc
 import traceback
-import pandas as pd
-
-eng = {}
 
 
 def database_logger() -> logging.Logger:
@@ -59,14 +56,6 @@ def get_sql_connection():
     Dependencies : NA
     """
 
-    global eng
-
-    pid = os.getpid()
-
-    if pid in eng:
-        x = eng[pid]
-        return x.connect()
-
     # Get credentials and decrypt
     username = os.getenv("DB_USER_NAME")
     password = os.getenv("DB_PASSWORD")
@@ -74,13 +63,12 @@ def get_sql_connection():
     server = os.getenv("DB_SERVER")
 
     try:
-        engine = sqlalchemy.create_engine \
-            (f"mssql+pyodbc://{username}:{password}@{server}/{database}?driver=ODBC+Driver+17+for+SQL+Server")
-        eng[pid] = engine
-        return engine.connect()
+        conn = pyodbc.connect(driver="{ODBC Driver 17 for SQL Server}", server=server, database=database,
+                              uid=username, pwd=password, autocommit=True)
+        return conn
     except Exception as err:
-        database_logger().error(err, exc_info=True)
-        raise err
+        database_logger().error(err, exc_info = True)
+        return False
 
 
 def drop_table(table_name: str) -> None:
@@ -101,18 +89,16 @@ def drop_table(table_name: str) -> None:
     if conn is None:
         raise ConnectionError("drop_table: Cannot get database connection")
 
+    cur = conn.cursor()
+
     # Create and execute SQL query
     sql = "DROP TABLE IF EXISTS " + table_name
 
-    trans = conn.begin()
     try:
-        conn.engine.execute(sql)
-        trans.commit()
+        cur.execute(sql)
     except Exception as err:
-        print(err)
-        trans.rollback()
-    finally:
-        conn.close()
+        database_logger().error(err, exc_info = True)
+        raise err
 
 
 def delete_from_table(table_name: str, condition1: str = None, operator: str = None,
@@ -144,6 +130,8 @@ def delete_from_table(table_name: str, condition1: str = None, operator: str = N
     if conn is None:
         raise ConnectionError("delete_from_table: Cannot get database connection")
 
+    cur = conn.cursor()
+
     # Create and execute SQL query
     if condition1 is None:
         # DELETE FROM table_name
@@ -162,14 +150,10 @@ def delete_from_table(table_name: str, condition1: str = None, operator: str = N
                + " '" + condition2 + "'"
                + " AND " + condition3)
 
-    trans = conn.begin()
-
     try:
-        conn.engine.execute(sql)
-        trans.commit()
+        cur.execute(sql)
     except Exception as err:
         traceback.print_exc()
-        trans.rollback()
         print(err)
     finally:
         conn.close()
@@ -233,7 +217,7 @@ def get_table_values(table_name: str) -> pandas.DataFrame:
         conn.close()
 
 
-def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame) -> None:
+def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame) -> Optional[int]:
     """
     Author       : Thomas Mahoney
     Date         : 02 Jan 2018
@@ -245,30 +229,54 @@ def insert_dataframe_into_table(table_name: str, dataframe: pandas.DataFrame) ->
     Dependencies : NA
     """
 
-    # Check if connection to database exists and creates one if necessary.
-
     conn = get_sql_connection()
 
     if conn is None:
         print("insert_dataframe_into_table: Cannot get database connection")
         return None
 
+    cur = conn.cursor()
+
     dataframe = dataframe.where((pandas.notnull(dataframe)), None)
+
+    # Extract the dataframe values into a collection of rows
+    rows = [tuple(x) for x in dataframe.values]
+
+    # Force the dataframe columns to be uppercase
     dataframe.columns = dataframe.columns.astype(str)
-    dataframe.columns = dataframe.columns.str.upper()
 
-    trans = conn.begin()
+    # Generate a list of columns from the dataframe column collection
+    columns_list = dataframe.columns.tolist()
 
-    try:
-        dataframe.to_sql(table_name, con=conn, if_exists='append',
-                         chunksize=1000, index=False)
-        trans.commit()
-    except Exception as err:
-        print(err)
-        trans.rollback()
-        return None
-    finally:
-        conn.close()
+    # Create the column header string by stripping the unneeded syntax from the column list+63
+
+    columns_string = str(columns_list)
+    columns_string = columns_string.replace(']', "").replace('[', "").replace("'", "")
+
+    # Create a value string to hold the SQL query's parameter placeholders.
+    value_string = ""
+
+    # Populate the string for each column in the dataframe.
+    for x in range(0, len(dataframe.columns.tolist())):
+        if x is 0:
+            value_string += "?"
+        else:
+            value_string += ", ?"
+
+    # Use the strings created above to build the sql query.
+    sql = "INSERT into " + table_name + \
+          "(" + columns_string + ") VALUES (" + value_string + ")"
+
+
+    # Debugging
+    # for rec in rows:
+    #    print (rec)
+
+    for row in rows:
+        cur.execute(sql, row)
+
+    # Returns number of rows added to table for validation
+    return len(rows)
 
 
 def execute_sql_statement(sql):
@@ -277,13 +285,11 @@ def execute_sql_statement(sql):
     if conn is None:
         raise ConnectionError("execute_sql_statement: Cannot get database connection")
 
-    trans = conn.begin()
+    cur = conn.cursor()
 
     try:
-        conn.engine.execute(sql)
-        trans.commit()
+        cur.execute(sql)
     except Exception as err:
         print(err)
-        trans.rollback()
     finally:
         conn.close()
