@@ -345,9 +345,9 @@ def do_ips_shift_weight_calculation(df_surveydata, df_shiftsdata, serial_number,
     # --------------------------------------------------------------------
     # Calculate shift weight: PS - add round to match expected in test?
     # --------------------------------------------------------------------
-    df_surveydata_merge[shift_weight] = round(
-        df_surveydata_merge[FACTOR_COLUMN] * df_surveydata_merge[CROSSING_FACTOR_COLUMN] * df_surveydata_merge[
-            MIG_SI_COLUMN], 3)
+    df_surveydata_merge[shift_weight] = df_surveydata_merge[FACTOR_COLUMN] \
+                                           * df_surveydata_merge[CROSSING_FACTOR_COLUMN] \
+                                           * df_surveydata_merge[MIG_SI_COLUMN]
 
     # --------------------------------------------------------------------
     # produce shift weight summary output
@@ -358,9 +358,13 @@ def do_ips_shift_weight_calculation(df_surveydata, df_shiftsdata, serial_number,
 
     # Group by the necessary columns and aggregate df_surveydata_merge shift weight
     df_surveydata_merge_sorted_grouped = df_surveydata_merge_sorted.groupby(SHIFTS_STRATA +
-                                                                            [MIG_SI_COLUMN])[shift_weight] \
-        .agg({COUNT_COLUMN: 'count', WEIGHT_SUM_COLUMN: 'sum',
-              MIN_WEIGHT_COLUMN: 'min', AVERAGE_WEIGHT_COLUMN: 'mean', MAX_WEIGHT_COLUMN: 'max'})
+                                                                            [MIG_SI_COLUMN])[shift_weight]\
+        .agg({
+            COUNT_COLUMN: 'count',
+            WEIGHT_SUM_COLUMN: 'sum',
+            MIN_WEIGHT_COLUMN: 'min',
+            AVERAGE_WEIGHT_COLUMN: 'mean',
+            MAX_WEIGHT_COLUMN: 'max'})
 
     # Flatten summary columns to single row after aggregation
     df_surveydata_merge_sorted_grouped = df_surveydata_merge_sorted_grouped.reset_index()
@@ -422,11 +426,11 @@ def do_ips_shift_weight_calculation(df_surveydata, df_shiftsdata, serial_number,
     df_summary_high = df_summary_high.reset_index()
 
     # PS: round column
-    df_summary_high[COUNT_COLUMN] = df_summary_high[COUNT_COLUMN].round(3)
-    df_summary_high[AVERAGE_WEIGHT_COLUMN] = df_summary_high[AVERAGE_WEIGHT_COLUMN].round(3)
-    df_summary_high[MIN_WEIGHT_COLUMN] = df_summary_high[MIN_WEIGHT_COLUMN].round(3)
-    df_summary_high[AVERAGE_WEIGHT_COLUMN] = df_summary_high[AVERAGE_WEIGHT_COLUMN].round(3)
-    df_summary_high[MAX_WEIGHT_COLUMN] = df_summary_high[MAX_WEIGHT_COLUMN].round(3)
+    # df_summary_high[COUNT_COLUMN] = df_summary_high[COUNT_COLUMN].round(3)
+    # df_summary_high[AVERAGE_WEIGHT_COLUMN] = df_summary_high[AVERAGE_WEIGHT_COLUMN].round(3)
+    # df_summary_high[MIN_WEIGHT_COLUMN] = df_summary_high[MIN_WEIGHT_COLUMN].round(3)
+    # df_summary_high[AVERAGE_WEIGHT_COLUMN] = df_summary_high[AVERAGE_WEIGHT_COLUMN].round(3)
+    # df_summary_high[MAX_WEIGHT_COLUMN] = df_summary_high[MAX_WEIGHT_COLUMN].round(3)
 
     # Append total sample crossings and total sample shifts
     df_totsampshifts_appended = df_totsampshifts.append(df_totsampcrossings)

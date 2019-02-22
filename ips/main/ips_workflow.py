@@ -101,22 +101,22 @@ def step_14(run_id):
     airmiles.airmiles_step(run_id)
 
 
-# dag_list = {
-#     1: [step_1, step_8, step_9, step_14],
-#     2: [step_2, step_3, step_10],
-#     3: [step_4],
-#     4: [step_5],
-#     5: [step_6],
-#     6: [step_7],
-#     7: [step_11],
-#     8: [step_13],
-#     9: [step_12]
-# }
-
 dag_list = {
-    1: [step_1, step_2, step_3, step_4, step_5, step_6, step_7, step_8, step_9,
-        step_10, step_11, step_12, step_13, step_14]
+    1: [step_1, step_8, step_9, step_14],
+    2: [step_2, step_3, step_10],
+    3: [step_4],
+    4: [step_5],
+    5: [step_6],
+    6: [step_7],
+    7: [step_11],
+    8: [step_13],
+    9: [step_12]
 }
+
+# dag_list = {
+#     1: [step_1, step_2, step_3, step_4, step_5, step_6, step_7, step_8, step_9,
+#         step_10, step_11, step_12, step_13, step_14]
+# }
 
 
 def run_calculations(run_id):

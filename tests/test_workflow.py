@@ -22,10 +22,6 @@ start_time = time.time()
 print("Module level start time: {}".format(start_time))
 
 
-def database_connection():
-    return cf.get_sql_connection()
-
-
 def setup_module(module):
     """ setup any state specific to the execution of the given module."""
 
